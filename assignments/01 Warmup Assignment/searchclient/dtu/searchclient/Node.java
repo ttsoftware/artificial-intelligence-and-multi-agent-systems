@@ -1,4 +1,4 @@
-package searchclient;
+package dtu.searchclient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Random;
 
-import sc.Command.dir;
-import sc.Command.type;
+import dtu.searchclient.Command.dir;
+import dtu.searchclient.Command.type;
 
 public class Node {
 

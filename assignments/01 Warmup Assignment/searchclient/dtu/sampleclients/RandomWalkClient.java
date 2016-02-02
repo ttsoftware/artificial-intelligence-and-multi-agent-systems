@@ -1,4 +1,4 @@
-package sampleclients;
+package dtu.sampleclients;
 
 import java.io.*;
 import java.util.*;

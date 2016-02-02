@@ -1,4 +1,4 @@
-package searchclient;
+package dtu.searchclient;
 
 import java.util.Comparator;
 

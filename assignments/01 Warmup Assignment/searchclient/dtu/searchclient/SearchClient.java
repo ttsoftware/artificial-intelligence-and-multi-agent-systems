@@ -1,4 +1,4 @@
-package searchclient;
+package dtu.searchclient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,10 +6,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
-import sc.Heuristic.*;
-import sc.Strategy.*;
-import sc.Node;
 
 public class SearchClient {
 	// Auxiliary static classes
@@ -145,7 +141,7 @@ public class SearchClient {
 		SearchClient client = new SearchClient( serverMessages );
 
 		Strategy strategy = null;
-		strategy = new StrategyBFS();
+		strategy = new Strategy.StrategyBFS();
 		// Ex 1:
 		//strategy = new StrategyDFS();
 		

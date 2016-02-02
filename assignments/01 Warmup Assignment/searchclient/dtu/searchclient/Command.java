@@ -1,14 +1,10 @@
-package sampleclients;
+package dtu.searchclient;
 
 import java.util.LinkedList;
 
 public class Command {
 	static {
 		LinkedList< Command > cmds = new LinkedList< Command >();
-		for ( dir d : dir.values() ) {
-			cmds.add( new Command( d ) );
-		}
-
 		for ( dir d1 : dir.values() ) {
 			for ( dir d2 : dir.values() ) {
 				if ( !Command.isOpposite( d1, d2 ) ) {
@@ -23,6 +19,10 @@ public class Command {
 				}
 			}
 		}
+		for ( dir d : dir.values() ) {
+			cmds.add( new Command( d ) );
+		}
+
 
 		every = cmds.toArray( new Command[0] );
 	}

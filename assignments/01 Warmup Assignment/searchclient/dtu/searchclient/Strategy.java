@@ -1,10 +1,9 @@
-package searchclient;
+package dtu.searchclient;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
-import sc.SearchClient.Memory;
-import sc.Node;
+import dtu.searchclient.SearchClient.Memory;
 
 public abstract class Strategy {
 
