@@ -1,0 +1,122 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, hmargin={2.5cm, 2.5cm}, vmargin={2.5cm, 2.5cm}]{geometry}
+
+\usepackage[nottoc,numbib]{tocbibind}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes, shadows, arrows, automata}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+\usepackage[english]{varioref}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{etoolbox}
+\usepackage{seqsplit}
+
+\usepackage{fancyhdr}
+
+\setlength\parindent{0pt}
+\usepackage[parfill]{parskip}
+
+\definecolor{mygray}{rgb}{0.9451,0.9451,0.9451}
+\lstset{
+  backgroundcolor=\color{mygray},
+  basicstyle=\footnotesize\ttfamily,
+  mathescape,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\ttfamily,
+  stepnumber=1,
+  firstnumber=1,
+  numberfirstline=true,
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}},
+  literate={->}{$\rightarrow$}{2}
+           {ε}{$\varepsilon$}{1}
+}
+
+\linespread{1.3}
+
+\title{
+  \vspace{4cm}
+  \begin{flushleft}
+  \Large{\textbf{Audio-based Out of Band Channel key exchange}} \\
+  \large{Applied Cryptography}
+  \end{flushleft}
+  \vspace{0cm}
+  \begin{flushleft}
+  \small
+  \textit{\today}
+  \end{flushleft}
+  \vspace{12cm}
+  \begin{flushleft}
+  \small
+  Troels Thomsen \texttt{152165} \\
+  Rasmus Haarslev \texttt{152175} \\
+  \end{flushleft}
+}
+
+\date{
+	%
+}
+
+\begin{document}
+
+\clearpage
+\pagenumbering{gobble}
+\thispagestyle{empty}
+\maketitle
+
+\newpage
+
+\section{Exercise 1 (Seach Strategies)}
+
+The results for these exercises, look at table~\ref{benchmark-results}.
+
+\subsection{a}
+\label{sub:a}
+
+The shortest length is 19, which we know because BFS will always find the shortest path if implemented correctly. BFS looks at all possible solutions and chooses the best solution.
+
+
+\subsection{b}
+\label{sub:b}
+
+Running SAD2.lvl using the BFS strategy, we run out of memory before it finds any solutions.
+This level is much more complex, since adding extra boxes increases the number of states exponentially, as each box and agent can be on each field in the level.
+
+\begin{figure}[H]
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Level & Client & Time & Memory Used & Solution Length & Nodes Explored \\
+        \hline
+        SAD1 & BFS & 0.04 sec & 9.00MB & 19 & 78 \\
+        \hline
+        SAD1 & DFS &  &  &  & \\
+        \hline
+        SAD2 & BFS & - & - & - & - \\
+        \hline
+        SAD2 & DFS &  &  &  & \\
+        \hline
+        custom & BFS &  &  &  & \\
+        \hline
+        custom & DFS &  &  &  & \\
+        \hline
+    \end{tabular}
+    \caption{Benchmark}
+    \label{benchmark-results}
+\end{figure}
+
+\end{document}
