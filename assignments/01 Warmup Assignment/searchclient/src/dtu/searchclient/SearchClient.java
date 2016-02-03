@@ -1,5 +1,8 @@
 package dtu.searchclient;
 
+import dtu.searchclient.strategy.Strategy;
+import dtu.searchclient.strategy.StrategyBFS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -142,7 +145,7 @@ public class SearchClient {
         SearchClient client = new SearchClient(serverMessages);
 
         Strategy strategy = null;
-        strategy = new Strategy.StrategyBFS();
+        strategy = new StrategyBFS();
         // Ex 1:
         //strategy = new StrategyDFS();
 
