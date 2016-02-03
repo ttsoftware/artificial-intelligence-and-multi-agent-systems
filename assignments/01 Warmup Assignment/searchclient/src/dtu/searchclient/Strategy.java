@@ -83,7 +83,7 @@ public abstract class Strategy {
 	public static class StrategyDFS extends Strategy {
 		public StrategyDFS() {
 			super();
-			// Unimplemented			
+			// Unimplemented
 		}
 
 		public Node getAndRemoveLeaf() {

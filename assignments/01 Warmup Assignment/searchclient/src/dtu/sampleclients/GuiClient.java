@@ -1,4 +1,4 @@
-package searchclient.sampleclients;
+package dtu.sampleclients;
 
 import java.awt.Dimension;
 import java.awt.Font;
