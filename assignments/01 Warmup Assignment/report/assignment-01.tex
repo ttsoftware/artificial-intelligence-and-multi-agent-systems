@@ -52,8 +52,8 @@
 \title{
   \vspace{4cm}
   \begin{flushleft}
-  \Large{\textbf{Audio-based Out of Band Channel key exchange}} \\
-  \large{Applied Cryptography}
+  \Large{\textbf{Warmup Assignment}} \\
+  \large{Artificial Intelligence and Multi Agent Systems}
   \end{flushleft}
   \vspace{0cm}
   \begin{flushleft}
@@ -83,7 +83,8 @@
 
 \section{Exercise 1 (Seach Strategies)}
 
-The results for these exercises, look at table~\ref{benchmark-results}.
+The results for these exercises can be seen in figure~\ref{benchmark-results}.
+
 
 \subsection{a}
 \label{sub:a}
@@ -97,22 +98,35 @@ The shortest length is 19, which we know because BFS will always find the shorte
 Running SAD2.lvl using the BFS strategy, we run out of memory before it finds any solutions.
 This level is much more complex, since adding extra boxes increases the number of states exponentially, as each box and agent can be on each field in the level.
 
+
+\subsection{c}
+\label{sub:c}
+
+The implementation can be seen in the \texttt{StrategyDFS.java} file, and the benchmarks can be seen in figure~\ref{benchmark-results}
+
+
+\subsection{d}
+\label{sub:d}
+
+
+
+
 \begin{figure}[H]
     \begin{tabular}{|c|c|c|c|c|c|}
         \hline
         Level & Client & Time & Memory Used & Solution Length & Nodes Explored \\
         \hline
-        SAD1 & BFS & 0.04 sec & 9.00MB & 19 & 78 \\
+        SAD1 & BFS & 0.13 sec & 9.30MB & 19 & 78 \\
         \hline
-        SAD1 & DFS &  &  &  & \\
+        SAD1 & DFS & 0.10 sec & 6.20MB & 27 & 44 \\
         \hline
         SAD2 & BFS & - & - & - & - \\
         \hline
-        SAD2 & DFS &  &  &  & \\
+        SAD2 & DFS & 7.81 sec & 570.94MB & 5781 & 8799 \\
         \hline
-        custom & BFS &  &  &  & \\
+        custom & BFS & - & - & - & - \\
         \hline
-        custom & DFS &  &  &  & \\
+        custom & DFS & 0.20 sec & 6.82MB & 24 & 24 \\
         \hline
     \end{tabular}
     \caption{Benchmark}

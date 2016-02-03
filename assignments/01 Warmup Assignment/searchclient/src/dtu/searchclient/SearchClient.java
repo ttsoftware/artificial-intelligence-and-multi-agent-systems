@@ -74,7 +74,8 @@ public class SearchClient {
             error("Box colors not supported");
         }
 
-        initialState = new Node(null);
+        // initialState = new Node(null);
+        initialState = new Node(null, line.length() + 5, 70);
 
         while (!line.equals("")) {
             for (int i = 0; i < line.length(); i++) {
