@@ -8,17 +8,18 @@ public class StrategyBestFirst extends Strategy {
 
     private Heuristic heuristic;
 
-    public StrategyBestFirst( Heuristic h ) {
+    public StrategyBestFirst(Heuristic h) {
         super();
         heuristic = h;
         // Unimplemented
     }
+
     public Node getAndRemoveLeaf() {
         // Unimplemented
         return null;
     }
 
-    public void addToFrontier( Node n ) {
+    public void addToFrontier(Node n) {
         // Unimplemented
     }
 
@@ -32,7 +33,7 @@ public class StrategyBestFirst extends Strategy {
         return true;
     }
 
-    public boolean inFrontier( Node n ) {
+    public boolean inFrontier(Node n) {
         // Unimplemented
         return false;
     }
