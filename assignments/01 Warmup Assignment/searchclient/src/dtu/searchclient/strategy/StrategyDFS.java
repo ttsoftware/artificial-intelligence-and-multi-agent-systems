@@ -2,34 +2,35 @@ package dtu.searchclient.strategy;
 
 import dtu.searchclient.Node;
 
+import java.util.Stack;
+
 public class StrategyDFS extends Strategy {
+
+    private Stack<Node> frontier;
+
     public StrategyDFS() {
         super();
-        // Unimplemented
+        frontier = new Stack<>();
     }
 
     public Node getAndRemoveLeaf() {
-        // Unimplemented
-        return null;
+        return frontier.pop();
     }
 
-    public void addToFrontier( Node n ) {
-        // Unimplemented
+    public void addToFrontier(Node n) {
+        frontier.push(n);
     }
 
     public int countFrontier() {
-        // Unimplemented
-        return 0;
+        return frontier.size();
     }
 
     public boolean frontierIsEmpty() {
-        // Unimplemented
-        return true;
+        return frontier.isEmpty();
     }
 
-    public boolean inFrontier( Node n ) {
-        // Unimplemented
-        return false;
+    public boolean inFrontier(Node n) {
+        return frontier.contains(n);
     }
 
     public String toString() {
