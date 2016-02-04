@@ -7,6 +7,7 @@ import dtu.searchclient.strategy.StrategyDFS;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -74,14 +75,35 @@ public class SearchClient {
             error("Box colors not supported");
         }
 
-        // initialState = new Node(null);
-        initialState = new Node(null, line.length() + 5, 70);
+        ArrayList<String> lines = new ArrayList<>();
+
+        int maxColumn = 0;
 
         while (!line.equals("")) {
-            for (int i = 0; i < line.length(); i++) {
-                char chr = line.charAt(i);
+            line = serverMessages.readLine();
+            lines.add(line);
+
+            if (line.length() > maxColumn) {
+                maxColumn = line.length();
+            }
+        }
+
+        Node.setMaxRow(lines.size());
+        Node.setMaxColumn(maxColumn);
+
+        System.err.println(Node.getMaxRow());
+        System.err.println(Node.getMaxColumn());
+
+        Node.setGoals(new char[Node.getMaxRow()][Node.getMaxColumn()]);
+        Node.setWalls(new boolean[Node.getMaxRow()][Node.getMaxColumn()]);
+
+        initialState = new Node(null);
+
+        for (String levelLine : lines) {
+            for (int i = 0; i < levelLine.length(); i++) {
+                char chr = levelLine.charAt(i);
                 if ('+' == chr) { // Walls
-                    initialState.walls[levelLines][i] = true;
+                    Node.walls[levelLines][i] = true;
                 } else if ('0' <= chr && chr <= '9') { // Agents
                     if (agentCol != -1 || agentRow != -1) {
                         error("Not a single agent level");
@@ -91,15 +113,14 @@ public class SearchClient {
                 } else if ('A' <= chr && chr <= 'Z') { // Boxes
                     initialState.boxes[levelLines][i] = chr;
                 } else if ('a' <= chr && chr <= 'z') { // Goal cells
-                    initialState.goals[levelLines][i] = chr;
+                    Node.goals[levelLines][i] = chr;
                 }
             }
-            line = serverMessages.readLine();
             levelLines++;
         }
     }
 
-    public LinkedList<Node> Search(Strategy strategy) throws IOException {
+    public LinkedList<Node> search(Strategy strategy) throws IOException {
         System.err.format("Search starting with strategy %s\n", strategy);
         strategy.addToFrontier(this.initialState);
 
@@ -128,7 +149,8 @@ public class SearchClient {
             }
 
             strategy.addToExplored(leafNode);
-            for (Node n : leafNode.getExpandedNodes()) { // The list of expanded nodes is shuffled randomly; see Node.java
+            for (Node n : leafNode.getExpandedNodes()) {
+                // The list of expanded nodes is shuffled randomly; see Node.java
                 if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
                     strategy.addToFrontier(n);
                 }
@@ -156,7 +178,7 @@ public class SearchClient {
         //strategy = new StrategyBestFirst( new WeightedAStar( client.initialState ) );
         //strategy = new StrategyBestFirst( new Greedy( client.initialState ) );
 
-        LinkedList<Node> solution = client.Search(strategy);
+        LinkedList<Node> solution = client.search(strategy);
 
         if (solution == null) {
             System.err.println("Unable to solve level");
