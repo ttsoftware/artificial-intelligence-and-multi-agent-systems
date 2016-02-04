@@ -108,8 +108,18 @@ The implementation can be seen in the \texttt{StrategyDFS.java} file, and the be
 \subsection{d}
 \label{sub:d}
 
+We designed a custom level with the following layout.
 
+\begin{verbatim}
++++++++
++aAAAa+
++A 0 A+
++a A a+
++A A A+
++++++++
+\end{verbatim}
 
+This particular layout contains a lot of boxes to be moved around, with several goal states to be achieved simultaneously. This creates a very large solution space for BFS to explore in order to find the best solution. DFS on the other hand, can find a solution to this problem much more quickly, since almost any path will lead to a solution.
 
 \begin{figure}[H]
     \begin{tabular}{|c|c|c|c|c|c|}

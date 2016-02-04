@@ -74,8 +74,7 @@ public class SearchClient {
             error("Box colors not supported");
         }
 
-        // initialState = new Node(null);
-        initialState = new Node(null, line.length() + 5, 70);
+        initialState = new Node(null);
 
         while (!line.equals("")) {
             for (int i = 0; i < line.length(); i++) {
@@ -149,7 +148,7 @@ public class SearchClient {
         Strategy strategy = null;
         // strategy = new StrategyBFS();
         // Ex 1:
-        strategy = new StrategyDFS();
+        strategy = new StrategyBFS();
 
         // Ex 3:
         //strategy = new StrategyBestFirst( new AStar( client.initialState ) );

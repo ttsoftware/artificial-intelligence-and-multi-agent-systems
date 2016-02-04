@@ -12,8 +12,8 @@ import dtu.searchclient.Command.type;
 public class Node {
 
 	private static Random rnd = new Random( 1 ); 
-	public int MAX_ROW = 70;
-	public int MAX_COLUMN = 70;
+	public static int MAX_ROW = 70;
+	public static int MAX_COLUMN = 70;
 
 	public int agentRow;
 	public int agentCol;
@@ -28,30 +28,22 @@ public class Node {
 	// walls[row][col] is true if there's a wall at (row, col)
 	//
 
-    // public boolean[][] walls = new boolean[MAX_ROW][MAX_COLUMN];
-    // public char[][] boxes = new char[MAX_ROW][MAX_COLUMN];
-    // public char[][] goals = new char[MAX_ROW][MAX_COLUMN];
-
-	public boolean[][] walls;
-	public char[][] boxes;
-	public char[][] goals;
+    public boolean[][] walls = new boolean[MAX_ROW][MAX_COLUMN];
+    public char[][] boxes = new char[MAX_ROW][MAX_COLUMN];
+    public char[][] goals = new char[MAX_ROW][MAX_COLUMN];
 
 	public Node parent;
 	public Command action;
 
 	private int g;
 
-	public Node( Node parent, int MAX_ROW, int MAX_COLUMN) {
+	public Node( Node parent ) {
 		this.parent = parent;
 		if ( parent == null ) {
 			g = 0;
 		} else {
 			g = parent.g() + 1;
 		}
-
-		this.walls = new boolean[MAX_ROW][MAX_COLUMN];
-        this.boxes = new char[MAX_ROW][MAX_COLUMN];
-        this.goals = new char[MAX_ROW][MAX_COLUMN];
 	}
 
 	public int g() {
@@ -146,8 +138,7 @@ public class Node {
 	}
 
 	private Node ChildNode() {
-        // Node copy = new Node( this );
-		Node copy = new Node( this, this.walls.length, this.walls[0].length);
+        Node copy = new Node( this );
 		for ( int row = 0; row < MAX_ROW; row++ ) {
 			System.arraycopy( this.walls[row], 0, copy.walls[row], 0, MAX_COLUMN );
 			System.arraycopy( this.boxes[row], 0, copy.boxes[row], 0, MAX_COLUMN );
