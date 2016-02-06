@@ -10,7 +10,7 @@ public class Main {
 
         String[] serverArgs = {
                 "-l",
-                "levels/custom.lvl",
+                "levels/friendOfBFS.lvl",
                 "-g",
                 "50",
                 "-c",
