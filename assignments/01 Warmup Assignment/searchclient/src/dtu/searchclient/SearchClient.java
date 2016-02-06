@@ -148,7 +148,7 @@ public class SearchClient {
         Strategy strategy = null;
         // strategy = new StrategyBFS();
         // Ex 1:
-        strategy = new StrategyBFS();
+        strategy = new StrategyDFS();
 
         // Ex 3:
         //strategy = new StrategyBestFirst( new AStar( client.initialState ) );
