@@ -108,7 +108,34 @@ The implementation can be seen in the \texttt{StrategyDFS.java} file, and the be
 \subsection{d}
 \label{sub:d}
 
+We designed a custom level for DFS with the following layout.
 
+\begin{verbatim}
++++++++
++aAAAa+
++A 0 A+
++a A a+
++A A A+
++++++++
+\end{verbatim}
+
+This particular layout contains a lot of boxes to be moved around, with several goal states to be achieved simultaneously. This creates a very large solution space for BFS to explore in order to find the best solution. DFS on the other hand, can find a solution to this problem much more quickly, since almost any path will lead to a solution.
+
+
+\subsection{e}
+\label{sub:e}
+
+We designed a custom level for BFS with the following layout.
+
+\begin{verbatim}
++++++++++++++++++++++++++++++++++++++++++
++aA                                     +
++aA0B                                   +
++                                       +
++++++++++++++++++++++++++++++++++++++++++
+\end{verbatim}
+
+This particular layout is designed, so that the agent must look all directions in order to find the right direction to solve the level quickly. An ideal solution would make it so that the agent should go in all direction to solve it quickly. DFS is very slow for this level, since the space it can move the boxes around in is very large, so exploring a single path leads to a very slow solution.
 
 
 \begin{figure}[H]
@@ -122,15 +149,64 @@ The implementation can be seen in the \texttt{StrategyDFS.java} file, and the be
         \hline
         SAD2 & BFS & - & - & - & - \\
         \hline
-        SAD2 & DFS & 7.81 sec & 570.94MB & 5781 & 8799 \\
+        SAD2 & DFS & 7.81 sec & 570.94MB & 5781 & 6799 \\
         \hline
-        custom & BFS & - & - & - & - \\
+        friendOfDFS & BFS & - & - & - & - \\
         \hline
-        custom & DFS & 0.20 sec & 6.82MB & 24 & 24 \\
+        friendOfDFS & DFS & 0.20 sec & 6.82MB & 94 & 94 \\
+        \hline
+        friendOfBFS & BFS & 0.20 sec & 5.58MB & 2 & 17 \\
+        \hline
+        friendOfBFS & DFS & - & - & - & - \\
         \hline
     \end{tabular}
-    \caption{Benchmark}
+    \caption{Benchmark without optimisations}
     \label{benchmark-results}
 \end{figure}
+
+
+\section{Exercise 2 (Optimisations)}
+\label{sec:Exercise 2 (Optimisations)}
+
+\subsection{a}
+\label{sub:a}
+
+\begin{figure}[H]
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Level & Client & Time & Memory Used & Solution Length & Nodes Explored \\
+        \hline
+        SAD1 & BFS & 0.08 sec & 2.48MB & 19 & 78 \\
+        \hline
+        SAD1 & DFS & 0.07 sec & 2.48MB & 27 & 44 \\
+        \hline
+        SAD2 & BFS & - & - & - & - \\
+        \hline
+        SAD2 & DFS & 5.33 sec & 18.64MB & 5781 & 6799 \\
+        \hline
+        friendOfDFS & BFS & - & - & - & - \\
+        \hline
+        friendOfDFS & DFS & 0.14 sec & 2.48MB & 94 & 94 \\
+        \hline
+        friendOfBFS & BFS & 0.08 sec & 2.48MB & 2 & 17 \\
+        \hline
+        friendOfBFS & DFS & 26.81 sec & 53.24MB & 20435 & 33912 \\
+        \hline
+    \end{tabular}
+    \caption{Benchmark with optimisations for exercise 2a}
+    \label{benchmark-results}
+\end{figure}
+
+
+\subsection{b}
+\label{sub:b}
+
+Using a hashmap to keep track of all the boxes will yeild a constant lookup time, and will use much less memory in almost any level that contains less boxes than total fields. Hashmaps has a bit of overhead, but in most cases, this will still be a net loss of memory usage.
+
+With these changes, we would be able to find the goalState in constant time, as it wouldn't have to look through the entire board, but instead would just be able to look at where the boxes are directly.
+
+getExpandedNodes would run slower with our changes, as it would no longer be able to lookup a specific field on the board in constant time. Instead, it would have to look through the locations of all boxes in order to make sure a given field is not occupied.
+
+
 
 \end{document}

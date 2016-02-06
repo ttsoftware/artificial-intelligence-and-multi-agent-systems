@@ -10,9 +10,11 @@ public class Main {
 
         String[] serverArgs = {
                 "-l",
-                "levels/custom.lvl",
+                "levels/friendofBFS.lvl",
                 "-g",
                 "50",
+                "-t",
+                "60",
                 "-c",
                 "java -jar out/artifacts/searchclient_jar/searchclient.jar"
         };

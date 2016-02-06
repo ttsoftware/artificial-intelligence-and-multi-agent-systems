@@ -91,6 +91,7 @@ public class Node {
                 if (boxAt(newAgentRow, newAgentCol)) {
                     int newBoxRow = newAgentRow + dirToRowChange(c.dir2);
                     int newBoxCol = newAgentCol + dirToColChange(c.dir2);
+
                     // .. and that new cell of box is free
                     if (cellIsFree(newBoxRow, newBoxCol)) {
                         Node n = this.ChildNode();
@@ -125,10 +126,6 @@ public class Node {
     }
 
     private boolean cellIsFree(int row, int col) {
-
-        if (row < 0 || row >= maxRow) return false;
-        if (col < 0 || col >= maxColumn) return false;
-
         return (!walls[row][col] && this.boxes[row][col] == 0);
     }
 

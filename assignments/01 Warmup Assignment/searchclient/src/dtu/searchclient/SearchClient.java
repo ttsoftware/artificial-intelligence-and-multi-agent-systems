@@ -80,8 +80,8 @@ public class SearchClient {
         int maxColumn = 0;
 
         while (!line.equals("")) {
-            line = serverMessages.readLine();
             lines.add(line);
+            line = serverMessages.readLine();
 
             if (line.length() > maxColumn) {
                 maxColumn = line.length();
