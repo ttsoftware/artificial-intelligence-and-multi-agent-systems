@@ -28,9 +28,9 @@ public class Node {
 	// walls[row][col] is true if there's a wall at (row, col)
 	//
 
-	public boolean[][] walls = new boolean[MAX_ROW][MAX_COLUMN];
-	public char[][] boxes = new char[MAX_ROW][MAX_COLUMN]; 
-	public char[][] goals = new char[MAX_ROW][MAX_COLUMN];
+    public boolean[][] walls = new boolean[MAX_ROW][MAX_COLUMN];
+    public char[][] boxes = new char[MAX_ROW][MAX_COLUMN];
+    public char[][] goals = new char[MAX_ROW][MAX_COLUMN];
 
 	public Node parent;
 	public Command action;
@@ -138,7 +138,7 @@ public class Node {
 	}
 
 	private Node ChildNode() {
-		Node copy = new Node( this );
+        Node copy = new Node( this );
 		for ( int row = 0; row < MAX_ROW; row++ ) {
 			System.arraycopy( this.walls[row], 0, copy.walls[row], 0, MAX_COLUMN );
 			System.arraycopy( this.boxes[row], 0, copy.boxes[row], 0, MAX_COLUMN );
