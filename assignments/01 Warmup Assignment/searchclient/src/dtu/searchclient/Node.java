@@ -1,13 +1,11 @@
 package dtu.searchclient;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Predicate;
 
 import dtu.searchclient.Command.dir;
 import dtu.searchclient.Command.type;
+import javafx.util.Pair;
 
 public class Node {
 
@@ -30,11 +28,16 @@ public class Node {
 
     public static boolean[][] walls;
     public static char[][] goals;
-    public char[][] boxes;
     public static int boxCount;
+    private char[][] boxes;
 
-    public Node parent;
-    public Command action;
+    private List<Pair<Integer, Integer>> boxesLocations = new ArrayList<>();
+
+    // We store the goal locations in a list for faster iteration
+    public static List<Pair<Integer, Integer>> goalLocations = new ArrayList<>();
+
+    private Node parent;
+    private Command action;
 
     private int g;
 
@@ -101,6 +104,13 @@ public class Node {
                         n.agentCol = newAgentCol;
                         n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
                         n.boxes[newAgentRow][newAgentCol] = 0;
+
+                        // update the boxes list
+                        n.boxesLocations.add(new Pair<>(newBoxRow, newBoxCol));
+                        n.boxesLocations.removeIf(location -> {
+                            return location.getKey() == newAgentRow && location.getValue() == newAgentCol;
+                        });
+
                         expandedNodes.add(n);
                     }
                 }
@@ -117,6 +127,13 @@ public class Node {
                         n.agentCol = newAgentCol;
                         n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
                         n.boxes[boxRow][boxCol] = 0;
+
+                        // update the boxes list
+                        n.boxesLocations.add(new Pair<>(agentRow, agentCol));
+                        n.boxesLocations.removeIf(location -> {
+                            return location.getKey() == boxRow && location.getValue() == boxCol;
+                        });
+
                         expandedNodes.add(n);
                     }
                 }
@@ -150,6 +167,7 @@ public class Node {
         Node copy = new Node(this);
         for (int row = 0; row < maxRow; row++) {
             System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxColumn);
+            copy.setBoxesLocations(this.boxesLocations);
         }
         return copy;
     }
@@ -239,4 +257,30 @@ public class Node {
     public void setAgentCol(int agentCol) {
         this.agentCol = agentCol;
     }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
+    }
+
+    public Command getAction() {
+        return action;
+    }
+
+    public void setAction(Command action) {
+        this.action = action;
+    }
+
+    public List<Pair<Integer, Integer>> getBoxesLocations() {
+        return boxesLocations;
+    }
+
+    public void setBoxesLocations(List<Pair<Integer, Integer>> boxesLocations) {
+        this.boxesLocations = boxesLocations;
+    }
+
+    public void addBoxLocation(Pair<Integer, Integer> location) { boxesLocations.add(location); }
 }

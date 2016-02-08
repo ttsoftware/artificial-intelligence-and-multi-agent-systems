@@ -1,6 +1,7 @@
 package dtu.searchclient.heuristic;
 
 import dtu.searchclient.Node;
+import javafx.util.Pair;
 
 import java.util.Comparator;
 
@@ -26,46 +27,57 @@ public abstract class Heuristic implements Comparator<Node> {
         // we wish to calculate the distance the boxes have from the goal
         char[][] boxes = n.getBoxes();
 
-        int distanceFromGoal = 0;
+        /*int totalDistance = distanceFromGoal(
+                boxLocation.getKey(),
+                boxLocation.getValue(),
+                boxes[boxLocation.getKey()][boxLocation.getValue()]
+        );*/
+
+        int totalDistance = 0;
+
+        for (Pair<Integer, Integer> boxLocation : n.getBoxesLocations()) {
+            totalDistance += distanceFromGoal(
+                    boxLocation.getKey(),
+                    boxLocation.getValue(),
+                    boxes[boxLocation.getKey()][boxLocation.getValue()]
+            );
+        }
+
+        int oldTotalDistance = 0;
 
         for (int boxesRow = 0; boxesRow < boxes.length; boxesRow++) {
             for (int boxesCol = 0; boxesCol < boxes[boxesRow].length; boxesCol++) {
                 if (n.boxAt(boxesRow, boxesCol)) {
                     // we are in box boxesRow,boxesCol
-                    distanceFromGoal += distanceFromGoal(boxesRow, boxesCol, boxes[boxesRow][boxesCol]);
+                    oldTotalDistance += distanceFromGoal(boxesRow, boxesCol, boxes[boxesRow][boxesCol]);
                 }
             }
         }
 
-        // we return the average
-        return distanceFromGoal / Node.boxCount;
+        return oldTotalDistance;
     }
 
     /**
      * Returns the distance (row+col) the given coordinate is from a matching goal
      */
     private int distanceFromGoal(int i, int j, char box) {
-        char[][] goals = Node.goals;
-
         char boxGoal = Character.toLowerCase(box);
-        int nearestGoal = -1;
 
-        for (int goalRow = 0; goalRow < goals.length; goalRow++) {
-            for (int goalCol = 0; goalCol < goals[goalRow].length; goalCol++) {
-                if (Node.goalAt(goalRow, goalCol)) {
-                    // we are at goal goalRow,goalCol
-                    if (boxGoal == goals[goalRow][goalCol]) {
+        final int[] nearestGoalDistance = {-1};
+
+        Node.goalLocations
+                .parallelStream()
+                .forEach((goalLocation) -> {
+                    if (boxGoal == Node.goals[goalLocation.getKey()][goalLocation.getValue()]) {
                         // we are at the correct type of goal
-                        int distance = Math.abs(goalRow - i) + Math.abs(goalCol - j);
-                        if (distance < nearestGoal || nearestGoal == -1) {
-                            nearestGoal = distance;
+                        int distance = Math.abs(goalLocation.getKey() - i) + Math.abs(goalLocation.getValue() - j);
+                        if (distance < nearestGoalDistance[0] || nearestGoalDistance[0] == -1) {
+                            nearestGoalDistance[0] = distance;
                         }
                     }
-                }
-            }
-        }
+                });
 
-        return nearestGoal;
+        return nearestGoalDistance[0];
     }
 
     public abstract int f(Node n);

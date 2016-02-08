@@ -12,7 +12,7 @@ public class Main {
                 "-l",
                 "levels/Firefly.lvl",
                 "-g",
-                "120",
+                "50",
                 "-t",
                 "60",
                 "-c",

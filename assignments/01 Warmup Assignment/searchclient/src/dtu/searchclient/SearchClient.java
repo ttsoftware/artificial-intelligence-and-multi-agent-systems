@@ -1,8 +1,13 @@
 package dtu.searchclient;
 
 import dtu.searchclient.heuristic.AStarHeuristic;
+import dtu.searchclient.heuristic.GreedyHeuristic;
+import dtu.searchclient.heuristic.WeightedAStarHeuristic;
 import dtu.searchclient.strategy.Strategy;
+import dtu.searchclient.strategy.StrategyBFS;
 import dtu.searchclient.strategy.StrategyBestFirst;
+import dtu.searchclient.strategy.StrategyDFS;
+import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,37 +22,6 @@ public class SearchClient {
     // Auxiliary static classes
     public static void error(String msg) throws Exception {
         throw new Exception("GSCError: " + msg);
-    }
-
-    public static class Memory {
-        public static Runtime runtime = Runtime.getRuntime();
-        public static final float mb = 1024 * 1024;
-        public static final float limitRatio = .9f;
-        public static final int timeLimit = 180;
-
-        public static float used() {
-            return (runtime.totalMemory() - runtime.freeMemory()) / mb;
-        }
-
-        public static float free() {
-            return runtime.freeMemory() / mb;
-        }
-
-        public static float total() {
-            return runtime.totalMemory() / mb;
-        }
-
-        public static float max() {
-            return runtime.maxMemory() / mb;
-        }
-
-        public static boolean shouldEnd() {
-            return (used() / max() > limitRatio);
-        }
-
-        public static String stringRep() {
-            return String.format("[Used: %.2f MB, Free: %.2f MB, Alloc: %.2f MB, MaxAlloc: %.2f MB]", used(), free(), total(), max());
-        }
     }
 
     public Node initialState = null;
@@ -108,10 +82,12 @@ public class SearchClient {
                     initialState.setAgentRow(levelLines);
                     initialState.setAgentCol(i);
                 } else if ('A' <= chr && chr <= 'Z') { // Boxes
-                    initialState.boxes[levelLines][i] = chr;
+                    initialState.getBoxes()[levelLines][i] = chr;
+                    initialState.addBoxLocation(new Pair<>(levelLines, i));
                     Node.boxCount++;
                 } else if ('a' <= chr && chr <= 'z') { // Goal cells
                     Node.goals[levelLines][i] = chr;
+                    Node.goalLocations.add(new Pair<>(levelLines, i));
                 }
             }
             levelLines++;
@@ -172,9 +148,9 @@ public class SearchClient {
         // strategy = new StrategyDFS();
 
         // Ex 3:
-        strategy = new StrategyBestFirst(new AStarHeuristic(client.initialState));
-        //strategy = new StrategyBestFirst( new WeightedAStar( client.initialState ) );
-        //strategy = new StrategyBestFirst( new Greedy( client.initialState ) );
+        // strategy = new StrategyBestFirst(new AStarHeuristic(client.initialState));
+        strategy = new StrategyBestFirst(new WeightedAStarHeuristic(client.initialState));
+        // strategy = new StrategyBestFirst(new GreedyHeuristic(client.initialState));
 
         LinkedList<Node> solution = client.search(strategy);
 
@@ -187,7 +163,7 @@ public class SearchClient {
             System.err.println(strategy.searchStatus());
 
             for (Node n : solution) {
-                String act = n.action.toActionString();
+                String act = n.getAction().toActionString();
                 System.out.println(act);
                 String response = serverMessages.readLine();
                 if (response.contains("false")) {
