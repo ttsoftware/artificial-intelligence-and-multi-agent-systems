@@ -1,7 +1,9 @@
 package dtu.searchclient;
 
+import dtu.searchclient.heuristic.AStarHeuristic;
 import dtu.searchclient.strategy.Strategy;
 import dtu.searchclient.strategy.StrategyBFS;
+import dtu.searchclient.strategy.StrategyBestFirst;
 import dtu.searchclient.strategy.StrategyDFS;
 
 import java.io.BufferedReader;
@@ -91,9 +93,6 @@ public class SearchClient {
         Node.setMaxRow(lines.size());
         Node.setMaxColumn(maxColumn);
 
-        System.err.println(Node.getMaxRow());
-        System.err.println(Node.getMaxColumn());
-
         Node.setGoals(new char[Node.getMaxRow()][Node.getMaxColumn()]);
         Node.setWalls(new boolean[Node.getMaxRow()][Node.getMaxColumn()]);
 
@@ -171,10 +170,10 @@ public class SearchClient {
         Strategy strategy = null;
         // strategy = new StrategyBFS();
         // Ex 1:
-        strategy = new StrategyDFS();
+        // strategy = new StrategyDFS();
 
         // Ex 3:
-        //strategy = new StrategyBestFirst( new AStar( client.initialState ) );
+        strategy = new StrategyBestFirst(new AStarHeuristic(client.initialState));
         //strategy = new StrategyBestFirst( new WeightedAStar( client.initialState ) );
         //strategy = new StrategyBestFirst( new Greedy( client.initialState ) );
 

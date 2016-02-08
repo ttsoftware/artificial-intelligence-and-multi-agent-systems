@@ -125,12 +125,16 @@ public class Node {
         return expandedNodes;
     }
 
-    private boolean cellIsFree(int row, int col) {
+    public boolean cellIsFree(int row, int col) {
         return (!walls[row][col] && this.boxes[row][col] == 0);
     }
 
-    private boolean boxAt(int row, int col) {
+    public boolean boxAt(int row, int col) {
         return this.boxes[row][col] > 0;
+    }
+
+    public static boolean goalAt(int row, int col) {
+        return goals[row][col] > 0;
     }
 
     private int dirToRowChange(dir d) {
@@ -213,6 +217,10 @@ public class Node {
             s.append("\n");
         }
         return s.toString();
+    }
+
+    public char[][] getBoxes() {
+        return boxes;
     }
 
     public static boolean[][] getWalls() {

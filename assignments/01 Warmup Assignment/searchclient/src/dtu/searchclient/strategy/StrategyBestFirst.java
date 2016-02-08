@@ -1,41 +1,39 @@
 package dtu.searchclient.strategy;
 
-import dtu.searchclient.Heuristic;
 import dtu.searchclient.Node;
+import dtu.searchclient.heuristic.Heuristic;
 
-// Ex 3: Best-first Search uses a priority queue (Java contains no implementation of a Heap data structure)
+import java.util.PriorityQueue;
+
 public class StrategyBestFirst extends Strategy {
 
     private Heuristic heuristic;
+    private PriorityQueue<Node> frontier;
 
     public StrategyBestFirst(Heuristic h) {
         super();
         heuristic = h;
-        // Unimplemented
+        frontier = new PriorityQueue<>(heuristic);
     }
 
     public Node getAndRemoveLeaf() {
-        // Unimplemented
-        return null;
+        return frontier.poll();
     }
 
     public void addToFrontier(Node n) {
-        // Unimplemented
+        frontier.add(n);
     }
 
     public int countFrontier() {
-        // Unimplemented
-        return 0;
+        return frontier.size();
     }
 
     public boolean frontierIsEmpty() {
-        // Unimplemented
-        return true;
+        return frontier.isEmpty();
     }
 
     public boolean inFrontier(Node n) {
-        // Unimplemented
-        return false;
+        return frontier.contains(n);
     }
 
     public String toString() {
