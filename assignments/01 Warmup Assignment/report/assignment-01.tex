@@ -194,7 +194,7 @@ This particular layout is designed, so that the agent must look all directions i
         \hline
     \end{tabular}
     \caption{Benchmark with optimisations for exercise 2a}
-    \label{benchmark-results}
+    \label{benchmark-results-2}
 \end{figure}
 
 
@@ -207,11 +207,59 @@ With these changes, we would be able to find the goalState in constant time, as 
 
 getExpandedNodes would run slower with our changes, as it would no longer be able to lookup a specific field on the board in constant time. Instead, it would have to look through the locations of all boxes in order to make sure a given field is not occupied.
 
-\section{Exercise 2 (Heuristics)}
-\label{sec:Exercise 2 (Heuristics)}
+
+\section{Exercise 3 (Heuristics)}
+\label{sec:Exercise 3 (Heuristics)}
 
 \subsection{a}
 \label{sub:a}
+
+
+\begin{figure}[H]
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Level & Evaluation & Time & Memory Used & Solution Length & Nodes Explored \\
+        \hline
+        SAD1 & A* & 0.14 sec & 2.48MB & 19 & 77 \\
+        \hline
+        SAD1 & WA* & 0.13 sec & 2.48MB & 19 & 77 \\
+        \hline
+        SAD1 & Greedy & 0.07 sec & 2.48MB & 21 & 51 \\
+        \hline
+        SAD2 & A* & - & - & - & - \\
+        \hline
+        SAD2 & WA* & 0.58 sec & 4.34MB & 21 & 805 \\
+        \hline
+        SAD2 & Greedy & 0.50 sec & 4.96MB & 87 & 1228 \\
+        \hline
+        friendofDFS & A* & - & - & - & - \\
+        \hline
+        friendofDFS & WA* & 1.59 sec & 6.82MB & 10 & 2337 \\
+        \hline
+        friendofDFS & Greedy & 0.10 sec & 2.48MB & 24 & 88 \\
+        \hline
+        friendofBFS & A* & 0.11 sec & 2.48MB & 2 & 17 \\
+        \hline
+        friendofBFS & WA* & 0.07 sec & 2.48MB & 2 & 17 \\
+        \hline
+        friendofBFS & Greedy & 0.21 sec & 2.48MB & 2 & 353 \\
+        \hline
+        Firefly & A* &  &  &  &  \\
+        \hline
+        Firefly & WA* &  &  &  &  \\
+        \hline
+        Firefly & Greedy &  &  &  &  \\
+        \hline
+        Crunch & A* &  &  &  &  \\
+        \hline
+        Crunch & WA* &  &  &  &  \\
+        \hline
+        Crunch & Greedy &  &  &  &  \\
+        \hline
+    \end{tabular}
+    \caption{Benchmark with optimisations for exercise 2a}
+    \label{benchmark-results}
+\end{figure}
 
 
 
