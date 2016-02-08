@@ -1,7 +1,7 @@
 package dtu.searchclient.strategy;
 
+import dtu.searchclient.Memory;
 import dtu.searchclient.Node;
-import dtu.searchclient.SearchClient.Memory;
 
 import java.util.HashSet;
 

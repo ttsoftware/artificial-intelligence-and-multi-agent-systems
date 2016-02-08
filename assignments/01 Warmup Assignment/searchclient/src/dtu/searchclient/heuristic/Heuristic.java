@@ -26,46 +26,39 @@ public abstract class Heuristic implements Comparator<Node> {
         // we wish to calculate the distance the boxes have from the goal
         char[][] boxes = n.getBoxes();
 
-        int distanceFromGoal = 0;
+        int totalDistance = 0;
 
         for (int boxesRow = 0; boxesRow < boxes.length; boxesRow++) {
             for (int boxesCol = 0; boxesCol < boxes[boxesRow].length; boxesCol++) {
                 if (n.boxAt(boxesRow, boxesCol)) {
                     // we are in box boxesRow,boxesCol
-                    distanceFromGoal += distanceFromGoal(boxesRow, boxesCol, boxes[boxesRow][boxesCol]);
+                    totalDistance += distanceFromGoal(boxesRow, boxesCol, boxes[boxesRow][boxesCol]);
                 }
             }
         }
 
-        // we return the average
-        return distanceFromGoal / Node.boxCount;
+        return totalDistance;
     }
 
     /**
      * Returns the distance (row+col) the given coordinate is from a matching goal
      */
     private int distanceFromGoal(int i, int j, char box) {
-        char[][] goals = Node.goals;
-
         char boxGoal = Character.toLowerCase(box);
-        int nearestGoal = -1;
 
-        for (int goalRow = 0; goalRow < goals.length; goalRow++) {
-            for (int goalCol = 0; goalCol < goals[goalRow].length; goalCol++) {
-                if (Node.goalAt(goalRow, goalCol)) {
-                    // we are at goal goalRow,goalCol
-                    if (boxGoal == goals[goalRow][goalCol]) {
-                        // we are at the correct type of goal
-                        int distance = Math.abs(goalRow - i) + Math.abs(goalCol - j);
-                        if (distance < nearestGoal || nearestGoal == -1) {
-                            nearestGoal = distance;
-                        }
-                    }
+        final int[] nearestGoal = {-1};
+
+        Node.goalLocations.forEach((goalLocation) -> {
+            // we are at the correct type of goal
+            if (boxGoal == Node.goals[goalLocation.getKey()][goalLocation.getValue()]) {
+                int distance = Math.abs(goalLocation.getKey() - i) + Math.abs(goalLocation.getValue() - j);
+                if (distance < nearestGoal[0] || nearestGoal[0] == -1) {
+                    nearestGoal[0] = distance;
                 }
             }
-        }
+        });
 
-        return nearestGoal;
+        return nearestGoal[0];
     }
 
     public abstract int f(Node n);
