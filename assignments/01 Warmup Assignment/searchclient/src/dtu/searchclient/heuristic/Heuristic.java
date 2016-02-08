@@ -18,9 +18,6 @@ public abstract class Heuristic implements Comparator<Node> {
 
     /**
      * Returns how far each box is from their closest goals
-     *
-     * @param n
-     * @return
      */
     public int h(Node n) {
         // we wish to calculate the distance the boxes have from the goal

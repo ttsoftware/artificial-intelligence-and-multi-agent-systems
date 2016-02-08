@@ -31,10 +31,20 @@
 \setlength\parindent{0pt}
 \usepackage[parfill]{parskip}
 
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
 \definecolor{mygray}{rgb}{0.9451,0.9451,0.9451}
+
 \lstset{
+  language=Java,
   backgroundcolor=\color{mygray},
   basicstyle=\footnotesize\ttfamily,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pred},
   mathescape,
   breaklines=true,
   numbers=left,
@@ -197,7 +207,6 @@ This particular layout is designed, so that the agent must look all directions i
     \label{benchmark-results-2}
 \end{figure}
 
-
 \subsection{b}
 \label{sub:b}
 
@@ -216,9 +225,68 @@ getExpandedNodes would run slower with our changes, as it would no longer be abl
 
 We're using a PriorityQueue data structure for the frontier in this exercise.
 
+\begin{lstlisting}
+public StrategyBestFirst(Heuristic h) {
+    super();
+    heuristic = h;
+    frontier = new PriorityQueue<>(heuristic);
+}
+
+public Node getAndRemoveLeaf() { return frontier.poll(); }
+
+public void addToFrontier(Node n) { frontier.offer(n); }
+\end{lstlisting}
+
+This simple implementation ensures that the PriorityQueue will be sorted according to the Heuristic compare function.
+
 \subsection{b}
 \label{sub:b}
 
+The following listing shows our implementation of $h(n)$. We simply iterate over every box and calculate its distance to its closest goal, adding all the distances together and using this as the heuristic metric.
+
+For the goal locations we implemented a static List<Pair<Integer, Integer>>, which contain the goal states. This list allows us to find the nearest goal to a given box in only $O(|goals|)$ time, instead of searching the entire board.
+
+\begin{lstlisting}
+/**
+ * Returns how far each box is from their closest goals
+ */
+public int h(Node n) {
+    // we wish to calculate the distance the boxes have from the goal
+    char[][] boxes = n.getBoxes();
+    int totalDistance = 0;
+
+    for (int boxesRow = 0; boxesRow < boxes.length; boxesRow++) {
+        for (int boxesCol = 0; boxesCol < boxes[boxesRow].length; boxesCol++) {
+            if (n.boxAt(boxesRow, boxesCol)) {
+                // we are in box boxesRow,boxesCol
+                totalDistance += distanceFromGoal(boxesRow, boxesCol, boxes[boxesRow][boxesCol]);
+            }
+        }
+    }
+
+    return totalDistance;
+}
+
+/**
+ * Returns the distance (row+col) the given coordinate is from a matching goal
+ */
+private int distanceFromGoal(int i, int j, char box) {
+    char boxGoal = Character.toLowerCase(box);
+    final int[] nearestGoal = {-1};
+
+    Node.goalLocations.forEach((goalLocation) -> {
+        // we are at the correct type of goal
+        if (boxGoal == Node.goals[goalLocation.getKey()][goalLocation.getValue()]) {
+            int distance = Math.abs(goalLocation.getKey() - i) + Math.abs(goalLocation.getValue() - j);
+            if (distance < nearestGoal[0] || nearestGoal[0] == -1) {
+                nearestGoal[0] = distance;
+            }
+        }
+    });
+
+    return nearestGoal[0];
+}
+\end{lstlisting}
 
 \subsection{c}
 \label{sub:c}
@@ -230,8 +298,9 @@ Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ de
 \subsection{d}
 \label{sub:d}
 
-
-
+As shown in Figure~\ref{benchmark-results-3} we notice that our three best-first-search algorithms do not necessarily find the same solutions.
+Overall WA* performs best by having both the shortest average solution (25.8 excluding Crunch) and the fastest average time spent (0.34 excluding crunch).
+This indicates that our heuristic is good. The solutions are better on average, when we weigh the heuristic function higher. In fact for the Crunch level we are only able to find a solution, if we increase the weight $W$. If we for instance chose $W=17$ we would find a solution of length 106, whereas at $W=5$ we cannot find any solution. The solution "quality" does not increase linearly with $W$ however. It seems we are able to find generally better solutions with slightly higher values of $W$, but of different lengths and with different number of nodes explored.
 
 \begin{figure}[H]
     \begin{tabular}{|c|c|c|c|c|c|}
@@ -244,7 +313,7 @@ Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ de
         \hline
         SAD1 & Greedy & 0.32 sec & 3.72MB & 21 & 51 \\
         \hline
-        SAD2 & A* & 1.32 sec & 24.18 & 29 & 1293 \\
+        SAD2 & A* & 1.32 sec & 24.18MB & 29 & 1293 \\
         \hline
         SAD2 & WA* & 0.28 sec & 4.34MB & 25 & 37 \\
         \hline
@@ -276,7 +345,7 @@ Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ de
         \hline
     \end{tabular}
     \caption{Benchmark with optimisations for exercise 3}
-    \label{benchmark-results}
+    \label{benchmark-results-3}
 \end{figure}
 
 \end{document}
