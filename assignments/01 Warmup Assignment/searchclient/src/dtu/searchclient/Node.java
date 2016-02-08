@@ -31,8 +31,6 @@ public class Node {
     public static int boxCount;
     private char[][] boxes;
 
-    private List<Pair<Integer, Integer>> boxesLocations = new ArrayList<>();
-
     // We store the goal locations in a list for faster iteration
     public static List<Pair<Integer, Integer>> goalLocations = new ArrayList<>();
 
@@ -105,12 +103,6 @@ public class Node {
                         n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
                         n.boxes[newAgentRow][newAgentCol] = 0;
 
-                        // update the boxes list
-                        n.boxesLocations.add(new Pair<>(newBoxRow, newBoxCol));
-                        n.boxesLocations.removeIf(location -> {
-                            return location.getKey() == newAgentRow && location.getValue() == newAgentCol;
-                        });
-
                         expandedNodes.add(n);
                     }
                 }
@@ -127,12 +119,6 @@ public class Node {
                         n.agentCol = newAgentCol;
                         n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
                         n.boxes[boxRow][boxCol] = 0;
-
-                        // update the boxes list
-                        n.boxesLocations.add(new Pair<>(agentRow, agentCol));
-                        n.boxesLocations.removeIf(location -> {
-                            return location.getKey() == boxRow && location.getValue() == boxCol;
-                        });
 
                         expandedNodes.add(n);
                     }
@@ -151,10 +137,6 @@ public class Node {
         return this.boxes[row][col] > 0;
     }
 
-    public static boolean goalAt(int row, int col) {
-        return goals[row][col] > 0;
-    }
-
     private int dirToRowChange(dir d) {
         return (d == dir.S ? 1 : (d == dir.N ? -1 : 0)); // South is down one row (1), north is up one row (-1)
     }
@@ -167,7 +149,6 @@ public class Node {
         Node copy = new Node(this);
         for (int row = 0; row < maxRow; row++) {
             System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxColumn);
-            copy.setBoxesLocations(this.boxesLocations);
         }
         return copy;
     }
@@ -273,14 +254,4 @@ public class Node {
     public void setAction(Command action) {
         this.action = action;
     }
-
-    public List<Pair<Integer, Integer>> getBoxesLocations() {
-        return boxesLocations;
-    }
-
-    public void setBoxesLocations(List<Pair<Integer, Integer>> boxesLocations) {
-        this.boxesLocations = boxesLocations;
-    }
-
-    public void addBoxLocation(Pair<Integer, Integer> location) { boxesLocations.add(location); }
 }

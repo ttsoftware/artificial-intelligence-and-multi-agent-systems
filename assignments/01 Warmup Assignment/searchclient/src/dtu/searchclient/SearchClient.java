@@ -83,7 +83,6 @@ public class SearchClient {
                     initialState.setAgentCol(i);
                 } else if ('A' <= chr && chr <= 'Z') { // Boxes
                     initialState.getBoxes()[levelLines][i] = chr;
-                    initialState.addBoxLocation(new Pair<>(levelLines, i));
                     Node.boxCount++;
                 } else if ('a' <= chr && chr <= 'z') { // Goal cells
                     Node.goals[levelLines][i] = chr;

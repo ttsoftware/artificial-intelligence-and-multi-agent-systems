@@ -222,6 +222,8 @@ getExpandedNodes would run slower with our changes, as it would no longer be abl
 \subsection{c}
 \label{sub:c}
 
-Our heuristic function calculates the distance each box has to its closest goal, and adds these distances together. 
+Our heuristic function calculates the distance each box has to its closest goal, and adds these distances together. This takes $O(n*m*|G|)$ time, where $n$, $m$ and $|G|$ are the length of either side of the board and the amount of goals on the board respectively.
+
+Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ decreases, thus giving us an approximation of how many steps are left to finish.
 
 \end{document}
