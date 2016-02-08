@@ -99,14 +99,13 @@ The results for these exercises can be seen in figure~\ref{benchmark-results}.
 \subsection{a}
 \label{sub:a}
 
-The shortest length is 19, which we know because BFS will always find the shortest path if implemented correctly. BFS looks at all possible solutions and chooses the best solution.
-
+BFS looks at all states in each branch before moving on to the next set of states. Thus, when BFS finds a solution, we are guaranteed that it will be the optimal solution, as any solution found later will be longer. The shortest length for this exercise is 19.
 
 \subsection{b}
 \label{sub:b}
 
 Running SAD2.lvl using the BFS strategy, we run out of memory before it finds any solutions.
-This level is much more complex, since adding extra boxes increases the number of states exponentially, as each box and agent can be on each field in the level.
+This level is much more complex, since adding extra boxes increases the number of states exponentially.
 
 
 \subsection{c}
@@ -339,7 +338,7 @@ This indicates that our heuristic is good. The solutions are better on average, 
         \hline
         Crunch & A* & - & - & - & - \\
         \hline
-        Crunch & WA* & - & - & - & - \\
+        Crunch & WA* (W=17) & 13.48 sec & 152.46MB & 106 & 56645 \\
         \hline
         Crunch & Greedy & 34.68 sec & 124.51MB & 174 & 130236 \\
         \hline
