@@ -194,7 +194,7 @@ This particular layout is designed, so that the agent must look all directions i
         \hline
     \end{tabular}
     \caption{Benchmark with optimisations for exercise 2a}
-    \label{benchmark-results}
+    \label{benchmark-results-2}
 \end{figure}
 
 
@@ -207,13 +207,14 @@ With these changes, we would be able to find the goalState in constant time, as 
 
 getExpandedNodes would run slower with our changes, as it would no longer be able to lookup a specific field on the board in constant time. Instead, it would have to look through the locations of all boxes in order to make sure a given field is not occupied.
 
-\section{Exercise 2 (Heuristics)}
-\label{sec:Exercise 2 (Heuristics)}
+
+\section{Exercise 3 (Heuristics)}
+\label{sec:Exercise 3 (Heuristics)}
 
 \subsection{a}
 \label{sub:a}
 
-
+We're using a PriorityQueue data structure for the frontier in this exercise.
 
 \subsection{b}
 \label{sub:b}
@@ -230,5 +231,52 @@ Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ de
 \label{sub:d}
 
 
+
+
+\begin{figure}[H]
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Level & Evaluation & Time & Memory Used & Solution Length & Nodes Explored \\
+        \hline
+        SAD1 & A* & 0.37 sec & 3.72MB & 19 & 77 \\
+        \hline
+        SAD1 & WA* & 0.29 sec & 3.72MB & 19 & 77 \\
+        \hline
+        SAD1 & Greedy & 0.32 sec & 3.72MB & 21 & 51 \\
+        \hline
+        SAD2 & A* & 1.32 sec & 24.18 & 29 & 1293 \\
+        \hline
+        SAD2 & WA* & 0.28 sec & 4.34MB & 25 & 37 \\
+        \hline
+        SAD2 & Greedy & 0.35 sec & 4.34MB & 25 & 39 \\
+        \hline
+        friendofDFS & A* & 0.47 sec & 8.68MB & 10 & 388 \\
+        \hline
+        friendofDFS & WA* & 0.30 sec & 4.34MB & 12 & 15 \\
+        \hline
+        friendofDFS & Greedy & 0.41 sec & 4.34MB & 12 & 15 \\
+        \hline
+        friendofBFS & A* & 0.33 sec & 3.10MB & 2 & 2 \\
+        \hline
+        friendofBFS & WA* & 0.28 sec & 3.72MB & 2 & 2 \\
+        \hline
+        friendofBFS & Greedy & 0.29 sec & 3.72MB & 2 & 2 \\
+        \hline
+        Firefly & A* & 1.93 sec & 16.00MB & 60 & 7296 \\
+        \hline
+        Firefly & WA* & 0.55 sec & 5.58MB & 71 & 468 \\
+        \hline
+        Firefly & Greedy & 2.22 sec & 26.53MB & 310 & 13208 \\
+        \hline
+        Crunch & A* & - & - & - & - \\
+        \hline
+        Crunch & WA* & - & - & - & - \\
+        \hline
+        Crunch & Greedy & 34.68 sec & 124.51MB & 174 & 130236 \\
+        \hline
+    \end{tabular}
+    \caption{Benchmark with optimisations for exercise 3}
+    \label{benchmark-results}
+\end{figure}
 
 \end{document}
