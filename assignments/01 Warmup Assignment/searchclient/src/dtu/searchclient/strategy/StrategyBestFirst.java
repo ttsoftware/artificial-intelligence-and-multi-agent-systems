@@ -21,7 +21,7 @@ public class StrategyBestFirst extends Strategy {
     }
 
     public void addToFrontier(Node n) {
-        frontier.add(n);
+        frontier.offer(n);
     }
 
     public int countFrontier() {

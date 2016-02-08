@@ -10,9 +10,9 @@ public class Main {
 
         String[] serverArgs = {
                 "-l",
-                "levels/SAD1.lvl",
+                "levels/Firefly.lvl",
                 "-g",
-                "50",
+                "120",
                 "-t",
                 "60",
                 "-c",

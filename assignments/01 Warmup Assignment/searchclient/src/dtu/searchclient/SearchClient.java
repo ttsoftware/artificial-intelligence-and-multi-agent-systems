@@ -2,9 +2,7 @@ package dtu.searchclient;
 
 import dtu.searchclient.heuristic.AStarHeuristic;
 import dtu.searchclient.strategy.Strategy;
-import dtu.searchclient.strategy.StrategyBFS;
 import dtu.searchclient.strategy.StrategyBestFirst;
-import dtu.searchclient.strategy.StrategyDFS;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,11 +88,11 @@ public class SearchClient {
             }
         }
 
-        Node.setMaxRow(lines.size());
-        Node.setMaxColumn(maxColumn);
+        Node.maxRow = lines.size();
+        Node.maxColumn = maxColumn;
 
-        Node.setGoals(new char[Node.getMaxRow()][Node.getMaxColumn()]);
-        Node.setWalls(new boolean[Node.getMaxRow()][Node.getMaxColumn()]);
+        Node.goals = (new char[Node.maxRow][Node.maxColumn]);
+        Node.walls = (new boolean[Node.maxRow][Node.maxColumn]);
 
         initialState = new Node(null);
 
@@ -107,10 +105,11 @@ public class SearchClient {
                     if (agentCol != -1 || agentRow != -1) {
                         error("Not a single agent level");
                     }
-                    initialState.agentRow = levelLines;
-                    initialState.agentCol = i;
+                    initialState.setAgentRow(levelLines);
+                    initialState.setAgentCol(i);
                 } else if ('A' <= chr && chr <= 'Z') { // Boxes
                     initialState.boxes[levelLines][i] = chr;
+                    Node.boxCount++;
                 } else if ('a' <= chr && chr <= 'z') { // Goal cells
                     Node.goals[levelLines][i] = chr;
                 }

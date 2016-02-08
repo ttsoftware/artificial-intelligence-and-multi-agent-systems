@@ -16,6 +16,12 @@ public abstract class Heuristic implements Comparator<Node> {
         return f(n1) - f(n2);
     }
 
+    /**
+     * Returns how far each box is from their closest goals
+     *
+     * @param n
+     * @return
+     */
     public int h(Node n) {
         // we wish to calculate the distance the boxes have from the goal
         char[][] boxes = n.getBoxes();
@@ -31,14 +37,15 @@ public abstract class Heuristic implements Comparator<Node> {
             }
         }
 
-        return distanceFromGoal;
+        // we return the average
+        return distanceFromGoal / Node.boxCount;
     }
 
     /**
      * Returns the distance (row+col) the given coordinate is from a matching goal
      */
-    public int distanceFromGoal(int i, int j, char box) {
-        char[][] goals = Node.getGoals();
+    private int distanceFromGoal(int i, int j, char box) {
+        char[][] goals = Node.goals;
 
         char boxGoal = Character.toLowerCase(box);
         int nearestGoal = -1;

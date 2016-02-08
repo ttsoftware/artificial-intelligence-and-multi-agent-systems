@@ -15,8 +15,8 @@ public class Node {
     public static int maxRow;
     public static int maxColumn;
 
-    public int agentRow;
-    public int agentCol;
+    private int agentRow;
+    private int agentCol;
 
     // Arrays are indexed from the top-left of the level, with first index being row and second being column.
     // Row 0: (0,0) (0,1) (0,2) (0,3) ...
@@ -31,6 +31,7 @@ public class Node {
     public static boolean[][] walls;
     public static char[][] goals;
     public char[][] boxes;
+    public static int boxCount;
 
     public Node parent;
     public Command action;
@@ -223,35 +224,19 @@ public class Node {
         return boxes;
     }
 
-    public static boolean[][] getWalls() {
-        return walls;
+    public int getAgentRow() {
+        return agentRow;
     }
 
-    public static void setWalls(boolean[][] walls) {
-        Node.walls = walls;
+    public void setAgentRow(int agentRow) {
+        this.agentRow = agentRow;
     }
 
-    public static char[][] getGoals() {
-        return goals;
+    public int getAgentCol() {
+        return agentCol;
     }
 
-    public static void setGoals(char[][] goals) {
-        Node.goals = goals;
-    }
-
-    public static int getMaxColumn() {
-        return maxColumn;
-    }
-
-    public static void setMaxColumn(int maxColumn) {
-        Node.maxColumn = maxColumn;
-    }
-
-    public static int getMaxRow() {
-        return maxRow;
-    }
-
-    public static void setMaxRow(int maxRow) {
-        Node.maxRow = maxRow;
+    public void setAgentCol(int agentCol) {
+        this.agentCol = agentCol;
     }
 }
