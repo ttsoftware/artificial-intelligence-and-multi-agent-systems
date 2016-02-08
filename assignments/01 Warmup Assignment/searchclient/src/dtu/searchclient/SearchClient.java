@@ -147,9 +147,9 @@ public class SearchClient {
         // strategy = new StrategyDFS();
 
         // Ex 3:
-        // strategy = new StrategyBestFirst(new AStarHeuristic(client.initialState));
-        strategy = new StrategyBestFirst(new WeightedAStarHeuristic(client.initialState));
-        // strategy = new StrategyBestFirst(new GreedyHeuristic(client.initialState));
+        strategy = new StrategyBestFirst(new AStarHeuristic(client.initialState));
+        //strategy = new StrategyBestFirst(new WeightedAStarHeuristic(client.initialState));
+        //strategy = new StrategyBestFirst(new GreedyHeuristic(client.initialState));
 
         LinkedList<Node> solution = client.search(strategy);
 

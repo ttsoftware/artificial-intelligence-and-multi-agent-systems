@@ -1,7 +1,6 @@
 package dtu.searchclient.heuristic;
 
 import dtu.searchclient.Node;
-import javafx.util.Pair;
 
 import java.util.Comparator;
 
@@ -46,17 +45,20 @@ public abstract class Heuristic implements Comparator<Node> {
      */
     private int distanceFromGoal(int i, int j, char box) {
         char boxGoal = Character.toLowerCase(box);
-        return Node.goalLocations
-                .stream()
-                .filter(goalLocation -> {
-                    return boxGoal == Node.goals[goalLocation.getKey()][goalLocation.getValue()];
-                })
-                .mapToInt((goalLocation) -> {
-                    // we are at the correct type of goal
-                    return Math.abs(goalLocation.getKey() - i) + Math.abs(goalLocation.getValue() - j);
-                })
-                .min()
-                .getAsInt();
+
+        final int[] nearestGoal = {-1};
+
+        Node.goalLocations.forEach((goalLocation) -> {
+            // we are at the correct type of goal
+            if (boxGoal == Node.goals[goalLocation.getKey()][goalLocation.getValue()]) {
+                int distance = Math.abs(goalLocation.getKey() - i) + Math.abs(goalLocation.getValue() - j);
+                if (distance < nearestGoal[0] || nearestGoal[0] == -1) {
+                    nearestGoal[0] = distance;
+                }
+            }
+        });
+
+        return nearestGoal[0];
     }
 
     public abstract int f(Node n);
