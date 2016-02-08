@@ -89,6 +89,8 @@ The results for these exercises can be seen in figure~\ref{benchmark-results}.
 \subsection{a}
 \label{sub:a}
 
+BFS looks at all branches in "levels"
+
 The shortest length is 19, which we know because BFS will always find the shortest path if implemented correctly. BFS looks at all possible solutions and chooses the best solution.
 
 
@@ -230,7 +232,12 @@ Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ de
 \subsection{d}
 \label{sub:d}
 
-
+Level: Crunch
+W = 11
+Time: 10.34 sec
+Mem: 117.37MB
+Solution: 110
+Explored: 47422
 
 
 \begin{figure}[H]
@@ -276,7 +283,7 @@ Whenever a box is moved closer to its nearest goal, the total value of $h(n)$ de
         \hline
     \end{tabular}
     \caption{Benchmark with optimisations for exercise 3}
-    \label{benchmark-results}
+    \label{benchmark-results-3}
 \end{figure}
 
 \end{document}
