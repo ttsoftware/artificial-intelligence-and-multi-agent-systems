@@ -12,6 +12,7 @@ public class WeightedAStarHeuristic extends Heuristic {
         // You're welcome to test this out with different values,
         // but for the reporting part you must at least indicate benchmarks for W = 5
         W = 17;
+        W = 11;
     }
 
     public int f(Node n) {
