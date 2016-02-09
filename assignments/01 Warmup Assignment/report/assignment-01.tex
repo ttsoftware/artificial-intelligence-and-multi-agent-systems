@@ -170,6 +170,20 @@ This particular layout is designed, so that the agent must look all directions i
 \subsection{a}
 \label{sub:a}
 
+We have changed the walls and goals ArrayLists to be static, so that the nodes share these arrays instead of containing a copy each. Additionally, we find the size of the board and initialize these arrays with the exact size of the board. This way, we optimize the memory usage of the program, allowing for more calculations before we run out of memory.
+
+The benchmarks for this exercise can be seen in figure~\ref{benchmark-results-2}
+
+\subsection{b}
+\label{sub:b}
+
+Using a hashmap to keep track of all the boxes will yeild a constant lookup time, and will use much less memory in almost any level that contains less boxes than total fields. Hashmaps has a bit of overhead, but in most cases, this will still be a net loss of memory usage.
+
+With these changes, we would be able to find the goalState in constant time, as it wouldn't have to look through the entire board, but instead would just be able to look at where the boxes are directly.
+
+getExpandedNodes would run slower with our changes, as it would no longer be able to lookup a specific field on the board in constant time. Instead, it would have to look through the locations of all boxes in order to make sure a given field is not occupied.
+
+
 \begin{figure}[H]
     \begin{tabular}{|c|c|c|c|c|c|}
         \hline
@@ -195,17 +209,6 @@ This particular layout is designed, so that the agent must look all directions i
     \caption{Benchmark with optimisations for exercise 2a}
     \label{benchmark-results-2}
 \end{figure}
-
-
-\subsection{b}
-\label{sub:b}
-
-Using a hashmap to keep track of all the boxes will yeild a constant lookup time, and will use much less memory in almost any level that contains less boxes than total fields. Hashmaps has a bit of overhead, but in most cases, this will still be a net loss of memory usage.
-
-With these changes, we would be able to find the goalState in constant time, as it wouldn't have to look through the entire board, but instead would just be able to look at where the boxes are directly.
-
-getExpandedNodes would run slower with our changes, as it would no longer be able to lookup a specific field on the board in constant time. Instead, it would have to look through the locations of all boxes in order to make sure a given field is not occupied.
-
 
 \section{Exercise 3 (Heuristics)}
 \label{sec:Exercise 3 (Heuristics)}
