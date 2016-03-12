@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="searchclient:jar">
+  <artifact type="jar" build-on-make="true" name="searchclient:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/searchclient_jar</output-path>
     <root id="archive" name="searchclient.jar">
       <element id="module-output" name="searchclient" />

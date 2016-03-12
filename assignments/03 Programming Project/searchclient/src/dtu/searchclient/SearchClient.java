@@ -1,12 +1,8 @@
 package dtu.searchclient;
 
-import dtu.searchclient.heuristic.AStarHeuristic;
-import dtu.searchclient.heuristic.GreedyHeuristic;
 import dtu.searchclient.heuristic.WeightedAStarHeuristic;
 import dtu.searchclient.strategy.Strategy;
-import dtu.searchclient.strategy.StrategyBFS;
 import dtu.searchclient.strategy.StrategyBestFirst;
-import dtu.searchclient.strategy.StrategyDFS;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
