@@ -96,6 +96,9 @@
 \subsection*{a)}
 \label{sub:a)}
 
+\textit{DipBrush} If we assume that cans contain colours, we can omit the IsColor literal since we can infer that $k$ must be a color of it is in a can.
+
+\textit{Paint} The same argument for removing the IsColor literal from \textit{DipBrush} can be repeated for \textit{Paint}. We can remove the Brush literal from \textit{Paint}, since CanPaint is an effect of \textit{DipBrush}, which has the Brush literal as a precondition.
 
 
 \section*{Exercise 2}
