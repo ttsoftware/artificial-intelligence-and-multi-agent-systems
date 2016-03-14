@@ -1,9 +1,17 @@
 package dtu.planners;
 
-public class PartialOrderPlanner implements Planner {
+import dtu.Level;
+
+import java.util.List;
+
+public class PartialOrderPlanner extends Planner {
+
+    public PartialOrderPlanner(Level level) {
+        super(level);
+    }
 
     @Override
-    public Plan solve(Problem problem) {
-        return null;
+    public List<Plan> plan() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

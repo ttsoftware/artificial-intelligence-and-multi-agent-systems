@@ -1,15 +1,16 @@
 package dtu.agents;
 
+import dtu.planners.Plan;
 import dtu.planners.firstorder.actions.Action;
 
 import java.util.List;
 
 public class Agent implements Runnable {
 
-    private List<Action> actions;
+    private Plan plan;
 
-    public Agent(List<Action> actions) {
-        this.actions = actions;
+    public Agent(Plan plan) {
+        this.plan = plan;
     }
 
     public void performAction(Action action) {
@@ -28,6 +29,10 @@ public class Agent implements Runnable {
 
     @Override
     public void run() {
-        actions.forEach(this::performAction);
+        getPlan().getActions().forEach(this::performAction);
+    }
+
+    public Plan getPlan() {
+        return plan;
     }
 }

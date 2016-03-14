@@ -1,5 +1,9 @@
 package dtu.planners;
 
-public interface Plan {
+import dtu.planners.firstorder.actions.Action;
 
+import java.util.List;
+
+public interface Plan {
+    List<Action> getActions();
 }
