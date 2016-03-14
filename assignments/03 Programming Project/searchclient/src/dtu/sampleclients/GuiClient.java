@@ -139,7 +139,7 @@ public class GuiClient extends JFrame {
     }
 
     public GuiClient(String[] customs) throws IOException {
-        super("02285 Toy Client");
+        super("02285 Toy PlannerClient");
         System.err.println("Hello from GuiClient");
         readMap(); // Get agent count
         receiver = new ServerReceiver(this);
@@ -239,7 +239,7 @@ public class GuiClient extends JFrame {
         comm.setMinimumSize(new Dimension(200, 100));
         c = new GridBagConstraints();
         c.ipadx = 5;
-        info.add(new JLabel("Client Information (e.g. Exceptions)"), c);
+        info.add(new JLabel("PlannerClient Information (e.g. Exceptions)"), c);
         c.gridy = 1;
         c.weightx = 1;
         c.weighty = 1;

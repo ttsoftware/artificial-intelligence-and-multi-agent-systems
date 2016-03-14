@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="PlannerClient:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/PlannerClient_jar</output-path>
+    <root id="archive" name="searchclient.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/src/MANIFESTS/PlannerClient/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="searchclient" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/server.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
