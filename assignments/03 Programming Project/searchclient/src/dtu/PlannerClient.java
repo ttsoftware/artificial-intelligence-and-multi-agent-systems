@@ -25,7 +25,7 @@ public class PlannerClient {
 
         plans.forEach(plan -> {
             // Start a new thread (agent) for each plan
-            Thread t = new Thread(new Agent(plan));
+            new Thread(new Agent(plan)).start();
         });
     }
 }
