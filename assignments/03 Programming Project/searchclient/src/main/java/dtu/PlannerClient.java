@@ -38,8 +38,10 @@ public class PlannerClient {
         // Register events
         // eventBus.register(new GoalOfferEventSubscriber());
 
-        // Post events
-        eventBus.post(new GoalOfferEvent());
+        // Post events to
+        level.getGoals().forEach(goal -> {
+            eventBus.post(new GoalOfferEvent(goal));
+        });
 
         // wait for all threads to finish
         /*agentThreads.forEach(t -> {

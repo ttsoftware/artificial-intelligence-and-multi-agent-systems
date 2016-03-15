@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class AgentThreadTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testRun() {
 
         Agent agent = new Agent();

@@ -49,7 +49,6 @@ public class AgentThread implements Runnable {
         // Partial order planning
         PartialOrderPlanner popPlanner = new PartialOrderPlanner(new AbstractAction());
 
-        // some other event indicating that you are done with your work
-        EventBusService.getEventBus().post(new GoalOfferEvent());
+        // Post some other event indicating that you are done with your work
     }
 }

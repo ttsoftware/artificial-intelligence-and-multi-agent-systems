@@ -8,6 +8,10 @@ public class GoalOfferEvent implements Serializable {
 
     private Goal goal;
 
+    public GoalOfferEvent(Goal goal) {
+        this.goal = goal;
+    }
+
     public Goal getGoal() {
         return goal;
     }
