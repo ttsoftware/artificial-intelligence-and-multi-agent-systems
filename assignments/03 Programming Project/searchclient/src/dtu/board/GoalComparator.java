@@ -6,11 +6,12 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
-public class GoalWeight implements Comparator<Goal> {
+public class GoalComparator implements Comparator<Goal> {
 
     @Override
-    public int compare(Goal o1, Goal o2) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    public int compare(Goal goal1, Goal goal2) {
+        // TODO: This might not be correct
+        return goal1.getWeight() - goal2.getWeight();
     }
 
     @Override

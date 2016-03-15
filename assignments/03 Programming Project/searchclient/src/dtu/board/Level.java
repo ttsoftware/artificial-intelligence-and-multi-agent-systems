@@ -8,7 +8,7 @@ public class Level {
 
     private BoardCell[][] BoardState;
     private BoardObject[][] BoardObjects;
-    private PriorityQueue<Goal> goals = new PriorityQueue<>(new GoalWeight());
+    private PriorityQueue<Goal> goals = new PriorityQueue<>(new GoalComparator());
     private List<Agent> agents = new ArrayList<>();
     private List<Box> boxes = new ArrayList<>();
 
