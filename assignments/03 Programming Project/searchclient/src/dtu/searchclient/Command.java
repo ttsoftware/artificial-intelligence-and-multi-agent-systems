@@ -19,10 +19,10 @@ public class Command {
                 }
             }
         }
+
         for (dir d : dir.values()) {
             cmds.add(new Command(d));
         }
-
 
         every = cmds.toArray(new Command[0]);
     }
@@ -38,13 +38,9 @@ public class Command {
         N, W, E, S
     }
 
-    ;
-
     public static enum type {
         Move, Push, Pull
     }
-
-    ;
 
     public final type actType;
     public final dir dir1;
@@ -68,7 +64,6 @@ public class Command {
 
         return actType.toString() + "(" + dir1 + "," + dir2 + ")";
     }
-
 
     public String toActionString() {
         return "[" + this.toString() + "]";

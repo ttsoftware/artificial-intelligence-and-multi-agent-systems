@@ -1,13 +1,15 @@
 package dtu.planners;
 
-import dtu.Level;
+import dtu.board.Level;
 
 import java.util.List;
 
-public class HTNPlanner extends Planner {
+public class HTNPlanner implements Planner {
+
+    private Level level;
 
     public HTNPlanner(Level level) {
-        super(level);
+        this.level = level;
     }
 
     @Override

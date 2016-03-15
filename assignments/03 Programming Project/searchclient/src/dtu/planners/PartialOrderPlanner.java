@@ -1,13 +1,13 @@
 package dtu.planners;
 
-import dtu.Level;
-
 import java.util.List;
 
-public class PartialOrderPlanner extends Planner {
+public class PartialOrderPlanner implements Planner {
 
-    public PartialOrderPlanner(Level level) {
-        super(level);
+    private HTNPlan plan;
+
+    public PartialOrderPlanner(HTNPlan plan) {
+        this.plan = plan;
     }
 
     @Override

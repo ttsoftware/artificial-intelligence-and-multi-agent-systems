@@ -1,5 +1,6 @@
 package dtu;
 
+import dtu.board.Level;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;

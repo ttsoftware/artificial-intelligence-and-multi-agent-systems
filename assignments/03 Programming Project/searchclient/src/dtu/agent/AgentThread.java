@@ -1,13 +1,17 @@
-package dtu.agents;
+package dtu.agent;
 
+import dtu.planners.HTNPlan;
+import dtu.planners.PartialOrderPlanner;
 import dtu.planners.Plan;
 import dtu.planners.firstorder.actions.Action;
 
-public class Agent implements Runnable {
+import java.util.List;
 
-    private Plan plan;
+public class AgentThread implements Runnable {
 
-    public Agent(Plan plan) {
+    private HTNPlan plan;
+
+    public AgentThread(HTNPlan plan) {
         this.plan = plan;
     }
 
@@ -34,7 +38,12 @@ public class Agent implements Runnable {
 
         // partial order planning
 
-        getPlan().getActions().forEach(this::performAction);
+        PartialOrderPlanner planner = new PartialOrderPlanner((HTNPlan) getPlan());
+        List<Plan> popPlans = planner.plan();
+
+        popPlans.forEach(plan1 -> {
+            plan1.getActions().forEach(this::performAction);
+        });
     }
 
     public Plan getPlan() {

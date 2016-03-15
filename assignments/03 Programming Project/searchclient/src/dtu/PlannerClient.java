@@ -1,6 +1,8 @@
 package dtu;
 
-import dtu.agents.Agent;
+import dtu.agent.AgentThread;
+import dtu.board.Level;
+import dtu.planners.HTNPlan;
 import dtu.planners.HTNPlanner;
 import dtu.planners.Plan;
 
@@ -25,7 +27,7 @@ public class PlannerClient {
 
         plans.forEach(plan -> {
             // Start a new thread (agent) for each plan
-            new Thread(new Agent(plan)).start();
+            new Thread(new AgentThread((HTNPlan) plan)).start();
         });
     }
 }

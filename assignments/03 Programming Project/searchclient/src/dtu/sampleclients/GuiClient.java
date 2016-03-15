@@ -293,7 +293,7 @@ public class GuiClient extends JFrame {
     }
 
     /**
-     * Turns Cmd into Cmd,Cmd,Cmd (..) based on number of agents
+     * Turns Cmd into Cmd,Cmd,Cmd (..) based on number of agent
      *
      * @param cmd
      * @return Multified cmd
