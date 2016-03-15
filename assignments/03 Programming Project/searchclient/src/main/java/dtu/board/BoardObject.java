@@ -1,5 +1,7 @@
 package dtu.board;
 
-public class BoardObject {
+import java.io.Serializable;
+
+public class BoardObject implements Serializable {
     //
 }

@@ -2,10 +2,9 @@ package dtu;
 
 import com.google.common.eventbus.EventBus;
 import dtu.agent.AgentThread;
-import dtu.events.Event;
+import dtu.events.GoalOfferEvent;
 import dtu.events.EventBusService;
 import dtu.board.Level;
-import dtu.events.EventSubscriber;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,18 +28,18 @@ public class PlannerClient {
 
         List<Thread> agentThreads = new ArrayList<>();
 
-        level.getAgents().forEach(plan -> {
+        level.getAgents().forEach(agent -> {
             // Start a new thread (agent) for each plan
-            Thread t = new Thread(new AgentThread());
+            Thread t = new Thread(new AgentThread(agent));
             agentThreads.add(t);
             t.start();
         });
 
         // Register events
-        eventBus.register(new EventSubscriber());
+        // eventBus.register(new GoalOfferEventSubscriber());
 
         // Post events
-        eventBus.post(new Event());
+        eventBus.post(new GoalOfferEvent());
 
         // wait for all threads to finish
         /*agentThreads.forEach(t -> {
