@@ -1,4 +1,4 @@
-package dtu.planners.firstorder.actions;
+package dtu.agent.actions;
 
 public class NoAction extends Action {
 

@@ -1,10 +1,12 @@
 package dtu.planners;
 
+import dtu.planners.actions.AbstractAction;
+
 public class PartialOrderPlanner {
 
-    private HTNPlan plan;
+    private AbstractAction action;
 
-    public PartialOrderPlanner(HTNPlan plan) {
-        this.plan = plan;
+    public PartialOrderPlanner(AbstractAction action) {
+        this.action = action;
     }
 }

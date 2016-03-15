@@ -2,15 +2,12 @@ package dtu.agent;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.events.Event;
-import dtu.events.EventSubscriber;
+import dtu.events.EventBusService;
 import dtu.planners.HTNPlan;
 import dtu.planners.HTNPlanner;
 import dtu.planners.PartialOrderPlanner;
-import dtu.planners.Plan;
-import dtu.planners.firstorder.actions.Action;
-import dtu.events.EventBusService;
-
-import java.util.List;
+import dtu.agent.actions.Action;
+import dtu.planners.actions.AbstractAction;
 
 public class AgentThread implements Runnable {
 
@@ -18,6 +15,10 @@ public class AgentThread implements Runnable {
         //
     }
 
+    /**
+     * Execute a specific action
+     * @param action Action
+     */
     public void performAction(Action action) {
         switch (action.getType()) {
             case MOVE: {
@@ -50,13 +51,7 @@ public class AgentThread implements Runnable {
         HTNPlanner htnPlanner = new HTNPlanner();
 
         // Partial order planning
-        PartialOrderPlanner popplanner = new PartialOrderPlanner(new HTNPlan());
-
-        /*
-        popPlans.forEach(plan1 -> {
-            plan1.getActions().forEach(this::performAction);
-        });
-        */
+        PartialOrderPlanner popPlanner = new PartialOrderPlanner(new AbstractAction());
 
         // some other event indicating that you are done with your work
         EventBusService.getEventBus().post(new Event());

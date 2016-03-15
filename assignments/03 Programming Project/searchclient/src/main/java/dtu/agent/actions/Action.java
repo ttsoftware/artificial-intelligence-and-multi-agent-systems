@@ -1,11 +1,12 @@
-package dtu.planners.firstorder.actions;
+package dtu.agent.actions;
 
-import dtu.planners.firstorder.effects.Effect;
-import dtu.planners.firstorder.preconditions.Precondition;
+import dtu.agent.actions.effects.Effect;
+import dtu.agent.actions.preconditions.Precondition;
+import dtu.planners.actions.AbstractAction;
 
 import java.util.Collection;
 
-public abstract class Action {
+public abstract class Action extends AbstractAction {
 
     private Collection<Precondition> preconditions;
     private Collection<Effect> effects;
