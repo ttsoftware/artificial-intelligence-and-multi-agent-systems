@@ -2,8 +2,10 @@ package dtu.planners.firstorder.actions;
 
 public class MoveAction extends Action {
 
-    public MoveAction(Direction agentDirection) {
+    private Direction direction;
 
+    public MoveAction(Direction agentDirection) {
+        this.direction = direction;
     }
 
     @Override

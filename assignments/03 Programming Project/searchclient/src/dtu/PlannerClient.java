@@ -1,7 +1,7 @@
 package dtu;
 
 import dtu.agents.Agent;
-import dtu.planners.PartialOrderPlanner;
+import dtu.planners.HTNPlanner;
 import dtu.planners.Plan;
 
 import java.io.BufferedReader;
@@ -20,7 +20,7 @@ public class PlannerClient {
         // Create the level
         Level level = ProblemMarshaller.marshall(serverMessages);
 
-        PartialOrderPlanner planner = new PartialOrderPlanner(level);
+        HTNPlanner planner = new HTNPlanner(level);
         List<Plan> plans = planner.plan();
 
         plans.forEach(plan -> {

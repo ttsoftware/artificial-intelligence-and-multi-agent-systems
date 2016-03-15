@@ -3,8 +3,6 @@ package dtu.agents;
 import dtu.planners.Plan;
 import dtu.planners.firstorder.actions.Action;
 
-import java.util.List;
-
 public class Agent implements Runnable {
 
     private Plan plan;
@@ -24,11 +22,18 @@ public class Agent implements Runnable {
             case PULL: {
                 throw new UnsupportedOperationException("Not yet implemented.");
             }
+            default: { // NONE
+                // Do nothing?
+                throw new UnsupportedOperationException("Not yet implemented.");
+            }
         }
     }
 
     @Override
     public void run() {
+
+        // partial order planning
+
         getPlan().getActions().forEach(this::performAction);
     }
 

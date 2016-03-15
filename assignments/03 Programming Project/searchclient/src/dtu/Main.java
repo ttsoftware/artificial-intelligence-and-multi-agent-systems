@@ -16,7 +16,8 @@ public class Main {
                 "-t",
                 "60",
                 "-c",
-                "java -jar out/artifacts/searchclient_jar/searchclient.jar"
+                "java -jar out/artifacts/SearchClient_jar/searchclient.jar"
+                //"java -jar out/artifacts/PlannerClient_jar/searchclient.jar"
         };
 
         Runner.main(serverArgs);
