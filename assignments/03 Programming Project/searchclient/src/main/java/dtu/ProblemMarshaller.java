@@ -18,26 +18,33 @@ public class ProblemMarshaller {
      */
     public static Level marshall(BufferedReader fileReader) throws IOException {
 
-        Map<Character, String> colors = new HashMap<>();
-
-        // Objects we wish to create
-        // TODO: Fix board size to match actual board size
-        BoardCell[][] boardState = new BoardCell[100][100];
-        BoardObject[][] boardObjects = new BoardObject[100][100];
-        PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
-        List<Agent> agents = new ArrayList<>();
-        List<Box> boxes = new ArrayList<>();
-        List<Wall> walls = new ArrayList<>();
-        List<Goal> goals = new ArrayList<>();
+        int rowCount = 0;
+        int columnCount = 0;
 
         ArrayList<String> lines = new ArrayList<>();
 
         // read all lines into the lines array
         String fileLine = fileReader.readLine();
         while (fileLine != null && !fileLine.equals("")) {
+            rowCount++;
+            if (fileLine.length() > columnCount) {
+                columnCount = fileLine.length();
+            }
             lines.add(fileLine);
             fileLine = fileReader.readLine();
         }
+
+        Map<Character, String> colors = new HashMap<>();
+
+        // Objects we wish to create
+        // TODO: Fix board size to match actual board size
+        BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
+        BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
+        PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
+        List<Agent> agents = new ArrayList<>();
+        List<Box> boxes = new ArrayList<>();
+        List<Wall> walls = new ArrayList<>();
+        List<Goal> goals = new ArrayList<>();
 
         // Read lines specifying colors
         for (String line : lines) {

@@ -34,55 +34,27 @@ public class Level {
         return boardState;
     }
 
-    public void setBoardState(BoardCell[][] boardState) {
-        this.boardState = boardState;
-    }
-
     public BoardObject[][] getBoardObjects() {
         return boardObjects;
-    }
-
-    public void setBoardObjects(BoardObject[][] boardObjects) {
-        this.boardObjects = boardObjects;
     }
 
     public PriorityQueue<Goal> getGoalQueue() {
         return goalQueue;
     }
 
-    public void setGoalQueue(PriorityQueue<Goal> goalQueue) {
-        this.goalQueue = goalQueue;
-    }
-
     public List<Agent> getAgents() {
         return agents;
-    }
-
-    public void setAgents(List<Agent> agents) {
-        this.agents = agents;
     }
 
     public List<Box> getBoxes() {
         return boxes;
     }
 
-    public void setBoxes(List<Box> boxes) {
-        this.boxes = boxes;
-    }
-
     public List<Wall> getWalls() {
         return walls;
     }
 
-    public void setWalls(List<Wall> walls) {
-        this.walls = walls;
-    }
-
     public List<Goal> getGoals() {
         return goals;
-    }
-
-    public void setGoals(List<Goal> goals) {
-        this.goals = goals;
     }
 }
