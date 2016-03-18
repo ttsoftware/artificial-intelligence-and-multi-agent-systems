@@ -50,35 +50,19 @@ public class SearchClient {
         int maxColumn = 0;
 
         while (!line.equals("")) {
-<<<<<<< Updated upstream:assignments/03 Programming Project/searchclient/src/dtu/searchclient/SearchClient.java
             lines.add(line);
             line = serverMessages.readLine();
-=======
-            line = serverMessages.readLine();
-            lines.add(line);
->>>>>>> Stashed changes:assignments/01 Warmup Assignment/searchclient/src/dtu/searchclient/SearchClient.java
 
             if (line.length() > maxColumn) {
                 maxColumn = line.length();
             }
         }
 
-<<<<<<< Updated upstream:assignments/03 Programming Project/searchclient/src/dtu/searchclient/SearchClient.java
         Node.maxRow = lines.size();
         Node.maxColumn = maxColumn;
 
         Node.goals = (new char[Node.maxRow][Node.maxColumn]);
         Node.walls = (new boolean[Node.maxRow][Node.maxColumn]);
-=======
-        Node.setMaxRow(lines.size());
-        Node.setMaxColumn(maxColumn);
-
-        System.err.println(Node.getMaxRow());
-        System.err.println(Node.getMaxColumn());
-
-        Node.setGoals(new char[Node.getMaxRow()][Node.getMaxColumn()]);
-        Node.setWalls(new boolean[Node.getMaxRow()][Node.getMaxColumn()]);
->>>>>>> Stashed changes:assignments/01 Warmup Assignment/searchclient/src/dtu/searchclient/SearchClient.java
 
         initialState = new Node(null);
 
@@ -98,10 +82,7 @@ public class SearchClient {
                     Node.boxCount++;
                 } else if ('a' <= chr && chr <= 'z') { // Goal cells
                     Node.goals[levelLines][i] = chr;
-<<<<<<< Updated upstream:assignments/03 Programming Project/searchclient/src/dtu/searchclient/SearchClient.java
                     Node.goalLocations.add(new Pair<>(levelLines, i));
-=======
->>>>>>> Stashed changes:assignments/01 Warmup Assignment/searchclient/src/dtu/searchclient/SearchClient.java
                 }
             }
             levelLines++;
@@ -159,11 +140,7 @@ public class SearchClient {
         Strategy strategy = null;
         // strategy = new StrategyBFS();
         // Ex 1:
-<<<<<<< Updated upstream:assignments/03 Programming Project/searchclient/src/dtu/searchclient/SearchClient.java
         // strategy = new StrategyDFS();
-=======
-        strategy = new StrategyDFS();
->>>>>>> Stashed changes:assignments/01 Warmup Assignment/searchclient/src/dtu/searchclient/SearchClient.java
 
         // Ex 3:
         //strategy = new StrategyBestFirst(new AStarHeuristic(client.initialState));

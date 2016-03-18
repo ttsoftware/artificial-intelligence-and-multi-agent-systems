@@ -1,12 +1,11 @@
 package dtu;
 
-import dtu.agents.Agent;
-import dtu.planners.PartialOrderPlanner;
-import dtu.planners.Plan;
+import com.google.common.eventbus.EventBus;
+import dtu.board.Level;
+import dtu.events.EventBusService;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.List;
 
 public class PlannerClient {
 
@@ -17,15 +16,13 @@ public class PlannerClient {
         // Use stderr to print to console
         System.err.println("PlannerClient initializing. I am sending this using the error output stream.");
 
-        // Create the level
+        // Parse the level
         Level level = ProblemMarshaller.marshall(serverMessages);
 
-        PartialOrderPlanner planner = new PartialOrderPlanner(level);
-        List<Plan> plans = planner.plan();
+        // Create global event bus
+        EventBus eventBus = EventBusService.getEventBus();
 
-        plans.forEach(plan -> {
-            // Start a new thread (agent) for each plan
-            Thread t = new Thread(new Agent(plan));
-        });
+        Agency agency = new Agency(level);
+        agency.run();
     }
 }
