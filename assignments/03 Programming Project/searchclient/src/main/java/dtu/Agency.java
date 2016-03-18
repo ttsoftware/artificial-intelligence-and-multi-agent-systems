@@ -1,30 +1,23 @@
 package dtu;
 
-import com.google.common.eventbus.EventBus;
 import dtu.agent.AgentThread;
-import dtu.events.GoalOfferEvent;
-import dtu.events.EventBusService;
 import dtu.board.Level;
+import dtu.events.EventBusService;
+import dtu.events.agent.GoalOfferEvent;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlannerClient {
+public class Agency implements Runnable {
 
-    public static void main(String[] args) throws Exception {
+    private Level level;
 
-        BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
+    public Agency(Level level) {
+        this.level = level;
+    }
 
-        // Use stderr to print to console
-        System.err.println("PlannerClient initializing. I am sending this using the error output stream.");
-
-        // Parse the level
-        Level level = ProblemMarshaller.marshall(serverMessages);
-
-        // Create global event bus
-        EventBus eventBus = EventBusService.getEventBus();
+    @Override
+    public void run() {
 
         List<Thread> agentThreads = new ArrayList<>();
 
@@ -40,7 +33,7 @@ public class PlannerClient {
 
         // Post events to
         level.getGoals().forEach(goal -> {
-            eventBus.post(new GoalOfferEvent(goal));
+            EventBusService.getEventBus().post(new GoalOfferEvent(goal));
         });
 
         // wait for all threads to finish

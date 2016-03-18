@@ -1,10 +1,11 @@
 package dtu.agent;
 
+import com.google.common.eventbus.Subscribe;
 import dtu.agent.actions.Action;
 import dtu.board.Agent;
 import dtu.events.EventBusService;
-import dtu.events.GoalOfferEvent;
-import dtu.events.GoalOfferEventSubscriber;
+import dtu.events.agent.GoalOfferEventSubscriber;
+import dtu.events.agent.StopAllAgentsEvent;
 import dtu.planners.PartialOrderPlanner;
 import dtu.planners.actions.AbstractAction;
 
@@ -41,14 +42,22 @@ public class AgentThread implements Runnable {
     @Override
     public void run() {
         // Register for an event - announce that you want this event
-        GoalOfferEventSubscriber goalOfferEventSubscriber = new GoalOfferEventSubscriber();
+        GoalOfferEventSubscriber goalOfferEventSubscriber = new GoalOfferEventSubscriber(agent.getLabel());
         EventBusService.getEventBus().register(goalOfferEventSubscriber);
-
-        int steps = goalOfferEventSubscriber.getSteps();
 
         // Partial order planning
         PartialOrderPlanner popPlanner = new PartialOrderPlanner(new AbstractAction());
 
-        // Post some other event indicating that you are done with your work
+        // register all events handled by this class
+        EventBusService.getEventBus().register(this);
+    }
+
+    /**
+     * Stops the thread if this event is recieved
+     * @param event
+     */
+    @Subscribe
+    public void stopEvent(StopAllAgentsEvent event) {
+        Thread.currentThread().interrupt();
     }
 }
