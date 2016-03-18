@@ -11,6 +11,7 @@ public class Level {
     private PriorityQueue<Goal> goals = new PriorityQueue<>(new GoalComparator());
     private List<Agent> agents = new ArrayList<>();
     private List<Box> boxes = new ArrayList<>();
+    private List<Box> walls = new ArrayList<>();
 
     public BoardCell[][] getBoardState() {
         return BoardState;
@@ -50,5 +51,13 @@ public class Level {
 
     public void setBoxes(List<Box> boxes) {
         this.boxes = boxes;
+    }
+
+    public List<Box> getWalls() {
+        return walls;
+    }
+
+    public void setWalls(List<Box> walls) {
+        this.walls = walls;
     }
 }

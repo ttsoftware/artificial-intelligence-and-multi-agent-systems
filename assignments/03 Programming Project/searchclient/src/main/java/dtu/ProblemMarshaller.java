@@ -1,81 +1,67 @@
 package dtu;
 
-import dtu.board.Level;
-import javafx.util.Pair;
+import dtu.board.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProblemMarshaller {
 
     /**
      * Take the input file and create a Level object
      *
-     * @param levelFile BufferedReader
+     * @param fileReader BufferedReader
      * @throws IOException
      */
-    public static Level marshall(BufferedReader levelFile) throws IOException {
+    public static Level marshall(BufferedReader fileReader) throws IOException {
 
         Map<Character, String> colors = new HashMap<>();
-        String line, color;
 
-        int agentCol = -1, agentRow = -1;
-        int colorLines = 0, levelLines = 0;
-
-        // Read lines specifying colors
-        while ((line = levelFile.readLine()).matches("^[a-z]+:\\s*[0-9A-Z](,\\s*[0-9A-Z])*\\s*$")) {
-            line = line.replaceAll("\\s", "");
-            String[] colonSplit = line.split(":");
-            color = colonSplit[0].trim();
-
-            for (String id : colonSplit[1].split(",")) {
-                colors.put(id.trim().charAt(0), color);
-            }
-            colorLines++;
-        }
+        // Objects we wish to create
+        BoardCell[][] BoardState = {{}};
+        BoardObject[][] BoardObjects = {{}};
+        PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
+        List<Agent> agents = new ArrayList<>();
+        List<Box> boxes = new ArrayList<>();
+        List<Box> walls = new ArrayList<>();
+        List<Goal> goals = new ArrayList<>();
 
         ArrayList<String> lines = new ArrayList<>();
 
-        int maxColumn = 0;
+        // read all lines into the lines array
+        String fileLine = fileReader.readLine();
+        while (fileLine != null && !fileLine.equals("")) {
+            lines.add(fileLine);
+            fileLine = fileReader.readLine();
+        }
 
-        while (!line.equals("")) {
-            lines.add(line);
-            line = levelFile.readLine();
+        // Read lines specifying colors
+        for (String line : lines) {
+            if (line.matches("^[a-z]+:\\s*[0-9A-Z](,\\s*[0-9A-Z])*\\s*$")) {
+                line.replaceAll("\\s", "");
+                String[] colonSplit = line.split(":");
+                String color = colonSplit[0].trim();
 
-            if (line.length() > maxColumn) {
-                maxColumn = line.length();
+                for (String id : colonSplit[1].split(",")) {
+                    colors.put(id.trim().charAt(0), color);
+                }
             }
         }
 
-        int maxRow = lines.size();
-
-        int boxCount = 0;
-        char[][] goals = (new char[maxRow][maxColumn]);
-        boolean[][] walls = (new boolean[maxRow][maxColumn]);
-
-        List<Pair<Integer, Integer>> goalLocations = new ArrayList<>();
-
-        for (String levelLine : lines) {
-            for (int i = 0; i < levelLine.length(); i++) {
-                char chr = levelLine.charAt(i);
-                if ('+' == chr) { // Walls
-                    walls[levelLines][i] = true;
-                } else if ('0' <= chr && chr <= '9') { // Agents
-                    if (agentCol != -1 || agentRow != -1) {
-                        // Not a single agent level
-                    }
-                } else if ('A' <= chr && chr <= 'Z') { // Boxes
-                    boxCount++;
-                } else if ('a' <= chr && chr <= 'z') { // Goal cells
-                    goals[levelLines][i] = chr;
-                    goalLocations.add(new Pair<>(levelLines, i));
+        for (String line : lines) {
+            for (int i = 0; i < line.length(); i++) {
+                char chr = line.charAt(i);
+                if ('+' == chr) {
+                    // Its a wall cell
+                } else if ('0' <= chr && chr <= '9') {
+                    // Its an agent cell
+                } else if ('A' <= chr && chr <= 'Z') {
+                    // Its a box cell
+                } else if ('a' <= chr && chr <= 'z') {
+                    // Its a goal cell
                 }
             }
-            levelLines++;
         }
 
         throw new UnsupportedOperationException("Create a level object from input file");
