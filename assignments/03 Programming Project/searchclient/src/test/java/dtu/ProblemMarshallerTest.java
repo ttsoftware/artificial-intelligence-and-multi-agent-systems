@@ -20,5 +20,7 @@ public class ProblemMarshallerTest {
 
         // Parse the level
         Level level = ProblemMarshaller.marshall(fileReader);
+
+        System.out.println(level);
     }
 }

@@ -6,35 +6,52 @@ import java.util.PriorityQueue;
 
 public class Level {
 
-    private BoardCell[][] BoardState;
-    private BoardObject[][] BoardObjects;
-    private PriorityQueue<Goal> goals = new PriorityQueue<>(new GoalComparator());
+    private BoardCell[][] boardState;
+    private BoardObject[][] boardObjects;
+    private PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
+    private List<Goal> goals = new ArrayList<>();
     private List<Agent> agents = new ArrayList<>();
     private List<Box> boxes = new ArrayList<>();
-    private List<Box> walls = new ArrayList<>();
+    private List<Wall> walls = new ArrayList<>();
+
+    public Level(BoardCell[][] boardState,
+                 BoardObject[][] boardObjects,
+                 PriorityQueue<Goal> goalQueue,
+                 List<Goal> goals,
+                 List<Agent> agents,
+                 List<Box> boxes,
+                 List<Wall> walls) {
+        this.boardState = boardState;
+        this.boardObjects = boardObjects;
+        this.goalQueue = goalQueue;
+        this.goals = goals;
+        this.agents = agents;
+        this.boxes = boxes;
+        this.walls = walls;
+    }
 
     public BoardCell[][] getBoardState() {
-        return BoardState;
+        return boardState;
     }
 
     public void setBoardState(BoardCell[][] boardState) {
-        BoardState = boardState;
+        this.boardState = boardState;
     }
 
     public BoardObject[][] getBoardObjects() {
-        return BoardObjects;
+        return boardObjects;
     }
 
     public void setBoardObjects(BoardObject[][] boardObjects) {
-        BoardObjects = boardObjects;
+        this.boardObjects = boardObjects;
     }
 
-    public PriorityQueue<Goal> getGoals() {
-        return goals;
+    public PriorityQueue<Goal> getGoalQueue() {
+        return goalQueue;
     }
 
-    public void setGoals(PriorityQueue<Goal> goals) {
-        this.goals = goals;
+    public void setGoalQueue(PriorityQueue<Goal> goalQueue) {
+        this.goalQueue = goalQueue;
     }
 
     public List<Agent> getAgents() {
@@ -53,11 +70,19 @@ public class Level {
         this.boxes = boxes;
     }
 
-    public List<Box> getWalls() {
+    public List<Wall> getWalls() {
         return walls;
     }
 
-    public void setWalls(List<Box> walls) {
+    public void setWalls(List<Wall> walls) {
         this.walls = walls;
+    }
+
+    public List<Goal> getGoals() {
+        return goals;
+    }
+
+    public void setGoals(List<Goal> goals) {
+        this.goals = goals;
     }
 }

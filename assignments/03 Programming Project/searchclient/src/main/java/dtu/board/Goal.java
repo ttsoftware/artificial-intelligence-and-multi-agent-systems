@@ -7,7 +7,7 @@ public class Goal extends BoardObject {
     private final int column;
     private final String letter;
 
-    public Goal(String letter, int column, int row, int weight) {
+    public Goal(String letter, int row, int column, int weight) {
         this.letter = letter;
         this.column = column;
         this.row = row;
