@@ -11,6 +11,7 @@ import dtu.planners.actions.AbstractAction;
 
 public class AgentThread implements Runnable {
 
+    // the agent object which this agent corresponds to
     private Agent agent;
 
     public AgentThread(Agent agent) {
