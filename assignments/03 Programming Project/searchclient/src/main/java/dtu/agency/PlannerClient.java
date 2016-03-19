@@ -2,7 +2,7 @@ package dtu.agency;
 
 import com.google.common.eventbus.EventBus;
 import dtu.agency.board.Level;
-import dtu.agency.events.EventBusService;
+import dtu.agency.services.EventBusService;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

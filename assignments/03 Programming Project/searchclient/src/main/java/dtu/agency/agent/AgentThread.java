@@ -3,7 +3,7 @@ package dtu.agency.agent;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.board.Agent;
-import dtu.agency.events.EventBusService;
+import dtu.agency.services.EventBusService;
 import dtu.agency.events.agent.GoalOfferEventSubscriber;
 import dtu.agency.events.agent.StopAllAgentsEvent;
 import dtu.agency.planners.PartialOrderPlanner;

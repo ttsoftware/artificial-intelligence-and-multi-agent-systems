@@ -27,5 +27,6 @@ public class ProblemMarshallerTest {
         assertEquals(level.getBoardState().length, 7);
         assertEquals(level.getBoardState()[0].length, 19);
         assertEquals(level.getBoardState()[0][0], BoardCell.WALL);
+        assertEquals(level.getBoardState()[1][1], BoardCell.AGENT);
     }
 }

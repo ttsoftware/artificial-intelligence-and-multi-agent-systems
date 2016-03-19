@@ -1,10 +1,11 @@
 package dtu.agency.board;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-public class Level {
+public class Level implements Serializable {
 
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;

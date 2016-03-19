@@ -1,8 +1,10 @@
-package dtu.agency.events;
+package dtu.agency.services;
 
 import com.google.common.eventbus.EventBus;
 
-public class EventBusService {
+import java.io.Serializable;
+
+public class EventBusService implements Serializable {
 
     private static final EventBus eventBus = new EventBus();
 

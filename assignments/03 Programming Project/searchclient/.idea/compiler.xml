@@ -24,9 +24,17 @@
         <processorPath useClasspath="true" />
         <module name="searchclient" />
       </profile>
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="The Agency" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="searchclient" target="1.8" />
+      <module name="The Agency" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -2,7 +2,7 @@ package dtu.agency.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
-import dtu.agency.events.EventBusService;
+import dtu.agency.services.EventBusService;
 import dtu.agency.events.agent.GoalOfferEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agent.StopAllAgentsEvent;
