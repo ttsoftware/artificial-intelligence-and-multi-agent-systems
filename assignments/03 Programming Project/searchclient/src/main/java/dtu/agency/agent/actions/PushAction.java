@@ -1,11 +1,15 @@
 package dtu.agency.agent.actions;
 
+import dtu.agency.board.Box;
+
 public class PushAction extends Action {
 
-    private Direction agentDirection;
-    private Direction boxDirection;
+    private final Box box;
+    private final Direction agentDirection;
+    private final Direction boxDirection;
 
-    public PushAction(Direction agentDirection, Direction boxDirection) {
+    public PushAction(Box box, Direction agentDirection, Direction boxDirection) {
+        this.box = box;
         this.agentDirection = agentDirection;
         this.boxDirection = boxDirection;
     }
@@ -18,6 +22,10 @@ public class PushAction extends Action {
     @Override
     public String toString() {
         return "Push(" + getAgentDirection() + "," + getBoxDirection() + ")";
+    }
+
+    public Box getBox() {
+        return box;
     }
 
     public Direction getAgentDirection() {

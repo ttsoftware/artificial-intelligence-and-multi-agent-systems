@@ -6,6 +6,21 @@ public enum Direction {
     EAST,
     WEST;
 
+    public Direction getInverse() {
+        switch (this) {
+            case NORTH:
+                return Direction.SOUTH;
+            case SOUTH:
+                return Direction.NORTH;
+            case EAST:
+                return Direction.WEST;
+            case WEST:
+                return Direction.EAST;
+        }
+
+        throw new UnsupportedOperationException("Invalid direction object.");
+    }
+
     @Override
     public String toString() {
         switch (this) {
