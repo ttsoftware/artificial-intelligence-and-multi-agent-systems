@@ -2,12 +2,17 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.actions.Action;
+import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.agent.actions.PullAction;
+import dtu.agency.agent.actions.PushAction;
 import dtu.agency.board.Agent;
-import dtu.agency.services.EventBusService;
+import dtu.agency.events.agency.ActionOfferEvent;
 import dtu.agency.events.agent.GoalOfferEventSubscriber;
 import dtu.agency.events.agent.StopAllAgentsEvent;
 import dtu.agency.planners.PartialOrderPlanner;
 import dtu.agency.planners.actions.AbstractAction;
+import dtu.agency.services.EventBusService;
+import dtu.agency.services.LevelService;
 
 public class AgentThread implements Runnable {
 
@@ -20,23 +25,39 @@ public class AgentThread implements Runnable {
 
     /**
      * Execute a specific action
+     *
      * @param action Action
      */
     public void performAction(Action action) {
+        boolean success = false;
         switch (action.getType()) {
             case MOVE: {
-                throw new UnsupportedOperationException("Not yet implemented.");
+                // Update the level
+                success = LevelService.getInstance().move(agent, (MoveAction) action);
+                break;
             }
             case PUSH: {
-                throw new UnsupportedOperationException("Not yet implemented.");
+                // Update the level
+                success = LevelService.getInstance().push(agent, (PushAction) action);
+                break;
             }
             case PULL: {
-                throw new UnsupportedOperationException("Not yet implemented.");
+                // Update the level
+                success = LevelService.getInstance().pull(agent, (PullAction) action);
+                break;
             }
-            default: { // NONE
-                // Do nothing?
-                throw new UnsupportedOperationException("Not yet implemented.");
+            case NONE: { // NONE
+                // No need to modify the level
+                success = true;
+                break;
             }
+        }
+
+        if (success) {
+            // Offer this action to the agency
+            EventBusService.getEventBus().post(new ActionOfferEvent(action));
+        } else {
+            // What do we do here?
         }
     }
 
@@ -55,6 +76,7 @@ public class AgentThread implements Runnable {
 
     /**
      * Stops the thread if this event is recieved
+     *
      * @param event
      */
     @Subscribe

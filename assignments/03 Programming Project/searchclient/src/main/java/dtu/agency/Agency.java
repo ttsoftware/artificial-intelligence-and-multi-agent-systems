@@ -30,7 +30,7 @@ public class Agency implements Runnable {
         // Register events
         // eventBus.register(new GoalOfferEventSubscriber());
 
-        // Post events to
+        // Post events to agents
         LevelService.getInstance().getLevel().getGoalQueue().forEach(goal -> {
             EventBusService.getEventBus().post(new GoalOfferEvent(goal));
         });

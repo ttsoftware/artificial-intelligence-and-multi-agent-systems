@@ -14,4 +14,17 @@ public class PullAction extends Action {
     public ActionType getType() {
         return ActionType.PULL;
     }
+
+    @Override
+    public String toString() {
+        return "Pull(" + getAgentDirection() + "," + getBoxDirection() + ")";
+    }
+
+    public Direction getAgentDirection() {
+        return agentDirection;
+    }
+
+    public Direction getBoxDirection() {
+        return boxDirection;
+    }
 }

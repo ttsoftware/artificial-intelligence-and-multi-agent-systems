@@ -12,4 +12,13 @@ public class MoveAction extends Action {
     public ActionType getType() {
         return ActionType.MOVE;
     }
+
+    @Override
+    public String toString() {
+        return "Move(" + getDirection() + ")";
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
 }

@@ -3,17 +3,17 @@ package dtu.agency.services;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.agent.actions.PullAction;
 import dtu.agency.agent.actions.PushAction;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Level;
+import dtu.agency.board.*;
 
 import java.io.Serializable;
+import java.util.Hashtable;
 
 public class LevelService implements Serializable {
 
     private static LevelService instance = null;
     private Level level = null;
 
-    protected LevelService() {
+    private LevelService() {
     }
 
     /**
@@ -23,7 +23,7 @@ public class LevelService implements Serializable {
      */
     public static LevelService getInstance() {
         if (instance == null) {
-            // All calls to getInstance() needs to wait for each other
+            // Creating an instance must be synchronized
             synchronized (LevelService.class) {
                 if (instance == null) {
                     instance = new LevelService();
@@ -33,16 +33,56 @@ public class LevelService implements Serializable {
         return instance;
     }
 
-    public void move(Agent agent, MoveAction action) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    /**
+     *
+     * @param agent
+     * @param action
+     * @return Whether or not the action was performed
+     */
+    public synchronized boolean move(Agent agent, MoveAction action) {
+        // We must synchronize here to avoid collisions.
+        // Do we want to handle conflicts in this step/class?
+
+        BoardCell[][] boardState = level.getBoardState();
+        Hashtable<String, Position> objectPositions = level.getBoardObjectPositions();
+
+        // find the object corresponding to this agent
+        Position position = objectPositions.get(agent.getLabel());
+
+        // move the agent to the new position
+        try {
+            switch (action.getDirection()) {
+                case NORTH:
+                    boardState[position.getRow()-1][position.getColumn()] = BoardCell.AGENT;
+                    break;
+                case SOUTH:
+                    boardState[position.getRow()+1][position.getColumn()] = BoardCell.AGENT;
+                    break;
+                case EAST:
+                    boardState[position.getRow()][position.getColumn()+1] = BoardCell.AGENT;
+                    break;
+                case WEST:
+                    boardState[position.getRow()][position.getColumn()-1] = BoardCell.AGENT;
+                    break;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // TODO: Handle this better
+            e.printStackTrace();
+            return false;
+        }
+
+        // free the cell where the agent is currently located
+        boardState[position.getRow()][position.getColumn()] = BoardCell.FREE_CELL;
+
+        return true;
     }
 
-    public void push(Agent agent, PullAction action) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    public synchronized boolean push(Agent agent, PushAction action) {
+        return false;
     }
 
-    public void pull(Agent agent, PushAction action) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    public synchronized boolean pull(Agent agent, PullAction action) {
+        return false;
     }
 
     /**

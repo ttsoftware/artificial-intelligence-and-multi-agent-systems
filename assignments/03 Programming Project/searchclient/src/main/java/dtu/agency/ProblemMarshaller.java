@@ -39,7 +39,7 @@ public class ProblemMarshaller {
         // Objects we wish to create
         // TODO: Fix board size to match actual board size
         BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
-        BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
+        Hashtable<String, Position> boardObjects = new Hashtable<>();
         PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
         List<Agent> agents = new ArrayList<>();
         List<Box> boxes = new ArrayList<>();
@@ -66,29 +66,30 @@ public class ProblemMarshaller {
                     // Its a wall cell
                     Wall wall = new Wall();
                     walls.add(wall);
-                    boardObjects[row][column] = wall;
+                    boardObjects.put(String.valueOf(cell), new Position(row, column));
                     boardState[row][column] = BoardCell.WALL;
                 }
                 else if ('0' <= cell && cell <= '9') {
                     // Its an agent cell
                     Agent agent = new Agent(String.valueOf(cell));
                     agents.add(agent);
-                    boardObjects[row][column] = agent;
+                    boardObjects.put(String.valueOf(cell), new Position(row, column));
                     boardState[row][column] = BoardCell.AGENT;
                 }
                 else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     Box box = new Box();
                     boxes.add(box);
-                    boardObjects[row][column] = box;
+                    boardObjects.put(String.valueOf(cell), new Position(row, column));
                     boardState[row][column] = BoardCell.BOX;
                 }
                 else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
+                    boardObjects.put(String.valueOf(cell), new Position(row, column));
+                    boardState[row][column] = BoardCell.GOAL;
+
                     Goal goal = new Goal(String.valueOf(cell), row, column, DEFAULT_WEIGHT);
                     goals.add(goal);
-                    boardObjects[row][column] = goal;
-                    boardState[row][column] = BoardCell.GOAL;
                     goalQueue.add(goal);
                 }
             }

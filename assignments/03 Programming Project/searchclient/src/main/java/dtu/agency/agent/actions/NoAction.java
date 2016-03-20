@@ -10,4 +10,9 @@ public class NoAction extends Action {
     public ActionType getType() {
         return ActionType.NONE;
     }
+
+    @Override
+    public String toString() {
+        return "NoOp";
+    }
 }

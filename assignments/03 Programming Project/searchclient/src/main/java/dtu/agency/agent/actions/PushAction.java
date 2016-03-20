@@ -14,4 +14,17 @@ public class PushAction extends Action {
     public ActionType getType() {
         return ActionType.PUSH;
     }
+
+    @Override
+    public String toString() {
+        return "Push(" + getAgentDirection() + "," + getBoxDirection() + ")";
+    }
+
+    public Direction getAgentDirection() {
+        return agentDirection;
+    }
+
+    public Direction getBoxDirection() {
+        return boxDirection;
+    }
 }
