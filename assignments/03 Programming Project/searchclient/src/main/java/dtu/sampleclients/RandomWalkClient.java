@@ -8,7 +8,7 @@ public class RandomWalkClient {
 
     public class Agent {
         public Agent(char id, String color) {
-            System.err.println("Found " + color + " agent " + id);
+            System.err.println("Found " + color + " agency " + id);
         }
 
         public String act() {

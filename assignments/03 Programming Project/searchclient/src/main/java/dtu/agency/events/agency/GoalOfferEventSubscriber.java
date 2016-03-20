@@ -1,9 +1,9 @@
-package dtu.agency.events.agent;
+package dtu.agency.events.agency;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.board.Goal;
 import dtu.agency.events.EventSubscriber;
-import dtu.agency.events.agency.GoalEstimationEvent;
+import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.planners.HTNPlanner;
 import dtu.agency.services.EventBusService;
 
@@ -22,7 +22,7 @@ public class GoalOfferEventSubscriber implements EventSubscriber<GoalOfferEvent>
 
         Goal goal = event.getGoal();
 
-        // HTN agency
+        // HTN agent
         HTNPlanner htnPlanner = new HTNPlanner(goal);
 
         Random random = new Random();

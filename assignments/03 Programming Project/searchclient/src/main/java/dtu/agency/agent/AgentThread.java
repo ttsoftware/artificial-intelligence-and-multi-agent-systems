@@ -6,9 +6,8 @@ import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.agent.actions.PullAction;
 import dtu.agency.agent.actions.PushAction;
 import dtu.agency.board.Agent;
-import dtu.agency.events.agency.ActionOfferEvent;
-import dtu.agency.events.agent.GoalOfferEventSubscriber;
-import dtu.agency.events.agent.StopAllAgentsEvent;
+import dtu.agency.events.agency.GoalOfferEventSubscriber;
+import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.planners.PartialOrderPlanner;
 import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.services.EventBusService;
@@ -16,7 +15,7 @@ import dtu.agency.services.LevelService;
 
 public class AgentThread implements Runnable {
 
-    // the agent object which this agent corresponds to
+    // the agency object which this agency corresponds to
     private Agent agent;
 
     public AgentThread(Agent agent) {
@@ -52,13 +51,6 @@ public class AgentThread implements Runnable {
                 break;
             }
         }
-
-        if (success) {
-            // Offer this action to the agency
-            EventBusService.getEventBus().post(new ActionOfferEvent(action));
-        } else {
-            // What do we do here?
-        }
     }
 
     @Override
@@ -67,7 +59,7 @@ public class AgentThread implements Runnable {
         GoalOfferEventSubscriber goalOfferEventSubscriber = new GoalOfferEventSubscriber(agent.getLabel());
         EventBusService.getEventBus().register(goalOfferEventSubscriber);
 
-        // Partial order agency
+        // Partial order agent
         PartialOrderPlanner popPlanner = new PartialOrderPlanner(new AbstractAction());
 
         // register all events handled by this class

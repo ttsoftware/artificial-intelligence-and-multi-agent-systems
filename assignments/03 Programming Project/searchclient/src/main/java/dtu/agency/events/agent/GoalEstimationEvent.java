@@ -1,4 +1,4 @@
-package dtu.agency.events.agency;
+package dtu.agency.events.agent;
 
 import dtu.agency.events.Event;
 

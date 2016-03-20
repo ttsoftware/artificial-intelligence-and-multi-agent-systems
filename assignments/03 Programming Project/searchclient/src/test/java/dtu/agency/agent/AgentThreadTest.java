@@ -3,9 +3,9 @@ package dtu.agency.agent;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.services.EventBusService;
-import dtu.agency.events.agent.GoalOfferEvent;
-import dtu.agency.events.agency.GoalEstimationEventSubscriber;
-import dtu.agency.events.agent.StopAllAgentsEvent;
+import dtu.agency.events.agency.GoalOfferEvent;
+import dtu.agency.events.agent.GoalEstimationEventSubscriber;
+import dtu.agency.events.agency.StopAllAgentsEvent;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class AgentThreadTest {
 
         HashMap<String, Integer> agentStepsEstimation = goalEstimationEventSubscriber.getAgentStepsEstimation();
         agentStepsEstimation.keySet().forEach(agentLabel -> {
-            System.out.println("Agency recieved estimation for agent " + agentLabel + ": " + Integer.toString(agentStepsEstimation.get(agentLabel)));
+            System.out.println("Agency recieved estimation for agency " + agentLabel + ": " + Integer.toString(agentStepsEstimation.get(agentLabel)));
         });
 
         // we are done

@@ -48,7 +48,7 @@ public class LevelService implements Serializable {
         boolean moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
 
         if (moveSuccess) {
-            // if we could move the box, we can also move the agent to the new position
+            // if we could move the box, we can also move the agency to the new position
             moveObject(agent, action.getAgentDirection());
         }
 
@@ -57,14 +57,14 @@ public class LevelService implements Serializable {
 
     public synchronized boolean pull(Agent agent, PullAction action) {
 
-        // move the agent to the new position
+        // move the agency to the new position
         boolean moveSuccess = moveObject(agent, action.getAgentDirection());
 
         if (moveSuccess) {
             moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
 
             if (!moveSuccess) {
-                // if we could not move the box, we have to move the agent back
+                // if we could not move the box, we have to move the agency back
                 moveObject(agent, action.getAgentDirection().getInverse());
             }
         }
@@ -94,53 +94,47 @@ public class LevelService implements Serializable {
         int nextColumn = -1;
 
         // move the object to the new position
-        try {
-            switch (direction) {
-                case NORTH: {
-                    nextRow = position.getRow();
-                    nextColumn = position.getColumn() - 1;
-                    if (causesCollision(nextRow, nextColumn)) {
-                        // We cannot perform this action
-                        return false;
-                    }
-                    boardState[nextRow][nextColumn] = boardCell;
-                    break;
+        switch (direction) {
+            case NORTH: {
+                nextRow = position.getRow();
+                nextColumn = position.getColumn() - 1;
+                if (causesCollision(nextRow, nextColumn)) {
+                    // We cannot perform this action
+                    return false;
                 }
-                case SOUTH: {
-                    nextRow = position.getRow() + 1;
-                    nextColumn = position.getColumn();
-                    if (causesCollision(nextRow, nextColumn)) {
-                        // We cannot perform this action
-                        return false;
-                    }
-                    boardState[nextRow][nextColumn] = boardCell;
-                    break;
-                }
-                case EAST: {
-                    nextRow = position.getRow();
-                    nextColumn = position.getColumn() + 1;
-                    if (causesCollision(nextRow, nextColumn)) {
-                        // We cannot perform this action
-                        return false;
-                    }
-                    boardState[nextRow][nextColumn] = boardCell;
-                    break;
-                }
-                case WEST: {
-                    nextRow = position.getRow();
-                    nextColumn = position.getColumn() - 1;
-                    if (causesCollision(nextRow, nextColumn)) {
-                        // We cannot perform this action
-                        return false;
-                    }
-                    boardState[nextRow][nextColumn] = boardCell;
-                    break;
-                }
+                boardState[nextRow][nextColumn] = boardCell;
+                break;
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            // TODO: Handle this better
-            e.printStackTrace(System.err);
-            return false;
+            case SOUTH: {
+                nextRow = position.getRow() + 1;
+                nextColumn = position.getColumn();
+                if (causesCollision(nextRow, nextColumn)) {
+                    // We cannot perform this action
+                    return false;
+                }
+                boardState[nextRow][nextColumn] = boardCell;
+                break;
+            }
+            case EAST: {
+                nextRow = position.getRow();
+                nextColumn = position.getColumn() + 1;
+                if (causesCollision(nextRow, nextColumn)) {
+                    // We cannot perform this action
+                    return false;
+                }
+                boardState[nextRow][nextColumn] = boardCell;
+                break;
+            }
+            case WEST: {
+                nextRow = position.getRow();
+                nextColumn = position.getColumn() - 1;
+                if (causesCollision(nextRow, nextColumn)) {
+                    // We cannot perform this action
+                    return false;
+                }
+                boardState[nextRow][nextColumn] = boardCell;
+                break;
+            }
         }
 
         // free the cell where the object was located

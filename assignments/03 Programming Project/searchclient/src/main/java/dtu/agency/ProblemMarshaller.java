@@ -70,7 +70,7 @@ public class ProblemMarshaller {
                     boardState[row][column] = BoardCell.WALL;
                 }
                 else if ('0' <= cell && cell <= '9') {
-                    // Its an agent cell
+                    // Its an agency cell
                     Agent agent = new Agent(String.valueOf(cell));
                     agents.add(agent);
                     boardObjects.put(String.valueOf(cell), new Position(row, column));
