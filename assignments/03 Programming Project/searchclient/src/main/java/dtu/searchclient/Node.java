@@ -80,7 +80,7 @@ public class Node {
             int newAgentCol = this.agentCol + dirToColChange(c.dir1);
 
             if (c.actType == type.Move) {
-                // Check if there's a wall or box on the cell to which the agent is moving
+                // Check if there's a wall or box on the cell to which the agency is moving
                 if (cellIsFree(newAgentRow, newAgentCol)) {
                     Node n = this.ChildNode();
                     n.action = c;
@@ -107,11 +107,11 @@ public class Node {
                     }
                 }
             } else if (c.actType == type.Pull) {
-                // Cell is free where agent is going
+                // Cell is free where agency is going
                 if (cellIsFree(newAgentRow, newAgentCol)) {
                     int boxRow = this.agentRow + dirToRowChange(c.dir2);
                     int boxCol = this.agentCol + dirToColChange(c.dir2);
-                    // .. and there's a box in "dir2" of the agent
+                    // .. and there's a box in "dir2" of the agency
                     if (boxAt(boxRow, boxCol)) {
                         Node n = this.ChildNode();
                         n.action = c;

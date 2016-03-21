@@ -73,7 +73,7 @@ public class SearchClient {
                     Node.walls[levelLines][i] = true;
                 } else if ('0' <= chr && chr <= '9') { // Agents
                     if (agentCol != -1 || agentRow != -1) {
-                        error("Not a single agent level");
+                        error("Not a single agency level");
                     }
                     initialState.setAgentRow(levelLines);
                     initialState.setAgentCol(i);

@@ -44,7 +44,7 @@ if ARGV.length == 1 then
     #sleep(0.1)
   end
 else
-  puts "Type in number of agent"
+  puts "Type in number of agency"
 end
 
 

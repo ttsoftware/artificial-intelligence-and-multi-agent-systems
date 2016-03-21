@@ -141,7 +141,7 @@ public class GuiClient extends JFrame {
     public GuiClient(String[] customs) throws IOException {
         super("02285 Toy PlannerClient");
         System.err.println("Hello from GuiClient");
-        readMap(); // Get agent count
+        readMap(); // Get agency count
         receiver = new ServerReceiver(this);
         transmitter = new ServerTransmitter(this);
 
@@ -293,7 +293,7 @@ public class GuiClient extends JFrame {
     }
 
     /**
-     * Turns Cmd into Cmd,Cmd,Cmd (..) based on number of agent
+     * Turns Cmd into Cmd,Cmd,Cmd (..) based on number of agency
      *
      * @param cmd
      * @return Multified cmd

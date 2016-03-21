@@ -5,7 +5,7 @@
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/MANIFESTS/PlannerClient/META-INF/MANIFEST.MF" />
       </element>
-      <element id="module-output" name="searchclient" />
+      <element id="module-output" name="The Agency" />
       <element id="extracted-dir" path="$PROJECT_DIR$/server.jar" path-in-jar="/" />
     </root>
   </artifact>
