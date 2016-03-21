@@ -4,20 +4,24 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Level;
-import dtu.agency.events.agency.StopAllAgentsEvent;
-import dtu.agency.events.agent.GoalEstimationEventSubscriber;
-import dtu.agency.events.agent.PlanOfferEvent;
+import dtu.agency.events.SendServerActionsEvent;
+import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
+import dtu.agency.events.agency.StopAllAgentsEvent;
+import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
+import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.LevelService;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 public class Agency implements Runnable {
 
     private List<Thread> agentThreads;
+    private Hashtable<String, ConcretePlan> currentPlans = new Hashtable<>();
 
     public Agency(Level level) {
         LevelService.getInstance().setLevel(level);
@@ -37,7 +41,7 @@ public class Agency implements Runnable {
             t.start();
         });
 
-        // Register for incoming plans
+        // Register for self-contained events
         EventBusService.getEventBus().register(this);
 
         // Register for incoming goal estimations
@@ -53,7 +57,11 @@ public class Agency implements Runnable {
     @Subscribe
     @AllowConcurrentEvents
     public void planOfferEventSubscriber(PlanOfferEvent event) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+
+        // We need a strategy for doing this in the multi-agent case.
+        // currentPlans.put(event.getAgent().getLabel(), event.getPlan());
+
+        EventBusService.getEventBus().post(new SendServerActionsEvent(event.getPlan().getActions()));
     }
 
     @Subscribe
@@ -64,7 +72,7 @@ public class Agency implements Runnable {
             try {
                 t.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         });
     }

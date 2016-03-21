@@ -1,8 +1,9 @@
-package dtu.agency.events.agent;
+package dtu.agency.events.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.events.EventSubscriber;
+import dtu.agency.events.agent.GoalEstimationEvent;
 
 import java.util.HashMap;
 import java.util.List;

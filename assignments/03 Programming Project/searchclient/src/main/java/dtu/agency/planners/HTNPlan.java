@@ -4,7 +4,7 @@ import dtu.agency.planners.actions.AbstractAction;
 
 import java.util.List;
 
-public class HTNPlan implements Plan {
+public class HTNPlan implements AbstractPlan {
 
     private List<AbstractAction> actions;
 
