@@ -4,6 +4,7 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Level;
+import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
@@ -56,7 +57,11 @@ public class Agency implements Runnable {
     @Subscribe
     @AllowConcurrentEvents
     public void planOfferEventSubscriber(PlanOfferEvent event) {
-        currentPlans.put(event.getAgent().getLabel(), event.getPlan());
+
+        // We need a strategy for doing this in the multi-agent case.
+        // currentPlans.put(event.getAgent().getLabel(), event.getPlan());
+
+        EventBusService.getEventBus().post(new SendServerActionsEvent(event.getPlan().getActions()));
     }
 
     @Subscribe

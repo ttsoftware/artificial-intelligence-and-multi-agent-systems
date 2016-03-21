@@ -1,10 +1,6 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.MoveAction;
-import dtu.agency.agent.actions.PullAction;
-import dtu.agency.agent.actions.PushAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -16,7 +12,6 @@ import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.HTNPlanner;
 import dtu.agency.planners.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
-import dtu.agency.services.LevelService;
 
 import java.util.Hashtable;
 import java.util.Objects;
@@ -31,37 +26,6 @@ public class AgentThread implements Runnable {
     public AgentThread(Agent agent) {
         this.agent = agent;
         htnPlans = new Hashtable<>();
-    }
-
-    /**
-     * Execute a specific action
-     *
-     * @param action Action
-     */
-    public void performAction(Action action) {
-        boolean success = false;
-        switch (action.getType()) {
-            case MOVE: {
-                // Update the level
-                success = LevelService.getInstance().move(agent, (MoveAction) action);
-                break;
-            }
-            case PUSH: {
-                // Update the level
-                success = LevelService.getInstance().push(agent, (PushAction) action);
-                break;
-            }
-            case PULL: {
-                // Update the level
-                success = LevelService.getInstance().pull(agent, (PullAction) action);
-                break;
-            }
-            case NONE: { // NONE
-                // No need to modify the level
-                success = true;
-                break;
-            }
-        }
     }
 
     @Override
@@ -109,10 +73,10 @@ public class AgentThread implements Runnable {
             // Partial order plan
             htnPlan.getActions().forEach(abstractAction -> {
                 PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
+
                 // Post the partial plan to the agency
                 EventBusService.getEventBus().post(new PlanOfferEvent(agent, popPlanner.plan()));
             });
-
         }
     }
 

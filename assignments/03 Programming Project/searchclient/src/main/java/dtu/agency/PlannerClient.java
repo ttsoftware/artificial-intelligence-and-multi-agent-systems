@@ -5,7 +5,7 @@ import com.google.common.eventbus.EventBus;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
-import dtu.agency.events.SendServerActionEvent;
+import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.services.EventBusService;
 
@@ -35,11 +35,11 @@ public class PlannerClient {
         EventBus eventBus = EventBusService.getEventBus();
 
         // Register for actions event
-        eventBus.register(new EventSubscriber<SendServerActionEvent>() {
+        eventBus.register(new EventSubscriber<SendServerActionsEvent>() {
 
             @Override
             @AllowConcurrentEvents
-            public void changeSubscriber(SendServerActionEvent event) {
+            public void changeSubscriber(SendServerActionsEvent event) {
                 sendActions(event.getActions());
             }
         });
@@ -68,6 +68,7 @@ public class PlannerClient {
 
         System.err.println("Trying: [" + serverAction + "]");
         System.out.println("[" + serverAction + "]");
+
         String response = null;
         try {
             response = serverMessages.readLine();
