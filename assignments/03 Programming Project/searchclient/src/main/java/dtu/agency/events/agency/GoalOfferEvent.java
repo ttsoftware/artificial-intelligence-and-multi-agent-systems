@@ -5,7 +5,7 @@ import dtu.agency.events.Event;
 
 public class GoalOfferEvent extends Event {
 
-    private Goal goal;
+    private final Goal goal;
 
     public GoalOfferEvent(Goal goal) {
         this.goal = goal;
@@ -13,9 +13,5 @@ public class GoalOfferEvent extends Event {
 
     public Goal getGoal() {
         return goal;
-    }
-
-    public void setGoal(Goal goal) {
-        this.goal = goal;
     }
 }

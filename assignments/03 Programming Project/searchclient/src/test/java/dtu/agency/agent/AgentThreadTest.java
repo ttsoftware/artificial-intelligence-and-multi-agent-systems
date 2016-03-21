@@ -4,7 +4,7 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.services.EventBusService;
 import dtu.agency.events.agency.GoalOfferEvent;
-import dtu.agency.events.agent.GoalEstimationEventSubscriber;
+import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.StopAllAgentsEvent;
 import org.junit.Test;
 
