@@ -16,7 +16,7 @@ public class ProblemMarshallerTest {
     @Test
     public void testMarshall() throws IOException {
 
-        String filePath = "/home/troels/Studie/DTU/artificial intelligence and multi-agency systems/assignments/03 Programming Project/searchclient/levels/SAD1.lvl";
+        String filePath = "/home/troels/Studie/DTU/artificial intelligence and multi-agent systems/assignments/03 Programming Project/searchclient/levels/SAD1.lvl";
 
         FileInputStream inputStream = new FileInputStream(filePath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));

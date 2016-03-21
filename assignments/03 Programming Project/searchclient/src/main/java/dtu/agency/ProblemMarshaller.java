@@ -64,7 +64,7 @@ public class ProblemMarshaller {
                 char cell = lines.get(row).charAt(column);
                 if ('+' == cell) {
                     // Its a wall cell
-                    Wall wall = new Wall();
+                    Wall wall = new Wall(String.valueOf(cell));
                     walls.add(wall);
                     boardObjects.put(String.valueOf(cell), new Position(row, column));
                     boardState[row][column] = BoardCell.WALL;
@@ -78,7 +78,7 @@ public class ProblemMarshaller {
                 }
                 else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
-                    Box box = new Box();
+                    Box box = new Box(String.valueOf(cell));
                     boxes.add(box);
                     boardObjects.put(String.valueOf(cell), new Position(row, column));
                     boardState[row][column] = BoardCell.BOX;
