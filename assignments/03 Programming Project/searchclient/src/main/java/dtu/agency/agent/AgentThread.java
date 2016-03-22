@@ -52,7 +52,7 @@ public class AgentThread implements Runnable {
         Random random = new Random();
         int randomSteps = random.nextInt();
 
-        System.err.println("Agent recieved a goaloffer event and returned: " + Integer.toString(randomSteps));
+        System.err.println("Agent recieved a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(randomSteps));
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(agent.getLabel(), randomSteps));
     }
@@ -67,6 +67,8 @@ public class AgentThread implements Runnable {
         if (Objects.equals(event.getAgentLabel(), agent.getLabel())) {
             // We won the bid for this goal!
 
+            System.err.println("I won the bid for: " + event.getGoal().getLabel());
+
             // Find the HTNPlan for this goal
             HTNPlan htnPlan = htnPlans.get(event.getGoal().getLabel());
 
@@ -75,7 +77,7 @@ public class AgentThread implements Runnable {
                 PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
 
                 // Post the partial plan to the agency
-                EventBusService.getEventBus().post(new PlanOfferEvent(agent, popPlanner.plan()));
+                EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
             });
         }
     }

@@ -1,8 +1,11 @@
 package dtu.agency.planners;
 
 import dtu.agency.board.Goal;
+import dtu.agency.planners.actions.AbstractAction;
+import dtu.agency.planners.actions.GotoAction;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HTNPlanner {
 
@@ -11,6 +14,8 @@ public class HTNPlanner {
     }
 
     public HTNPlan plan() {
-        return new HTNPlan(new ArrayList<>());
+        List<AbstractAction> actions = new ArrayList<>();
+        actions.add(new GotoAction(0, 5));
+        return new HTNPlan(actions);
     }
 }
