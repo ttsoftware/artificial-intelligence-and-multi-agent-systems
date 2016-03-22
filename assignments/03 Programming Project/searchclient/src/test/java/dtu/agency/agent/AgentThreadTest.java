@@ -31,7 +31,7 @@ public class AgentThreadTest {
         agentLabels.add(agent1.getLabel());
         agentLabels.add(agent2.getLabel());
 
-        GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(agentLabels);
+        GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels);
         EventBusService.getEventBus().register(goalEstimationEventSubscriber);
 
         EventBusService.getEventBus().post(new GoalOfferEvent(goal));

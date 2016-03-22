@@ -1,6 +1,8 @@
 package dtu.agency.agent.actions;
 
-public enum Direction {
+import java.io.Serializable;
+
+public enum Direction implements Serializable {
     NORTH,
     SOUTH,
     EAST,
