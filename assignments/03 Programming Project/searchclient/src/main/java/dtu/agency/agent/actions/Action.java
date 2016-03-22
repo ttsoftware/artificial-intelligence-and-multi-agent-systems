@@ -1,6 +1,8 @@
 package dtu.agency.agent.actions;
 
-public abstract class Action {
+import dtu.agency.AbstractAction;
+
+public abstract class Action extends AbstractAction {
 
     public abstract ActionType getType();
 
