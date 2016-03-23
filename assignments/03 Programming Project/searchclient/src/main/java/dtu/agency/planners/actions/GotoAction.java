@@ -1,27 +1,23 @@
 package dtu.agency.planners.actions;
 
 import dtu.agency.board.Box;
+import dtu.agency.board.Position;
+
+import java.util.Hashtable;
 
 public class GotoAction extends AbstractAction {
 
-    private int row;
-    private int column;
+    private Position position;
 
-    public GotoAction(int row, int column) {
-        this.row = row;
-        this.column = column;
+    public GotoAction(Position position) {
+        this.position = position;
     }
 
-    public GotoAction(Box box) {
-        this.row = boardObjectPositions;
-        this.column = box.getColumn();
+    public GotoAction(Box box, Hashtable<String, Position> boardObjectPositions) {
+        this.position = boardObjectPositions.get(box.getLabel());
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
+    public Position getPosition() {
+        return this.position;
     }
 }
