@@ -1,0 +1,10 @@
+out/production
+out/artifacts
+target
+.idea/workspace.xml
+.idea/uiDesigner.xml
+.idea/compiler.xml
+.idea/dictionaries
+.idea/inspectionProfiles
+.idea/libraries
+*.class

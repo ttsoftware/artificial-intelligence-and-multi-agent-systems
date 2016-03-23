@@ -1,7 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c5ebf75d-a19a-4dcc-ad44-d4ce71b93929" name="Default" comment="" />
+    <list default="true" id="c5ebf75d-a19a-4dcc-ad44-d4ce71b93929" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/artifacts/The_Agency_jar.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_guava_19_0.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/The Agency.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAbispebjerg.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAchallenge.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAmultiagentSort.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MApacman.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAsimple1.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAsimple2.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAsimple3.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAsimple4.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAsimple5.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/MAtbsAppartment.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAanagram.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAbispebjerg.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAboxesOfHanoi.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAchoice.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SApushing.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAsimple1.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAsimple2.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAsokobanLevel96.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/levels/SAtest.lvl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/Agency.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/PlannerClient.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/Action.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/ActionType.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/Direction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/MoveAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/NoAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PullAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PushAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Agent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/BoardCell.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/BoardObject.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Box.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Goal.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/GoalComparator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Level.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Position.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/Event.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/EventSubscriber.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/SendServerActionsEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agency/GoalAssignmentEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agency/GoalEstimationEventSubscriber.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agency/GoalOfferEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agency/StopAllAgentsEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agent/GoalEstimationEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agent/PlanOfferEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/events/agent/ProblemSolvedEvent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/AbstractPlan.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/ConcretePlan.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/HTNPlan.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/HTNPlanner.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/POPPlan.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/Plan.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/AbstractAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/GotoAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/MoveBoxAction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/Effect.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/preconditions/Precondition.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/bdi/Belief.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/bdi/Desire.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/bdi/Intension.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/services/EventBusService.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/services/LevelService.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/Memory.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/heuristic/AStarHeuristic.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/heuristic/GreedyHeuristic.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/heuristic/Heuristic.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/heuristic/WeightedAStarHeuristic.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/MANIFESTS/PlannerClient/META-INF/MANIFEST.MF" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/dtu/agency/PlannerClientTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/dtu/agency/ProblemMarshallerTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/dtu/agency/agent/AgentThreadTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/dtu/agency/services/LevelServiceTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MANIFESTS/PlannerClient/META-INF/MANIFEST.MF" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MANIFESTS/SearchClient/META-INF/MANIFEST.MF" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/report/assignment-01.tex" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/artifacts/searchclient_jar.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/compiler.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/copyright/profiles_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/dictionaries/troels.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/inspectionProfiles/Project_Default.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/inspectionProfiles/profiles_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/vcs.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/searchclient.iml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/Heuristic.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/../environment.zip" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/description.html" afterPath="$PROJECT_DIR$/.idea/description.html" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/libraries/server.xml" afterPath="$PROJECT_DIR$/.idea/libraries/server.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/.idea/project-template.xml" afterPath="$PROJECT_DIR$/.idea/project-template.xml" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/levels/Crunch.lvl" afterPath="$PROJECT_DIR$/levels/Crunch.lvl" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/levels/Firefly.lvl" afterPath="$PROJECT_DIR$/levels/Firefly.lvl" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/levels/SAD1.lvl" afterPath="$PROJECT_DIR$/levels/SAD1.lvl" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/levels/SAD2.lvl" afterPath="$PROJECT_DIR$/levels/SAD2.lvl" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/levels/friendofBFS.lvl" afterPath="$PROJECT_DIR$/levels/friendofBFS.lvl" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/levels/friendofDFS.lvl" afterPath="$PROJECT_DIR$/levels/friendofDFS.lvl" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/readme-searchclient.txt" afterPath="$PROJECT_DIR$/readme-searchclient.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/readme-server.txt" afterPath="$PROJECT_DIR$/readme-server.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/server.jar" afterPath="$PROJECT_DIR$/server.jar" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/src/main/resources/MANIFESTS/SearchClient/META-INF/MANIFEST.MF" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/Main.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/Main.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/sampleclients/Command.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/sampleclients/Command.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/sampleclients/GuiClient.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/sampleclients/GuiClient.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/sampleclients/RandomWalkClient.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/sampleclients/RandomWalkClient.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/sampleclients/random_agent.rb" afterPath="$PROJECT_DIR$/src/main/java/dtu/sampleclients/random_agent.rb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/Command.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/Command.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/Node.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/Node.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/SearchClient.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/SearchClient.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/strategy/Strategy.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/strategy/Strategy.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/strategy/StrategyBFS.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/strategy/StrategyBFS.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/strategy/StrategyBestFirst.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/strategy/StrategyBestFirst.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/../../01 Warmup Assignment/searchclient/src/dtu/searchclient/strategy/StrategyDFS.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/searchclient/strategy/StrategyDFS.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../.gitignore" afterPath="$PROJECT_DIR$/../../../.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="searchclient.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/target/classes/" />
@@ -23,7 +150,48 @@
     <favorites_list name="searchclient" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="Node.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/dtu/searchclient/Node.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-2788">
+              <caret line="31" column="27" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Heuristic.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/dtu/searchclient/heuristic/Heuristic.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-36">
+              <caret line="6" column="22" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PartialOrderPlanner.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="16" column="27" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="POPPlan.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/POPPlan.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="72">
+              <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
@@ -31,6 +199,13 @@
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
       <projects_view />
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" />
+      </list>
     </option>
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" />
@@ -46,10 +221,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1922" />
-    <option name="y" value="-4" />
-    <option name="width" value="1924" />
-    <option name="height" value="1086" />
+    <option name="y" value="-1056" />
+    <option name="width" value="1920" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -76,9 +250,11 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="PackagesPane">
-        <subPane />
+      <pane id="Scope">
+        <subPane subId="Problems" />
+        <subPane subId="Production" />
+        <subPane subId="Project Files" />
+        <subPane subId="Tests" />
       </pane>
       <pane id="ProjectPane">
         <subPane>
@@ -88,13 +264,109 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dtu" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="searchclient" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dtu" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sampleclients" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope">
-        <subPane subId="Problems" />
-        <subPane subId="Production" />
-        <subPane subId="Project Files" />
-        <subPane subId="Tests" />
+      <pane id="Scratches" />
+      <pane id="PackagesPane">
+        <subPane />
       </pane>
     </panes>
   </component>
@@ -645,14 +917,15 @@
       <workItem from="1458667036395" duration="766000" />
       <workItem from="1458667991797" duration="1299000" />
       <workItem from="1458719746117" duration="444000" />
+      <workItem from="1458723732664" duration="281000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2716000" />
+    <option name="totallyTimeSpent" value="2997000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1922" y="-4" width="1924" height="1086" extended-state="6" />
+    <frame x="0" y="-1056" width="1920" height="1056" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -712,9 +985,47 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/Plan.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/HTNPlanner.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/HTNPlan.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/POPPlan.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/bdi/Desire.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/bdi/Belief.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/searchclient/Node.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2788">
+          <caret line="31" column="27" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/sampleclients/random_agent.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="486">
+          <caret line="27" column="11" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/searchclient/heuristic/Heuristic.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-36">
+          <caret line="6" column="22" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/POPPlan.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="16" column="27" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
   </component>
 </project>
