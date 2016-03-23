@@ -11,7 +11,24 @@ import java.util.List;
 public class PartialOrderPlanner {
 
     public PartialOrderPlanner(AbstractAction action) {
+        switch (action.getClass().getName()) {
+            case "GoToAction":
+                List<Action> actions = goToActionPlanner(action);
+                break;
+            case "MoveBoxAction":
 
+                break;
+            default:
+                break;
+        }
+    }
+
+    private List<Action> goToActionPlanner(AbstractAction action) {
+        List<Action> actions = new ArrayList<Action>();
+
+        
+
+        return actions;
     }
 
     public POPPlan plan() {
