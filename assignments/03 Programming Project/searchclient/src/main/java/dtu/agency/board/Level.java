@@ -9,6 +9,7 @@ import java.util.PriorityQueue;
 public class Level implements Serializable {
 
     private BoardCell[][] boardState;
+    private BoardObject[][] boardObjects;
     private Hashtable<String, Position> boardObjectPositions;
     private PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
     private List<Goal> goals = new ArrayList<>();
@@ -17,6 +18,7 @@ public class Level implements Serializable {
     private List<Wall> walls = new ArrayList<>();
 
     public Level(BoardCell[][] boardState,
+                 BoardObject[][] boardObjects,
                  Hashtable<String, Position> boardObjectPositions,
                  PriorityQueue<Goal> goalQueue,
                  List<Goal> goals,
@@ -24,6 +26,7 @@ public class Level implements Serializable {
                  List<Box> boxes,
                  List<Wall> walls) {
         this.boardState = boardState;
+        this.boardObjects = boardObjects;
         this.boardObjectPositions = boardObjectPositions;
         this.goalQueue = goalQueue;
         this.goals = goals;
@@ -38,6 +41,14 @@ public class Level implements Serializable {
 
     public void setBoardState(BoardCell[][] boardState) {
         this.boardState = boardState;
+    }
+
+    public BoardObject[][] getBoardObjects() {
+        return boardObjects;
+    }
+
+    public void setBoardObjects(BoardObject[][] boardObjects) {
+        this.boardObjects = boardObjects;
     }
 
     public Hashtable<String, Position> getBoardObjectPositions() {

@@ -39,7 +39,8 @@ public class ProblemMarshaller {
         // Objects we wish to create
         // TODO: Fix board size to match actual board size
         BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
-        Hashtable<String, Position> boardObjects = new Hashtable<>();
+        BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
+        Hashtable<String, Position> boardObjectPositions = new Hashtable<>();
         PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
         List<Agent> agents = new ArrayList<>();
         List<Box> boxes = new ArrayList<>();
@@ -59,38 +60,52 @@ public class ProblemMarshaller {
             }
         }
 
+        int wallCount = 0;
+        int boxCount = 0;
+        int goalCount = 0;
+
         for (int row = 0; row < lines.size(); row++) {
             for (int column = 0; column < lines.get(row).length(); column++) {
                 char cell = lines.get(row).charAt(column);
                 if ('+' == cell) {
                     // Its a wall cell
-                    Wall wall = new Wall(String.valueOf(cell));
+                    String label = String.valueOf(cell) + Integer.toString(wallCount);
+                    Wall wall = new Wall(label);
                     walls.add(wall);
-                    boardObjects.put(String.valueOf(cell), new Position(row, column));
+                    boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.WALL;
+                    boardObjects[row][column] = wall;
+                    wallCount++;
                 }
                 else if ('0' <= cell && cell <= '9') {
                     // Its an agency cell
-                    Agent agent = new Agent(String.valueOf(cell));
+                    String label = String.valueOf(cell);
+                    Agent agent = new Agent(label);
                     agents.add(agent);
-                    boardObjects.put(String.valueOf(cell), new Position(row, column));
+                    boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.AGENT;
+                    boardObjects[row][column] = agent;
                 }
                 else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
-                    Box box = new Box(String.valueOf(cell));
+                    String label = String.valueOf(cell) + Integer.toString(boxCount);
+                    Box box = new Box(label);
                     boxes.add(box);
-                    boardObjects.put(String.valueOf(cell), new Position(row, column));
+                    boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.BOX;
+                    boardObjects[row][column] = box;
+                    boxCount++;
                 }
                 else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
-                    boardObjects.put(String.valueOf(cell), new Position(row, column));
+                    String label = String.valueOf(cell) + Integer.toString(goalCount);
+                    Goal goal = new Goal(label, row, column, DEFAULT_WEIGHT);
+                    boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.GOAL;
-
-                    Goal goal = new Goal(String.valueOf(cell), row, column, DEFAULT_WEIGHT);
+                    boardObjects[row][column] = goal;
                     goals.add(goal);
                     goalQueue.add(goal);
+                    goalCount++;
                 }
             }
         }
@@ -98,6 +113,7 @@ public class ProblemMarshaller {
         return new Level(
                 boardState,
                 boardObjects,
+                boardObjectPositions,
                 goalQueue,
                 goals,
                 agents,
