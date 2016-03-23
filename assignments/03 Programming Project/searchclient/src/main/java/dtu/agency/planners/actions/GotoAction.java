@@ -13,7 +13,7 @@ public class GotoAction extends AbstractAction {
     }
 
     public GotoAction(Box box) {
-        this.row = box.getRow();
+        this.row = boardObjectPositions;
         this.column = box.getColumn();
     }
 
