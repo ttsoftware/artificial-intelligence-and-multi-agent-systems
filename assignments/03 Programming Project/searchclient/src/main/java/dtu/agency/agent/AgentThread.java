@@ -32,6 +32,14 @@ public class AgentThread implements Runnable {
     public void run() {
         // register all events handled by this class
         EventBusService.getEventBus().register(this);
+        // keep thread running untill stop event.
+        synchronized (this) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+            }
+        }
     }
 
     /**
@@ -89,6 +97,7 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void stopEvent(StopAllAgentsEvent event) {
+        System.err.println("Agent: " + agent.getLabel() + " recieved stop event");
         Thread.currentThread().interrupt();
     }
 }
