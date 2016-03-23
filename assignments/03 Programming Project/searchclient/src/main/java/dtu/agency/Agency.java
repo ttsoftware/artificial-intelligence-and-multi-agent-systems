@@ -15,7 +15,10 @@ import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.LevelService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 public class Agency implements Runnable {
 
@@ -57,12 +60,33 @@ public class Agency implements Runnable {
             EventBusService.getEventBus().post(new GoalOfferEvent(goal));
         });
 
+        boolean estimationsCompleted = false;
+
+        // TODO: This way of waiting is pretty ugly. Lets find a better way.
+
+        // wait for agents to estimate goals
+        while (!estimationsCompleted) {
+            boolean allSubscribersCompleted = true;
+            for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
+                boolean allAgentsCompleted = true;
+                for (int agentEstimation : subscriber.getAgentStepsEstimation().values()) {
+                    if (agentEstimation == -1) {
+                        allAgentsCompleted = false;
+                    }
+                }
+                if (!allAgentsCompleted) {
+                    allSubscribersCompleted = allAgentsCompleted;
+                }
+            }
+            estimationsCompleted = allSubscribersCompleted;
+        }
+
         // Get the goal estimations
         for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
 
             String lowestEstimationAgent = null;
             int lowestEstimation = Integer.MAX_VALUE;
-            HashMap<String, Integer> agentStepsEstimation = subscriber.getAgentStepsEstimation();
+            Hashtable<String, Integer> agentStepsEstimation = subscriber.getAgentStepsEstimation();
 
             // Find the lowest value
             for (Map.Entry<String, Integer> agentEstimationKeyEntry : agentStepsEstimation.entrySet()) {

@@ -7,6 +7,7 @@ import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
+import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.services.EventBusService;
 
 import java.io.BufferedReader;
@@ -40,6 +41,9 @@ public class PlannerClient {
 
                 System.err.println("Recieved actions from Agency: " + event.getActions().size());
                 sendActions(event.getActions());
+
+                // Pretend problem is solved
+                EventBusService.getEventBus().post(new ProblemSolvedEvent());
             }
         });
 
