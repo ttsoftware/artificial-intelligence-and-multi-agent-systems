@@ -1,5 +1,6 @@
 package dtu.agency.planners.htn.strategy;
 
+import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.agency.planners.htn.HTNNode;
 import dtu.agency.planners.htn.Memory;
 
@@ -7,7 +8,6 @@ import java.util.HashSet;
 
 public abstract class Strategy {
 
-    public HashSet<HTNNode> explored;
     public HashSet<HTNEffect> explored;
 
     public long startTime = System.currentTimeMillis();
@@ -16,11 +16,11 @@ public abstract class Strategy {
         explored = new HashSet<>();
     }
 
-    public void addToExplored(HTNNode n) {
+    public void addToExplored(HTNEffect n) {
         explored.add(n);
     }
 
-    public boolean isExplored(HTNNode n) {
+    public boolean isExplored(HTNEffect n) {
         return explored.contains(n);
     }
 

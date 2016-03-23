@@ -18,4 +18,12 @@ public class MixedPlan implements AbstractPlan {
     public LinkedList<AbstractAction> getActions() {
         return actions;
     }
+
+    public void addAction(AbstractAction a) {
+        this.actions.add(a);
+    }
+
+    public void clearActions() {
+        this.actions.clear();
+    }
 }

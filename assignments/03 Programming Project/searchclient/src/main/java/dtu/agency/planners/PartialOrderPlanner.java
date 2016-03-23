@@ -1,6 +1,7 @@
 package dtu.agency.planners;
 
-import dtu.agency.planners.actions.AbstractAction;
+
+import dtu.agency.AbstractAction;
 
 import java.util.ArrayList;
 

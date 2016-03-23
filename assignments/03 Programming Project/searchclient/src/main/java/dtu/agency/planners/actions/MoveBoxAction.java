@@ -2,17 +2,15 @@ package dtu.agency.planners.actions;
 
 import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.agent.actions.PullAction;
 import dtu.agency.agent.actions.PushAction;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.planners.actions.effects.HTNEffect;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class MoveBoxAction extends HLAction {
 
@@ -46,30 +44,30 @@ public class MoveBoxAction extends HLAction {
     }
 
     @Override
-    public List<List<AbstractAction>> getRefinements() {
-        List<List<AbstractAction>> refinements = new ArrayList<LinkedList<AbstractAction>>();
+    public boolean checkPreconditions(Level level, HTNEffect effect) {
+        return false;
+    }
 
-        // first, find the direction that the target box is
-        Direction boxDirection = getBoxDirection(Effect);
+    @Override
+    public ArrayList<LinkedList<AbstractAction>> getRefinements(Direction dirToBox) {
+        ArrayList<LinkedList<AbstractAction>> refinements = new ArrayList<>();
 
         // then can we check if push/pull  direction os valid before adding it??
         // else leave it for someone else
 
-        List<HLAction> refinement_1 = new LinkedList<HLAction>();
-        List<HLAction> refinement_2 = new LinkedList<HLAction>();
+        LinkedList<AbstractAction> refinement_1 = new LinkedList<>();
+        LinkedList<AbstractAction> refinement_2 = new LinkedList<>();
         // do this 3 more times
 
 
-        refinement_1.add(new PushAction(targetBox, Direction.NORTH, boxDirection) );
+        refinement_1.add(new PushAction(targetBox, Direction.NORTH, dirToBox) );
         refinement_1.add(this);
 
-        refinement_2.add(new PullAction(targetBox, Direction.NORTH, boxDirection) );
+        refinement_2.add(new PullAction(targetBox, Direction.NORTH, dirToBox) );
         refinement_2.add(this);
 
         refinements.add(refinement_1);
         refinements.add(refinement_2);
-        refinements.add(refinement_3);
-        refinements.add(refinement_4);
 
         long seed = System.nanoTime();
         Collections.shuffle(refinements, new Random(seed));

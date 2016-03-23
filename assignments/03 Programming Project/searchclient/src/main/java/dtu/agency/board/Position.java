@@ -35,7 +35,7 @@ public class Position implements Serializable {
     @Override
     public int hashCode() {
         int prime = 619;
-        int rowprime = 89;
+        int rowprime = 89; // larger than 70 ;-)
         int result = 1;
         result = prime * result + rowprime * row;
         result = prime * result + column;
@@ -43,13 +43,19 @@ public class Position implements Serializable {
     }
 
     public static int manhattanDist(Position p1, Position p2) {
-        return Math.abs(p1.getRow() - p2.getRow()) + Math.abs(p1.getColumn() - p2.getColumn())
-    }
-
-    public static double eucDist(Position p1, Position p2) {
-        return Math.sqrt( (p1.getRow() - p2.getRow())^2 + (p1.getColumn() - p2.getColumn())^2 )
+        return Math.abs(p1.getRow() - p2.getRow()) + Math.abs(p1.getColumn() - p2.getColumn());
     }
 
     public int manhattanDist(Position position) {
-        return manhattanDist(this, Position position);
+        return manhattanDist(this, position);
+    }
+
+    public static double eucDist(Position p1, Position p2) {
+        return Math.sqrt( (p1.getRow() - p2.getRow())^2 + (p1.getColumn() - p2.getColumn())^2 );
+    }
+
+    public double eucDist(Position position) {
+        return eucDist(this, position);
+    }
+
 }

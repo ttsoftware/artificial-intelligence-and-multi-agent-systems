@@ -1,21 +1,20 @@
 package dtu.agency.planners.htn.heuristic;
 
 
-import dtu.searchclient.Node;
-import dtu.searchclient.heuristic.Heuristic;
+import dtu.agency.board.Box;
+import dtu.agency.board.Goal;
+import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNNode;
 
 public class WeightedAStarHeuristic extends Heuristic {
 
     private int W;
 
-    public WeightedAStarHeuristic(Node initialState) {
-        super(initialState);
-        // You're welcome to test this out with different values,
-        // but for the reporting part you must at least indicate benchmarks for W = 5
-        W = 5;
+    public WeightedAStarHeuristic(HTNEffect initialEffect, Box targetBox, Goal targetGoal, int weight) {
+        super(initialEffect, targetBox, targetGoal);
+        W = weight;
     }
-
-    public int f(Node n) {
+    public int f(HTNNode n) {
         return n.g() + W * h(n);
     }
 

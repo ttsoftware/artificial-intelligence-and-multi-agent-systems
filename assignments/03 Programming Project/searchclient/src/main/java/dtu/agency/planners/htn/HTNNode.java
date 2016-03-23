@@ -2,6 +2,7 @@ package dtu.agency.planners.htn;
 
 import dtu.agency.agent.actions.Action;
 import dtu.agency.planners.AbstractPlan;
+import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.searchclient.Command;
@@ -24,18 +25,20 @@ public class HTNNode {
     private HTNNode parent;
     private Action action;   // primitive action represented by this node
     private HTNEffect effect; // status of the relevant board features
-    private MixedPlan abPlan; // list of successive (abstract) actions
+    private HTNPlan abPlan; // list of successive (abstract) actions
 
     private int g; // generation - how many ancestors exist? -> how many moves have i performed
 
-    public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, MixedPlan abstractPlan) {
+    public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, HTNPlan highLevelPlan) {
         this.parent = parent;
         this.action = action;
         this.effect = initialEffects;
-        this.abPlan = abstractPlan;
+        this.abPlan = highLevelPlan;
+        this.g = (parent == null) ? 0 : (parent.g + 1);
+    }
 
-        g = (parent == null) ? 0 : parent.g+1;
-
+    public HTNEffect getEffect() {
+        return effect;
     }
 
     public int g() {
@@ -44,19 +47,6 @@ public class HTNNode {
 
     public boolean isInitialState() {
         return this.parent == null;
-    }
-
-    public boolean isGoalState() {
-        for (int row = 1; row < maxRow - 1; row++) {
-            for (int col = 1; col < maxColumn - 1; col++) {
-                char g = goals[row][col];
-                char b = Character.toLowerCase(boxes[row][col]);
-                if (g > 0 && b != g) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public ArrayList<HTNNode> getExpandedNodes() {
