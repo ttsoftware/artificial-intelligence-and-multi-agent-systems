@@ -37,7 +37,7 @@ public class Agency implements Runnable {
 
         LevelService.getInstance().getLevel().getAgents().forEach(agent -> {
             // Start a new thread (agency) for each plan
-            Thread t = new Thread(new AgentThread(agent));
+            Thread t = new Thread(new AgentThread(agent, LevelService.getInstance().getLevel()));
             agentThreads.add(t);
             agentLabels.add(agent.getLabel());
             t.start();

@@ -1,5 +1,6 @@
 package dtu.agency.planners.actions;
 
+import dtu.agency.board.Position;
 import dtu.agency.planners.actions.effects.Effect;
 import dtu.agency.planners.actions.preconditions.Precondition;
 
@@ -9,6 +10,8 @@ public abstract class AbstractAction {
 
     private Collection<Precondition> preconditions;
     private Collection<Effect> effects;
+
+    private Position position;
 
     public Collection<Effect> getEffects() {
         return effects;
@@ -26,4 +29,7 @@ public abstract class AbstractAction {
         this.preconditions = preconditions;
     }
 
+    public Position getPosition() {
+        return position;
+    }
 }

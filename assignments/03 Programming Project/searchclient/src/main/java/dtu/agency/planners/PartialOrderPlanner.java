@@ -1,8 +1,11 @@
 package dtu.agency.planners;
 
+import dtu.agency.agent.AgentThread;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.board.Agent;
+import dtu.agency.board.Level;
 import dtu.agency.planners.actions.AbstractAction;
 
 import java.util.ArrayList;
@@ -10,10 +13,10 @@ import java.util.List;
 
 public class PartialOrderPlanner {
 
-    public PartialOrderPlanner(AbstractAction action) {
+    public PartialOrderPlanner(AbstractAction action, Agent agent, Level level) {
         switch (action.getClass().getName()) {
             case "GoToAction":
-                List<Action> actions = goToActionPlanner(action);
+                List<Action> actions = goToActionPlanner(action, agent, level);
                 break;
             case "MoveBoxAction":
 
@@ -23,12 +26,10 @@ public class PartialOrderPlanner {
         }
     }
 
-    private List<Action> goToActionPlanner(AbstractAction action) {
-        List<Action> actions = new ArrayList<Action>();
-
-        
-
-        return actions;
+    private List<Action> goToActionPlanner(AbstractAction action, Agent agent, Level level) {
+        Searcher searcher = new Searcher(level);
+        List<Action> concreteActions = searcher.search(action, agent);
+        return concreteActions;
     }
 
     public POPPlan plan() {

@@ -3,6 +3,7 @@ package dtu.agency.agent;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Level;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
@@ -22,17 +23,19 @@ public class AgentThread implements Runnable {
     // the agency object which this agency corresponds to
     private Agent agent;
     private Hashtable<String, HTNPlan> htnPlans;
+    private Level level;
 
-    public AgentThread(Agent agent) {
+    public AgentThread(Agent agent, Level level) {
         this.agent = agent;
         htnPlans = new Hashtable<>();
+        this.level = level;
     }
 
     @Override
     public void run() {
         // register all events handled by this class
         EventBusService.getEventBus().register(this);
-        // keep thread running untill stop event.
+        // keep thread running until stop event.
         synchronized (this) {
             try {
                 wait();
@@ -82,7 +85,7 @@ public class AgentThread implements Runnable {
 
             // Partial order plan
             htnPlan.getActions().forEach(abstractAction -> {
-                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
+                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, this.agent, this.level);
 
                 // Post the partial plan to the agency
                 EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
@@ -99,5 +102,9 @@ public class AgentThread implements Runnable {
     public void stopEvent(StopAllAgentsEvent event) {
         System.err.println("Agent: " + agent.getLabel() + " recieved stop event");
         Thread.currentThread().interrupt();
+    }
+
+    public Level getLevel() {
+        return level;
     }
 }

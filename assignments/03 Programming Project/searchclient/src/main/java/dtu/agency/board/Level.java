@@ -1,5 +1,8 @@
 package dtu.agency.board;
 
+import dtu.agency.agent.actions.Direction;
+import javafx.util.Pair;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -33,6 +36,66 @@ public class Level implements Serializable {
         this.agents = agents;
         this.boxes = boxes;
         this.walls = walls;
+    }
+
+    public boolean isAdjacent(Position positionOne, Position positionTwo) {
+        if (positionOne.getRow() == positionTwo.getRow() && Math.abs(positionOne.getColumn() - positionTwo.getColumn()) == 1) {
+            return true;
+        }
+        if (positionOne.getColumn() == positionTwo.getColumn() && Math.abs(positionOne.getRow() - positionTwo.getRow()) == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    public List<Pair<BoardObject, Position>> getNeighbours(Position position) {
+        List<Pair<BoardObject, Position>> neighbours = new ArrayList<>();
+
+        if (this.isNotWall(this.boardObjects[position.getRow()][position.getColumn()-1])) {
+            neighbours.add(new Pair<>(this.boardObjects[position.getRow()][position.getColumn() - 1],
+                    new Position(position.getRow(), position.getColumn() - 1)));
+        }
+        if (this.isNotWall(this.boardObjects[position.getRow()][position.getColumn()+1])) {
+            neighbours.add(new Pair<>(this.boardObjects[position.getRow()][position.getColumn() + 1],
+                    new Position(position.getRow(), position.getColumn() + 1)));
+        }
+        if (this.isNotWall(this.boardObjects[position.getRow()-1][position.getColumn()])) {
+            neighbours.add(new Pair<>(this.boardObjects[position.getRow() - 1][position.getColumn()],
+                    new Position(position.getRow() - 1, position.getColumn())));
+        }
+        if (this.isNotWall(this.boardObjects[position.getRow()+1][position.getColumn()])) {
+            neighbours.add(new Pair<>(this.boardObjects[position.getRow() + 1][position.getColumn()],
+                    new Position(position.getRow() + 1, position.getColumn())));
+        }
+
+        return neighbours;
+    }
+
+    private boolean isNotWall(BoardObject boardObject) {
+        if (boardObject.equals(BoardCell.WALL)) {
+            return false;
+        }
+        return true;
+    }
+
+    public Direction getDirection(Position positionOne, Position positionTwo) {
+        if (positionOne.getRow() == positionTwo.getRow()) {
+            if (positionOne.getColumn() > positionTwo.getColumn()) {
+                return Direction.EAST;
+            }
+            else {
+                return Direction.WEST;
+            }
+        }
+        else if (positionOne.getColumn() == positionTwo.getColumn()) {
+            if (positionOne.getRow() > positionTwo.getRow()) {
+                return Direction.SOUTH;
+            }
+            else {
+                return Direction.NORTH;
+            }
+        }
+        return null;
     }
 
     public BoardCell[][] getBoardState() {

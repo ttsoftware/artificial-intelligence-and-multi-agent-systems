@@ -16,8 +16,4 @@ public class GotoAction extends AbstractAction {
     public GotoAction(Box box, Hashtable<String, Position> boardObjectPositions) {
         this.position = boardObjectPositions.get(box.getLabel());
     }
-
-    public Position getPosition() {
-        return this.position;
-    }
 }
