@@ -3,7 +3,6 @@ package dtu.searchclient;
 import java.util.*;
 import java.util.function.Predicate;
 
-import dtu.agency.board.BoardObject;
 import dtu.searchclient.Command.dir;
 import dtu.searchclient.Command.type;
 import javafx.util.Pair;
@@ -32,9 +31,6 @@ public class Node {
     public static int boxCount;
     private char[][] boxes;
 
-    private int[][] levelMatrix;
-    private BoardObject[][] objectMatrix;
-
     // We store the goal locations in a list for faster iteration
     public static List<Pair<Integer, Integer>> goalLocations = new ArrayList<>();
 
@@ -45,8 +41,8 @@ public class Node {
 
     public Node(Node parent) {
         this.parent = parent;
-        this.levelMatrix = parent.getLevelMatrix();
-        this.objectMatrix = parent.getObjectMatrix();
+
+        boxes = new char[maxRow][maxColumn];
 
         if (parent == null) {
             g = 0;
@@ -257,21 +253,5 @@ public class Node {
 
     public void setAction(Command action) {
         this.action = action;
-    }
-
-    public int[][] getLevelMatrix() {
-        return levelMatrix;
-    }
-
-    public BoardObject[][] getObjectMatrix() {
-        return objectMatrix;
-    }
-
-    public void setObjectMatrix(BoardObject[][] objectMatrix) {
-        this.objectMatrix = objectMatrix;
-    }
-
-    public void setLevelMatrix(int[][] levelMatrix) {
-        this.levelMatrix = levelMatrix;
     }
 }
