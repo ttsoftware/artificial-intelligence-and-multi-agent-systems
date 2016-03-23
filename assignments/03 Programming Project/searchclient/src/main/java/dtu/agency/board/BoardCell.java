@@ -7,5 +7,6 @@ public enum BoardCell {
     AGENT,
     GOAL,
     SOLVED_GOAL,
-    OCCUPIED_GOAL
+    AGENT_GOAL,
+    BOX_GOAL
 }
