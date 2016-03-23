@@ -11,11 +11,17 @@ import java.util.*;
 
 public class GotoAction extends HLAction implements Serializable {
 
-    private Position finalDestination;
-    private Box targetBox = null;
+    private final Position finalDestination;
+    private final Box targetBox;
 
     public GotoAction(int row, int column) {
         this.finalDestination = new Position(row, column);
+        this.targetBox = null;
+    }
+
+    public GotoAction(Position position) {
+        this.finalDestination = position;
+        this.targetBox = null;
     }
 
     public GotoAction(Box box) {

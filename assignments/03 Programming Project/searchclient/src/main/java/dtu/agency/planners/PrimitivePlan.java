@@ -2,18 +2,19 @@ package dtu.agency.planners;
 
 import dtu.agency.agent.actions.Action;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class PrimitivePlan implements ConcretePlan {
 
-    private final List<Action> actions;
+    private LinkedList<Action> actions;
 
     public PrimitivePlan(List<Action> actions) {
-        this.actions = actions;
+        this.actions = new LinkedList<>(actions);
     }
 
     @Override
-    public List<Action> getActions() {
+    public LinkedList<Action> getActions() {
         return actions;
     }
 }

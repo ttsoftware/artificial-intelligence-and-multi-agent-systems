@@ -1,5 +1,6 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.agent.actions.Action;
 import dtu.agency.board.*;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.PrimitivePlan;
@@ -10,6 +11,7 @@ import dtu.agency.planners.actions.effects.Effect;
 import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.agency.planners.htn.heuristic.AStarHeuristic;
 import dtu.agency.planners.htn.heuristic.Heuristic;
+import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.searchclient.Memory;
 import dtu.searchclient.Node;
 import dtu.searchclient.strategy.Strategy;
@@ -30,51 +32,137 @@ public class HTNPlanner {
     // 2. push/pull-path to goal from box, initialState: agentPosition(last from previous), BoxPosition
     // use HTNPlanner-search to find paths
 
-    public HTNNode initialNode = null;
+
+    ArrayList<HTNPlan> hlplans;
+
+    public HTNNode initialGotoNode = null;
+    public HTNNode initialMoveBoxNode = null;
 
     private PrimitivePlan gotoPlan;
     private PrimitivePlan moveBoxPlan;
 
-    public HTNPlanner(Agent agent, Level level, Box targetBox, Goal target ) throws Exception {
+    private PrimitivePlan llplan;
 
-        // define strategy and heuristic - may be injected or set in a different location, main for instance
-        Heuristic heuristic = new AStarHeuristic();
-        Strategy strategy = new BestFirstStrategy(heuristic);
+
+    public HTNPlanner(Agent agent, Level level, Goal target ) throws Exception {
 
         // Use stderr to print to console
         System.err.println("HTN planner initializing.");
 
+        // find all boxes that correspond to goal
+        // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
+        // store this list of 'HTNPlans' to be retrieved by a method
+
+        this.hlplans = new ArrayList<>();
+        ArrayList<Box> boxes = new ArrayList<>();
+
+        for (Box b : level.getBoxes() ) {
+            if b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase()) {
+                boxes.add(b);
+            }
+        }
+
+        // part of following experiment
+        Position a = agent.getPosition();
+        Box targetBox = boxes.get(0);
+        int bestHeuristic = a.manhattanDist(targetBox.getPosition());
+        bestHeuristic += targetBox.getPosition().manhattanDist(target.getPosition());
+        int heuristic;
+        // end of experiment part
+
+        HTNPlan tempPlan = new HTNPlan(new ArrayList<HLAction>() );
+        for (Box b : boxes) {
+
+            tempPlan.addAction(new GotoAction(b) ) ;
+            tempPlan.addAction(new MoveBoxAction(b, target) ) ;
+
+            hlplans.add(tempPlan);
+            tempPlan.clearActions();
+
+            // part of following experiment
+            heuristic = a.manhattanDist(targetBox.getPosition());
+            heuristic += b.getPosition().manhattanDist(target.getPosition());
+            if (heuristic < bestHeuristic) {
+                bestHeuristic = heuristic;
+                targetBox = b;
+            }
+            // end of experiment part
+
+        }
+
+        // The rest is for implementation of complete HTN planning to primitive actions
+
+
+        // define strategy and heuristic - may be injected or set in a different location, main for instance
+
+
         // setting general HTNNode settings with copies of the initial state
-        HTNNode.visitedEffects = new HashMap<Effect,boolean>(); // Agent position, but might as well be Effect
+        // HTNNode.visitedEffects.clear(); // relocate to strategy??
 
-        // formulate the seperation of problems
-        HTNEffect initialGotoState = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
+        // formulate the seperation of problems ,// necessary??
+        // NOT Necessary!! The effect should 'spill' from node to node, so when MovetoAction is reached,
+        // it can be injected, heuristic should be sum of hlactions... it should be possible
+        HTNEffect initialEffect = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
         HLAction gotoAction = new GotoAction(targetBox.getPosition());
-        this.initialNode = new HTNNode(null, gotoAction, initialGotoState);
+        initialGotoNode = new HTNNode(gotoAction, initialEffect);
 
-        gotoPlan = plan(initialNode, strategy);
-        gotoPlan.removeLast();  // we want to end up in the neighbouring cell, not on top of the box
-        // SHIT this is final... should it be?? probably not ?? should be able to correct a plan
-        // when replanning, right??
+        Heuristic heuristic = new AStarHeuristic(initialGotoNode);
+        Strategy strategy = new BestFirstStrategy(heuristic);
 
-        HTNEffect initialMoveBoxState = gotoPlan.peekLast().getEffect();
+        gotoPlan = plan(strategy);
+        gotoPlan.getActions().removeLast(); // we want to end up in the neighbouring cell, not on top of the box
+
+        //HTNEffect initialMoveBoxState = gotoPlan.actions.peekLast().getEffect(); // how the heck are we gonna get this?
+
+        HTNEffect initialMoveBoxState = result(initialEffect, gotoPlan ); // how the heck are we gonna get this?
         HLAction moveBoxAction = new MoveBoxAction(targetBox, Goal.getPosition());
-        this.initialNode = new HTNNode(null, moveBoxAction, initialMoveBoxState);
+        initialMoveBoxNode = new HTNNode(null, moveBoxAction, initialMoveBoxState);
+        heuristic = new AStarHeuristic(initialMoveBoxNode);
+        strategy = new BestFirstStrategy(heuristic);
 
-        moveBoxPlan = plan(initialNode, strategy);
+        moveBoxPlan = plan(strategy);
 
+    }
+
+
+
+    public HTNPlan plan(Position initialPosition){
+        HTNPlan bestPlan = null;
+        int bestHeuristic = Integer.MAX_VALUE;
+        int heuristic;
+        for (HTNPlan p : this.hlplans) {
+            GotoAction agoto = (GotoAction) p.getActions().get(0);
+            MoveBoxAction amove = (MoveBoxAction) p.getActions().get(1);
+
+            heuristic = Position.manhattanDist(initialPosition, agoto.getDestination());
+            heuristic += Position.manhattanDist(agoto.getDestination(), amove.getDestination());
+
+            if (heuristic < bestHeuristic) {
+                bestHeuristic = heuristic;
+                bestPlan = p;
+            }
+        }
+        return bestPlan;
+    }
+
+
+    HTNEffect result(HTNEffect initialEffect, PrimitivePlan plan) {
+        // should yield another effect representing the (changes in) state of relevant objects in the world
+        ;
+    }
+
+    HTNEffect result(HTNEffect initialEffect, Action action) {
+        // should yield another effect representing the (changes in) state of relevant objects in the world
+        ;
     }
 
     PrimitivePlan getPlan() {
         // List<PrimitiveAction> totalPlan = new LinkedList<>();
+        // should not be necessary! - let the HTN algorithm do this...
         return merge(gotoPlan, moveBoxPlan);
     }
 
-    public HTNPlan plan() {
-        return new HTNPlan(new ArrayList<>());
-    }
-
-    public LinkedList<HTNNode> plan(HTNNode initialNode, Strategy strategy) throws IOException {
+    public PrimitivePlan plan(Strategy strategy) throws IOException {
         System.err.format("HTN plan starting with strategy %s\n", strategy);
         strategy.addToFrontier(initialNode);
 

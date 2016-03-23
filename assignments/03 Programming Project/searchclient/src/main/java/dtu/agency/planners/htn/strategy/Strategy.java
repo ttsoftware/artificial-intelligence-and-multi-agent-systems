@@ -8,6 +8,8 @@ import java.util.HashSet;
 public abstract class Strategy {
 
     public HashSet<HTNNode> explored;
+    public HashSet<HTNEffect> explored;
+
     public long startTime = System.currentTimeMillis();
 
     public Strategy() {
@@ -26,7 +28,7 @@ public abstract class Strategy {
         return explored.size();
     }
 
-    public String searchStatus() {
+    public String status() {
         return String.format("#Explored: %4d, #Frontier: %3d, Time: %3.2f s \t%s", countExplored(), countFrontier(), timeSpent(), Memory.stringRep());
     }
 

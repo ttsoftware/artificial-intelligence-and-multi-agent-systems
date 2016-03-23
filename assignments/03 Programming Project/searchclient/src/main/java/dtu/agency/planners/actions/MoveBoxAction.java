@@ -21,10 +21,28 @@ public class MoveBoxAction extends HLAction {
     private final Goal targetGoal;
 
 
-    public MoveBoxAction(Agent agent, Box box, Goal goal) {
-        this.finalDestination = box.getPosition();
+    public MoveBoxAction(Box box, Position target) {
+        this.finalDestination = target;
+        this.targetBox = box;
+        this.targetGoal = null;
+    }
+
+    public MoveBoxAction(Box box, Goal goal) {
+        this.finalDestination = goal.getPosition();
         this.targetBox = box;
         this.targetGoal = goal;
+    }
+
+    public Box getBox() {
+        return targetBox;
+    }
+
+    public Position getDestination() {
+        return finalDestination;
+    }
+
+    public Goal getGoal() {
+        return targetGoal;
     }
 
     @Override

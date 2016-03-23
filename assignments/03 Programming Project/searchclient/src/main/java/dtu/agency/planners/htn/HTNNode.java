@@ -1,5 +1,9 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.agent.actions.Action;
+import dtu.agency.planners.AbstractPlan;
+import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.searchclient.Command;
 import dtu.searchclient.Command.dir;
 import dtu.searchclient.Command.type;
@@ -13,47 +17,25 @@ public class HTNNode {
     // Builds on Node from SearchClient, which is quite unlike what this should be like...
 
 
+    // public static Map<HTNEffect,boolean> visitedEffects = new HashMap<>(); // in strategy instead?!
 
     private static Random rnd = new Random(1);
-    public static int maxRow;
-    public static int maxColumn;
-
-    private int agentRow;
-    private int agentCol;
-
-    // Arrays are indexed from the top-left of the level, with first index being row and second being column.
-    // Row 0: (0,0) (0,1) (0,2) (0,3) ...
-    // Row 1: (1,0) (1,1) (1,2) (1,3) ...
-    // Row 2: (2,0) (2,1) (2,2) (2,3) ...
-    // ...
-    // (Start in the top left corner, first go down, then go right)
-    // E.g. walls[2] is an array of booleans having size MAX_GRID
-    // walls[row][col] is true if there's a wall at (row, col)
-    //
-
-    public static boolean[][] walls;
-    public static char[][] goals;
-    public static int boxCount;
-    private char[][] boxes;
-
-    // We store the goal locations in a list for faster iteration
-    public static List<Pair<Integer, Integer>> goalLocations = new ArrayList<>();
 
     private HTNNode parent;
-    private Command action;
+    private Action action;   // primitive action represented by this node
+    private HTNEffect effect; // status of the relevant board features
+    private MixedPlan abPlan; // list of successive (abstract) actions
 
-    private int g;
+    private int g; // generation - how many ancestors exist? -> how many moves have i performed
 
-    public HTNNode(HTNNode parent) {
+    public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, MixedPlan abstractPlan) {
         this.parent = parent;
+        this.action = action;
+        this.effect = initialEffects;
+        this.abPlan = abstractPlan;
 
-        boxes = new char[maxRow][maxColumn];
+        g = (parent == null) ? 0 : parent.g+1;
 
-        if (parent == null) {
-            g = 0;
-        } else {
-            g = parent.g() + 1;
-        }
     }
 
     public int g() {
