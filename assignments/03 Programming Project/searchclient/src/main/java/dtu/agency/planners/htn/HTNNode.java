@@ -1,9 +1,11 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.agent.actions.Action;
+import dtu.agency.board.Level;
 import dtu.agency.planners.AbstractPlan;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.searchclient.Command;
 import dtu.searchclient.Command.dir;
@@ -25,31 +27,34 @@ public class HTNNode {
     private HTNNode parent;
     private Action action;   // primitive action represented by this node
     private HTNEffect effect; // status of the relevant board features
-    private HTNPlan abPlan; // list of successive (abstract) actions
+    private MixedPlan remainingActions; // list of successive (abstract) actions
 
     private int g; // generation - how many ancestors exist? -> how many moves have i performed
 
-    public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, HTNPlan highLevelPlan) {
+    public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
         this.action = action;
         this.effect = initialEffects;
-        this.abPlan = highLevelPlan;
+        this.remainingActions = highLevelPlan;
         this.g = (parent == null) ? 0 : (parent.g + 1);
     }
 
-    public HTNEffect getEffect() {
-        return effect;
-    }
+
 
     public int g() {
         return g;
     }
 
-    public boolean isInitialState() {
+    public boolean isInitialNode() {
         return this.parent == null;
     }
 
-    public ArrayList<HTNNode> getExpandedNodes() {
+    public ArrayList<HTNNode> getRefinementNodes(Level level) {
+
+        if (this.remainingActions.isEmpty()) {return new ArrayList<>();}
+
+        // old stuff for inspiration
+        /*
         ArrayList<HTNNode> expandedNodes = new ArrayList<HTNNode>(Command.every.length);
         for (Command c : Command.every) {
             // Determine applicability of action
@@ -104,51 +109,44 @@ public class HTNNode {
         }
         Collections.shuffle(expandedNodes, rnd);
         return expandedNodes;
+        */
     }
 
-    public boolean cellIsFree(int row, int col) {
-        return (!walls[row][col] && this.boxes[row][col] == 0);
+
+    private HTNNode ChildNode(Action primitiveAction, MixedPlan remainingActions) {
+        HTNEffect oldState = this.getEffect();
+        HTNEffect newState = primitiveAction.applyTo(oldState);
+
+        // maybe postpone this check until HTNPlanner picks the Node??
+        // Then we will have the level available
+        boolean valid = true;
+        valid &= level.notWall(newState.getAgentPosition());
+        valid &= level.notWall(newState.getBoxPosition());
+        if (!valid) return null;
+
+        return new HTNNode(this, primitiveAction, newState, remainingActions);
     }
 
-    public boolean boxAt(int row, int col) {
-        return this.boxes[row][col] > 0;
-    }
-
-    private int dirToRowChange(dir d) {
-        return (d == dir.S ? 1 : (d == dir.N ? -1 : 0)); // South is down one row (1), north is up one row (-1)
-    }
-
-    private int dirToColChange(dir d) {
-        return (d == dir.E ? 1 : (d == dir.W ? -1 : 0)); // East is left one column (1), west is right one column (-1)
-    }
-
-    private HTNNode ChildNode() {
-        HTNNode copy = new HTNNode(this);
-        for (int row = 0; row < maxRow; row++) {
-            System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxColumn);
-        }
-        return copy;
-    }
-
-    public LinkedList<HTNNode> extractPlan() {
-        LinkedList<HTNNode> plan = new LinkedList<HTNNode>();
+    public PrimitivePlan extractPlan() {
+        LinkedList<Action> plan = new LinkedList<>();
         HTNNode n = this;
-        while (!n.isInitialState()) {
-            plan.addFirst(n);
-            n = n.parent;
+        Action previous;
+        while (!n.isInitialNode()) {
+            previous = n.getAction();
+            if (previous != null) plan.addFirst(previous);
+            n = n.getParent();
         }
-        return plan;
+        return new PrimitivePlan(plan);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + agentCol;
-        result = prime * result + agentRow;
-        result = prime * result + Arrays.deepHashCode(boxes);
-        result = prime * result + Arrays.deepHashCode(goals);
-        result = prime * result + Arrays.deepHashCode(walls);
+        result = prime * result + parent.hashCode();
+        result = prime * result + action.hashCode();
+        result = prime * result + effect.hashCode();
+        result = prime * result + remainingActions.hashCode();
         return result;
     }
 
@@ -161,11 +159,13 @@ public class HTNNode {
         if (getClass() != obj.getClass())
             return false;
         HTNNode other = (HTNNode) obj;
-        if (agentCol != other.agentCol)
+        if (parent != other.parent)
             return false;
-        if (agentRow != other.agentRow)
+        if (action != other.action)
             return false;
-        if (!Arrays.deepEquals(boxes, other.boxes)) {
+        if (effect != other.effect)
+            return false;
+        if (!remainingActions.equals(other.remainingActions)) {
             return false;
         }
         return true;
@@ -173,48 +173,23 @@ public class HTNNode {
 
     public String toString() {
         StringBuilder s = new StringBuilder();
-        for (int row = 0; row < maxRow; row++) {
-            if (!walls[row][0]) {
-                break;
-            }
-            for (int col = 0; col < maxColumn; col++) {
-                if (this.boxes[row][col] > 0) {
-                    s.append(this.boxes[row][col]);
-                } else if (goals[row][col] > 0) {
-                    s.append(goals[row][col]);
-                } else if (walls[row][col]) {
-                    s.append("+");
-                } else if (row == this.agentRow && col == this.agentCol) {
-                    s.append("0");
-                } else {
-                    s.append(" ");
-                }
-            }
-
-            s.append("\n");
-        }
+        s.append("HTNNode: \n");
+        s.append("Level :");
+        s.append(Integer.toString(this.g));
+        s.append("\n");
+        s.append("Action :");
+        s.append(this.action.toString());
+        s.append("\n");
+        s.append("Effect :");
+        s.append(this.effect.toString());
+        s.append("\n");
+        s.append("RemainingActions :");
+        s.append(this.remainingActions.toString());
+        s.append("\n");
         return s.toString();
     }
 
-    public char[][] getBoxes() {
-        return boxes;
-    }
 
-    public int getAgentRow() {
-        return agentRow;
-    }
-
-    public void setAgentRow(int agentRow) {
-        this.agentRow = agentRow;
-    }
-
-    public int getAgentCol() {
-        return agentCol;
-    }
-
-    public void setAgentCol(int agentCol) {
-        this.agentCol = agentCol;
-    }
 
     public HTNNode getParent() {
         return parent;
@@ -224,11 +199,19 @@ public class HTNNode {
         this.parent = parent;
     }
 
-    public Command getAction() {
+    public Action getAction() {
         return action;
     }
 
-    public void setAction(Command action) {
+    public void setAction(Action action) {
         this.action = action;
+    }
+
+    public HTNEffect getEffect() {
+        return effect;
+    }
+
+    public void setEffect(HTNEffect effect) {
+        this.effect = effect;
     }
 }

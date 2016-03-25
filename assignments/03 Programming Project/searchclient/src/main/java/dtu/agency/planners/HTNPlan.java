@@ -1,28 +1,56 @@
 package dtu.agency.planners;
 
+import dtu.agency.AbstractAction;
+import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.planners.actions.HLAction;
+import dtu.agency.planners.actions.MoveBoxAction;
 
 import java.util.LinkedList;
 import java.util.List;
 
-//public class HTNPlan implements AbstractPlan {
 public class HTNPlan {
 
-    private LinkedList<HLAction> actions;
+    private GotoAction gotoAction;
+    private MoveBoxAction moveBoxAction;
 
-    public HTNPlan(List<HLAction> actions) {
-        this.actions = new LinkedList<>(actions);
+    public HTNPlan() {
+        this.gotoAction = null;
+        this.moveBoxAction = null;
+    }
+
+    public HTNPlan(GotoAction gta, MoveBoxAction mba) {
+        this.gotoAction = gta;
+        this.moveBoxAction = mba;
     }
 
     public List<HLAction> getActions() {
-        return this.actions;
+        LinkedList<HLAction> actions = new LinkedList<>();
+        if (this.gotoAction!=null) {actions.add(this.gotoAction);}
+        if (this.moveBoxAction!=null) {actions.add(this.moveBoxAction);}
+        return actions;
     }
 
-    public void addAction(HLAction a) {
-        this.actions.add(a);
+
+    public GotoAction getGotoAction() {
+        return gotoAction;
+    }
+
+    public MoveBoxAction getMoveBoxAction() {
+        return moveBoxAction;
+    }
+
+    public void setGotoAction(GotoAction gotoAction) {
+        this.gotoAction = gotoAction;
+    }
+
+    public void setMoveBoxAction(MoveBoxAction moveBoxAction) {
+        this.moveBoxAction = moveBoxAction;
     }
 
     public void clearActions() {
-        this.actions.clear();
+        this.gotoAction = null;
+        this.moveBoxAction = null;
     }
+
+    public boolean isEmpty() { return (this.gotoAction==null && this.moveBoxAction==null); }
 }

@@ -1,9 +1,11 @@
 package dtu.agency.planners.htn;
 
 
+import dtu.Main;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.board.*;
 import dtu.agency.planners.HTNPlan;
+import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.planners.actions.MoveBoxAction;
@@ -17,7 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by koeus on 3/21/16.
+ * Created by Mads on 3/21/16.
  */
 public class HTNPlanner {
     // Auxiliary static classes
@@ -25,36 +27,84 @@ public class HTNPlanner {
         throw new Exception("HTNError: " + msg);
     }
 
-    // split into two subproblems:
-    // 1. move-path to box, initialstate, agentPosition
+    // split into two sub problems:
+    // 1. move-path to box, initial state, agentPosition
     // 2. push/pull-path to goal from box, initialState: agentPosition(last from previous), BoxPosition
     // use HTNPlanner-search to find paths
 
 
-    ArrayList<HTNPlan> hlplans;
 
-    public HTNNode initialNode = null;
-
-    // public HTNNode initialGotoNode = null;
-    // public HTNNode initialMoveBoxNode = null;
-
-    private PrimitivePlan gotoPlan;
-    private PrimitivePlan moveBoxPlan;
-
-    private HTNPlan bestPlan;
-    private PrimitivePlan llplan;
-
+    public HTNNode initialNode;         // first node... ?
+    ArrayList<HTNPlan> allPlans;        // list of all possible plans to solve the goal
+    private HTNPlan bestPlan;           // High level actions only
+    private PrimitivePlan moveBoxPlan;  // Low level (primitive) actions only
+    private Goal finalGoal;             // to check goal state
+    private Level level;                // to check goal state
 
     public HTNPlanner(Agent agent, Level level, Goal target ) throws Exception {
 
         // Use stderr to print to console
         System.err.println("HTN Planner initializing.");
 
+        this.finalGoal = target;
+        this.level = level;
+
+        this.allPlans = createAllPlans(level, target);
+
+        this.bestPlan = findShorterPlan(agent, allPlans);
+        // could as well sort them, so that they can be polled one at a time
+        Box targetBox = bestPlan.getMoveBoxAction().getBox();
+
+        // The rest is for implementation of complete HTN planning to primitive actions
+        // define strategy and heuristic - may be injected or set in a different location, main for instance
+
+        // setting general HTNNode settings with copies of the initial state
+
+        // formulate the separation of problems ,// necessary??
+        // NOT Necessary!! The effect should 'spill' from node to node, so when MovetoAction is reached,
+        // it can be injected, heuristic should be sum of high level actions... it should be possible
+        HTNEffect initialEffect = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
+        initialNode = new HTNNode(null, null, initialEffect, new MixedPlan( bestPlan.getActions() ) );
+
+        Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, target);
+        Strategy strategy = new BestFirstStrategy(heuristic);
+
+        moveBoxPlan = plan(strategy);
+
+    }
+
+    public PrimitivePlan getMoveBoxPlan() {
+        return moveBoxPlan;
+    }
+
+    private HTNPlan findShorterPlan(Agent agent, ArrayList<HTNPlan> allplans) {
+        Position a = agent.getPosition();
+        HTNPlan bestPlan = allplans.get(0);
+
+        Box targetBox;
+        Goal target;
+        int minDist;
+        int bestHeuristic = Integer.MAX_VALUE;
+
+        for (HTNPlan plan : allplans) {
+            targetBox = plan.getMoveBoxAction().getBox();
+            target = plan.getMoveBoxAction().getGoal();
+
+            minDist = a.manhattanDist(targetBox.getPosition());
+            minDist += targetBox.getPosition().manhattanDist(target.getPosition());
+            if (minDist < bestHeuristic) {
+                bestHeuristic = minDist;
+                bestPlan = plan;
+            }
+        }
+        return bestPlan;
+    }
+
+    private ArrayList<HTNPlan> createAllPlans(Level level, Goal target) {
         // find all boxes that correspond to goal
         // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
         // store this list of 'HTNPlans' to be retrieved by a method
-
-        this.hlplans = new ArrayList<>();
+        ArrayList<HTNPlan> allPlans = new ArrayList<>();
         ArrayList<Box> boxes = new ArrayList<>();
 
         for (Box b : level.getBoxes() ) {
@@ -63,112 +113,18 @@ public class HTNPlanner {
             }
         }
 
-        // part of following experiment
-        Position a = agent.getPosition();
-        Box targetBox = boxes.get(0);
-        this.bestPlan = new HTNPlan(new ArrayList<>() );
-        this.bestPlan.addAction(new GotoAction(targetBox));
-        this.bestPlan.addAction(new MoveBoxAction(targetBox, target) ) ;
-        int bestHeuristic = a.manhattanDist(targetBox.getPosition());
-        bestHeuristic += targetBox.getPosition().manhattanDist(target.getPosition());
-        int mdist;
-        // end of experiment part
-
-        HTNPlan tempPlan = new HTNPlan(new ArrayList<>() );
+        HTNPlan tempPlan;
         for (Box b : boxes) {
-
-            tempPlan.addAction(new GotoAction(b) ) ;
-            tempPlan.addAction(new MoveBoxAction(b, target) ) ;
-
-            hlplans.add(tempPlan);
+            tempPlan = new HTNPlan(new GotoAction(b), new MoveBoxAction(b, target));
+            allPlans.add(tempPlan);
             tempPlan.clearActions();
-
-            // part of following experiment
-            mdist = a.manhattanDist(targetBox.getPosition());
-            mdist += b.getPosition().manhattanDist(target.getPosition());
-            if (mdist < bestHeuristic) {
-                bestHeuristic = mdist;
-                targetBox = b;
-                this.bestPlan = tempPlan;
-            }
-            // end of experiment part
         }
-
-        // The rest is for implementation of complete HTN planning to primitive actions
-        // define strategy and heuristic - may be injected or set in a different location, main for instance
-
-
-        // setting general HTNNode settings with copies of the initial state
-        // HTNNode.visitedEffects.clear(); // relocate to strategy??
-
-        // formulate the seperation of problems ,// necessary??
-        // NOT Necessary!! The effect should 'spill' from node to node, so when MovetoAction is reached,
-        // it can be injected, heuristic should be sum of hlactions... it should be possible
-        HTNEffect initialEffect = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
-        initialNode = new HTNNode(null, null, initialEffect, bestPlan);
-        Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, target);
-        Strategy strategy = new BestFirstStrategy(heuristic);
-
-        moveBoxPlan = plan(strategy);
-
-        /* divided, to treat special remove one action at the end of gotoAction
-        HLAction gotoAction = new GotoAction(targetBox);
-        initialGotoNode = new HTNNode(null, gotoAction, initialEffect);
-        Heuristic heuristic = new AStarHeuristic(initialGotoNode);
-        Strategy strategy = new BestFirstStrategy(heuristic);
-
-        gotoPlan = plan(strategy);
-        gotoPlan.getActions().removeLast(); // we want to end up in the neighbouring cell, not on top of the box
-
-        //HTNEffect initialMoveBoxState = gotoPlan.actions.peekLast().getEffect(); // how the heck are we gonna get this?
-
-        HTNEffect initialMoveBoxState = result(initialEffect, gotoPlan ); // how the heck are we gonna get this?
-        HLAction moveBoxAction = new MoveBoxAction(targetBox, Goal.getPosition());
-        initialMoveBoxNode = new HTNNode(null, moveBoxAction, initialMoveBoxState);
-        heuristic = new AStarHeuristic(initialMoveBoxNode);
-        strategy = new BestFirstStrategy(heuristic);
-
-        moveBoxPlan = plan(strategy);
-
-        */
+        return allPlans;
     }
 
 
-
-    public HTNPlan plan(Position initialPosition){
-        HTNPlan bestPlan = null;
-        int bestHeuristic = Integer.MAX_VALUE;
-        int heuristic;
-        for (HTNPlan p : this.hlplans) {
-            GotoAction agoto = (GotoAction) p.getActions().get(0);
-            MoveBoxAction amove = (MoveBoxAction) p.getActions().get(1);
-
-            heuristic = Position.manhattanDist(initialPosition, agoto.getDestination());
-            heuristic += Position.manhattanDist(agoto.getDestination(), amove.getDestination());
-
-            if (heuristic < bestHeuristic) {
-                bestHeuristic = heuristic;
-                bestPlan = p;
-            }
-        }
-        return bestPlan;
-    }
-
-
-    HTNEffect result(HTNEffect initialEffect, PrimitivePlan plan) {
-        // should yield another effect representing the (changes in) state of relevant objects in the world
-        ;
-    }
-
-    HTNEffect result(HTNEffect initialEffect, Action action) {
-        // should yield another effect representing the (changes in) state of relevant objects in the world
-        ;
-    }
-
-    PrimitivePlan getPlan() {
-        // List<PrimitiveAction> totalPlan = new LinkedList<>();
-        // should not be necessary! - let the HTN algorithm do this...
-        return merge(gotoPlan, moveBoxPlan);
+    public boolean isGoalState (HTNNode node) {
+        return finalGoal.getPosition().equals( node.getEffect().getBoxPosition() );
     }
 
     public PrimitivePlan plan(Strategy strategy) throws IOException {
@@ -176,15 +132,17 @@ public class HTNPlanner {
         strategy.addToFrontier(initialNode);
 
         int iterations = 0;
-        while (true) {
-            if (iterations % 200 == 0) {
-                System.err.println(strategy.searchStatus());
+        while(true) {
+            if (iterations % Main.printIterations == 0) {
+                System.err.println(strategy.status());
             }
+
             if (Memory.shouldEnd()) {
                 System.err.format("Memory limit almost reached, terminating search %s\n", Memory.stringRep());
                 return null;
             }
-            if (strategy.timeSpent() > 300) { // Minutes timeout
+
+            if (strategy.timeSpent() > Main.timeOut ) {
                 System.err.format("Time limit reached, terminating search %s\n", Memory.stringRep());
                 return null;
             }
@@ -193,21 +151,26 @@ public class HTNPlanner {
                 return null;
             }
 
-            Node leafNode = strategy.getAndRemoveLeaf();
+            HTNNode leafNode = strategy.getAndRemoveLeaf();
 
-            if (leafNode.isGoalState()) {
+            if (isGoalState(leafNode)) {
                 return leafNode.extractPlan();
             }
 
-            strategy.addToExplored(leafNode);
-            for (Node n : leafNode.getExpandedNodes()) {
+            strategy.addToExplored(leafNode.getEffect());
+
+            // beginning
+            for (HTNNode n : leafNode.getRefinementNodes(level)) {
                 // The list of expanded nodes is shuffled randomly; see Node.java
-                if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
-                    strategy.addToFrontier(n);
-                }
+                if (strategy.isExplored(n.getEffect()) ) { continue; } // reject nodes resulting in states visited already
+                if (strategy.inFrontier(n)) { continue; }              // check if node is already in frontier ?? but how could it be??
+
+                strategy.addToFrontier(n);
             }
+            // end
             iterations++;
         }
+
     }
 
 }
@@ -234,7 +197,7 @@ if (solution == null) {
         System.out.println(act);
         String response = serverMessages.readLine();
         if (response.contains("false")) {
-            System.err.format("Server responsed with %s to the inapplicable action: %s\n", response, act);
+            System.err.format("Server responded with %s to the inapplicable action: %s\n", response, act);
             System.err.format("%s was attempted in \n%s\n", act, n);
             break;
         }

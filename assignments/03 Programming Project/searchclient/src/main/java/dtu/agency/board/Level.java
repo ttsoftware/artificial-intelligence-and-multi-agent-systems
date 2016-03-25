@@ -67,4 +67,8 @@ public class Level implements Serializable {
     public List<Goal> getGoals() {
         return goals;
     }
+
+    public boolean notWall(Position pos) {
+        return boardState[pos.getRow()][pos.getColumn()] != BoardCell.WALL ;
+    }
 }

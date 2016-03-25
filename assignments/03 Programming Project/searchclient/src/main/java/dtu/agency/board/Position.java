@@ -1,5 +1,7 @@
 package dtu.agency.board;
 
+import dtu.agency.agent.actions.Direction;
+
 import java.io.Serializable;
 
 public class Position implements Serializable {
@@ -10,6 +12,30 @@ public class Position implements Serializable {
     public Position(int row, int column) {
         this.row = row;
         this.column = column;
+    }
+
+    public Position(Position other) {
+        this.row = other.getRow();
+        this.column = other.getColumn();
+    }
+
+    public Position(Position old, Direction dir) {
+        this.row = old.getRow();
+        this.column = old.getColumn();
+        switch (dir) { // (0,0) is NORTH-WEST corner
+            case NORTH:
+                this.row -= 1;
+                break;
+            case SOUTH:
+                this.row += 1;
+                break;
+            case EAST:
+                this.column += 1;
+                break;
+            case WEST:
+                this.column -= 1;
+                break;
+        }
     }
 
     public int getRow() {
@@ -58,4 +84,7 @@ public class Position implements Serializable {
         return eucDist(this, position);
     }
 
+    public boolean isNeighbour(Position other) {
+        return (manhattanDist(other) == 1);
+    }
 }
