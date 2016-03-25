@@ -38,10 +38,12 @@ public class PushAction extends Action {
     public List<Precondition> getPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getBoxPosition(), getBoxDirection());
-        preconditions.add(new FreeCellPrecondition(nextPosition));
-        preconditions.add(new BoxAtPrecondition(getBox(), getBoxPosition()));
-        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
-//        preconditions.add(new NeighbourPrecondition(getBox(), nextPosition));
+
+        // We need the preconditions in this order! DON'T CHANGE IT!
+//        preconditions.add(new FreeCellPrecondition(nextPosition));
+//        preconditions.add(new NeighbourPrecondition(getBox(), getAgentPosition(), getAgentDirection().getInverse()));
+//        preconditions.add(new BoxAtPrecondition(getBox(), getBoxPosition()));
+//        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
 
         return preconditions;
     }
@@ -90,6 +92,8 @@ public class PushAction extends Action {
     public Agent getAgent() {
         return agent;
     }
+
+
 
     public Position getAgentPosition() {
         return agentPosition;

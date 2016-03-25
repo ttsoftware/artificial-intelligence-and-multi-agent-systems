@@ -1,0 +1,23 @@
+ASSUMPTIONS:
+The HTN planner will never give us an action that can't directly be solved.
+
+
+
+Solving preconditions:
+    create every possible action that can solve the precondition
+
+Sort the actions by maintaining priority queue with a heuristic
+
+Choosing first action and create preconditions
+
+repeat.
+
+
+If dead-end: backtrack.
+
+
+TODO:
+Adding preconditions
+solving preconditions
+backtracking
+finding better heuristic

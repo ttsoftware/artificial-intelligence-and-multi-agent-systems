@@ -15,7 +15,7 @@ public class HTNPlanner {
 
     public HTNPlan plan() {
         List<AbstractAction> actions = new ArrayList<>();
-        actions.add(new GotoAction(0, 5));
+//        actions.add(new GotoAction(0, 5));
         return new HTNPlan(actions);
     }
 }

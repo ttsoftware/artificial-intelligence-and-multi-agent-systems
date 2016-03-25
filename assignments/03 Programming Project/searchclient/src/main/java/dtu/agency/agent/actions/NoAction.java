@@ -1,5 +1,10 @@
 package dtu.agency.agent.actions;
 
+import dtu.agency.planners.actions.effects.Effect;
+import dtu.agency.planners.actions.preconditions.Precondition;
+
+import java.util.List;
+
 public class NoAction extends Action {
 
     public NoAction() {
@@ -12,7 +17,27 @@ public class NoAction extends Action {
     }
 
     @Override
+    public List<Precondition> getPreconditions() {
+        return null;
+    }
+
+    @Override
+    public List<Effect> getEffects() {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return "NoOp";
+    }
+
+    @Override
+    public int getHeuristic() {
+        return 0;
+    }
+
+    @Override
+    public void setHeuristic(int heuristic) {
+
     }
 }
