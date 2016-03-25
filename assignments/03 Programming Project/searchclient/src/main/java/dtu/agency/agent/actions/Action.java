@@ -16,4 +16,8 @@ public abstract class Action implements Serializable {
 
     @Override
     public abstract String toString();
+
+    public abstract int getHeuristic();
+
+    public abstract void setHeuristic(int heuristic);
 }

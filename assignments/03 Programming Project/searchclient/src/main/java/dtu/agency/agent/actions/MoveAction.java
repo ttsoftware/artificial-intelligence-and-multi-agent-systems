@@ -16,6 +16,7 @@ public class MoveAction extends Action {
     private Direction direction;
     private Agent agent = null;
     private Position agentPosition = null;
+    private int heuristic;
 
     public MoveAction(Direction agentDirection) {
         this.direction = agentDirection;
@@ -33,9 +34,19 @@ public class MoveAction extends Action {
         Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getAgentPosition(), getDirection());
         preconditions.add(new FreeCellPrecondition(nextPosition));
         preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
-        preconditions.add(new NeighbourPrecondition(getAgent(), nextPosition));
+//        preconditions.add(new NeighbourPrecondition(getAgent(), nextPosition));
 
         return preconditions;
+    }
+
+    @Override
+    public int getHeuristic() {
+        return heuristic;
+    }
+
+    @Override
+    public void setHeuristic(int heuristic) {
+        this.heuristic = heuristic;
     }
 
     @Override

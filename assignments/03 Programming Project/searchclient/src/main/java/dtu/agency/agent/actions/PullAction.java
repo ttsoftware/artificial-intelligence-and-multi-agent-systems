@@ -4,10 +4,7 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.effects.Effect;
-import dtu.agency.planners.actions.preconditions.AgentAtPrecondition;
-import dtu.agency.planners.actions.preconditions.FreeCellPrecondition;
-import dtu.agency.planners.actions.preconditions.NeighbourPrecondition;
-import dtu.agency.planners.actions.preconditions.Precondition;
+import dtu.agency.planners.actions.preconditions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +17,7 @@ public class PullAction extends Action {
     private Position agentPosition = null;
     private final Direction agentDirection;
     private final Direction boxDirection;
+    private int heuristic;
 
     public PullAction(Box box, Direction agentDirection, Direction boxDirection) {
         this.box = box;
@@ -41,11 +39,21 @@ public class PullAction extends Action {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getAgentPosition(), getAgentDirection());
         preconditions.add(new FreeCellPrecondition(nextPosition));
+        preconditions.add(new BoxAtPrecondition(getBox(), getBoxPosition()));
         preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
-        preconditions.add(new AgentAtPrecondition(getBox(), getBoxPosition()));
-        preconditions.add(new NeighbourPrecondition(getAgent(), nextPosition));
+//        preconditions.add(new NeighbourPrecondition(getAgent(), nextPosition));
 
         return preconditions;
+    }
+
+    @Override
+    public int getHeuristic() {
+        return heuristic;
+    }
+
+    @Override
+    public void setHeuristic(int heuristic) {
+        this.heuristic = heuristic;
     }
 
     @Override

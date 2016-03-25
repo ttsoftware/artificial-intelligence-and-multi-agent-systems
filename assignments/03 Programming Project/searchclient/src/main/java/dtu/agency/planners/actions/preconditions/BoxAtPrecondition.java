@@ -6,15 +6,15 @@ import dtu.agency.board.Position;
 public class BoxAtPrecondition extends Precondition {
 
     private Box box;
-    private Position position;
+    private Position boxPosition;
 
-    public BoxAtPrecondition(Box box, Position position) {
+    public BoxAtPrecondition(Box box, Position boxPosition) {
         this.box = box;
-        this.position = position;
+        this.boxPosition = boxPosition;
     }
 
-    public Position getPosition() {
-        return position;
+    public Position getBoxPosition() {
+        return boxPosition;
     }
 
     public Box getBox() {

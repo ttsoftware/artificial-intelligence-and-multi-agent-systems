@@ -6,15 +6,15 @@ import dtu.agency.board.Position;
 public class AgentAtPrecondition extends Precondition {
 
     private Agent agent;
-    private Position position;
+    private Position agentPosition;
 
-    public AgentAtPrecondition(Agent agent, Position position) {
+    public AgentAtPrecondition(Agent agent, Position agentPosition) {
         this.agent = agent;
-        this.position = position;
+        this.agentPosition = agentPosition;
     }
 
-    public Position getPosition() {
-        return position;
+    public Position getAgentPosition() {
+        return agentPosition;
     }
 
     public Agent getAgent() {

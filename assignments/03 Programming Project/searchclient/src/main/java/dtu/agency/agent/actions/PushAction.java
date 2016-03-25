@@ -17,6 +17,7 @@ public class PushAction extends Action {
     private Position agentPosition = null;
     private final Direction agentDirection;
     private final Direction boxDirection;
+    private int heuristic;
 
     public PushAction(Box box, Direction agentDirection, Direction boxDirection) {
         this.box = box;
@@ -38,11 +39,21 @@ public class PushAction extends Action {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getBoxPosition(), getBoxDirection());
         preconditions.add(new FreeCellPrecondition(nextPosition));
-        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
         preconditions.add(new BoxAtPrecondition(getBox(), getBoxPosition()));
-        preconditions.add(new NeighbourPrecondition(getBox(), nextPosition));
+        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
+//        preconditions.add(new NeighbourPrecondition(getBox(), nextPosition));
 
         return preconditions;
+    }
+
+    @Override
+    public int getHeuristic() {
+        return heuristic;
+    }
+
+    @Override
+    public void setHeuristic(int heuristic) {
+        this.heuristic = heuristic;
     }
 
     @Override
