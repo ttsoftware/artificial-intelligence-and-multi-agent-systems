@@ -8,16 +8,14 @@ import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
+import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.LevelService;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Agency implements Runnable {
 
@@ -66,15 +64,7 @@ public class Agency implements Runnable {
         while (!estimationsCompleted) {
             boolean allSubscribersCompleted = true;
             for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
-                boolean allAgentsCompleted = true;
-                for (int agentEstimation : subscriber.getAgentStepsEstimation().values()) {
-                    if (agentEstimation == -1) {
-                        allAgentsCompleted = false;
-                    }
-                }
-                if (!allAgentsCompleted) {
-                    allSubscribersCompleted = allAgentsCompleted;
-                }
+                allSubscribersCompleted &= subscriber.getAgentStepsEstimation().size() == agentLabels.size();
             }
             estimationsCompleted = allSubscribersCompleted;
         }
@@ -82,25 +72,11 @@ public class Agency implements Runnable {
         // Get the goal estimations
         for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
 
-            String lowestEstimationAgent = null;
-            int lowestEstimation = Integer.MAX_VALUE;
-            Hashtable<String, Integer> agentStepsEstimation = subscriber.getAgentStepsEstimation();
+            PriorityQueue<GoalEstimationEvent> agentEstimations = subscriber.getAgentStepsEstimation();
+            GoalEstimationEvent lowestEstimation = agentEstimations.poll();
 
-            // Find the lowest value
-            for (Map.Entry<String, Integer> agentEstimationKeyEntry : agentStepsEstimation.entrySet()) {
-
-                System.err.println("Recieved estimation "
-                        + Integer.toString(agentEstimationKeyEntry.getValue())
-                        + " for goal: " + subscriber.getGoal().getLabel());
-
-                if (agentEstimationKeyEntry.getValue() < lowestEstimation) {
-                    lowestEstimationAgent = agentEstimationKeyEntry.getKey();
-                    lowestEstimation = agentEstimationKeyEntry.getValue();
-                }
-            }
-
-            System.err.println("Assigning goal " + subscriber.getGoal().getLabel() + " to " + lowestEstimationAgent);
-            EventBusService.post(new GoalAssignmentEvent(lowestEstimationAgent, subscriber.getGoal()));
+            System.err.println("Assigning goal " + subscriber.getGoal().getLabel() + " to " + lowestEstimation.getAgentLabel());
+            EventBusService.post(new GoalAssignmentEvent(lowestEstimation.getAgentLabel(), subscriber.getGoal()));
         }
     }
 
@@ -109,7 +85,7 @@ public class Agency implements Runnable {
     public void planOfferEventSubscriber(PlanOfferEvent event) {
 
         // We need a strategy for doing this in the multi-agent case.
-        // currentPlans.put(event.getAgent().getLabel(), event.getPlan());
+        // currentPlans.put(event.getAgent().getAgentLabel(), event.getPlan());
 
         System.err.println("Recieved offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
