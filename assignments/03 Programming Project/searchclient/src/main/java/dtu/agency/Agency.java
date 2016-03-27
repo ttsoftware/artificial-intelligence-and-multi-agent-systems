@@ -8,7 +8,6 @@ import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
-import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.planners.ConcretePlan;
@@ -22,7 +21,6 @@ import java.util.Map;
 
 public class Agency implements Runnable {
 
-    private List<Thread> agentThreads;
     private Hashtable<String, ConcretePlan> currentPlans = new Hashtable<>();
 
     public Agency(Level level) {
@@ -33,18 +31,18 @@ public class Agency implements Runnable {
     public void run() {
 
         List<String> agentLabels = new ArrayList<>();
-        agentThreads = new ArrayList<>();
 
         LevelService.getInstance().getLevel().getAgents().forEach(agent -> {
-            // Start a new thread (agency) for each plan
-            Thread t = new Thread(new AgentThread(agent));
-            agentThreads.add(t);
+            System.err.println("Starting agent: " + agent.getLabel());
+
+            // Start a new thread (agent) for each plan
+            EventBusService.execute(new AgentThread(agent));
+
             agentLabels.add(agent.getLabel());
-            t.start();
         });
 
-        // Register for self-contained events
-        EventBusService.getEventBus().register(this);
+        // Register for self-handled events
+        EventBusService.register(this);
 
         List<GoalEstimationEventSubscriber> goalEstimationSubscribers = new ArrayList<>();
 
@@ -53,11 +51,11 @@ public class Agency implements Runnable {
 
             // Register for incoming goal estimations
             GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels);
-            EventBusService.getEventBus().register(goalEstimationEventSubscriber);
+            EventBusService.register(goalEstimationEventSubscriber);
             goalEstimationSubscribers.add(goalEstimationEventSubscriber);
 
             System.err.println("Offering goal: " + goal.getLabel());
-            EventBusService.getEventBus().post(new GoalOfferEvent(goal));
+            EventBusService.post(new GoalOfferEvent(goal));
         });
 
         boolean estimationsCompleted = false;
@@ -102,7 +100,7 @@ public class Agency implements Runnable {
             }
 
             System.err.println("Assigning goal " + subscriber.getGoal().getLabel() + " to " + lowestEstimationAgent);
-            EventBusService.getEventBus().post(new GoalAssignmentEvent(lowestEstimationAgent, subscriber.getGoal()));
+            EventBusService.post(new GoalAssignmentEvent(lowestEstimationAgent, subscriber.getGoal()));
         }
     }
 
@@ -115,14 +113,13 @@ public class Agency implements Runnable {
 
         System.err.println("Recieved offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
-        EventBusService.getEventBus().post(new SendServerActionsEvent(event.getPlan().getActions()));
+        EventBusService.post(new SendServerActionsEvent(event.getPlan().getActions()));
     }
 
     @Subscribe
     public void problemSolverdEventSubscriber(ProblemSolvedEvent event) {
         // wait for all threads to finish
-        EventBusService.getEventBus().post(new StopAllAgentsEvent());
-        agentThreads.forEach(t -> {
+        EventBusService.getThreads().forEach(t -> {
             try {
                 t.join();
             } catch (InterruptedException e) {

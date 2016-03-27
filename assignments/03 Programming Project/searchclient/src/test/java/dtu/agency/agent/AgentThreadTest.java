@@ -32,9 +32,9 @@ public class AgentThreadTest {
         agentLabels.add(agent2.getLabel());
 
         GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels);
-        EventBusService.getEventBus().register(goalEstimationEventSubscriber);
+        EventBusService.register(goalEstimationEventSubscriber);
 
-        EventBusService.getEventBus().post(new GoalOfferEvent(goal));
+        EventBusService.post(new GoalOfferEvent(goal));
 
         Hashtable<String, Integer> agentStepsEstimation = goalEstimationEventSubscriber.getAgentStepsEstimation();
         agentStepsEstimation.keySet().forEach(agentLabel -> {
@@ -42,7 +42,7 @@ public class AgentThreadTest {
         });
 
         // we are done
-        EventBusService.getEventBus().post(new StopAllAgentsEvent());
+        EventBusService.post(new StopAllAgentsEvent());
 
         t1.join();
         t2.join();
