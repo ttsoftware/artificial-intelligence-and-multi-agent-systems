@@ -58,7 +58,7 @@ public class AgentThread implements Runnable {
         System.err.println(
                 "Agent recieved a goaloffer " +
                 goal.getLabel() +
-                " event and returned: " +
+                " event and returned estimation: " +
                 Integer.toString(plan.totalEstimatedDistance())
         );
 
