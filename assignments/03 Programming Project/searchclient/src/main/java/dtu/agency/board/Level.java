@@ -1,7 +1,6 @@
 package dtu.agency.board;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -11,16 +10,20 @@ public class Level implements Serializable {
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;
     private Hashtable<String, Position> boardObjectPositions;
-    private PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
-    private List<Goal> goals = new ArrayList<>();
-    private List<Agent> agents = new ArrayList<>();
-    private List<Box> boxes = new ArrayList<>();
-    private List<Wall> walls = new ArrayList<>();
+    private PriorityQueue<Goal> goalQueue;
+    private Hashtable<String, List<Goal>> boxesGoals;
+    private Hashtable<String, List<Box>> goalsBoxes;
+    private List<Goal> goals;
+    private List<Agent> agents;
+    private List<Box> boxes;
+    private List<Wall> walls;
 
     public Level(BoardCell[][] boardState,
                  BoardObject[][] boardObjects,
                  Hashtable<String, Position> boardObjectPositions,
                  PriorityQueue<Goal> goalQueue,
+                 Hashtable<String, List<Goal>> boxesGoals,
+                 Hashtable<String, List<Box>> goalsBoxes,
                  List<Goal> goals,
                  List<Agent> agents,
                  List<Box> boxes,
@@ -29,6 +32,8 @@ public class Level implements Serializable {
         this.boardObjects = boardObjects;
         this.boardObjectPositions = boardObjectPositions;
         this.goalQueue = goalQueue;
+        this.boxesGoals = boxesGoals;
+        this.goalsBoxes = goalsBoxes;
         this.goals = goals;
         this.agents = agents;
         this.boxes = boxes;
@@ -61,6 +66,14 @@ public class Level implements Serializable {
 
     public PriorityQueue<Goal> getGoalQueue() {
         return goalQueue;
+    }
+
+    public Hashtable<String, List<Goal>> getBoxesGoals() {
+        return boxesGoals;
+    }
+
+    public Hashtable<String, List<Box>> getGoalsBoxes() {
+        return goalsBoxes;
     }
 
     public List<Agent> getAgents() {
