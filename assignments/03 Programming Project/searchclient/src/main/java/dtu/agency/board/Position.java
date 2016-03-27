@@ -20,6 +20,11 @@ public class Position implements Serializable {
     }
 
     public Position(Position old, Direction dir) {
+        // Coordinates used to interpret direction
+        //  R
+        //C 0 1 2
+        //  1
+        //  2
         this.row = old.getRow();
         this.column = old.getColumn();
         switch (dir) { // (0,0) is NORTH-WEST corner
@@ -87,4 +92,28 @@ public class Position implements Serializable {
     public boolean isNeighbour(Position other) {
         return (manhattanDist(other) == 1);
     }
+
+    public Direction getDirectionTo(Position other) { // returns the direction from this to other
+        // Coordinates used to extract direction
+        //  R
+        //C 0 1 2
+        //  1
+        //  2
+        int ns = this.getRow() - other.getRow(); // if positive, other is north of agent
+        int ew = this.getColumn() - other.getColumn(); // if positive, other is west of agent
+        if (Math.abs(ns) > Math.abs(ew)) {
+            if (ns > 0) {
+                return Direction.NORTH;
+            } else {
+                return Direction.SOUTH;
+            }
+        } else {
+            if (ew > 0) {
+                return Direction.WEST;
+            } else {
+                return Direction.EAST;
+            }
+        }
+    }
+
 }

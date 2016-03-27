@@ -31,8 +31,8 @@ public class MixedPlan implements AbstractPlan {
 
     public AbstractAction getFirst() { return actions.peekFirst(); }
     public AbstractAction removeFirst() { return actions.removeFirst(); }
-    public void prepend(List<AbstractAction> newActions) {
-        actions.addAll(0, newActions);
+    public void extend(MixedPlan plan) {
+        actions.addAll(plan.getActions());
     }
     public boolean isEmpty() { return actions.isEmpty(); }
 }

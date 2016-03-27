@@ -1,14 +1,12 @@
 package dtu.agency.planners.actions;
 
 import dtu.agency.AbstractAction;
-import dtu.agency.agent.actions.Direction;
 import dtu.agency.board.Level;
+import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public abstract class HLAction extends AbstractAction implements Serializable {
 
@@ -30,6 +28,6 @@ public abstract class HLAction extends AbstractAction implements Serializable {
 
     // Any High Level Action can be refined, as per the Hierarchical Task Network (HTN) approach
     //public abstract List<List<AbstractAction>> getRefinements();
-    public abstract ArrayList<LinkedList<AbstractAction>> getRefinements(Direction dirToBox);
+    public abstract ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level);
 
 }

@@ -1,5 +1,7 @@
 package dtu.agency.planners.actions.effects;
 
+import dtu.agency.agent.actions.Direction;
+import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 
 /**
@@ -39,4 +41,21 @@ public class HTNEffect extends Effect {
         return result;
     }
 
+    @Override
+    public boolean isLegal(Level level) {
+        boolean valid = true;
+        valid &= level.notWall(this.getAgentPosition());
+        valid &= level.notWall(this.getBoxPosition());
+        return valid;
+    }
+
+
+    public Direction getDirectionToBox() { // returns the direction from agent to box
+        return agentPosition.getDirectionTo(boxPosition);
+    }
+
+
+    public boolean boxIsMovable() {
+        return agentPosition.isNeighbour(boxPosition);
+    }
 }

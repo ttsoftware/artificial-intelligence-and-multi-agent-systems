@@ -153,6 +153,8 @@ public class HTNPlanner {
 
             HTNNode leafNode = strategy.getAndRemoveLeaf();
 
+            if (strategy.isExplored(leafNode.getEffect()) ) { continue; } // reject nodes resulting in states visited already
+
             if (isGoalState(leafNode)) {
                 return leafNode.extractPlan();
             }
@@ -162,7 +164,8 @@ public class HTNPlanner {
             // beginning
             for (HTNNode n : leafNode.getRefinementNodes(level)) {
                 // The list of expanded nodes is shuffled randomly; see Node.java
-                if (strategy.isExplored(n.getEffect()) ) { continue; } // reject nodes resulting in states visited already
+                // and it might be empty!
+                if (strategy.isExplored(n.getEffect()) ) { continue; } // reject/ignore nodes resulting in states visited already
                 if (strategy.inFrontier(n)) { continue; }              // check if node is already in frontier ?? but how could it be??
 
                 strategy.addToFrontier(n);

@@ -1,11 +1,15 @@
 package dtu.agency.planners.htn;
 
+import com.sun.org.apache.xerces.internal.dom.ChildNode;
+import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.Action;
+import dtu.agency.agent.actions.Direction;
 import dtu.agency.board.Level;
 import dtu.agency.planners.AbstractPlan;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
+import dtu.agency.planners.actions.HLAction;
 import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.searchclient.Command;
 import dtu.searchclient.Command.dir;
@@ -28,7 +32,6 @@ public class HTNNode {
     private Action action;   // primitive action represented by this node
     private HTNEffect effect; // status of the relevant board features
     private MixedPlan remainingActions; // list of successive (abstract) actions
-
     private int g; // generation - how many ancestors exist? -> how many moves have i performed
 
     public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, MixedPlan highLevelPlan) {
@@ -38,8 +41,6 @@ public class HTNNode {
         this.remainingActions = highLevelPlan;
         this.g = (parent == null) ? 0 : (parent.g + 1);
     }
-
-
 
     public int g() {
         return g;
@@ -51,78 +52,52 @@ public class HTNNode {
 
     public ArrayList<HTNNode> getRefinementNodes(Level level) {
 
-        if (this.remainingActions.isEmpty()) {return new ArrayList<>();}
+        ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
-        // old stuff for inspiration
-        /*
-        ArrayList<HTNNode> expandedNodes = new ArrayList<HTNNode>(Command.every.length);
-        for (Command c : Command.every) {
-            // Determine applicability of action
-            int newAgentRow = this.agentRow + dirToRowChange(c.dir1);
-            int newAgentCol = this.agentCol + dirToColChange(c.dir1);
+        if (this.remainingActions.isEmpty()) {return refinementNodes;}
 
-            if (c.actType == type.Move) {
-                // Check if there's a wall or box on the cell to which the agency is moving
-                if (cellIsFree(newAgentRow, newAgentCol)) {
-                    HTNNode n = this.ChildNode();
-                    n.action = c;
-                    n.agentRow = newAgentRow;
-                    n.agentCol = newAgentCol;
-                    expandedNodes.add(n);
+        AbstractAction nextAction = remainingActions.removeFirst();
+
+        if (nextAction instanceof Action) { // case the action is primitive, add it as only node,
+            Action primitive = (Action) nextAction;
+            HTNNode only = childNode( primitive, this.remainingActions, level ); // is remainingActions correct?? has first been removed??
+            if (only != null) { refinementNodes.add(only);}
+            return refinementNodes;
+        }
+
+        if (nextAction instanceof HLAction) { // case the action is high level, get the refinements from the action
+            HLAction highLevelAction = (HLAction) nextAction;
+            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getEffect(), level);
+            // go nuts!
+            Action first;
+            HTNNode nextNode;
+            for (MixedPlan refinement : refs) {
+                first = null; // remains null iff first action is abstract
+                if (refinement.getFirst() instanceof Action) {
+                    first = (Action) refinement.removeFirst();
                 }
-            } else if (c.actType == type.Push) {
-                // Make sure that there's actually a box to move
-                if (boxAt(newAgentRow, newAgentCol)) {
-                    int newBoxRow = newAgentRow + dirToRowChange(c.dir2);
-                    int newBoxCol = newAgentCol + dirToColChange(c.dir2);
-
-                    // .. and that new cell of box is free
-                    if (cellIsFree(newBoxRow, newBoxCol)) {
-                        HTNNode n = this.ChildNode();
-                        n.action = c;
-                        n.agentRow = newAgentRow;
-                        n.agentCol = newAgentCol;
-                        n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
-                        n.boxes[newAgentRow][newAgentCol] = 0;
-
-                        expandedNodes.add(n);
-                    }
-                }
-            } else if (c.actType == type.Pull) {
-                // Cell is free where agency is going
-                if (cellIsFree(newAgentRow, newAgentCol)) {
-                    int boxRow = this.agentRow + dirToRowChange(c.dir2);
-                    int boxCol = this.agentCol + dirToColChange(c.dir2);
-                    // .. and there's a box in "dir2" of the agency
-                    if (boxAt(boxRow, boxCol)) {
-                        HTNNode n = this.ChildNode();
-                        n.action = c;
-                        n.agentRow = newAgentRow;
-                        n.agentCol = newAgentCol;
-                        n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
-                        n.boxes[boxRow][boxCol] = 0;
-
-                        expandedNodes.add(n);
-                    }
+                refinement.extend(remainingActions);
+                nextNode = childNode( first, refinement, level );
+                if (nextNode != null) {
+                    refinementNodes.add(nextNode);
                 }
             }
+
+            //get refinements
+            // make sure to check if next's subgoal is reached by any of the refinements -- ?? how ?? store subgoal in hlaction??
         }
-        Collections.shuffle(expandedNodes, rnd);
-        return expandedNodes;
-        */
+
+        Collections.shuffle(refinementNodes, rnd);
+        return refinementNodes;
     }
 
-
-    private HTNNode ChildNode(Action primitiveAction, MixedPlan remainingActions) {
+    private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions, Level level) {
         HTNEffect oldState = this.getEffect();
         HTNEffect newState = primitiveAction.applyTo(oldState);
 
         // maybe postpone this check until HTNPlanner picks the Node??
+        // could be moved inside getRefinements, and spare iteration of illegal nodes.
         // Then we will have the level available
-        boolean valid = true;
-        valid &= level.notWall(newState.getAgentPosition());
-        valid &= level.notWall(newState.getBoxPosition());
-        if (!valid) return null;
 
         return new HTNNode(this, primitiveAction, newState, remainingActions);
     }
@@ -188,8 +163,6 @@ public class HTNNode {
         s.append("\n");
         return s.toString();
     }
-
-
 
     public HTNNode getParent() {
         return parent;

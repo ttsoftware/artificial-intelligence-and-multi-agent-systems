@@ -1,5 +1,7 @@
 package dtu.agency.planners.actions.effects;
 
-public class Effect {
+import dtu.agency.board.Level;
 
+public abstract class Effect {
+    public abstract boolean isLegal(Level level);
 }

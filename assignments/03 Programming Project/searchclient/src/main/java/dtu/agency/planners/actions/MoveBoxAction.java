@@ -1,13 +1,11 @@
 package dtu.agency.planners.actions;
 
-import dtu.agency.AbstractAction;
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.PullAction;
-import dtu.agency.agent.actions.PushAction;
+import dtu.agency.agent.actions.*;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
 
 import java.util.*;
@@ -17,7 +15,6 @@ public class MoveBoxAction extends HLAction {
     private final Position finalDestination;
     private final Box targetBox;
     private final Goal targetGoal;
-
 
     public MoveBoxAction(Box box, Position target) {
         this.finalDestination = target;
@@ -49,26 +46,55 @@ public class MoveBoxAction extends HLAction {
     }
 
     @Override
-    public ArrayList<LinkedList<AbstractAction>> getRefinements(Direction dirToBox) {
-        ArrayList<LinkedList<AbstractAction>> refinements = new ArrayList<>();
+    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level) {
 
+        ArrayList<MixedPlan> refinements = new ArrayList<>();
+        MixedPlan refinement;
+        Action push, pull;
+        HTNEffect result;
+
+        if (!priorState.boxIsMovable()) { return refinements; }
+        Direction dirToBox = priorState.getDirectionToBox();
         // then can we check if push/pull  direction os valid before adding it??
         // else leave it for someone else
 
-        LinkedList<AbstractAction> refinement_1 = new LinkedList<>();
-        LinkedList<AbstractAction> refinement_2 = new LinkedList<>();
-        // do this 3 more times
+        // PUSH REFINEMENTS
+        for (Direction dir : Direction.values()) {
+            refinement = new MixedPlan();
 
+            push = new PushAction(targetBox, dirToBox, dir);
+            result = push.applyTo(priorState);
+            if (!result.isLegal(level)) continue;
 
-        refinement_1.add(new PushAction(targetBox, Direction.NORTH, dirToBox) );
-        refinement_1.add(this);
+            // check if any of the resulting states fulfills this HLActions target,
+            // and if so, return only the action which does!
+            refinement.addAction(push);
+            if (!result.getBoxPosition().equals(this.finalDestination)) { //
+                refinement.addAction(this);
+            } // if not, add this abstract action again
 
-        refinement_2.add(new PullAction(targetBox, Direction.NORTH, dirToBox) );
-        refinement_2.add(this);
+            refinements.add(refinement);
+        }
 
-        refinements.add(refinement_1);
-        refinements.add(refinement_2);
+        // PULL REFINEMENTS
+        for (Direction dir : Direction.values()) {
+            refinement = new MixedPlan();
 
+            pull = new PullAction(targetBox, dir, dirToBox);
+            result = pull.applyTo(priorState);
+            if (!result.isLegal(level)) continue;
+
+            // check if any of the resulting states fulfills this HLActions target,
+            // and if so, return only the action which does!
+            refinement.addAction(pull);
+            if (!result.getBoxPosition().equals(this.finalDestination)) { //
+                refinement.addAction(this);
+            } // if not, add this abstract action again
+
+            refinements.add(refinement);
+        }
+
+        // else shuffle and return all refinements
         long seed = System.nanoTime();
         Collections.shuffle(refinements, new Random(seed));
 
