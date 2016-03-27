@@ -6,7 +6,6 @@ import dtu.agency.board.Goal;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.agent.GoalEstimationEvent;
 
-import java.util.List;
 import java.util.PriorityQueue;
 
 public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstimationEvent> {
@@ -14,7 +13,7 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
     private final Goal goal;
     private PriorityQueue<GoalEstimationEvent> agentEstimations = new PriorityQueue<>(new GoalEstimationEventComparator());
 
-    public GoalEstimationEventSubscriber(Goal goal, List<String> agentLabels) {
+    public GoalEstimationEventSubscriber(Goal goal) {
         this.goal = goal;
     }
 

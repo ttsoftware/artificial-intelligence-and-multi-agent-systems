@@ -48,7 +48,7 @@ public class Agency implements Runnable {
         LevelService.getInstance().getLevel().getGoalQueue().forEach(goal -> {
 
             // Register for incoming goal estimations
-            GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels);
+            GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal);
             EventBusService.register(goalEstimationEventSubscriber);
             goalEstimationSubscribers.add(goalEstimationEventSubscriber);
 
