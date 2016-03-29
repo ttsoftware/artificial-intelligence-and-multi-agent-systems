@@ -107,6 +107,9 @@ public class ProblemMarshaller {
                     goalQueue.add(goal);
                     goalCount++;
                 }
+                else {
+                    boardState[row][column] = BoardCell.FREE_CELL;
+                }
             }
         }
 

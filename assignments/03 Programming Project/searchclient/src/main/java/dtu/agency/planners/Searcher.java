@@ -18,17 +18,19 @@ public class Searcher {
     private BoardObjectHelper boardObjectHelper;
     private Position agentStartPosition;
     private Position boxStartPosition;
+    private Agent agent;
 
-    public Searcher(Level level) {
+    public Searcher(Level level, Agent agent) {
         this.level = level;
+        this.agent = agent;
+        this.agentStartPosition = level.getBoardObjectPositions().get(agent.getLabel());
         this.boardObjectHelper = new BoardObjectHelper(level.getBoardObjects(), level.getBoardState());
     }
 
-    public List<Action> search(AbstractAction action, Agent agent) {
+    public List<Action> search(AbstractAction action) {
         List<Action> actions = new ArrayList<>();
         List<Precondition> preconditions = new ArrayList<>();
         Position goalPosition = action.getPosition();
-        this.agentStartPosition = level.getBoardObjectPositions().get(agent.getLabel());
 
         switch (action.getClass().getName()) {
             case "GoToAction":
@@ -38,6 +40,16 @@ public class Searcher {
                 Box box = ((MoveBoxAction)action).getBox();
                 this.boxStartPosition = level.getBoardObjectPositions().get(box.getLabel());
                 preconditions.add(new BoxAtPrecondition(box, agent, goalPosition));
+
+//                List<Pair<Position, Direction>> freeNeighbours = boardObjectHelper.getFreeNeighbours(goalPosition);
+//                for (Pair<Position, Direction> freeNeighbour : freeNeighbours) {
+//                    // Maybe choose the one with the closest distance to the agent, so that
+//                    // we minimize the chance of picking an agent position that renders the level
+//                    // unsolvable.
+//                    preconditions.add(new BoxAtAndAgentAtPrecondition(boxAtPrecondition,
+//                            new AgentAtPrecondition(agent, freeNeighbour.getKey())));
+//                }
+
                 break;
         }
 
@@ -48,9 +60,9 @@ public class Searcher {
 
             PriorityQueue<Action> stepActions = new PriorityQueue<>(new ActionComparator());
             switch (currentPrecondition.getClass().getName()) {
-                case "FreeCellPrecondition":
-                    stepActions = solvePrecondition((FreeCellPrecondition) currentPrecondition);
-                    break;
+//                case "FreeCellPrecondition":
+//                    stepActions = solvePrecondition((FreeCellPrecondition) currentPrecondition);
+//                    break;
                 case "AgentAtPrecondition":
                     stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
                     break;
@@ -61,9 +73,9 @@ public class Searcher {
 //                    stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition, (AgentAtPrecondition) nextPrecondition);
                     stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
                     break;
-                case "NeighbourPrecondition":
+//                case "NeighbourPrecondition":
 //                    stepActions = solvePrecondition((NeighbourPrecondition) currentPrecondition);
-                    break;
+//                    break;
                 default:
                     break;
             }
@@ -77,19 +89,19 @@ public class Searcher {
         return actions;
     }
 
-    public PriorityQueue<Action> solvePrecondition(FreeCellPrecondition precondition) {
-        PriorityQueue<Action> actions = new PriorityQueue<>();
-
-        List<Pair<Position, Direction>> neighbours = boardObjectHelper.getFreeNeighbours(precondition.getPosition());
-
-        for (Pair<Position, Direction> neighbour : neighbours) {
-            MoveAction nextAction = new MoveAction(neighbour.getValue());
-            nextAction.setHeuristic(heuristic(neighbour.getKey(), this.agentStartPosition));
-            actions.add(nextAction);
-        }
-
-        return actions;
-    }
+//    public PriorityQueue<Action> solvePrecondition(FreeCellPrecondition precondition) {
+//        PriorityQueue<Action> actions = new PriorityQueue<>();
+//
+//        List<Pair<Position, Direction>> neighbours = boardObjectHelper.getFreeNeighbours(precondition.getPosition());
+//
+//        for (Pair<Position, Direction> neighbour : neighbours) {
+//            MoveAction nextAction = new MoveAction(neighbour.getValue());
+//            nextAction.setHeuristic(heuristic(neighbour.getKey(), this.agentStartPosition));
+//            actions.add(nextAction);
+//        }
+//
+//        return actions;
+//    }
 
     public PriorityQueue<Action> solvePrecondition(AgentAtPrecondition precondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>();

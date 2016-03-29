@@ -27,8 +27,8 @@ public class PartialOrderPlanner {
     }
 
     private List<Action> goToActionPlanner(AbstractAction action, Agent agent, Level level) {
-        Searcher searcher = new Searcher(level);
-        List<Action> concreteActions = searcher.search(action, agent);
+        Searcher searcher = new Searcher(level, agent);
+        List<Action> concreteActions = searcher.search(action);
         return concreteActions;
     }
 

@@ -38,10 +38,10 @@ public class PullAction extends Action {
     public List<Precondition> getPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getAgentPosition(), getAgentDirection());
-        preconditions.add(new FreeCellPrecondition(nextPosition));
-        preconditions.add(new NeighbourPrecondition(getAgent(), getBoxPosition()));
-        preconditions.add(new BoxAtPrecondition(getBox(), getBoxPosition()));
-        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
+//        preconditions.add(new FreeCellPrecondition(nextPosition));
+//        preconditions.add(new NeighbourPrecondition(getAgent(), getBoxPosition()));
+        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), getBoxPosition()));
+//        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
 
         return preconditions;
     }

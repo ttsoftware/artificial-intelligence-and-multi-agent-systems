@@ -67,9 +67,34 @@ public class BoardObjectHelper {
         return neighbours;
     }
 
+//    public Position getNeighbourInDirection(Position position, Direction direction) {
+//        Position neighbourPosition;
+//
+//        switch (direction) {
+//            case NORTH:
+//                neighbourPosition = new Position(position.getRow()-1, position.getColumn());
+//                break;
+//            case SOUTH:
+//                neighbourPosition = new Position(position.getRow()+1, position.getColumn());
+//                break;
+//            case WEST:
+//                neighbourPosition = new Position(position.getRow(), position.getColumn()-1);
+//                break;
+//            case EAST:
+//                neighbourPosition = new Position(position.getRow(), position.getColumn()+1);
+//                break;
+//            default:
+//                return null;
+//        }
+//
+//        return neighbourPosition;
+//    }
+
     private boolean isFreeNeighbour(int row, int column) {
-        if (boardState[row][column].equals(BoardCell.FREE_CELL)) {
-            return true;
+        if (row >= 0 && column >= 0 && boardState.length > row && boardState[0].length > column) {
+            if (boardState[row][column].equals(BoardCell.FREE_CELL)) {
+                return true;
+            }
         }
         return false;
     }

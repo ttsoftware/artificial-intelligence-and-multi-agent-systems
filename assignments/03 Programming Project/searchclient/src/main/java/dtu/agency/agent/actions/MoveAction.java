@@ -32,7 +32,7 @@ public class MoveAction extends Action {
     public List<Precondition> getPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getAgentPosition(), getDirection());
-        preconditions.add(new FreeCellPrecondition(nextPosition));
+        //preconditions.add(new FreeCellPrecondition(nextPosition));
         preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
 //        preconditions.add(new NeighbourPrecondition(getAgent(), nextPosition));
 

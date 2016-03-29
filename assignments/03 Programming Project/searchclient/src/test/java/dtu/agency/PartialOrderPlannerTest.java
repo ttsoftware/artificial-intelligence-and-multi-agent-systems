@@ -1,12 +1,11 @@
 package dtu.agency;
 
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
-import dtu.agency.agent.actions.PushAction;
+import dtu.agency.agent.actions.*;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.planners.Searcher;
 import dtu.agency.planners.actions.preconditions.AgentAtPrecondition;
 import dtu.agency.planners.actions.preconditions.BoxAtPrecondition;
 import dtu.agency.planners.actions.preconditions.FreeCellPrecondition;
@@ -15,6 +14,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,9 +27,10 @@ public class PartialOrderPlannerTest {
 
     // Parse the level
     Level level = ProblemMarshaller.marshall(fileReader);
-
     Agent agent = level.getAgents().get(0);
     Box box = level.getBoxes().get(0);
+
+    Searcher searcher = new Searcher(level, agent);
 
     Position agentPosition = level.getBoardObjectPositions().get(agent.getLabel());
     Position boxPosition = level.getBoardObjectPositions().get(box.getLabel());
@@ -44,13 +45,9 @@ public class PartialOrderPlannerTest {
 
         List<Precondition> preconditions = moveAction.getPreconditions();
 
-        assertEquals (preconditions.size(), 2);
+        assertEquals (preconditions.size(), 1);
 
-        FreeCellPrecondition freeCellPrecondition = (FreeCellPrecondition) preconditions.get(0);
-        AgentAtPrecondition agentAtPrecondition = (AgentAtPrecondition) preconditions.get(1);
-
-        assertEquals(freeCellPrecondition.getPosition().getRow(), 1);
-        assertEquals(freeCellPrecondition.getPosition().getColumn(), 2);
+        AgentAtPrecondition agentAtPrecondition = (AgentAtPrecondition) preconditions.get(0);
 
         assertEquals(agentAtPrecondition.getAgent(), agent);
 
@@ -65,22 +62,41 @@ public class PartialOrderPlannerTest {
 
         List<Precondition> preconditions = pushAction.getPreconditions();
 
-        assertEquals (preconditions.size(), 3);
+        assertEquals (preconditions.size(), 1);
 
-        FreeCellPrecondition freeCellPrecondition = (FreeCellPrecondition) preconditions.get(0);
-        BoxAtPrecondition boxAtPrecondition = (BoxAtPrecondition) preconditions.get(1);
-        AgentAtPrecondition agentAtPrecondition = (AgentAtPrecondition) preconditions.get(2);
-
-        assertEquals(freeCellPrecondition.getPosition().getRow(), 3);
-        assertEquals(freeCellPrecondition.getPosition().getColumn(), 17);
+        BoxAtPrecondition boxAtPrecondition = (BoxAtPrecondition) preconditions.get(0);
 
         assertEquals(boxAtPrecondition.getBox(), box);
-        assertEquals(agentAtPrecondition.getAgent(), agent);
+        assertEquals(boxAtPrecondition.getAgent(), agent);
 
         assertEquals(boxAtPrecondition.getBoxPosition().getRow(), 4);
         assertEquals(boxAtPrecondition.getBoxPosition().getColumn(), 17);
+    }
 
-        assertEquals(agentAtPrecondition.getAgentPosition().getRow(), 3);
-        assertEquals(agentAtPrecondition.getAgentPosition().getColumn(), 17);
+    @Test
+    public void testPullPreconditions() {
+
+        PullAction pullAction = new PullAction(box, boxPosition, agent, agentPosition, Direction.EAST, Direction.NORTH);
+
+        List<Precondition> preconditions = pullAction.getPreconditions();
+
+        assertEquals (preconditions.size(), 1);
+
+        BoxAtPrecondition boxAtPrecondition = (BoxAtPrecondition) preconditions.get(0);
+
+        assertEquals(boxAtPrecondition.getBox(), box);
+        assertEquals(boxAtPrecondition.getAgent(), agent);
+
+        assertEquals(boxAtPrecondition.getBoxPosition().getRow(), 4);
+        assertEquals(boxAtPrecondition.getBoxPosition().getColumn(), 17);
+    }
+
+    @Test
+    public void testSolveAtAgentPrecondition() {
+        AgentAtPrecondition agentAtPrecondition = new AgentAtPrecondition(agent, new Position(4, 5));
+
+        PriorityQueue<Action> actions = searcher.solvePrecondition(agentAtPrecondition);
+
+        assertEquals(actions.size(), 3);
     }
 }

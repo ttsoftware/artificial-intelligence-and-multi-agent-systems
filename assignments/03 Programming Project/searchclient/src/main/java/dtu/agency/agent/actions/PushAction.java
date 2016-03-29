@@ -42,7 +42,7 @@ public class PushAction extends Action {
         // We need the preconditions in this order! DON'T CHANGE IT!
 //        preconditions.add(new FreeCellPrecondition(nextPosition));
 //        preconditions.add(new NeighbourPrecondition(getBox(), getAgentPosition(), getAgentDirection().getInverse()));
-//        preconditions.add(new BoxAtPrecondition(getBox(), getBoxPosition()));
+        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), getBoxPosition()));
 //        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
 
         return preconditions;

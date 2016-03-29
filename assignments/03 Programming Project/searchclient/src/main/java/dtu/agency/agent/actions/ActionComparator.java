@@ -6,45 +6,45 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
-public class ActionComparator implements Comparator<Action> {
+public class ActionComparator<T extends Action> implements Comparator<T> {
 
     @Override
-    public int compare(Action o1, Action o2) {
+    public int compare(T o1, T o2) {
         return o1.getHeuristic() - o2.getHeuristic();
     }
 
     @Override
-    public Comparator<Action> reversed() {
+    public Comparator<T> reversed() {
         return null;
     }
 
     @Override
-    public Comparator<Action> thenComparing(Comparator<? super Action> other) {
+    public Comparator<T> thenComparing(Comparator<? super T> other) {
         return null;
     }
 
     @Override
-    public <U> Comparator<Action> thenComparing(Function<? super Action, ? extends U> keyExtractor, Comparator<? super U> keyComparator) {
+    public <U> Comparator<T> thenComparing(Function<? super T, ? extends U> keyExtractor, Comparator<? super U> keyComparator) {
         return null;
     }
 
     @Override
-    public <U extends Comparable<? super U>> Comparator<Action> thenComparing(Function<? super Action, ? extends U> keyExtractor) {
+    public <U extends Comparable<? super U>> Comparator<T> thenComparing(Function<? super T, ? extends U> keyExtractor) {
         return null;
     }
 
     @Override
-    public Comparator<Action> thenComparingInt(ToIntFunction<? super Action> keyExtractor) {
+    public Comparator<T> thenComparingInt(ToIntFunction<? super T> keyExtractor) {
         return null;
     }
 
     @Override
-    public Comparator<Action> thenComparingLong(ToLongFunction<? super Action> keyExtractor) {
+    public Comparator<T> thenComparingLong(ToLongFunction<? super T> keyExtractor) {
         return null;
     }
 
     @Override
-    public Comparator<Action> thenComparingDouble(ToDoubleFunction<? super Action> keyExtractor) {
+    public Comparator<T> thenComparingDouble(ToDoubleFunction<? super T> keyExtractor) {
         return null;
     }
 }
