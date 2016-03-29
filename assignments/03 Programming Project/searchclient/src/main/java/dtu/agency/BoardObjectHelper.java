@@ -128,4 +128,19 @@ public class BoardObjectHelper {
         }
         return null;
     }
+
+    public Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
+        switch (movingDirection) {
+            case NORTH:
+                return new Position(currentPosition.getRow()-1, currentPosition.getColumn());
+            case SOUTH:
+                return new Position(currentPosition.getRow()+1, currentPosition.getColumn());
+            case WEST:
+                return new Position(currentPosition.getRow(), currentPosition.getColumn()-1);
+            case EAST:
+                return new Position(currentPosition.getRow(), currentPosition.getColumn()+1);
+            default:
+                return null;
+        }
+    }
 }

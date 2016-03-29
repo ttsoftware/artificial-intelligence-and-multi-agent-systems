@@ -13,10 +13,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="agency" />
+        <module name="The Agency" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="agency" target="1.8" />
+      <module name="The Agency" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

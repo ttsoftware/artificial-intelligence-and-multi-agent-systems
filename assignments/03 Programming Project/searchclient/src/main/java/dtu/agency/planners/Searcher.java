@@ -104,7 +104,7 @@ public class Searcher {
 //    }
 
     public PriorityQueue<Action> solvePrecondition(AgentAtPrecondition precondition) {
-        PriorityQueue<Action> actions = new PriorityQueue<>();
+        PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator<>());
 
         List<Pair<Position, Direction>> neighbours = boardObjectHelper.getFreeNeighbours(precondition.getAgentPosition());
 
@@ -118,7 +118,7 @@ public class Searcher {
     }
 
     public PriorityQueue<Action> solvePrecondition(BoxAtPrecondition boxPrecondition) {
-        PriorityQueue<Action> actions = new PriorityQueue<>();
+        PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator<>());
         List<Pair<Position, Direction>> boxNeighbours = boardObjectHelper.getFreeNeighbours(boxPrecondition.getBoxPosition());
 
         for (Pair<Position, Direction> boxNeighbour : boxNeighbours) {

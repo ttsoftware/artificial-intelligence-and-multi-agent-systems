@@ -92,11 +92,28 @@ public class PartialOrderPlannerTest {
     }
 
     @Test
-    public void testSolveAtAgentPrecondition() {
-        AgentAtPrecondition agentAtPrecondition = new AgentAtPrecondition(agent, new Position(4, 5));
+    public void testSolveAgentAtPrecondition() {
+        AgentAtPrecondition agentAtPrecondition = new AgentAtPrecondition(agent, new Position(5, 5));
 
         PriorityQueue<Action> actions = searcher.solvePrecondition(agentAtPrecondition);
 
-        assertEquals(actions.size(), 3);
+        assertEquals(3, actions.size());
+
+        for (Action action : actions) {
+            System.out.println(action.toString());
+            System.out.println(action.getHeuristic());
+        }
+    }
+
+    @Test
+    public void testSolveBoxAtPrecondition() {
+        BoxAtPrecondition boxAtPrecondition = new BoxAtPrecondition(box, agent, new Position(5, 5));
+
+        PriorityQueue<Action> actions = searcher.solvePrecondition(boxAtPrecondition);
+
+        for (Action action : actions) {
+            System.out.println(action.toString());
+            System.out.println(action.getHeuristic());
+        }
     }
 }
