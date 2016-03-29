@@ -16,16 +16,21 @@ public class MoveAgentEffect extends Effect {
         BoardCell[][] boardState = level.getBoardState();
         BoardObject[][] boardObjects = level.getBoardObjects();
 
-        level.setBoardState(applyEffectToBoardState(boardState, goalPosition, action));
-        level.setBoardObjects(applyEffectToBoardObjects(boardObjects, goalPosition, action));
+        level.setBoardState(applyEffectToBoard(level, goalPosition, action));
 
         return level;
     }
 
-    private BoardCell[][] applyEffectToBoardState(BoardCell[][] boardState, Position goalPosition, MoveAction action) {
+    private BoardCell[][] applyEffectToBoard(Level level, Position goalPosition, MoveAction action) {
+        BoardCell[][] boardState = level.getBoardState();
+        BoardObject[][] boardObjects = level.getBoardObjects();
+
         switch (boardState[goalPosition.getRow()][goalPosition.getColumn()]) {
             case AGENT_GOAL:
                 boardState[goalPosition.getRow()][goalPosition.getColumn()] = BoardCell.GOAL;
+
+                // We want multiple (agent+goal or box+goal) objects in the same cell
+//                boardObjects[goalPosition.getRow()][goalPosition.getColumn()] = new Goal
                 break;
             default:
                 boardState[goalPosition.getRow()][goalPosition.getColumn()] = BoardCell.FREE_CELL;
@@ -40,11 +45,5 @@ public class MoveAgentEffect extends Effect {
         }
 
         return boardState;
-    }
-
-    private BoardObject[][] applyEffectToBoardObjects(BoardObject[][] boardObjects, Position goalPosition, MoveAction action) {
-
-
-        return boardObjects;
     }
 }
