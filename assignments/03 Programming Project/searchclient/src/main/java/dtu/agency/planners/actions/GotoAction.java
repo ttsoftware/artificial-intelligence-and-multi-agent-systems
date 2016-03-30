@@ -6,8 +6,9 @@ public class GotoAction extends AbstractAction {
 
     private Position position;
 
-    public GotoAction(Position position) {
+    public GotoAction(int estimatedDistance, Position position) {
         this.position = position;
+        this.estimatedDistance = estimatedDistance;
     }
 
     @Override
@@ -17,5 +18,10 @@ public class GotoAction extends AbstractAction {
 
     public Position getPosition() {
         return position;
+    }
+
+    @Override
+    public int getEstimatedDistance() {
+        return estimatedDistance;
     }
 }

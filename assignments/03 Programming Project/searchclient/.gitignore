@@ -7,4 +7,5 @@ target
 .idea/dictionaries
 .idea/inspectionProfiles
 .idea/libraries
+.idea/copyright
 *.class
