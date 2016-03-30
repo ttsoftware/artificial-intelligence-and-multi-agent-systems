@@ -1,8 +1,8 @@
-package dtu.agency.planners.actions.preconditions;
+package dtu.agency.agent.actions.preconditions;
 
-import dtu.agency.board.Position;
+import java.io.Serializable;
 
-public abstract class Precondition {
+public abstract class Precondition implements Serializable {
 
     private boolean isSatisfied;
 

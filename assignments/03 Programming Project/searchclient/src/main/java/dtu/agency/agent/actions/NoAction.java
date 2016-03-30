@@ -1,7 +1,7 @@
 package dtu.agency.agent.actions;
 
-import dtu.agency.planners.actions.effects.Effect;
-import dtu.agency.planners.actions.preconditions.Precondition;
+import dtu.agency.agent.actions.effects.Effect;
+import dtu.agency.agent.actions.preconditions.Precondition;
 
 import java.util.List;
 

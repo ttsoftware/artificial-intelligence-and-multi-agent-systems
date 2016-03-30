@@ -1,4 +1,4 @@
-package dtu.agency;
+package dtu.agency.services;
 
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.board.BoardCell;
@@ -10,12 +10,12 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoardObjectHelper {
+public class BoardObjectService {
 
     private BoardObject[][] boardObjects;
     private BoardCell[][] boardState;
 
-    public BoardObjectHelper(BoardObject[][] boardObjects, BoardCell[][] boardState) {
+    public BoardObjectService(BoardObject[][] boardObjects, BoardCell[][] boardState) {
         this.boardObjects = boardObjects;
         this.boardState = boardState;
     }

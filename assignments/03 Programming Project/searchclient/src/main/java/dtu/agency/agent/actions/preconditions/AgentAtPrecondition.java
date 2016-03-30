@@ -1,4 +1,4 @@
-package dtu.agency.planners.actions.preconditions;
+package dtu.agency.agent.actions.preconditions;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Position;

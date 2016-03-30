@@ -3,8 +3,8 @@ package dtu.agency.agent.actions;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.effects.Effect;
-import dtu.agency.planners.actions.preconditions.*;
+import dtu.agency.agent.actions.effects.Effect;
+import dtu.agency.agent.actions.preconditions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class PushAction extends Action {
     @Override
     public List<Precondition> getPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
-        Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getBoxPosition(), getBoxDirection());
+        Position nextPosition = getNextPositionFromMovingDirection(getBoxPosition(), getBoxDirection());
 
         // We need the preconditions in this order! DON'T CHANGE IT!
 //        preconditions.add(new FreeCellPrecondition(nextPosition));
@@ -92,8 +92,6 @@ public class PushAction extends Action {
     public Agent getAgent() {
         return agent;
     }
-
-
 
     public Position getAgentPosition() {
         return agentPosition;

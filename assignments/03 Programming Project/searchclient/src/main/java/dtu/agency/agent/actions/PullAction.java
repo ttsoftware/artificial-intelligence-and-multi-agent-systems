@@ -3,8 +3,8 @@ package dtu.agency.agent.actions;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.effects.Effect;
-import dtu.agency.planners.actions.preconditions.*;
+import dtu.agency.agent.actions.effects.Effect;
+import dtu.agency.agent.actions.preconditions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class PullAction extends Action {
     @Override
     public List<Precondition> getPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
-        Position nextPosition = ActionHelper.getNextPositionFromMovingDirection(getAgentPosition(), getAgentDirection());
+        Position nextPosition = getNextPositionFromMovingDirection(getAgentPosition(), getAgentDirection());
 //        preconditions.add(new FreeCellPrecondition(nextPosition));
 //        preconditions.add(new NeighbourPrecondition(getAgent(), getBoxPosition()));
         preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), getBoxPosition()));

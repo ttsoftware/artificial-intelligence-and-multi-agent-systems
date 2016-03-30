@@ -5,11 +5,10 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
-import dtu.agency.planners.Searcher;
-import dtu.agency.planners.actions.preconditions.AgentAtPrecondition;
-import dtu.agency.planners.actions.preconditions.BoxAtPrecondition;
-import dtu.agency.planners.actions.preconditions.FreeCellPrecondition;
-import dtu.agency.planners.actions.preconditions.Precondition;
+import dtu.agency.planners.pop.GotoPOP;
+import dtu.agency.agent.actions.preconditions.AgentAtPrecondition;
+import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
+import dtu.agency.agent.actions.preconditions.Precondition;
 import org.junit.Test;
 
 import java.io.*;
@@ -30,7 +29,7 @@ public class PartialOrderPlannerTest {
     Agent agent = level.getAgents().get(0);
     Box box = level.getBoxes().get(0);
 
-    Searcher searcher = new Searcher(level, agent);
+    GotoPOP gotoPOP = new GotoPOP(level, agent);
 
     Position agentPosition = level.getBoardObjectPositions().get(agent.getLabel());
     Position boxPosition = level.getBoardObjectPositions().get(box.getLabel());
@@ -95,7 +94,7 @@ public class PartialOrderPlannerTest {
     public void testSolveAgentAtPrecondition() {
         AgentAtPrecondition agentAtPrecondition = new AgentAtPrecondition(agent, new Position(5, 5));
 
-        PriorityQueue<Action> actions = searcher.solvePrecondition(agentAtPrecondition);
+        PriorityQueue<Action> actions = gotoPOP.solvePrecondition(agentAtPrecondition);
 
         assertEquals(3, actions.size());
 
@@ -109,7 +108,7 @@ public class PartialOrderPlannerTest {
     public void testSolveBoxAtPrecondition() {
         BoxAtPrecondition boxAtPrecondition = new BoxAtPrecondition(box, agent, new Position(5, 5));
 
-        PriorityQueue<Action> actions = searcher.solvePrecondition(boxAtPrecondition);
+        PriorityQueue<Action> actions = gotoPOP.solvePrecondition(boxAtPrecondition);
 
         for (Action action : actions) {
             System.out.println(action.toString());

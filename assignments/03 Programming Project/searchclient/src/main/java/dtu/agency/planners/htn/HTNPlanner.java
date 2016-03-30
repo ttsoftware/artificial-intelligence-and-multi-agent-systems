@@ -1,8 +1,7 @@
-package dtu.agency.planners;
+package dtu.agency.planners.htn;
 
 import dtu.agency.board.Goal;
 import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.GotoAction;
 
 import java.util.ArrayList;
 import java.util.List;

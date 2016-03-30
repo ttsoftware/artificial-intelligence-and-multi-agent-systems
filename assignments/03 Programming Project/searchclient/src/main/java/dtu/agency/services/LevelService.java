@@ -168,6 +168,10 @@ public class LevelService implements Serializable {
         return true;
     }
 
+    public Position getPosition(String objectLabel) {
+        return level.getBoardObjectPositions().get(objectLabel);
+    }
+
     /**
      * Once the level has been set, it is locked to this instance.
      *

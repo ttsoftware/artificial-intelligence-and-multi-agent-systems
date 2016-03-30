@@ -1,6 +1,5 @@
-package dtu.agency.planners;
+package dtu.agency.planners.pop;
 
-import dtu.agency.agent.AgentThread;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
@@ -27,8 +26,8 @@ public class PartialOrderPlanner {
     }
 
     private List<Action> goToActionPlanner(AbstractAction action, Agent agent, Level level) {
-        Searcher searcher = new Searcher(level, agent);
-        List<Action> concreteActions = searcher.search(action);
+        GotoPOP gotoPOP = new GotoPOP(level, agent);
+        List<Action> concreteActions = gotoPOP.search(action);
         return concreteActions;
     }
 

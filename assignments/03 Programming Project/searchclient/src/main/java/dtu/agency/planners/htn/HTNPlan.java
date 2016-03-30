@@ -1,5 +1,6 @@
-package dtu.agency.planners;
+package dtu.agency.planners.htn;
 
+import dtu.agency.planners.AbstractPlan;
 import dtu.agency.planners.actions.AbstractAction;
 
 import java.util.List;

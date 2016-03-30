@@ -1,31 +1,20 @@
-package dtu.agency.planners;
+package dtu.agency.planners.pop;
 
-import dtu.agency.BoardObjectHelper;
+import dtu.agency.services.BoardObjectService;
 import dtu.agency.agent.actions.*;
 import dtu.agency.board.*;
 import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.actions.MoveBoxAction;
-import dtu.agency.planners.actions.preconditions.*;
+import dtu.agency.agent.actions.preconditions.*;
+import dtu.agency.services.LevelService;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-public class Searcher {
+public class GotoPOP extends AbstractPOP {
 
-    private Level level;
-    private BoardObjectHelper boardObjectHelper;
-    private Position agentStartPosition;
-    private Position boxStartPosition;
-    private Agent agent;
-
-    public Searcher(Level level, Agent agent) {
-        this.level = level;
-        this.agent = agent;
-        this.agentStartPosition = level.getBoardObjectPositions().get(agent.getLabel());
-        this.boardObjectHelper = new BoardObjectHelper(level.getBoardObjects(), level.getBoardState());
-    }
 
     public List<Action> search(AbstractAction action) {
         List<Action> actions = new ArrayList<>();
@@ -41,7 +30,7 @@ public class Searcher {
                 this.boxStartPosition = level.getBoardObjectPositions().get(box.getLabel());
                 preconditions.add(new BoxAtPrecondition(box, agent, goalPosition));
 
-//                List<Pair<Position, Direction>> freeNeighbours = boardObjectHelper.getFreeNeighbours(goalPosition);
+//                List<Pair<Position, Direction>> freeNeighbours = boardObjectService.getFreeNeighbours(goalPosition);
 //                for (Pair<Position, Direction> freeNeighbour : freeNeighbours) {
 //                    // Maybe choose the one with the closest distance to the agent, so that
 //                    // we minimize the chance of picking an agent position that renders the level
@@ -92,7 +81,7 @@ public class Searcher {
 //    public PriorityQueue<Action> solvePrecondition(FreeCellPrecondition precondition) {
 //        PriorityQueue<Action> actions = new PriorityQueue<>();
 //
-//        List<Pair<Position, Direction>> neighbours = boardObjectHelper.getFreeNeighbours(precondition.getPosition());
+//        List<Pair<Position, Direction>> neighbours = boardObjectService.getFreeNeighbours(precondition.getPosition());
 //
 //        for (Pair<Position, Direction> neighbour : neighbours) {
 //            MoveAction nextAction = new MoveAction(neighbour.getValue());
@@ -106,7 +95,7 @@ public class Searcher {
     public PriorityQueue<Action> solvePrecondition(AgentAtPrecondition precondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator<>());
 
-        List<Pair<Position, Direction>> neighbours = boardObjectHelper.getFreeNeighbours(precondition.getAgentPosition());
+        List<Pair<Position, Direction>> neighbours = boardObjectService.getFreeNeighbours(precondition.getAgentPosition());
 
         for (Pair<Position, Direction> neighbour : neighbours) {
             MoveAction nextAction = new MoveAction(neighbour.getValue());
@@ -119,10 +108,10 @@ public class Searcher {
 
     public PriorityQueue<Action> solvePrecondition(BoxAtPrecondition boxPrecondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator<>());
-        List<Pair<Position, Direction>> boxNeighbours = boardObjectHelper.getFreeNeighbours(boxPrecondition.getBoxPosition());
+        List<Pair<Position, Direction>> boxNeighbours = boardObjectService.getFreeNeighbours(boxPrecondition.getBoxPosition());
 
         for (Pair<Position, Direction> boxNeighbour : boxNeighbours) {
-            List<Pair<Position, Direction>> viableAgentPositions = boardObjectHelper.getFreeNeighbours(boxNeighbour.getKey());
+            List<Pair<Position, Direction>> viableAgentPositions = boardObjectService.getFreeNeighbours(boxNeighbour.getKey());
             for (Pair<Position, Direction> viableAgentPosition : viableAgentPositions) {
 
                 PushAction nextPushAction = new PushAction(boxPrecondition.getBox(), boxNeighbour.getKey(),
@@ -134,7 +123,7 @@ public class Searcher {
         }
 
         for (Pair<Position, Direction> boxNeighbour : boxNeighbours) {
-            List<Pair<Position, Direction>> viableAgentPositions = boardObjectHelper.getFreeNeighbours(boxNeighbour.getKey());
+            List<Pair<Position, Direction>> viableAgentPositions = boardObjectService.getFreeNeighbours(boxNeighbour.getKey());
             for (Pair<Position, Direction> viableAgentPosition : viableAgentPositions) {
 
                 PullAction nextPullAction = new PullAction(boxPrecondition.getBox(), boxNeighbour.getKey(),
@@ -151,11 +140,11 @@ public class Searcher {
 //    public PriorityQueue<Action> solvePrecondition(BoxAtPrecondition boxPrecondition, AgentAtPrecondition agentPrecondition) {
 //        PriorityQueue<Action> actions = new PriorityQueue<>();
 //
-//        List<Pair<Position, Direction>> agentNeighbours = boardObjectHelper.getFreeNeighbours(agentPrecondition.getAgentPosition());
+//        List<Pair<Position, Direction>> agentNeighbours = boardObjectService.getFreeNeighbours(agentPrecondition.getAgentPosition());
 //        for (Pair<Position, Direction> agentNeighbour : agentNeighbours) {
-//            Direction agentMovingDirection = boardObjectHelper.getMovingDirection(agentNeighbour.getKey(),
+//            Direction agentMovingDirection = boardObjectService.getMovingDirection(agentNeighbour.getKey(),
 //                    agentPrecondition.getAgentPosition());
-//            Direction boxMovingDirection = boardObjectHelper.getMovingDirection(agentPrecondition.getAgentPosition(),
+//            Direction boxMovingDirection = boardObjectService.getMovingDirection(agentPrecondition.getAgentPosition(),
 //                    boxPrecondition.getBoxPosition());
 //
 //            PushAction nextPushAction = new PushAction(boxPrecondition.getBox(), agentPrecondition.getAgentPosition(),
@@ -165,11 +154,11 @@ public class Searcher {
 //        }
 //
 //
-//        List<Pair<Position, Direction>> boxNeighbours = boardObjectHelper.getFreeNeighbours(boxPrecondition.getBoxPosition());
+//        List<Pair<Position, Direction>> boxNeighbours = boardObjectService.getFreeNeighbours(boxPrecondition.getBoxPosition());
 //        for (Pair<Position, Direction> boxNeighbour : boxNeighbours) {
-//            Direction agentMovingDirection = boardObjectHelper.getMovingDirection(boxPrecondition.getBoxPosition(),
+//            Direction agentMovingDirection = boardObjectService.getMovingDirection(boxPrecondition.getBoxPosition(),
 //                agentPrecondition.getAgentPosition());
-//            Direction boxMovingDirection = boardObjectHelper.getMovingDirection(boxNeighbour.getKey(),
+//            Direction boxMovingDirection = boardObjectService.getMovingDirection(boxNeighbour.getKey(),
 //                boxPrecondition.getBoxPosition());
 //
 //            PullAction nextPullAction = new PullAction(boxPrecondition.getBox(), boxNeighbour.getKey(),
@@ -188,7 +177,7 @@ public class Searcher {
 //
 //        }
 //
-//        List<Pair<Position, Direction>> neighbours = boardObjectHelper.getFreeNeighbours(precondition.getAgentPosition());
+//        List<Pair<Position, Direction>> neighbours = boardObjectService.getFreeNeighbours(precondition.getAgentPosition());
 //
 //        for (Pair<Position, Direction> neighbour : neighbours) {
 //            actions.add(new MoveAction(neighbour.getValue()));
@@ -243,29 +232,24 @@ public class Searcher {
 
     public boolean isOpenPrecondition(FreeCellPrecondition precondition) {
         Position position = precondition.getPosition();
-        return !level.getBoardState()[position.getRow()][position.getColumn()].equals(BoardCell.FREE_CELL);
+        return !LevelService.getInstance().getLevel().getBoardState()[position.getRow()][position.getColumn()].equals(BoardCell.FREE_CELL);
     }
 
     public boolean isOpenPrecondition(AgentAtPrecondition precondition) {
         Position position = precondition.getAgentPosition();
-        Position objectPosition = level.getBoardObjectPositions().get(precondition.getAgent().getLabel());
+        Position objectPosition = LevelService.getInstance().getPosition(precondition.getAgent().getLabel());
         return objectPosition.equals(position);
     }
 
     public boolean isOpenPrecondition(BoxAtPrecondition precondition) {
         Position position = precondition.getBoxPosition();
-        Position objectPosition = level.getBoardObjectPositions().get(precondition.getBox().getLabel());
+        Position objectPosition = LevelService.getInstance().getPosition(precondition.getBox().getLabel());
         return objectPosition.equals(position);
     }
 
     public boolean isOpenPrecondition(NeighbourPrecondition precondition) {
         Position position = precondition.getPosition();
-        Position objectPosition = level.getBoardObjectPositions().get(precondition.getObject().getLabel());
-        return boardObjectHelper.isAdjacent(objectPosition, position);
-    }
-
-    private int heuristic(Position agentPosition, Position goalPosition) {
-
-        return Math.abs(agentPosition.getRow() - goalPosition.getRow()) + Math.abs(agentPosition.getColumn() - goalPosition.getColumn());
+        Position objectPosition = LevelService.getInstance().getPosition(precondition.getObject().getLabel());
+        return boardObjectService.isAdjacent(objectPosition, position);
     }
 }

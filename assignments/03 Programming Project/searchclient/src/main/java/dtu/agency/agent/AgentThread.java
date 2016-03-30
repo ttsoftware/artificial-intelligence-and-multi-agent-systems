@@ -9,9 +9,9 @@ import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.HTNPlan;
-import dtu.agency.planners.HTNPlanner;
-import dtu.agency.planners.PartialOrderPlanner;
+import dtu.agency.planners.htn.HTNPlan;
+import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.pop.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
 import java.util.Hashtable;

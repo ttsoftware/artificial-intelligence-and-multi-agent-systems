@@ -1,6 +1,6 @@
-package dtu.agency.planners.actions.effects;
+package dtu.agency.agent.actions.effects;
 
-import dtu.agency.BoardObjectHelper;
+import dtu.agency.services.BoardObjectService;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.board.BoardCell;
 import dtu.agency.board.BoardObject;
@@ -10,9 +10,9 @@ import dtu.agency.board.Position;
 public class MoveAgentEffect extends Effect {
 
     public Level applyChangeToLevel(Level level, MoveAction action) {
-        BoardObjectHelper boardObjectHelper = new BoardObjectHelper(level.getBoardObjects(), level.getBoardState());
+        BoardObjectService boardObjectService = new BoardObjectService(level.getBoardObjects(), level.getBoardState());
 
-        Position goalPosition = boardObjectHelper.getPositionInDirection(action.getAgentPosition(), action.getDirection());
+        Position goalPosition = boardObjectService.getPositionInDirection(action.getAgentPosition(), action.getDirection());
         BoardCell[][] boardState = level.getBoardState();
         BoardObject[][] boardObjects = level.getBoardObjects();
 

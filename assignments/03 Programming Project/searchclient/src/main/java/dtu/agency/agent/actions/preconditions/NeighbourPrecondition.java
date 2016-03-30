@@ -1,10 +1,8 @@
-package dtu.agency.planners.actions.preconditions;
+package dtu.agency.agent.actions.preconditions;
 
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Position;
-
-import java.util.List;
 
 public class NeighbourPrecondition extends Precondition {
 
