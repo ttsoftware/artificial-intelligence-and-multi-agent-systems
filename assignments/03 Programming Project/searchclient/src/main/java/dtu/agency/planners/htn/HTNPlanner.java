@@ -29,7 +29,7 @@ public class HTNPlanner {
     public HTNPlan plan() {
         List<AbstractAction> actions = new ArrayList<>();
 
-        // Find the box closest to this goal
+        // Find the box closest to this agent
         Box box = LevelService.getInstance().closestBox(agent, goal);
 
         // Go to this box - estimate distance
