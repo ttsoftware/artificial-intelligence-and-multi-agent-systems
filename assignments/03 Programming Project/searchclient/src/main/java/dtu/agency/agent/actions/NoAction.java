@@ -17,12 +17,12 @@ public class NoAction extends Action {
     }
 
     @Override
-    public List<Precondition> getPreconditions() {
+    public List<Precondition> findPreconditions() {
         return null;
     }
 
     @Override
-    public List<Effect> getEffects() {
+    public List<Effect> findEffects() {
         return null;
     }
 

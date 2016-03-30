@@ -9,6 +9,7 @@ import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.htn.HTNPlan;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.pop.POPPlan;
 import dtu.agency.planners.pop.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
@@ -74,10 +75,12 @@ public class AgentThread implements Runnable {
 
             // Partial order plan
             htnPlan.getActions().forEach(abstractAction -> {
-                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
+                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
+
+                POPPlan plan = popPlanner.plan();
 
                 // Post the partial plan to the agency
-                EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
+                EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, plan));
             });
         }
     }

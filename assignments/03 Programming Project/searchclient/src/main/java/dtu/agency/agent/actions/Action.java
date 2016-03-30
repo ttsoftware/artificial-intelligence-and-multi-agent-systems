@@ -10,9 +10,9 @@ public abstract class Action implements Serializable {
 
     public abstract ActionType getType();
 
-    public abstract List<Precondition> getPreconditions();
+    public abstract List<Precondition> findPreconditions();
 
-    public abstract List<Effect> getEffects();
+    public abstract List<Effect> findEffects();
 
     @Override
     public abstract String toString();

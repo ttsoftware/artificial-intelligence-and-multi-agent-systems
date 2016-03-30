@@ -1,11 +1,10 @@
 package dtu.agency.agent.actions;
 
-import dtu.agency.board.Agent;
-import dtu.agency.board.Position;
 import dtu.agency.agent.actions.effects.Effect;
 import dtu.agency.agent.actions.preconditions.AgentAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
-import dtu.agency.services.LevelService;
+import dtu.agency.board.Agent;
+import dtu.agency.board.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +27,11 @@ public class MoveAction extends Action {
     }
 
     @Override
-    public List<Precondition> getPreconditions() {
+    public List<Precondition> findPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
-        Position nextPosition = LevelService.getInstance().getPositionInDirection(getAgentPosition(), getDirection());
-        //preconditions.add(new FreeCellPrecondition(nextPosition));
-        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
-//        preconditions.add(new NeighbourPrecondition(getAgent(), nextPosition));
+
+        Position nextPosition = agentPosition;
+        preconditions.add(new AgentAtPrecondition(agent, nextPosition));
 
         return preconditions;
     }
@@ -49,7 +47,7 @@ public class MoveAction extends Action {
     }
 
     @Override
-    public List<Effect> getEffects() {
+    public List<Effect> findEffects() {
         return null;
     }
 

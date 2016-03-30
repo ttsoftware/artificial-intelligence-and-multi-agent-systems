@@ -1,4 +1,4 @@
-package dtu.agency.planners;
+package dtu.agency.planners.htn;
 
 import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;

@@ -36,15 +36,11 @@ public class PushAction extends Action {
     }
 
     @Override
-    public List<Precondition> getPreconditions() {
+    public List<Precondition> findPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = LevelService.getInstance().getPositionInDirection(getBoxPosition(), getBoxDirection());
 
-        // We need the preconditions in this order! DON'T CHANGE IT!
-//        preconditions.add(new FreeCellPrecondition(nextPosition));
-//        preconditions.add(new NeighbourPrecondition(getBox(), getAgentPosition(), getAgentDirection().getInverse()));
-        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), getBoxPosition()));
-//        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
+        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), nextPosition));
 
         return preconditions;
     }
@@ -60,7 +56,7 @@ public class PushAction extends Action {
     }
 
     @Override
-    public List<Effect> getEffects() {
+    public List<Effect> findEffects() {
         return null;
     }
 

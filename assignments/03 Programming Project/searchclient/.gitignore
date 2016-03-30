@@ -1,6 +1,7 @@
 out/production
 out/artifacts
 target
+classes
 .idea/workspace.xml
 .idea/uiDesigner.xml
 .idea/compiler.xml

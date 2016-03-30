@@ -170,17 +170,17 @@ public class LevelService implements Serializable {
     public List<Neighbour> getFreeNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn()-1)) {
-            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn()-1), Direction.EAST));
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() - 1), Direction.EAST));
         }
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn()+1)) {
-            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn()+1), Direction.WEST));
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() + 1), Direction.WEST));
         }
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow()-1, position.getColumn())) {
-            neighbours.add(new Neighbour(new Position(position.getRow()-1, position.getColumn()), Direction.NORTH));
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(new Position(position.getRow() - 1, position.getColumn()), Direction.NORTH));
         }
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow()+1, position.getColumn())) {
-            neighbours.add(new Neighbour(new Position(position.getRow()+1, position.getColumn()), Direction.SOUTH));
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(new Position(position.getRow() + 1, position.getColumn()), Direction.SOUTH));
         }
 
         return neighbours;
@@ -189,21 +189,39 @@ public class LevelService implements Serializable {
     public Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
         switch (movingDirection) {
             case NORTH:
-                return new Position(currentPosition.getRow()-1, currentPosition.getColumn());
+                return new Position(currentPosition.getRow() - 1, currentPosition.getColumn());
             case SOUTH:
-                return new Position(currentPosition.getRow()+1, currentPosition.getColumn());
+                return new Position(currentPosition.getRow() + 1, currentPosition.getColumn());
             case WEST:
-                return new Position(currentPosition.getRow(), currentPosition.getColumn()-1);
+                return new Position(currentPosition.getRow(), currentPosition.getColumn() - 1);
             case EAST:
-                return new Position(currentPosition.getRow(), currentPosition.getColumn()+1);
+                return new Position(currentPosition.getRow(), currentPosition.getColumn() + 1);
             default:
                 return null;
         }
     }
 
+    public Direction getMovingDirection(Position positionOne, Position positionTwo) {
+        if (positionOne.getRow() == positionTwo.getRow()) {
+            if (positionOne.getColumn() > positionTwo.getColumn()) {
+                return Direction.EAST;
+            } else {
+                return Direction.WEST;
+            }
+        } else if (positionOne.getColumn() == positionTwo.getColumn()) {
+            if (positionOne.getRow() > positionTwo.getRow()) {
+                return Direction.SOUTH;
+            } else {
+                return Direction.NORTH;
+            }
+        }
+        return null;
+    }
+
     public boolean isFreeNeighbour(int row, int column) {
         if (row >= 0 && column >= 0 && level.getBoardState().length > row && level.getBoardState()[0].length > column) {
-            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
+                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
                 return true;
             }
         }
@@ -215,7 +233,7 @@ public class LevelService implements Serializable {
     }
 
     /**
-     * We use Manhatten distances to define "closeness"
+     * We use Manhattan distances to define "closeness"
      *
      * @param agent
      * @param goal
@@ -229,7 +247,7 @@ public class LevelService implements Serializable {
         // Find the closest box which solves @goal
         for (Box box : level.getGoalsBoxes().get(goal.getLabel())) {
             // boxes associated with @goal
-            int distance = manhattenDistance(box, agent);
+            int distance = manhattanDistance(box, agent);
             if (distance < shortestDistance) {
                 shortestDistance = distance;
                 shortestDistanceBox = box;
@@ -241,24 +259,36 @@ public class LevelService implements Serializable {
 
     /**
      * Manhattan distance: <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">https://en.wikipedia.org/wiki/Taxicab_geometry</a>
-     *
+     * <p>
      * Should have Expected O(1) time complexity.
      *
      * @param objectA
      * @param objectB
      * @return The manhattan distance between the two objects
      */
-    public int manhattenDistance(BoardObject objectA, BoardObject objectB) {
+    public int manhattanDistance(BoardObject objectA, BoardObject objectB) {
 
         // E[O(1)] time operations
         Position positionA = level.getBoardObjectPositions().get(objectA.getLabel());
         Position positionB = level.getBoardObjectPositions().get(objectB.getLabel());
 
         // O(1) time operations
-        int distance = Math.abs(positionA.getRow() - positionB.getRow())
-                + Math.abs(positionA.getColumn() - positionB.getColumn());
+        return manhattanDistance(positionA, positionB);
+    }
 
-        return distance;
+    /**
+     * Manhattan distance: <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">https://en.wikipedia.org/wiki/Taxicab_geometry</a>
+     * <p>
+     * Should have Expected O(1) time complexity.
+     *
+     * @param positionA
+     * @param positionB
+     * @return The manhattan distance between the two objects
+     */
+    public int manhattanDistance(Position positionA, Position positionB) {
+        // O(1) time operations
+        return Math.abs(positionA.getRow() - positionB.getRow())
+                + Math.abs(positionA.getColumn() - positionB.getColumn());
     }
 
     /**

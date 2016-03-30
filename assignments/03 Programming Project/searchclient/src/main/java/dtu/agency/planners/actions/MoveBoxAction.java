@@ -8,7 +8,8 @@ public class MoveBoxAction extends AbstractAction {
     private Box box;
     private Goal goal;
 
-    public MoveBoxAction(Box box, Goal goal) {
+    public MoveBoxAction(int estimatedDistance, Box box, Goal goal) {
+        this.estimatedDistance = estimatedDistance;
         this.box = box;
         this.goal = goal;
     }
@@ -19,6 +20,11 @@ public class MoveBoxAction extends AbstractAction {
 
     public Goal getGoal() {
         return goal;
+    }
+
+    @Override
+    public int getEstimatedDistance() {
+        return estimatedDistance;
     }
 
     @Override

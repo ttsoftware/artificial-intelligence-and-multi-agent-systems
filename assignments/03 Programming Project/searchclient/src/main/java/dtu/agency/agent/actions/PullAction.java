@@ -36,13 +36,10 @@ public class PullAction extends Action {
     }
 
     @Override
-    public List<Precondition> getPreconditions() {
+    public List<Precondition> findPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
         Position nextPosition = LevelService.getInstance().getPositionInDirection(getAgentPosition(), getAgentDirection());
-//        preconditions.add(new FreeCellPrecondition(nextPosition));
-//        preconditions.add(new NeighbourPrecondition(getAgent(), getBoxPosition()));
-        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), getBoxPosition()));
-//        preconditions.add(new AgentAtPrecondition(getAgent(), getAgentPosition()));
+        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), nextPosition));
 
         return preconditions;
     }
@@ -58,7 +55,7 @@ public class PullAction extends Action {
     }
 
     @Override
-    public List<Effect> getEffects() {
+    public List<Effect> findEffects() {
         return null;
     }
 

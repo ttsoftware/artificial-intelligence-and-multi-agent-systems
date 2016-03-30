@@ -1,40 +1,33 @@
-package dtu.agency;
+package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.*;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Level;
-import dtu.agency.board.Position;
-import dtu.agency.planners.pop.GotoPOP;
-import dtu.agency.agent.actions.preconditions.AgentAtPrecondition;
-import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
-import dtu.agency.agent.actions.preconditions.Precondition;
-import org.junit.Test;
+public class MovoBoxPOPTest {
 
-import java.io.*;
-import java.util.List;
-import java.util.PriorityQueue;
+    /*
+    Level level;
+    Agent agent;
+    Box box;
+    Position agentPosition;
+    Position boxPosition;
 
-import static org.junit.Assert.assertEquals;
+    @Before
+    public void init() throws IOException {
+        File resourcesDirectory = new File("src/test/resources");
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1.lvl";
 
-public class PartialOrderPlannerTest {
+        FileInputStream inputStream = new FileInputStream(levelPath);
+        BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
 
-    String filePath = "/home/rasmus/MEGA/uni/DTU/Artificial Intelligence and Multiagent Systems/artificial-intelligence-and-multi-agent-systems/assignments/03 Programming Project/searchclient/levels/SAD1.lvl";
+        // Parse the level
+        Level level = ProblemMarshaller.marshall(fileReader);
 
-    FileInputStream inputStream = new FileInputStream(filePath);
-    BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
+        agent = level.getAgents().get(0);
+        box = level.getBoxes().get(0);
 
-    // Parse the level
-    Level level = ProblemMarshaller.marshall(fileReader);
-    Agent agent = level.getAgents().get(0);
-    Box box = level.getBoxes().get(0);
+        gotoPOP = new GotoPOP(agent);
+        moveBoxPOP = new MoveBoxPOP(agent);
 
-    GotoPOP gotoPOP = new GotoPOP(level, agent);
-
-    Position agentPosition = level.getBoardObjectPositions().get(agent.getLabel());
-    Position boxPosition = level.getBoardObjectPositions().get(box.getLabel());
-
-    public PartialOrderPlannerTest() throws IOException {
+        agentPosition = level.getBoardObjectPositions().get(agent.getLabel());
+        boxPosition = level.getBoardObjectPositions().get(box.getLabel());
     }
 
     @Test
@@ -50,8 +43,8 @@ public class PartialOrderPlannerTest {
 
         assertEquals(agentAtPrecondition.getAgent(), agent);
 
-        assertEquals(agentAtPrecondition.getAgentPosition().getRow(), 1);
-        assertEquals(agentAtPrecondition.getAgentPosition().getColumn(), 1);
+        assertEquals(agentAtPrecondition.getAgentPreconditionPosition().getRow(), 1);
+        assertEquals(agentAtPrecondition.getAgentPreconditionPosition().getColumn(), 1);
     }
 
     @Test
@@ -108,11 +101,12 @@ public class PartialOrderPlannerTest {
     public void testSolveBoxAtPrecondition() {
         BoxAtPrecondition boxAtPrecondition = new BoxAtPrecondition(box, agent, new Position(5, 5));
 
-        PriorityQueue<Action> actions = gotoPOP.solvePrecondition(boxAtPrecondition);
+        PriorityQueue<Action> actions = moveBoxPOP.solvePrecondition(boxAtPrecondition);
 
         for (Action action : actions) {
             System.out.println(action.toString());
             System.out.println(action.getHeuristic());
         }
     }
+    */
 }

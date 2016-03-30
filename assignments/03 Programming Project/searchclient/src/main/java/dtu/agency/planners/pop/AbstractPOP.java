@@ -11,7 +11,6 @@ import java.util.List;
 public abstract class AbstractPOP<T extends AbstractAction> {
 
     protected Position agentStartPosition;
-    protected Position boxStartPosition;
     protected Agent agent;
 
     public AbstractPOP(Agent agent) {
@@ -23,8 +22,4 @@ public abstract class AbstractPOP<T extends AbstractAction> {
     public abstract POPPlan plan(T action);
 
     public abstract List<Precondition> getOpenPreconditions(List<Precondition> preconditions);
-
-    protected int heuristic(Position agentPosition, Position goalPosition) {
-        return Math.abs(agentPosition.getRow() - goalPosition.getRow()) + Math.abs(agentPosition.getColumn() - goalPosition.getColumn());
-    }
 }
