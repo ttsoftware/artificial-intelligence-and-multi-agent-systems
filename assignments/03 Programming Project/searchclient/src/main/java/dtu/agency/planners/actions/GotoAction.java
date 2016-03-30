@@ -1,9 +1,6 @@
 package dtu.agency.planners.actions;
 
-import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-
-import java.util.Hashtable;
 
 public class GotoAction extends AbstractAction {
 
@@ -13,7 +10,12 @@ public class GotoAction extends AbstractAction {
         this.position = position;
     }
 
-    public GotoAction(Box box, Hashtable<String, Position> boardObjectPositions) {
-        this.position = boardObjectPositions.get(box.getLabel());
+    @Override
+    public AbstractActionType getType() {
+        return AbstractActionType.GotoAction;
+    }
+
+    public Position getPosition() {
+        return position;
     }
 }

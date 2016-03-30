@@ -20,4 +20,9 @@ public class MoveBoxAction extends AbstractAction {
     public Goal getGoal() {
         return goal;
     }
+
+    @Override
+    public AbstractActionType getType() {
+        return AbstractActionType.MoveBoxAction;
+    }
 }
