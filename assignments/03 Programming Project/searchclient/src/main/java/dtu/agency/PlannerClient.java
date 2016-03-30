@@ -12,7 +12,7 @@ import dtu.agency.services.EventBusService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
+import java.util.Stack;
 
 public class PlannerClient {
 
@@ -55,7 +55,7 @@ public class PlannerClient {
      *
      * @param actions One or more actions to send to the server
      */
-    private static void sendActions(List<Action> actions) {
+    private static void sendActions(Stack<Action> actions) {
 
         /*
         if (actions.size() != numberOfAgents) {
@@ -71,7 +71,9 @@ public class PlannerClient {
         serverAction = serverAction.substring(0, serverAction.length() -1);
         */
 
-        for (Action action : actions) {
+        while (!actions.empty()) {
+            Action action = actions.pop();
+
             System.err.println("Trying: [" + action + "]");
             System.out.println("[" + action + "]");
 
@@ -79,7 +81,7 @@ public class PlannerClient {
             try {
                 response = serverMessages.readLine();
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
             if (response == null) {
                 System.err.format("Lost contact with the server. We stop now");

@@ -2,21 +2,21 @@ package dtu.agency.events;
 
 import dtu.agency.agent.actions.Action;
 
-import java.util.List;
+import java.util.Stack;
 
 public class SendServerActionsEvent extends Event {
 
-    private final List<Action> actions;
+    private final Stack<Action> actions;
 
     /**
      * The client listens for these events, and forwards them to the server
      * @param actions Must be a list equal to the number of agents
      */
-    public SendServerActionsEvent(List<Action> actions) {
+    public SendServerActionsEvent(Stack<Action> actions) {
         this.actions = actions;
     }
 
-    public List<Action> getActions() {
+    public Stack<Action> getActions() {
         return actions;
     }
 }

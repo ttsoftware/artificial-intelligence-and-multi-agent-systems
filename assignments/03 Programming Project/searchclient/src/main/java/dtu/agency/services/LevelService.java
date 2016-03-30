@@ -171,10 +171,10 @@ public class LevelService implements Serializable {
         List<Neighbour> neighbours = new ArrayList<>();
 
         if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() - 1), Direction.EAST));
+            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() - 1), Direction.WEST));
         }
         if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() + 1), Direction.WEST));
+            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() + 1), Direction.EAST));
         }
         if (LevelService.getInstance().isFreeNeighbour(position.getRow() - 1, position.getColumn())) {
             neighbours.add(new Neighbour(new Position(position.getRow() - 1, position.getColumn()), Direction.NORTH));
@@ -203,7 +203,7 @@ public class LevelService implements Serializable {
 
     public Direction getMovingDirection(Position positionOne, Position positionTwo) {
         if (positionOne.getRow() == positionTwo.getRow()) {
-            if (positionOne.getColumn() > positionTwo.getColumn()) {
+            if (positionOne.getColumn() < positionTwo.getColumn()) {
                 return Direction.EAST;
             } else {
                 return Direction.WEST;

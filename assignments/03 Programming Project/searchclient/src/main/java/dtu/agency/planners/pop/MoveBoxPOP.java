@@ -16,6 +16,7 @@ import dtu.agency.services.LevelService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Stack;
 
 public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
 
@@ -26,7 +27,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
     }
 
     public POPPlan plan(MoveBoxAction action) {
-        List<Action> actions = new ArrayList<>();
+        Stack<Action> actions = new Stack<>();
         List<Precondition> preconditions = new ArrayList<>();
         Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 

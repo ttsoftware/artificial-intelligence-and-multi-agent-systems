@@ -29,9 +29,7 @@ public class MoveAction extends Action {
     @Override
     public List<Precondition> findPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
-
-        Position nextPosition = agentPosition;
-        preconditions.add(new AgentAtPrecondition(agent, nextPosition));
+        preconditions.add(new AgentAtPrecondition(agent, agentPosition));
 
         return preconditions;
     }

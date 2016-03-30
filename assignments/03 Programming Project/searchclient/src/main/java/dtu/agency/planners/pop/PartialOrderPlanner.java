@@ -8,8 +8,7 @@ import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.planners.actions.MoveBoxAction;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Stack;
 
 public class PartialOrderPlanner {
 
@@ -37,7 +36,7 @@ public class PartialOrderPlanner {
     }
 
     public POPPlan plan1() {
-        List<Action> actions = new ArrayList<>();
+        Stack<Action> actions = new Stack<>();
         actions.add(new MoveAction(Direction.EAST));
         actions.add(new MoveAction(Direction.EAST));
         actions.add(new MoveAction(Direction.EAST));
