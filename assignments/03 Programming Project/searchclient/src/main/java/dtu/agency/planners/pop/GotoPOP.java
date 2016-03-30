@@ -2,15 +2,14 @@ package dtu.agency.planners.pop;
 
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.ActionComparator;
-import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.agent.actions.preconditions.AgentAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
+import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.services.LevelService;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +48,11 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
     public PriorityQueue<Action> solvePrecondition(AgentAtPrecondition precondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator());
 
-        List<Pair<Position, Direction>> neighbours = boardObjectService.getFreeNeighbours(precondition.getAgentPosition());
+        List<Neighbour> neighbours = LevelService.getInstance().getFreeNeighbours(precondition.getAgentPosition());
 
-        for (Pair<Position, Direction> neighbour : neighbours) {
-            MoveAction nextAction = new MoveAction(neighbour.getValue());
-            nextAction.setHeuristic(heuristic(neighbour.getKey(), this.agentStartPosition));
+        for (Neighbour neighbour : neighbours) {
+            MoveAction nextAction = new MoveAction(neighbour.getDirection());
+            nextAction.setHeuristic(heuristic(neighbour.getPosition(), agentStartPosition));
             actions.add(nextAction);
         }
 

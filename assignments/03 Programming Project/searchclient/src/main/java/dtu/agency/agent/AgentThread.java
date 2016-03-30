@@ -85,7 +85,7 @@ public class AgentThread implements Runnable {
 
             // Partial order plan
             htnPlan.getActions().forEach(abstractAction -> {
-                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, this.agent, this.level);
+                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, this.agent);
 
                 // Post the partial plan to the agency
                 EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));

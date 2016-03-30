@@ -5,6 +5,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.agent.actions.effects.Effect;
 import dtu.agency.agent.actions.preconditions.*;
+import dtu.agency.services.LevelService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class PushAction extends Action {
     @Override
     public List<Precondition> getPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
-        Position nextPosition = getNextPositionFromMovingDirection(getBoxPosition(), getBoxDirection());
+        Position nextPosition = LevelService.getInstance().getPositionInDirection(getBoxPosition(), getBoxDirection());
 
         // We need the preconditions in this order! DON'T CHANGE IT!
 //        preconditions.add(new FreeCellPrecondition(nextPosition));

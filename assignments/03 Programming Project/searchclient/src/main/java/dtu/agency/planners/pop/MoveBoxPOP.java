@@ -1,14 +1,17 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.*;
+import dtu.agency.agent.actions.Action;
+import dtu.agency.agent.actions.ActionComparator;
+import dtu.agency.agent.actions.PullAction;
+import dtu.agency.agent.actions.PushAction;
 import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
+import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.MoveBoxAction;
 import dtu.agency.services.LevelService;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
     public POPPlan plan(MoveBoxAction action) {
         List<Action> actions = new ArrayList<>();
         List<Precondition> preconditions = new ArrayList<>();
-        Position goalPosition = action.getPosition();
+        Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 
         Box box = action.getBox();
         this.boxStartPosition = LevelService.getInstance().getPosition(box.getLabel());
@@ -49,28 +52,38 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
 
     public PriorityQueue<Action> solvePrecondition(BoxAtPrecondition boxPrecondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator());
-        List<Pair<Position, Direction>> boxNeighbours = boardObjectService.getFreeNeighbours(boxPrecondition.getBoxPosition());
+        List<Neighbour> boxNeighbours = LevelService.getInstance().getFreeNeighbours(boxPrecondition.getBoxPosition());
 
-        for (Pair<Position, Direction> boxNeighbour : boxNeighbours) {
-            List<Pair<Position, Direction>> viableAgentPositions = boardObjectService.getFreeNeighbours(boxNeighbour.getKey());
-            for (Pair<Position, Direction> viableAgentPosition : viableAgentPositions) {
+        for (Neighbour boxNeighbour : boxNeighbours) {
+            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(boxNeighbour.getPosition());
+            for (Neighbour viableAgentPosition : viableAgentPositions) {
 
-                PushAction nextPushAction = new PushAction(boxPrecondition.getBox(), boxNeighbour.getKey(),
-                        boxPrecondition.getAgent(), viableAgentPosition.getKey(),
-                        viableAgentPosition.getValue().getInverse(), boxNeighbour.getValue().getInverse());
-                nextPushAction.setHeuristic(heuristic(viableAgentPosition.getKey(), this.agentStartPosition));
+                PushAction nextPushAction = new PushAction(
+                        boxPrecondition.getBox(),
+                        boxNeighbour.getPosition(),
+                        boxPrecondition.getAgent(),
+                        viableAgentPosition.getPosition(),
+                        viableAgentPosition.getDirection().getInverse(),
+                        boxNeighbour.getDirection().getInverse()
+                );
+                nextPushAction.setHeuristic(heuristic(viableAgentPosition.getPosition(), agentStartPosition));
                 actions.add(nextPushAction);
             }
         }
 
-        for (Pair<Position, Direction> boxNeighbour : boxNeighbours) {
-            List<Pair<Position, Direction>> viableAgentPositions = boardObjectService.getFreeNeighbours(boxNeighbour.getKey());
-            for (Pair<Position, Direction> viableAgentPosition : viableAgentPositions) {
+        for (Neighbour boxNeighbour : boxNeighbours) {
+            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(boxNeighbour.getPosition());
+            for (Neighbour viableAgentPosition : viableAgentPositions) {
 
-                PullAction nextPullAction = new PullAction(boxPrecondition.getBox(), boxNeighbour.getKey(),
-                        boxPrecondition.getAgent(), viableAgentPosition.getKey(),
-                        viableAgentPosition.getValue().getInverse(), viableAgentPosition.getValue());
-                nextPullAction.setHeuristic(heuristic(viableAgentPosition.getKey(), this.agentStartPosition));
+                PullAction nextPullAction = new PullAction(
+                        boxPrecondition.getBox(),
+                        boxNeighbour.getPosition(),
+                        boxPrecondition.getAgent(),
+                        viableAgentPosition.getPosition(),
+                        viableAgentPosition.getDirection().getInverse(),
+                        viableAgentPosition.getDirection()
+                );
+                nextPullAction.setHeuristic(heuristic(viableAgentPosition.getPosition(), agentStartPosition));
                 actions.add(nextPullAction);
             }
         }

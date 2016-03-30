@@ -7,7 +7,9 @@ import dtu.agency.agent.actions.PushAction;
 import dtu.agency.board.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 public class LevelService implements Serializable {
 
@@ -166,6 +168,49 @@ public class LevelService implements Serializable {
         }
 
         return true;
+    }
+
+    public List<Neighbour> getFreeNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn()-1)) {
+            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn()-1), Direction.EAST));
+        }
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn()+1)) {
+            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn()+1), Direction.WEST));
+        }
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow()-1, position.getColumn())) {
+            neighbours.add(new Neighbour(new Position(position.getRow()-1, position.getColumn()), Direction.NORTH));
+        }
+        if (LevelService.getInstance().isFreeNeighbour(position.getRow()+1, position.getColumn())) {
+            neighbours.add(new Neighbour(new Position(position.getRow()+1, position.getColumn()), Direction.SOUTH));
+        }
+
+        return neighbours;
+    }
+
+    public Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
+        switch (movingDirection) {
+            case NORTH:
+                return new Position(currentPosition.getRow()-1, currentPosition.getColumn());
+            case SOUTH:
+                return new Position(currentPosition.getRow()+1, currentPosition.getColumn());
+            case WEST:
+                return new Position(currentPosition.getRow(), currentPosition.getColumn()-1);
+            case EAST:
+                return new Position(currentPosition.getRow(), currentPosition.getColumn()+1);
+            default:
+                return null;
+        }
+    }
+
+    public boolean isFreeNeighbour(int row, int column) {
+        if (row >= 0 && column >= 0 && level.getBoardState().length > row && level.getBoardState()[0].length > column) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Position getPosition(String objectLabel) {

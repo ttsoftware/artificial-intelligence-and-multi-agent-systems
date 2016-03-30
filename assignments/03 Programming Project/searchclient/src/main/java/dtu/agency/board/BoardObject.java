@@ -2,7 +2,7 @@ package dtu.agency.board;
 
 import java.io.Serializable;
 
-public class BoardObject implements Serializable {
+public abstract class BoardObject implements Serializable {
 
     protected String label;
 
@@ -14,7 +14,8 @@ public class BoardObject implements Serializable {
         return label;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    @Override
+    public String toString() {
+        return getLabel();
     }
 }

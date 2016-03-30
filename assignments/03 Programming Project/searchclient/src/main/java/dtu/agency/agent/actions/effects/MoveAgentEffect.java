@@ -1,18 +1,17 @@
 package dtu.agency.agent.actions.effects;
 
-import dtu.agency.services.BoardObjectService;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.board.BoardCell;
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.services.LevelService;
 
 public class MoveAgentEffect extends Effect {
 
     public Level applyChangeToLevel(Level level, MoveAction action) {
-        BoardObjectService boardObjectService = new BoardObjectService(level.getBoardObjects(), level.getBoardState());
 
-        Position goalPosition = boardObjectService.getPositionInDirection(action.getAgentPosition(), action.getDirection());
+        Position goalPosition = LevelService.getInstance().getPositionInDirection(action.getAgentPosition(), action.getDirection());
         BoardCell[][] boardState = level.getBoardState();
         BoardObject[][] boardObjects = level.getBoardObjects();
 
@@ -30,7 +29,7 @@ public class MoveAgentEffect extends Effect {
                 boardState[goalPosition.getRow()][goalPosition.getColumn()] = BoardCell.GOAL;
 
                 // We want multiple (agent+goal or box+goal) objects in the same cell
-//                boardObjects[goalPosition.getRow()][goalPosition.getColumn()] = new Goal
+                // boardObjects[goalPosition.getRow()][goalPosition.getColumn()] = new Goal
                 break;
             default:
                 boardState[goalPosition.getRow()][goalPosition.getColumn()] = BoardCell.FREE_CELL;
