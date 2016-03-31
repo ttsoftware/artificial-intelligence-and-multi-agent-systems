@@ -32,7 +32,7 @@ public class AgentThread implements Runnable {
     public void run() {
         // register all events handled by this class
         EventBusService.getEventBus().register(this);
-        // keep thread running untill stop event.
+        // keep thread running until stop event.
         synchronized (this) {
             try {
                 wait();
@@ -52,8 +52,8 @@ public class AgentThread implements Runnable {
         Goal goal = event.getGoal();
 
         // HTN plan?
-        HTNPlanner htnPlanner = new HTNPlanner(goal);
-        HTNPlan plan = htnPlanner.plan();
+        HTNPlanner htnPlanner = new HTNPlanner(this.agent, level, goal);
+        HTNPlan plan = htnPlanner.getBestPlan();
 
         htnPlans.put(goal.getLabel(), plan);
 

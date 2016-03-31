@@ -2,6 +2,7 @@ package dtu.agency.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Position;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
@@ -17,8 +18,8 @@ public class AgentThreadTest {
     @Test
     public void testRun() throws InterruptedException {
 
-        Agent agent1 = new Agent("0");
-        Agent agent2 = new Agent("1");
+        Agent agent1 = new Agent("0", new Position(1,2));
+        Agent agent2 = new Agent("1", new Position(2,2));
 
         Thread t1 = new Thread(new AgentThread(agent1));
         Thread t2 = new Thread(new AgentThread(agent2));

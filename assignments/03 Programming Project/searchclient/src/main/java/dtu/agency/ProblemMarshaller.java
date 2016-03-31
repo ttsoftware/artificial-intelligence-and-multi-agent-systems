@@ -80,7 +80,7 @@ public class ProblemMarshaller {
                 else if ('0' <= cell && cell <= '9') {
                     // Its an agency cell
                     String label = String.valueOf(cell);
-                    Agent agent = new Agent(label);
+                    Agent agent = new Agent(label, new Position(row, column));
                     agents.add(agent);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.AGENT;
@@ -89,7 +89,7 @@ public class ProblemMarshaller {
                 else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     String label = String.valueOf(cell) + Integer.toString(boxCount);
-                    Box box = new Box(label);
+                    Box box = new Box(label, new Position(row, column));
                     boxes.add(box);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.BOX;

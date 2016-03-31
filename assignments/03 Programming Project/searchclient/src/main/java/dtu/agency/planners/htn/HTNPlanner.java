@@ -41,7 +41,7 @@ public class HTNPlanner {
     private Goal finalGoal;             // to check goal state
     private Level level;                // to check goal state
 
-    public HTNPlanner(Agent agent, Level level, Goal target ) throws Exception {
+    public HTNPlanner(Agent agent, Level level, Goal target ){
 
         // Use stderr to print to console
         System.err.println("HTN Planner initializing.");
@@ -127,7 +127,8 @@ public class HTNPlanner {
         return finalGoal.getPosition().equals( node.getEffect().getBoxPosition() );
     }
 
-    public PrimitivePlan plan(Strategy strategy) throws IOException {
+    //public PrimitivePlan plan(Strategy strategy) throws IOException {
+    public PrimitivePlan plan(Strategy strategy) {
         System.err.format("HTN plan starting with strategy %s\n", strategy);
         strategy.addToFrontier(initialNode);
 
@@ -176,6 +177,9 @@ public class HTNPlanner {
 
     }
 
+    public HTNPlan getBestPlan() {
+        return bestPlan;
+    }
 }
 
 // usage:
