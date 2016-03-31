@@ -1,9 +1,12 @@
 package dtu.agency.planners;
 
-
 import dtu.agency.AbstractAction;
+import dtu.agency.agent.actions.Action;
+import dtu.agency.agent.actions.Direction;
+import dtu.agency.agent.actions.MoveAction;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PartialOrderPlanner {
 
@@ -12,6 +15,11 @@ public class PartialOrderPlanner {
     }
 
     public POPPlan plan() {
-        return new POPPlan(new ArrayList<>());
+        List<Action> actions = new ArrayList<>();
+        actions.add(new MoveAction(Direction.EAST));
+        actions.add(new MoveAction(Direction.EAST));
+        actions.add(new MoveAction(Direction.EAST));
+        actions.add(new MoveAction(Direction.EAST));
+        return new POPPlan(actions);
     }
 }

@@ -1,6 +1,5 @@
 package dtu.agency.planners;
 
-import dtu.agency.AbstractAction;
 import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.planners.actions.HLAction;
 import dtu.agency.planners.actions.MoveBoxAction;

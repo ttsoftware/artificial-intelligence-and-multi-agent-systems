@@ -5,5 +5,5 @@ import dtu.agency.agent.actions.Action;
 import java.util.List;
 
 public interface ConcretePlan extends Plan<Action> {
-    List<? extends Action> getActions();
+    List<Action> getActions();
 }

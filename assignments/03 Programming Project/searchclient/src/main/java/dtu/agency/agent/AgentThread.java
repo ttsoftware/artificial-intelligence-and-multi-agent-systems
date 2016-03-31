@@ -32,6 +32,14 @@ public class AgentThread implements Runnable {
     public void run() {
         // register all events handled by this class
         EventBusService.getEventBus().register(this);
+        // keep thread running untill stop event.
+        synchronized (this) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+            }
+        }
     }
 
     /**
@@ -52,7 +60,7 @@ public class AgentThread implements Runnable {
         Random random = new Random();
         int randomSteps = random.nextInt();
 
-        System.err.println("Agent recieved a goaloffer event and returned: " + Integer.toString(randomSteps));
+        System.err.println("Agent recieved a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(randomSteps));
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(agent.getLabel(), randomSteps));
     }
@@ -67,6 +75,8 @@ public class AgentThread implements Runnable {
         if (Objects.equals(event.getAgentLabel(), agent.getLabel())) {
             // We won the bid for this goal!
 
+            System.err.println("I won the bid for: " + event.getGoal().getLabel());
+
             // Find the HTNPlan for this goal
             HTNPlan htnPlan = htnPlans.get(event.getGoal().getLabel());
 
@@ -75,7 +85,7 @@ public class AgentThread implements Runnable {
                 PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
 
                 // Post the partial plan to the agency
-                EventBusService.getEventBus().post(new PlanOfferEvent(agent, popPlanner.plan()));
+                EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
             });
         }
     }
@@ -87,6 +97,7 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void stopEvent(StopAllAgentsEvent event) {
+        System.err.println("Agent: " + agent.getLabel() + " recieved stop event");
         Thread.currentThread().interrupt();
     }
 }

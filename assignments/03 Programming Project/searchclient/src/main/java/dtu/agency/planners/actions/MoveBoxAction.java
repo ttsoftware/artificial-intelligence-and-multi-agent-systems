@@ -7,8 +7,9 @@ import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class MoveBoxAction extends HLAction {
 

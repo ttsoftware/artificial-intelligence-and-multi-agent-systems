@@ -8,7 +8,7 @@ public class MoveAction extends Action {
     private Direction direction;
 
     public MoveAction(Direction agentDirection) {
-        this.direction = direction;
+        this.direction = agentDirection;
     }
 
     @Override
@@ -32,6 +32,4 @@ public class MoveAction extends Action {
     public Direction getDirection() {
         return direction;
     }
-
-
 }

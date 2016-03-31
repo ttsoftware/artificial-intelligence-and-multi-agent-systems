@@ -1,6 +1,5 @@
 package dtu.agency.planners.actions;
 
-import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;

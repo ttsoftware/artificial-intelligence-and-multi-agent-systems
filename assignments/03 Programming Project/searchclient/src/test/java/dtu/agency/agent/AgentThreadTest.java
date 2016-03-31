@@ -2,14 +2,14 @@ package dtu.agency.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
-import dtu.agency.services.EventBusService;
-import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
+import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
+import dtu.agency.services.EventBusService;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 
 public class AgentThreadTest {
@@ -31,12 +31,12 @@ public class AgentThreadTest {
         agentLabels.add(agent1.getLabel());
         agentLabels.add(agent2.getLabel());
 
-        GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(agentLabels);
+        GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels);
         EventBusService.getEventBus().register(goalEstimationEventSubscriber);
 
         EventBusService.getEventBus().post(new GoalOfferEvent(goal));
 
-        HashMap<String, Integer> agentStepsEstimation = goalEstimationEventSubscriber.getAgentStepsEstimation();
+        Hashtable<String, Integer> agentStepsEstimation = goalEstimationEventSubscriber.getAgentStepsEstimation();
         agentStepsEstimation.keySet().forEach(agentLabel -> {
             System.out.println("Agency recieved estimation for agency " + agentLabel + ": " + Integer.toString(agentStepsEstimation.get(agentLabel)));
         });

@@ -1,12 +1,13 @@
 package dtu.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
-import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.StopAllAgentsEvent;
+import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.services.EventBusService;
 
 import java.io.BufferedReader;
@@ -31,16 +32,18 @@ public class PlannerClient {
 
         numberOfAgents = level.getAgents().size();
 
-        // Create global event bus
-        EventBus eventBus = EventBusService.getEventBus();
-
         // Register for actions event
-        eventBus.register(new EventSubscriber<SendServerActionsEvent>() {
+        EventBusService.getEventBus().register(new EventSubscriber<SendServerActionsEvent>() {
 
-            @Override
+            @Subscribe
             @AllowConcurrentEvents
             public void changeSubscriber(SendServerActionsEvent event) {
+
+                System.err.println("Recieved actions from Agency: " + event.getActions().size());
                 sendActions(event.getActions());
+
+                // Pretend problem is solved
+                EventBusService.getEventBus().post(new ProblemSolvedEvent());
             }
         });
 
@@ -55,6 +58,7 @@ public class PlannerClient {
      */
     private static void sendActions(List<Action> actions) {
 
+        /*
         if (actions.size() != numberOfAgents) {
             throw new UnsupportedOperationException("Invalid number of actions. The number of actions must be equal to the number of agents.");
         }
@@ -63,25 +67,29 @@ public class PlannerClient {
         for (Action action : actions) {
             serverAction += action + ",";
         }
+
         // remove trailing ,
-        serverAction = serverAction.substring(0, -1);
+        serverAction = serverAction.substring(0, serverAction.length() -1);
+        */
 
-        System.err.println("Trying: [" + serverAction + "]");
-        System.out.println("[" + serverAction + "]");
+        for (Action action : actions) {
+            System.err.println("Trying: [" + action + "]");
+            System.out.println("[" + action + "]");
 
-        String response = null;
-        try {
-            response = serverMessages.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (response == null) {
-            System.err.format("Lost contact with the server. We stop now");
-            EventBusService.getEventBus().post(new StopAllAgentsEvent());
-            System.exit(1);
-        }
-        if (response.contains("false")) {
-            System.err.format("Server responsed with %s to the inapplicable action: %s\n", response, serverAction);
+            String response = null;
+            try {
+                response = serverMessages.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (response == null) {
+                System.err.format("Lost contact with the server. We stop now");
+                EventBusService.getEventBus().post(new StopAllAgentsEvent());
+                System.exit(1);
+            }
+            if (response.contains("false")) {
+                System.err.format("Server responsed with %s to the inapplicable action: %s\n", response, action);
+            }
         }
     }
 }
