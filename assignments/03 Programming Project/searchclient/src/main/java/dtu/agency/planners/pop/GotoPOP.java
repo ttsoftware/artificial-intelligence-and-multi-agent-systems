@@ -8,37 +8,26 @@ import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.GotoAction;
+import dtu.agency.planners.actions.GotoAbstractAction;
 import dtu.agency.services.LevelService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
-public class GotoPOP extends AbstractPOP<GotoAction> {
+public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
 
     public GotoPOP(Agent agent) {
         super(agent);
     }
 
-    public POPPlan plan(GotoAction action) {
+    public POPPlan plan(GotoAbstractAction action) {
 
         Stack<Action> actions = new Stack<>();
-        List<Precondition> preconditions = new ArrayList<>();
+        Precondition currentPrecondition = new AgentAtPrecondition(agent, action.getPosition());
 
-        Position objectivePosition = action.getPosition();
-
-        preconditions.add(new AgentAtPrecondition(agent, objectivePosition));
-
-        List<Precondition> openPreconditions = getOpenPreconditions(preconditions);
-
-        while (openPreconditions.size() != 0) {
-            Precondition currentPrecondition = openPreconditions.remove(0);
-
-            PriorityQueue<Action> stepActions = new PriorityQueue(new ActionComparator());
-            stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
-
+        while (true) {
+            PriorityQueue<Action> stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
             MoveAction nextAction = (MoveAction) stepActions.poll();
 
             Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
@@ -59,14 +48,23 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
             }
 
             actions.add(nextAction);
+            currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
+        }
 
-            openPreconditions.addAll(nextAction.findPreconditions());
-            openPreconditions = getOpenPreconditions(openPreconditions);
+        if (!LevelService.getInstance().isFree(action.getPosition())) {
+            // If the cell we are moving to is not free, we remove the last MoveAction
+            actions.remove(actions.firstElement());
+            return new POPPlan(actions);
         }
 
         return new POPPlan(actions);
     }
 
+    /**
+     *
+     * @param precondition
+     * @return A queue of MoveActions which solves the given precondition
+     */
     public PriorityQueue<Action> solvePrecondition(AgentAtPrecondition precondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator());
 
@@ -76,34 +74,14 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
 
         for (Neighbour neighbour : neighbours) {
             MoveAction nextAction = new MoveAction(
-                    neighbour.getDirection().getInverse(),
                     agent,
-                    neighbour.getPosition()
-            );
-            nextAction.setHeuristic(
+                    neighbour.getPosition(),
+                    neighbour.getDirection().getInverse(),
                     LevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             actions.add(nextAction);
         }
 
         return actions;
-    }
-
-    public List<Precondition> getOpenPreconditions(List<Precondition> preconditions) {
-        List<Precondition> openPreconditions = new ArrayList<>();
-        for (Precondition precondition : preconditions) {
-            if (isOpenPrecondition((AgentAtPrecondition) precondition)) {
-                openPreconditions.add(precondition);
-            } else {
-                precondition.setSatisfied(true);
-            }
-        }
-        return openPreconditions;
-    }
-
-    public boolean isOpenPrecondition(AgentAtPrecondition precondition) {
-        Position agentPreconditionPosition = precondition.getAgentPreconditionPosition();
-        Position agentActualPosition = LevelService.getInstance().getPosition(precondition.getAgent().getLabel());
-        return !agentActualPosition.equals(agentPreconditionPosition);
     }
 }

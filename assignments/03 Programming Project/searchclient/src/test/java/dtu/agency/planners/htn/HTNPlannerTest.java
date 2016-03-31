@@ -4,8 +4,6 @@ import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.planners.htn.HTNPlan;
-import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.services.LevelService;
 import org.junit.Test;
 
@@ -19,7 +17,7 @@ public class HTNPlannerTest {
     public void testPlan() throws IOException {
 
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));

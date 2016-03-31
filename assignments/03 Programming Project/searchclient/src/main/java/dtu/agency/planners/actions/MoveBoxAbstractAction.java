@@ -3,12 +3,12 @@ package dtu.agency.planners.actions;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 
-public class MoveBoxAction extends AbstractAction {
+public class MoveBoxAbstractAction extends AbstractAction {
 
     private Box box;
     private Goal goal;
 
-    public MoveBoxAction(int estimatedDistance, Box box, Goal goal) {
+    public MoveBoxAbstractAction(int estimatedDistance, Box box, Goal goal) {
         this.estimatedDistance = estimatedDistance;
         this.box = box;
         this.goal = goal;

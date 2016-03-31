@@ -5,8 +5,8 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.GotoAction;
-import dtu.agency.planners.actions.MoveBoxAction;
+import dtu.agency.planners.actions.GotoAbstractAction;
+import dtu.agency.planners.actions.MoveBoxAbstractAction;
 import dtu.agency.services.LevelService;
 
 import java.util.ArrayList;
@@ -37,12 +37,12 @@ public class HTNPlanner {
 
         Position boxPosition = LevelService.getInstance().getLevel().getBoardObjectPositions().get(box.getLabel());
 
-        actions.add(new GotoAction(gotoDistance, new Position(boxPosition.getRow(), boxPosition.getColumn())));
+        actions.add(new GotoAbstractAction(gotoDistance, new Position(boxPosition.getRow(), boxPosition.getColumn())));
 
         // Move this box to the goal - estimate distance
         int moveDistance = LevelService.getInstance().manhattanDistance(box, goal);
 
-        actions.add(new MoveBoxAction(moveDistance, box, goal));
+        actions.add(new MoveBoxAbstractAction(moveDistance, box, goal));
 
         return new HTNPlan(actions);
     }
