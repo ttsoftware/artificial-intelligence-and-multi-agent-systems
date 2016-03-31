@@ -3,6 +3,7 @@ package dtu.agency.planners.actions.effects;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.services.LevelService;
 
 /**
  * Created by Mads on 3/22/16.
@@ -42,10 +43,10 @@ public class HTNEffect extends Effect {
     }
 
     @Override
-    public boolean isLegal(Level level) {
+    public boolean isLegal() {
         boolean valid = true;
-        valid &= level.notWall(this.getAgentPosition());
-        valid &= level.notWall(this.getBoxPosition());
+        valid &= LevelService.getInstance().getLevel().notWall(this.getAgentPosition());
+        valid &= LevelService.getInstance().getLevel().notWall(this.getBoxPosition());
         return valid;
     }
 

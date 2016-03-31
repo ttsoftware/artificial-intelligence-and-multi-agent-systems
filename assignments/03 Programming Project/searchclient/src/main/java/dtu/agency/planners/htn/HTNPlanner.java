@@ -14,6 +14,7 @@ import dtu.agency.planners.htn.heuristic.AStarHeuristic;
 import dtu.agency.planners.htn.heuristic.Heuristic;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
+import dtu.agency.services.LevelService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,17 +40,15 @@ public class HTNPlanner {
     private HTNPlan bestPlan;           // High level actions only
     private PrimitivePlan moveBoxPlan;  // Low level (primitive) actions only
     private Goal finalGoal;             // to check goal state
-    private Level level;                // to check goal state
 
-    public HTNPlanner(Agent agent, Level level, Goal target ){
+    public HTNPlanner(Agent agent, Goal target ){
 
         // Use stderr to print to console
         System.err.println("HTN Planner initializing.");
 
         this.finalGoal = target;
-        this.level = level;
 
-        this.allPlans = createAllPlans(level, target);
+        this.allPlans = createAllPlans(target);
 
         this.bestPlan = findShorterPlan(agent, allPlans);
         // could as well sort them, so that they can be polled one at a time
@@ -100,14 +99,14 @@ public class HTNPlanner {
         return bestPlan;
     }
 
-    private ArrayList<HTNPlan> createAllPlans(Level level, Goal target) {
+    private ArrayList<HTNPlan> createAllPlans( Goal target) {
         // find all boxes that correspond to goal
         // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
         // store this list of 'HTNPlans' to be retrieved by a method
         ArrayList<HTNPlan> allPlans = new ArrayList<>();
         ArrayList<Box> boxes = new ArrayList<>();
 
-        for (Box b : level.getBoxes() ) {
+        for (Box b : LevelService.getInstance().getLevel().getBoxes() ) {
             if ( b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase()) ) {
                 boxes.add(b);
             }
@@ -163,7 +162,7 @@ public class HTNPlanner {
             strategy.addToExplored(leafNode.getEffect());
 
             // beginning
-            for (HTNNode n : leafNode.getRefinementNodes(level)) {
+            for (HTNNode n : leafNode.getRefinementNodes()) {
                 // The list of expanded nodes is shuffled randomly; see Node.java
                 // and it might be empty!
                 if (strategy.isExplored(n.getEffect()) ) { continue; } // reject/ignore nodes resulting in states visited already

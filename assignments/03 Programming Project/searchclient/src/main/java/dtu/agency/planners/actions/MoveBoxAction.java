@@ -47,7 +47,7 @@ public class MoveBoxAction extends HLAction {
     }
 
     @Override
-    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level) {
+    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState) {
 
         ArrayList<MixedPlan> refinements = new ArrayList<>();
         MixedPlan refinement;
@@ -65,7 +65,7 @@ public class MoveBoxAction extends HLAction {
 
             push = new PushAction(targetBox, dirToBox, dir);
             result = push.applyTo(priorState);
-            if (!result.isLegal(level)) continue;
+            if (!result.isLegal()) continue;
 
             // check if any of the resulting states fulfills this HLActions target,
             // and if so, return only the action which does!
@@ -83,7 +83,7 @@ public class MoveBoxAction extends HLAction {
 
             pull = new PullAction(targetBox, dir, dirToBox);
             result = pull.applyTo(priorState);
-            if (!result.isLegal(level)) continue;
+            if (!result.isLegal()) continue;
 
             // check if any of the resulting states fulfills this HLActions target,
             // and if so, return only the action which does!

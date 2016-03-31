@@ -11,6 +11,7 @@ import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.HLAction;
 import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.services.LevelService;
 import dtu.searchclient.Command;
 import dtu.searchclient.Command.dir;
 import dtu.searchclient.Command.type;
@@ -50,7 +51,7 @@ public class HTNNode {
         return this.parent == null;
     }
 
-    public ArrayList<HTNNode> getRefinementNodes(Level level) {
+    public ArrayList<HTNNode> getRefinementNodes() {
 
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
@@ -60,14 +61,14 @@ public class HTNNode {
 
         if (nextAction instanceof Action) { // case the action is primitive, add it as only node,
             Action primitive = (Action) nextAction;
-            HTNNode only = childNode( primitive, this.remainingActions, level ); // is remainingActions correct?? has first been removed??
+            HTNNode only = childNode( primitive, this.remainingActions ); // is remainingActions correct?? has first been removed??
             if (only != null) { refinementNodes.add(only);}
             return refinementNodes;
         }
 
         if (nextAction instanceof HLAction) { // case the action is high level, get the refinements from the action
             HLAction highLevelAction = (HLAction) nextAction;
-            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getEffect(), level);
+            ArrayList<MixedPlan> refs = highLevelAction.getRefinements( this.getEffect() );
             // go nuts!
             Action first;
             HTNNode nextNode;
@@ -77,7 +78,7 @@ public class HTNNode {
                     first = (Action) refinement.removeFirst();
                 }
                 refinement.extend(remainingActions);
-                nextNode = childNode( first, refinement, level );
+                nextNode = childNode( first, refinement );
                 if (nextNode != null) {
                     refinementNodes.add(nextNode);
                 }
@@ -91,7 +92,7 @@ public class HTNNode {
         return refinementNodes;
     }
 
-    private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions, Level level) {
+    private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions) {
         HTNEffect oldState = this.getEffect();
         HTNEffect newState = primitiveAction.applyTo(oldState);
 

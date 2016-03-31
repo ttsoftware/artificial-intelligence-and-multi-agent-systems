@@ -28,6 +28,6 @@ public abstract class HLAction extends AbstractAction implements Serializable {
 
     // Any High Level Action can be refined, as per the Hierarchical Task Network (HTN) approach
     //public abstract List<List<AbstractAction>> getRefinements();
-    public abstract ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level);
+    public abstract ArrayList<MixedPlan> getRefinements(HTNEffect priorState);
 
 }

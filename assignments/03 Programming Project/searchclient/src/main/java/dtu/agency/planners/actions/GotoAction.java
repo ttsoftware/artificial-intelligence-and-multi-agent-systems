@@ -8,6 +8,7 @@ import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.services.LevelService;
 
 import java.io.Serializable;
 import java.util.*;
@@ -46,7 +47,7 @@ public class GotoAction extends HLAction implements Serializable {
     }
 
     @Override
-    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level) {
+    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState) {
         ArrayList<MixedPlan> refinements = new ArrayList<>();
         MixedPlan refinement;
         Action move;
@@ -67,8 +68,7 @@ public class GotoAction extends HLAction implements Serializable {
                     refinement.addAction(this);
                 }
             } // if not, add this abstract action again
-
-            if (result.isLegal(level)) {
+            if (result.isLegal()) {
                 refinements.add(refinement);
 
             }
