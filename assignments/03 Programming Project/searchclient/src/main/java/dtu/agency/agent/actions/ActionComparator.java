@@ -6,6 +6,6 @@ public class ActionComparator implements Comparator<Action> {
 
     @Override
     public int compare(Action actionA, Action actionB) {
-        return actionA.getHeuristic() - actionB.getHeuristic();
+        return actionA.getHeuristicValue() - actionB.getHeuristicValue();
     }
 }

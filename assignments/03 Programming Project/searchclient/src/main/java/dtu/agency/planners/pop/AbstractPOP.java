@@ -1,12 +1,9 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.services.LevelService;
-
-import java.util.List;
 
 public abstract class AbstractPOP<T extends AbstractAction> {
 
@@ -20,6 +17,4 @@ public abstract class AbstractPOP<T extends AbstractAction> {
     }
 
     public abstract POPPlan plan(T action);
-
-    public abstract List<Precondition> getOpenPreconditions(List<Precondition> preconditions);
 }

@@ -3,12 +3,6 @@ package dtu.agency.agent.actions;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.agent.actions.effects.Effect;
-import dtu.agency.agent.actions.preconditions.*;
-import dtu.agency.services.LevelService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PullAction extends Action {
 
@@ -18,7 +12,6 @@ public class PullAction extends Action {
     private Position agentPosition = null;
     private final Direction agentDirection;
     private final Direction boxDirection;
-    private int heuristic;
 
     public PullAction(Box box, Direction agentDirection, Direction boxDirection) {
         this.box = box;
@@ -26,15 +19,17 @@ public class PullAction extends Action {
         this.boxDirection = boxDirection;
     }
 
-    public PullAction(Box box, Position boxPosition, Agent agent, Position agentPosition, Direction agentDirection, Direction boxDirection) {
+    public PullAction(Box box, Position boxPosition, Agent agent, Position agentPosition, Direction agentDirection, Direction boxDirection, int heuristicValue) {
         this.box = box;
         this.boxPosition = boxPosition;
         this.agent = agent;
         this.agentPosition = agentPosition;
         this.agentDirection = agentDirection;
         this.boxDirection = boxDirection;
+        this.heuristicValue = heuristicValue;
     }
 
+    /*
     @Override
     public List<Precondition> findPreconditions() {
         List<Precondition> preconditions = new ArrayList<>();
@@ -43,21 +38,14 @@ public class PullAction extends Action {
 
         return preconditions;
     }
+    */
 
-    @Override
-    public int getHeuristic() {
-        return heuristic;
-    }
-
-    @Override
-    public void setHeuristic(int heuristic) {
-        this.heuristic = heuristic;
-    }
-
+    /*
     @Override
     public List<Effect> findEffects() {
         return null;
     }
+    */
 
     @Override
     public ActionType getType() {

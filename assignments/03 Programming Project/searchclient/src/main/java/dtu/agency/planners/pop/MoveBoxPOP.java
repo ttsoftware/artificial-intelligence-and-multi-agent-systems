@@ -7,7 +7,6 @@ import dtu.agency.agent.actions.PushAction;
 import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
 import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.MoveBoxAction;
@@ -28,6 +27,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
 
     public POPPlan plan(MoveBoxAction action) {
         Stack<Action> actions = new Stack<>();
+        /*
         List<Precondition> preconditions = new ArrayList<>();
         Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 
@@ -49,6 +49,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
             openPreconditions.addAll(nextAction.findPreconditions());
             openPreconditions = getOpenPreconditions(openPreconditions);
         }
+        */
 
         return new POPPlan(actions);
     }
@@ -67,9 +68,9 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
                         boxPrecondition.getAgent(),
                         viableAgentPosition.getPosition(),
                         viableAgentPosition.getDirection().getInverse(),
-                        boxNeighbour.getDirection().getInverse()
+                        boxNeighbour.getDirection().getInverse(),
+                        LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
                 );
-                nextPushAction.setHeuristic(LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition));
                 actions.add(nextPushAction);
             }
         }
@@ -84,9 +85,9 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
                         boxPrecondition.getAgent(),
                         viableAgentPosition.getPosition(),
                         viableAgentPosition.getDirection().getInverse(),
-                        viableAgentPosition.getDirection()
+                        viableAgentPosition.getDirection(),
+                        LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
                 );
-                nextPullAction.setHeuristic(LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition));
                 actions.add(nextPullAction);
             }
         }

@@ -11,7 +11,6 @@ import dtu.agency.board.Position;
 import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.services.LevelService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
@@ -25,14 +24,10 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
     public POPPlan plan(GotoAction action) {
 
         Stack<Action> actions = new Stack<>();
-        List<Precondition> preconditions = new ArrayList<>();
-        preconditions.add(new AgentAtPrecondition(agent, action.getPosition()));
 
-        List<Precondition> openPreconditions = getOpenPreconditions(preconditions);
+        Precondition currentPrecondition = new AgentAtPrecondition(agent, action.getPosition());
 
         while (true) {
-            Precondition currentPrecondition = openPreconditions.remove(0);
-
             PriorityQueue<Action> stepActions = new PriorityQueue(new ActionComparator());
             stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
 
@@ -56,14 +51,17 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
             }
 
             actions.add(nextAction);
-
-            openPreconditions.addAll(nextAction.findPreconditions());
-            openPreconditions = getOpenPreconditions(openPreconditions);
+            currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
         }
 
         return new POPPlan(actions);
     }
 
+    /**
+     *
+     * @param precondition
+     * @return A queue of MoveActions which solves the given precondition
+     */
     public PriorityQueue<Action> solvePrecondition(AgentAtPrecondition precondition) {
         PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator());
 
@@ -73,34 +71,14 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
 
         for (Neighbour neighbour : neighbours) {
             MoveAction nextAction = new MoveAction(
-                    neighbour.getDirection().getInverse(),
                     agent,
-                    neighbour.getPosition()
-            );
-            nextAction.setHeuristic(
+                    neighbour.getPosition(),
+                    neighbour.getDirection().getInverse(),
                     LevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             actions.add(nextAction);
         }
 
         return actions;
-    }
-
-    public List<Precondition> getOpenPreconditions(List<Precondition> preconditions) {
-        List<Precondition> openPreconditions = new ArrayList<>();
-        for (Precondition precondition : preconditions) {
-            if (isOpenPrecondition((AgentAtPrecondition) precondition)) {
-                openPreconditions.add(precondition);
-            } else {
-                precondition.setSatisfied(true);
-            }
-        }
-        return openPreconditions;
-    }
-
-    public boolean isOpenPrecondition(AgentAtPrecondition precondition) {
-        Position agentPreconditionPosition = precondition.getAgentPreconditionPosition();
-        Position agentActualPosition = LevelService.getInstance().getPosition(precondition.getAgent().getLabel());
-        return !agentActualPosition.equals(agentPreconditionPosition);
     }
 }
