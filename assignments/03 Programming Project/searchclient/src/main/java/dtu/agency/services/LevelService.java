@@ -153,22 +153,70 @@ public class LevelService implements Serializable {
     /**
      *
      * @param position
+     * @return A list of adjacent cells containing a box or an agent
+     */
+    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isMoveable(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (LevelService.getInstance().isMoveable(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (LevelService.getInstance().isMoveable(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (LevelService.getInstance().isMoveable(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
+    /**
+     *
+     * @param position
      * @return A list of free cells adjacent to @position
      */
     public synchronized List<Neighbour> getFreeNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
         if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() - 1), Direction.WEST));
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
         }
         if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() + 1), Direction.EAST));
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
         }
         if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(new Position(position.getRow() - 1, position.getColumn()), Direction.NORTH));
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
         }
         if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(new Position(position.getRow() + 1, position.getColumn()), Direction.SOUTH));
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
         }
 
         return neighbours;
@@ -216,6 +264,33 @@ public class LevelService implements Serializable {
             }
         }
         throw new InvalidParameterException("Given positions are not adjacent.");
+    }
+
+    /**
+     *
+     * @param position
+     * @return True if object at given position can be moved
+     */
+    public synchronized boolean isMoveable(Position position) {
+        return isMoveable(position.getRow(), position.getColumn());
+    }
+
+    /**
+     *
+     * @param row
+     * @param column
+     * @return True if object at given position can be moved
+     */
+    public synchronized boolean isMoveable(int row, int column) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
+                    || level.getBoardState()[row][column].equals(BoardCell.AGENT_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

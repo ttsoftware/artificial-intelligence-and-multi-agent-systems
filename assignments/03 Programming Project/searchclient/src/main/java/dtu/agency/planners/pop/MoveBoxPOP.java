@@ -102,11 +102,20 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
         PriorityQueue<MoveBoxAction> actions = new PriorityQueue<>(new ActionComparator());
 
         // Find the free neighbour cells to the boxPrecondition
-        List<Neighbour> boxNeighbours = LevelService.getInstance().getFreeNeighbours(
+        List<Neighbour> freeBoxNeighbours = LevelService.getInstance().getFreeNeighbours(
                 boxPrecondition.getBoxPosition()
         );
 
-        for (Neighbour boxNeighbour : boxNeighbours) {
+        if (freeBoxNeighbours.size() == 0) {
+            // No free neighbours to the boxPrecondition
+            List<Neighbour> moveableBoxNeighbours = LevelService.getInstance().getMoveableNeighbours(
+                    boxPrecondition.getBoxPosition()
+            );
+
+            // TODO do something with the moveable neighbours
+        }
+
+        for (Neighbour boxNeighbour : freeBoxNeighbours) {
 
             // Find the free cells where the agent can be
             List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(
@@ -128,18 +137,6 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                                 agentStartPosition
                         )
                 );
-                actions.add(nextPushAction);
-            }
-        }
-
-        for (Neighbour boxNeighbour : boxNeighbours) {
-
-            // Find free cells where the agent can be
-            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(
-                    boxNeighbour.getPosition()
-            );
-
-            for (Neighbour viableAgentPosition : viableAgentPositions) {
 
                 // Pull the box
                 PullAction nextPullAction = new PullAction(
@@ -154,10 +151,11 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                                 agentStartPosition
                         )
                 );
+
                 actions.add(nextPullAction);
+                actions.add(nextPushAction);
             }
         }
-
         return actions;
     }
 }

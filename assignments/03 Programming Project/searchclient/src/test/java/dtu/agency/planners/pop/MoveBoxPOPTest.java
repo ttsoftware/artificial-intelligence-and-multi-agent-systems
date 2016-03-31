@@ -23,7 +23,7 @@ public class MoveBoxPOPTest {
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_move_box.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -38,8 +38,8 @@ public class MoveBoxPOPTest {
 
     @Test
     public void planTest() {
-
         HTNPlan htnPlan = new HTNPlanner(agent, goal).plan();
+
         MoveBoxPOP moveBoxPlanner = new MoveBoxPOP(agent);
 
         POPPlan popPlan = moveBoxPlanner.plan((MoveBoxAbstractAction) htnPlan.getActions().get(1));
