@@ -2,11 +2,11 @@ package dtu.agency.planners.actions;
 
 import dtu.agency.board.Position;
 
-public class GotoAction extends AbstractAction {
+public class GotoAbstractAction extends AbstractAction {
 
     private Position position;
 
-    public GotoAction(int estimatedDistance, Position position) {
+    public GotoAbstractAction(int estimatedDistance, Position position) {
         this.position = position;
         this.estimatedDistance = estimatedDistance;
     }

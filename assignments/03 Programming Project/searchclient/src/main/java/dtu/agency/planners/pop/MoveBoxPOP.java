@@ -1,23 +1,20 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.ActionComparator;
-import dtu.agency.agent.actions.PullAction;
-import dtu.agency.agent.actions.PushAction;
+import dtu.agency.agent.actions.*;
 import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
 import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.MoveBoxAction;
+import dtu.agency.planners.actions.MoveBoxAbstractAction;
 import dtu.agency.services.LevelService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
-public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
+public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
     private Position boxStartPosition;
 
@@ -25,50 +22,96 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
         super(agent);
     }
 
-    public POPPlan plan(MoveBoxAction action) {
+    public POPPlan plan(MoveBoxAbstractAction action) {
         Stack<Action> actions = new Stack<>();
-        /*
-        List<Precondition> preconditions = new ArrayList<>();
+
         Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 
         Box box = action.getBox();
         boxStartPosition = LevelService.getInstance().getPosition(box.getLabel());
-        preconditions.add(new BoxAtPrecondition(box, agent, goalPosition));
 
-        List<Precondition> openPreconditions = getOpenPreconditions(preconditions);
+        Precondition currentPrecondition = new BoxAtPrecondition(box, agent, goalPosition);
 
-        while (openPreconditions.size() != 0) {
-            Precondition currentPrecondition = openPreconditions.remove(0);
+        while (true) {
 
-            PriorityQueue<Action> stepActions = new PriorityQueue<>(new ActionComparator());
+            PriorityQueue<MoveBoxAction> stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
+            MoveBoxAction nextAction = stepActions.poll();
 
-            stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
+            Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
+                    nextAction.getBoxPosition(),
+                    nextAction.getBoxDirection()
+            );
 
-            Action nextAction = stepActions.remove();
+            if (nextActionPosition.isAdjacentTo(boxStartPosition)) {
+                // Bigger switch please
+                switch (nextAction.getType()) {
+                    case PUSH:
+                        actions.add(new PushAction(
+                                box,
+                                agent,
+                                boxStartPosition,
+                                agentStartPosition,
+                                LevelService.getInstance().getMovingDirection(
+                                        boxStartPosition,
+                                        nextActionPosition
+                                ),
+                                LevelService.getInstance().getMovingDirection(
+                                        agentStartPosition,
+                                        boxStartPosition
+                                ),
+                                Integer.MIN_VALUE
+                        ));
+                        break;
+                    case PULL:
+                        actions.add(new PullAction(
+                                box,
+                                agent,
+                                boxStartPosition,
+                                agentStartPosition,
+                                LevelService.getInstance().getMovingDirection(
+                                        boxStartPosition,
+                                        nextActionPosition
+                                ),
+                                LevelService.getInstance().getMovingDirection(
+                                        agentStartPosition,
+                                        nextActionPosition
+                                ),
+                                Integer.MIN_VALUE
+                        ));
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Something is wrong and you should feel wrong.");
+                }
+                break;
+            }
+
             actions.add(nextAction);
-            openPreconditions.addAll(nextAction.findPreconditions());
-            openPreconditions = getOpenPreconditions(openPreconditions);
+            currentPrecondition = new BoxAtPrecondition(box, agent, nextAction.getBoxPosition());
         }
-        */
 
         return new POPPlan(actions);
     }
 
-    public PriorityQueue<Action> solvePrecondition(BoxAtPrecondition boxPrecondition) {
-        PriorityQueue<Action> actions = new PriorityQueue<>(new ActionComparator());
+    /**
+     *
+     * @param boxPrecondition
+     * @return A queue of MoveBoxActions which solves the given precondition
+     */
+    public PriorityQueue<MoveBoxAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
+
+        PriorityQueue<MoveBoxAction> actions = new PriorityQueue<>(new ActionComparator());
         List<Neighbour> boxNeighbours = LevelService.getInstance().getFreeNeighbours(boxPrecondition.getBoxPosition());
 
         for (Neighbour boxNeighbour : boxNeighbours) {
             List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(boxNeighbour.getPosition());
+
             for (Neighbour viableAgentPosition : viableAgentPositions) {
 
                 PushAction nextPushAction = new PushAction(
                         boxPrecondition.getBox(),
-                        boxNeighbour.getPosition(),
-                        boxPrecondition.getAgent(),
-                        viableAgentPosition.getPosition(),
+                        boxPrecondition.getAgent(), boxNeighbour.getPosition(),
+                        viableAgentPosition.getPosition(), boxNeighbour.getDirection().getInverse(),
                         viableAgentPosition.getDirection().getInverse(),
-                        boxNeighbour.getDirection().getInverse(),
                         LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
                 );
                 actions.add(nextPushAction);
@@ -77,40 +120,19 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAction> {
 
         for (Neighbour boxNeighbour : boxNeighbours) {
             List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(boxNeighbour.getPosition());
+
             for (Neighbour viableAgentPosition : viableAgentPositions) {
 
                 PullAction nextPullAction = new PullAction(
                         boxPrecondition.getBox(),
-                        boxNeighbour.getPosition(),
-                        boxPrecondition.getAgent(),
+                        boxPrecondition.getAgent(), boxNeighbour.getPosition(),
                         viableAgentPosition.getPosition(),
-                        viableAgentPosition.getDirection().getInverse(),
-                        viableAgentPosition.getDirection(),
+                        viableAgentPosition.getDirection(), viableAgentPosition.getDirection().getInverse(),
                         LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
                 );
                 actions.add(nextPullAction);
             }
         }
-
         return actions;
-    }
-
-    public List<Precondition> getOpenPreconditions(List<Precondition> preconditions) {
-        List<Precondition> openPreconditions = new ArrayList<>();
-        for (Precondition precondition : preconditions) {
-            if (isOpenPrecondition((BoxAtPrecondition) precondition)) {
-                openPreconditions.add(precondition);
-            } else {
-                precondition.setSatisfied(true);
-            }
-        }
-
-        return openPreconditions;
-    }
-
-    public boolean isOpenPrecondition(BoxAtPrecondition precondition) {
-        Position position = precondition.getBoxPosition();
-        Position objectPosition = LevelService.getInstance().getPosition(precondition.getBox().getLabel());
-        return objectPosition.equals(position);
     }
 }

@@ -102,7 +102,7 @@ public class ProblemMarshaller {
                 else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
                     String label = String.valueOf(cell) + Integer.toString(goalCount);
-                    Goal goal = new Goal(label, row, column, DEFAULT_WEIGHT);
+                    Goal goal = new Goal(label, new Position(row, column), DEFAULT_WEIGHT);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.GOAL;
                     boardObjects[row][column] = goal;

@@ -5,8 +5,8 @@ import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.board.Agent;
 import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.GotoAction;
-import dtu.agency.planners.actions.MoveBoxAction;
+import dtu.agency.planners.actions.GotoAbstractAction;
+import dtu.agency.planners.actions.MoveBoxAbstractAction;
 
 import java.util.Stack;
 
@@ -25,10 +25,10 @@ public class PartialOrderPlanner {
 
         switch (action.getType()) {
             case GotoAction:
-                plan = new GotoPOP(agent).plan((GotoAction) action);
+                plan = new GotoPOP(agent).plan((GotoAbstractAction) action);
                 break;
             case MoveBoxAction:
-                plan = new MoveBoxPOP(agent).plan((MoveBoxAction) action);
+                plan = new MoveBoxPOP(agent).plan((MoveBoxAbstractAction) action);
                 break;
         }
 

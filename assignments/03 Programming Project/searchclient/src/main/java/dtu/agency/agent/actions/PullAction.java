@@ -4,48 +4,18 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 
-public class PullAction extends Action {
+public class PullAction extends MoveBoxAction {
 
-    private final Box box;
-    private Position boxPosition = null;
-    private Agent agent = null;
-    private Position agentPosition = null;
-    private final Direction agentDirection;
-    private final Direction boxDirection;
-
-    public PullAction(Box box, Direction agentDirection, Direction boxDirection) {
-        this.box = box;
-        this.agentDirection = agentDirection;
-        this.boxDirection = boxDirection;
-    }
-
-    public PullAction(Box box, Position boxPosition, Agent agent, Position agentPosition, Direction agentDirection, Direction boxDirection, int heuristicValue) {
-        this.box = box;
-        this.boxPosition = boxPosition;
-        this.agent = agent;
-        this.agentPosition = agentPosition;
-        this.agentDirection = agentDirection;
-        this.boxDirection = boxDirection;
+    public PullAction(Box box,
+                      Agent agent,
+                      Position boxPosition,
+                      Position agentPosition,
+                      Direction boxDirection,
+                      Direction agentDirection,
+                      int heuristicValue) {
+        super(box, agent, boxPosition, agentPosition, boxDirection, agentDirection);
         this.heuristicValue = heuristicValue;
     }
-
-    /*
-    @Override
-    public List<Precondition> findPreconditions() {
-        List<Precondition> preconditions = new ArrayList<>();
-        Position nextPosition = LevelService.getInstance().getPositionInDirection(getAgentPosition(), getAgentDirection());
-        preconditions.add(new BoxAtPrecondition(getBox(), getAgent(), nextPosition));
-
-        return preconditions;
-    }
-    */
-
-    /*
-    @Override
-    public List<Effect> findEffects() {
-        return null;
-    }
-    */
 
     @Override
     public ActionType getType() {
@@ -54,30 +24,6 @@ public class PullAction extends Action {
 
     @Override
     public String toString() {
-        return "Pull(" + getAgentDirection() + "," + getBoxDirection() + ")";
-    }
-
-    public Box getBox() {
-        return box;
-    }
-
-    public Direction getAgentDirection() {
-        return agentDirection;
-    }
-
-    public Direction getBoxDirection() {
-        return boxDirection;
-    }
-
-    public Position getBoxPosition() {
-        return boxPosition;
-    }
-
-    public Agent getAgent() {
-        return agent;
-    }
-
-    public Position getAgentPosition() {
-        return agentPosition;
+        return "Pull(" + agentDirection + "," + boxDirection + ")";
     }
 }
