@@ -7,6 +7,7 @@ import dtu.agency.agent.actions.PushAction;
 import dtu.agency.board.*;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -98,7 +99,7 @@ public class LevelService implements Serializable {
             case NORTH: {
                 nextRow = position.getRow();
                 nextColumn = position.getColumn() - 1;
-                if (causesCollision(nextRow, nextColumn)) {
+                if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
@@ -108,7 +109,7 @@ public class LevelService implements Serializable {
             case SOUTH: {
                 nextRow = position.getRow() + 1;
                 nextColumn = position.getColumn();
-                if (causesCollision(nextRow, nextColumn)) {
+                if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
@@ -118,7 +119,7 @@ public class LevelService implements Serializable {
             case EAST: {
                 nextRow = position.getRow();
                 nextColumn = position.getColumn() + 1;
-                if (causesCollision(nextRow, nextColumn)) {
+                if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
@@ -128,7 +129,7 @@ public class LevelService implements Serializable {
             case WEST: {
                 nextRow = position.getRow();
                 nextColumn = position.getColumn() - 1;
-                if (causesCollision(nextRow, nextColumn)) {
+                if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
@@ -149,44 +150,37 @@ public class LevelService implements Serializable {
         return true;
     }
 
-    private boolean causesCollision(int row, int column) {
-        BoardCell nextCell = level.getBoardState()[row][column];
-
-        switch (nextCell) {
-            case FREE_CELL:
-                // No collision
-                return false;
-            case GOAL:
-                // No collision
-                return false;
-            default:
-                // All other cases are collisions
-                break;
-        }
-
-        return true;
-    }
-
-    public List<Neighbour> getFreeNeighbours(Position position) {
+    /**
+     *
+     * @param position
+     * @return A list of free cells adjacent to @position
+     */
+    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn() - 1)) {
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1)) {
             neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() - 1), Direction.WEST));
         }
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow(), position.getColumn() + 1)) {
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1)) {
             neighbours.add(new Neighbour(new Position(position.getRow(), position.getColumn() + 1), Direction.EAST));
         }
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow() - 1, position.getColumn())) {
+        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn())) {
             neighbours.add(new Neighbour(new Position(position.getRow() - 1, position.getColumn()), Direction.NORTH));
         }
-        if (LevelService.getInstance().isFreeNeighbour(position.getRow() + 1, position.getColumn())) {
+        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn())) {
             neighbours.add(new Neighbour(new Position(position.getRow() + 1, position.getColumn()), Direction.SOUTH));
         }
 
         return neighbours;
     }
 
-    public Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
+    /**
+     *
+     * @param currentPosition
+     * @param movingDirection
+     * @return The position arrived at after moving from @currentPosition in @movingDirection
+     */
+    public synchronized Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
         switch (movingDirection) {
             case NORTH:
                 return new Position(currentPosition.getRow() - 1, currentPosition.getColumn());
@@ -201,25 +195,45 @@ public class LevelService implements Serializable {
         }
     }
 
-    public Direction getMovingDirection(Position positionOne, Position positionTwo) {
-        if (positionOne.getRow() == positionTwo.getRow()) {
-            if (positionOne.getColumn() < positionTwo.getColumn()) {
+    /**
+     *
+     * @param positionA
+     * @param positionB
+     * @return The direction of positionB relative to positionA
+     */
+    public synchronized Direction getMovingDirection(Position positionA, Position positionB) {
+        if (positionA.getRow() == positionB.getRow()) {
+            if (positionA.getColumn() < positionB.getColumn()) {
                 return Direction.EAST;
             } else {
                 return Direction.WEST;
             }
-        } else if (positionOne.getColumn() == positionTwo.getColumn()) {
-            if (positionOne.getRow() > positionTwo.getRow()) {
+        } else if (positionA.getColumn() == positionB.getColumn()) {
+            if (positionA.getRow() > positionB.getRow()) {
                 return Direction.SOUTH;
             } else {
                 return Direction.NORTH;
             }
         }
-        return null;
+        throw new InvalidParameterException("Given positions are not adjacent.");
     }
 
-    public boolean isFreeNeighbour(int row, int column) {
-        if (row >= 0 && column >= 0 && level.getBoardState().length > row && level.getBoardState()[0].length > column) {
+    /**
+     *
+     * @param position
+     * @return True if the given position is free
+     */
+    public synchronized boolean isFree(Position position) {
+        return isFree(position.getRow(), position.getColumn());
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if the given position is free
+     */
+    public synchronized boolean isFree(int row, int column) {
+        if (isInLevel(row, column)) {
             if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
                     || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
                 return true;
@@ -228,7 +242,7 @@ public class LevelService implements Serializable {
         return false;
     }
 
-    public Position getPosition(String objectLabel) {
+    public synchronized Position getPosition(String objectLabel) {
         return level.getBoardObjectPositions().get(objectLabel);
     }
 
@@ -239,7 +253,7 @@ public class LevelService implements Serializable {
      * @param goal
      * @return The box closest to @agent which solves @goal
      */
-    public Box closestBox(Agent agent, Goal goal) {
+    public synchronized Box closestBox(Agent agent, Goal goal) {
 
         int shortestDistance = Integer.MAX_VALUE;
         Box shortestDistanceBox = null;
@@ -266,7 +280,7 @@ public class LevelService implements Serializable {
      * @param objectB
      * @return The manhattan distance between the two objects
      */
-    public int manhattanDistance(BoardObject objectA, BoardObject objectB) {
+    public synchronized int manhattanDistance(BoardObject objectA, BoardObject objectB) {
 
         // E[O(1)] time operations
         Position positionA = level.getBoardObjectPositions().get(objectA.getLabel());
@@ -289,6 +303,26 @@ public class LevelService implements Serializable {
         // O(1) time operations
         return Math.abs(positionA.getRow() - positionB.getRow())
                 + Math.abs(positionA.getColumn() - positionB.getColumn());
+    }
+
+    /**
+     * @param position
+     * @return True if the position exists in the level
+     */
+    public synchronized boolean isInLevel(Position position) {
+        return isInLevel(position.getRow(), position.getColumn());
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if the position exists in the level
+     */
+    public synchronized boolean isInLevel(int row, int column) {
+        return (row >= 0
+                && column >= 0
+                && level.getBoardState().length > row
+                && level.getBoardState()[0].length > column);
     }
 
     /**

@@ -26,14 +26,11 @@ public class GotoPOP extends AbstractPOP<GotoAction> {
 
         Stack<Action> actions = new Stack<>();
         List<Precondition> preconditions = new ArrayList<>();
-
-        Position objectivePosition = action.getPosition();
-
-        preconditions.add(new AgentAtPrecondition(agent, objectivePosition));
+        preconditions.add(new AgentAtPrecondition(agent, action.getPosition()));
 
         List<Precondition> openPreconditions = getOpenPreconditions(preconditions);
 
-        while (openPreconditions.size() != 0) {
+        while (true) {
             Precondition currentPrecondition = openPreconditions.remove(0);
 
             PriorityQueue<Action> stepActions = new PriorityQueue(new ActionComparator());
