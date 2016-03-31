@@ -100,39 +100,64 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
     public PriorityQueue<MoveBoxAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
 
         PriorityQueue<MoveBoxAction> actions = new PriorityQueue<>(new ActionComparator());
-        List<Neighbour> boxNeighbours = LevelService.getInstance().getFreeNeighbours(boxPrecondition.getBoxPosition());
+
+        // Find the free neighbour cells to the boxPrecondition
+        List<Neighbour> boxNeighbours = LevelService.getInstance().getFreeNeighbours(
+                boxPrecondition.getBoxPosition()
+        );
 
         for (Neighbour boxNeighbour : boxNeighbours) {
-            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(boxNeighbour.getPosition());
+
+            // Find the free cells where the agent can be
+            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(
+                    boxNeighbour.getPosition()
+            );
 
             for (Neighbour viableAgentPosition : viableAgentPositions) {
 
+                // Push the box
                 PushAction nextPushAction = new PushAction(
                         boxPrecondition.getBox(),
-                        boxPrecondition.getAgent(), boxNeighbour.getPosition(),
-                        viableAgentPosition.getPosition(), boxNeighbour.getDirection().getInverse(),
+                        boxPrecondition.getAgent(),
+                        boxNeighbour.getPosition(),
+                        viableAgentPosition.getPosition(),
+                        boxNeighbour.getDirection().getInverse(),
                         viableAgentPosition.getDirection().getInverse(),
-                        LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
+                        LevelService.getInstance().manhattanDistance(
+                                viableAgentPosition.getPosition(),
+                                agentStartPosition
+                        )
                 );
                 actions.add(nextPushAction);
             }
         }
 
         for (Neighbour boxNeighbour : boxNeighbours) {
-            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(boxNeighbour.getPosition());
+
+            // Find free cells where the agent can be
+            List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(
+                    boxNeighbour.getPosition()
+            );
 
             for (Neighbour viableAgentPosition : viableAgentPositions) {
 
+                // Pull the box
                 PullAction nextPullAction = new PullAction(
                         boxPrecondition.getBox(),
-                        boxPrecondition.getAgent(), boxNeighbour.getPosition(),
+                        boxPrecondition.getAgent(),
+                        boxNeighbour.getPosition(),
                         viableAgentPosition.getPosition(),
-                        viableAgentPosition.getDirection(), viableAgentPosition.getDirection().getInverse(),
-                        LevelService.getInstance().manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
+                        viableAgentPosition.getDirection(),
+                        viableAgentPosition.getDirection().getInverse(),
+                        LevelService.getInstance().manhattanDistance(
+                                viableAgentPosition.getPosition(),
+                                agentStartPosition
+                        )
                 );
                 actions.add(nextPullAction);
             }
         }
+
         return actions;
     }
 }
