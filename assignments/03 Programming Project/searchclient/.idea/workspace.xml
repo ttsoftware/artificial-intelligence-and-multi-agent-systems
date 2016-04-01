@@ -2,42 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f5520fb-91a9-499d-9500-6a111ad9c591" name="Default" comment="">
-<<<<<<< HEAD
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/dtu/agency/planners/HTNPlannerTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/resources/SAD1_goto_box.lvl" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/resources/SAD1_move_box.lvl" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/MoveAction.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/MoveAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PullAction.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PullAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PushAction.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PushAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/board/BoardObject.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/BoardObject.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Position.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Position.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/ConcretePlan.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/ConcretePlan.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/HTNPlan.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/HTNPlan.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/MixedPlan.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/MixedPlan.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PrimitivePlan.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PrimitivePlan.java" />
-=======
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/GotoAction.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/GotoAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/HLAction.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/HLAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/MoveBoxAction.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/MoveBoxAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/Effect.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/Effect.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/HTNEffect.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/HTNEffect.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNNode.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java" afterPath="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java" />
-<<<<<<< HEAD
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/dtu/agency/ProblemMarshallerTest.java" afterPath="$PROJECT_DIR$/src/test/java/dtu/agency/ProblemMarshallerTest.java" />
-=======
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
     </list>
     <ignored path="searchclient.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -60,12 +25,12 @@
     <favorites_list name="searchclient" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="HTNPlannerTest.java" pinned="false" current-in-tab="false">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="HTNPlannerTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/dtu/agency/planners/HTNPlannerTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="27" column="77" selection-start-line="27" selection-start-column="77" selection-end-line="27" selection-end-column="77" />
+            <state vertical-scroll-proportion="0.47504026">
+              <caret line="24" column="16" selection-start-line="24" selection-start-column="16" selection-end-line="24" selection-end-column="16" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -83,10 +48,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HTNPlanner.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="HTNPlanner.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3043478">
+            <state vertical-scroll-proportion="0.0">
               <caret line="69" column="10" selection-start-line="69" selection-start-column="10" selection-end-line="69" selection-end-column="10" />
               <folding />
             </state>
@@ -137,7 +102,6 @@
         <option value="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/Action.java" />
         <option value="$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/NoAction.java" />
         <option value="$PROJECT_DIR$/src/main/java/dtu/agency/board/Level.java" />
-<<<<<<< HEAD
         <option value="$PROJECT_DIR$/src/test/java/dtu/agency/agent/AgentThreadTest.java" />
         <option value="$PROJECT_DIR$/src/test/resources/SAD1_goto_box.lvl" />
         <option value="$PROJECT_DIR$/src/test/resources/SAD1_move_box.lvl" />
@@ -165,22 +129,6 @@
         <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNNode.java" />
         <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java" />
         <option value="$PROJECT_DIR$/src/test/java/dtu/agency/planners/HTNPlannerTest.java" />
-=======
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/MixedPlan.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/board/Position.java" />
-        <option value="$PROJECT_DIR$/src/test/java/dtu/agency/agent/AgentThreadTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNNode.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/HLAction.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/GotoAction.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/HTNEffect.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/Effect.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/MoveBoxAction.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java" />
-        <option value="$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
       </list>
     </option>
   </component>
@@ -232,7 +180,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -586,7 +533,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-<<<<<<< HEAD
               <option name="myItemId" value="preconditions" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -629,8 +575,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-=======
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
               <option name="myItemId" value="effects" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -665,7 +609,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-<<<<<<< HEAD
               <option name="myItemId" value="board" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -734,8 +677,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-=======
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
               <option name="myItemId" value="agent" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -746,12 +687,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-<<<<<<< HEAD
-=======
       <pane id="Scratches" />
-      <pane id="Scope" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1402,18 +1339,12 @@
       <workItem from="1458889579299" duration="23156000" />
       <workItem from="1459017466148" duration="13760000" />
       <workItem from="1459431739738" duration="5078000" />
-<<<<<<< HEAD
       <workItem from="1459492115935" duration="18728000" />
-=======
-      <workItem from="1459448490095" duration="971000" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
+      <workItem from="1459512303770" duration="30000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="HTNPlannerTest - 2016.04.01 at 12h 21m 06s.xml">
-      <configuration name="HTNPlannerTest" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="HTNPlannerTest - 2016.04.01 at 12h 38m 54s.xml">
       <configuration name="HTNPlannerTest" configurationId="JUnit" />
     </history-entry>
@@ -1441,13 +1372,12 @@
     <history-entry file="HTNPlannerTest - 2016.04.01 at 13h 46m 27s.xml">
       <configuration name="HTNPlannerTest" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="HTNPlannerTest - 2016.04.01 at 14h 05m 11s.xml">
+      <configuration name="HTNPlannerTest" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-<<<<<<< HEAD
-    <option name="totallyTimeSpent" value="78842000" />
-=======
-    <option name="totallyTimeSpent" value="61085000" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
+    <option name="totallyTimeSpent" value="78872000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1080" y="474" width="1920" height="1056" extended-state="6" />
@@ -1511,6 +1441,14 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/searchclient/SearchClient.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1522,12 +1460,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/searchclient/Node.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-<<<<<<< HEAD
           <caret line="118" column="49" selection-start-line="118" selection-start-column="49" selection-end-line="118" selection-end-column="49" />
-          <folding />
-=======
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
@@ -1548,13 +1481,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/Direction.java">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
         <state vertical-scroll-proportion="0.5643243">
           <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
-=======
-        <state vertical-scroll-proportion="0.0">
-          <caret line="118" column="49" selection-start-line="118" selection-start-column="49" selection-end-line="118" selection-end-column="49" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
@@ -1592,10 +1520,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.9416216">
           <caret line="71" column="51" selection-start-line="71" selection-start-column="51" selection-end-line="71" selection-end-column="51" />
-          <folding>
-            <element signature="e#2312#2313#0" expanded="false" />
-            <element signature="e#2395#2396#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1627,7 +1551,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.05901639">
           <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1635,9 +1558,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.64918035">
           <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1645,7 +1565,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1658,13 +1577,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.idea/artifacts/The_Agency_jar.xml">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-=======
-        <state vertical-scroll-proportion="0.35027027">
-          <caret line="22" column="23" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
@@ -1679,10 +1593,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.14754099">
           <caret line="5" column="24" selection-start-line="5" selection-start-column="24" selection-end-line="5" selection-end-column="24" />
-          <folding>
-            <element signature="e#112#113#0" expanded="false" />
-            <element signature="e#145#146#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1690,22 +1600,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3327869">
           <caret line="54" column="57" selection-start-line="54" selection-start-column="57" selection-end-line="54" selection-end-column="57" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
         <state vertical-scroll-proportion="0.3327869">
           <caret line="72" column="72" selection-start-line="72" selection-start-column="72" selection-end-line="72" selection-end-column="72" />
           <folding />
-=======
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="38" selection-start-line="10" selection-start-column="38" selection-end-line="10" selection-end-column="38" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
@@ -1713,7 +1615,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="6" column="17" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1729,14 +1630,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/POPPlan.java">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
         <state vertical-scroll-proportion="0.0">
           <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-          <folding />
-=======
-        <state vertical-scroll-proportion="0.23351352">
-          <caret line="12" column="58" selection-start-line="12" selection-start-column="58" selection-end-line="12" selection-end-column="58" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
@@ -1744,19 +1639,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.05837838">
           <caret line="3" column="35" selection-start-line="3" selection-start-column="35" selection-end-line="3" selection-end-column="35" />
-          <folding>
-            <element signature="e#118#119#0" expanded="true" />
-            <element signature="e#156#157#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/board/BoardCell.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.03891892">
           <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1764,10 +1653,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.84432435">
           <caret line="115" column="19" selection-start-line="115" selection-start-column="19" selection-end-line="115" selection-end-column="19" />
-          <folding>
-            <element signature="e#1190#1191#0" expanded="true" />
-            <element signature="e#1279#1280#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1791,14 +1676,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/Effect.java">
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/board/Position.java">
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.20289855">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
@@ -1806,12 +1687,10 @@
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/PushAction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="50" column="0" selection-start-line="47" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1819,7 +1698,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="47" column="0" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1827,21 +1705,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33333334">
           <caret line="234" column="18" selection-start-line="234" selection-start-column="18" selection-end-line="234" selection-end-column="18" />
-          <folding>
-            <element signature="e#10065#10066#0" expanded="false" />
-            <element signature="e#10148#10149#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/Plan.java">
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/board/BoardObject.java">
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1849,20 +1719,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/MoveAction.java">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
         <state vertical-scroll-proportion="0.0">
           <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
-          <folding />
-=======
-        <state vertical-scroll-proportion="0.8081967">
-          <caret line="39" column="110" selection-start-line="39" selection-start-column="110" selection-end-line="39" selection-end-column="110" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
@@ -1891,31 +1754,20 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="4" column="22" selection-start-line="4" selection-start-column="22" selection-end-line="4" selection-end-column="22" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/agent/actions/NoAction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-<<<<<<< HEAD
           <caret line="22" column="23" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
-          <folding>
-            <element signature="e#417#418#0" expanded="true" />
-            <element signature="e#448#449#0" expanded="true" />
-          </folding>
-=======
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/HLAction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-<<<<<<< HEAD
           <caret line="31" column="49" selection-start-line="31" selection-start-column="49" selection-end-line="31" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1923,21 +1775,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
-=======
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/dtu/agency/agent/AgentThreadTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="17" column="6" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="6" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
           <folding />
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNNode.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1945,56 +1786,22 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#5407#5408#0" expanded="true" />
-            <element signature="e#5436#5437#0" expanded="true" />
             <element signature="e#5481#5482#0" expanded="true" />
-            <element signature="e#5517#5518#0" expanded="true" />
             <element signature="e#5550#5551#0" expanded="true" />
-            <element signature="e#5579#5580#0" expanded="true" />
             <element signature="e#5623#5624#0" expanded="true" />
-            <element signature="e#5659#5660#0" expanded="true" />
             <element signature="e#5695#5696#0" expanded="true" />
-            <element signature="e#5724#5725#0" expanded="true" />
             <element signature="e#5771#5772#0" expanded="true" />
-            <element signature="e#5807#5808#0" expanded="true" />
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/agent/AgentThread.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="54" column="58" selection-start-line="54" selection-start-column="58" selection-end-line="54" selection-end-column="58" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="164" column="57" selection-start-line="164" selection-start-column="57" selection-end-line="164" selection-end-column="57" />
-          <folding>
-            <element signature="e#6597#6598#0" expanded="true" />
-            <element signature="e#6628#6629#0" expanded="true" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
-          </folding>
-        </state>
-      </provider>
-    </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/PrimitivePlan.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3768116">
           <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/services/LevelService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="156" column="18" selection-start-line="156" selection-start-column="18" selection-end-line="156" selection-end-column="18" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
-          <folding />
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/MoveBoxAction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.4057971">
@@ -2005,102 +1812,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/dtu/agency/planners/HTNPlannerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="27" column="77" selection-start-line="27" selection-start-column="77" selection-end-line="27" selection-end-column="77" />
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/Effect.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.097297296">
-          <caret line="5" column="36" selection-start-line="5" selection-start-column="36" selection-end-line="5" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/effects/HTNEffect.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.64216214">
-          <caret line="37" column="29" selection-start-line="37" selection-start-column="29" selection-end-line="37" selection-end-column="29" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNNode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/GotoAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.89513516">
-          <caret line="63" column="47" selection-start-line="63" selection-start-column="47" selection-end-line="63" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/HLAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="30" column="76" selection-start-line="30" selection-start-column="76" selection-end-line="30" selection-end-column="76" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/actions/MoveBoxAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="85" column="32" selection-start-line="85" selection-start-column="32" selection-end-line="85" selection-end-column="32" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/test/resources/SAD1_goto_box.lvl">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/board/Wall.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.14754099">
-          <caret line="5" column="24" selection-start-line="5" selection-start-column="24" selection-end-line="5" selection-end-column="24" />
-          <folding>
-            <element signature="e#112#113#0" expanded="true" />
-            <element signature="e#145#146#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/PartialOrderPlanner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.14754099">
-          <caret line="5" column="33" selection-start-line="5" selection-start-column="33" selection-end-line="5" selection-end-column="33" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
           <folding />
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/planners/htn/HTNPlanner.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3043478">
+        <state vertical-scroll-proportion="0.0">
           <caret line="69" column="10" selection-start-line="69" selection-start-column="10" selection-end-line="69" selection-end-column="10" />
-=======
-    <entry file="file://$PROJECT_DIR$/src/main/java/dtu/agency/ProblemMarshaller.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.1535136">
-          <caret line="72" column="72" selection-start-line="72" selection-start-column="72" selection-end-line="72" selection-end-column="72" />
->>>>>>> 11da1f086dd1ffa03f9e67231f4cd0fd2f765bea
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/dtu/agency/planners/HTNPlannerTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.47504026">
+          <caret line="24" column="16" selection-start-line="24" selection-start-column="16" selection-end-line="24" selection-end-column="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
