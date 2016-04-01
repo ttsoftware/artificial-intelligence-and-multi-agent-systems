@@ -28,4 +28,13 @@ public class BoardObject implements Serializable {
         this.position = position;
     }
 
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append(getLabel());
+        s.append("@");
+        s.append(getPosition().toString());
+        return s.toString();
+    }
+
+
 }

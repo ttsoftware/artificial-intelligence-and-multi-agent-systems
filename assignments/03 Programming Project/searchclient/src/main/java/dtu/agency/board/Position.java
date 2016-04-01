@@ -107,4 +107,13 @@ public class Position implements Serializable {
         }
     }
 
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("(");
+        s.append(Integer.toString(getRow()));
+        s.append(",");
+        s.append(Integer.toString(getColumn()));
+        s.append(")");
+        return s.toString();
+    }
 }

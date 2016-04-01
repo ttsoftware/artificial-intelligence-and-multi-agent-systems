@@ -25,4 +25,8 @@ public class PrimitivePlan implements ConcretePlan {
     public Action removeFirst() { return actions.removeFirst(); }
     public Action removeLast() { return actions.removeLast(); }
 
+    @Override
+    public String toString() {
+        return "PrimitivePlan:"+getActions().toString();
+    }
 }

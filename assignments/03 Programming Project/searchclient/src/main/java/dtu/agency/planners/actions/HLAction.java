@@ -1,6 +1,7 @@
 package dtu.agency.planners.actions;
 
 import dtu.agency.AbstractAction;
+import dtu.agency.agent.actions.NoAction;
 import dtu.agency.board.Level;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
@@ -24,10 +25,23 @@ public abstract class HLAction extends AbstractAction implements Serializable {
     }
 
     // mads: preconditions could be checked by functions, ensuring the effects and levels
-    public abstract boolean checkPreconditions(Level level, HTNEffect effect);
+    public abstract boolean checkPreconditions( HTNEffect effect );
+
+    public abstract boolean isPurposeFulfilled( HTNEffect effect );
+
+    protected ArrayList<MixedPlan> doneRefinement() {
+        ArrayList<MixedPlan> refinements = new ArrayList<>();
+        MixedPlan refinement = new MixedPlan();
+        refinement.addAction( new NoAction() );
+        refinements.add(refinement);
+        return refinements;
+    }
+
 
     // Any High Level Action can be refined, as per the Hierarchical Task Network (HTN) approach
     //public abstract List<List<AbstractAction>> getRefinements();
-    public abstract ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level);
+    public abstract ArrayList<MixedPlan> getRefinements(HTNEffect priorState);
 
+    @Override
+    public abstract String toString();
 }

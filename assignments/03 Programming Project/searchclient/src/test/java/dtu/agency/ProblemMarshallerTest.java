@@ -4,10 +4,7 @@ import dtu.agency.board.BoardCell;
 import dtu.agency.board.Level;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,9 +13,10 @@ public class ProblemMarshallerTest {
     @Test
     public void testMarshall() throws IOException {
 
-        String filePath = "/home/troels/Studie/DTU/artificial intelligence and multi-agent systems/assignments/03 Programming Project/searchclient/levels/SAD1.lvl";
+        File resourcesDirectory = new File("src/test/resources");
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
 
-        FileInputStream inputStream = new FileInputStream(filePath);
+        FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
 
         // Parse the level
@@ -28,5 +26,6 @@ public class ProblemMarshallerTest {
         assertEquals(level.getBoardState()[0].length, 19);
         assertEquals(level.getBoardState()[0][0], BoardCell.WALL);
         assertEquals(level.getBoardState()[1][1], BoardCell.AGENT);
+
     }
 }

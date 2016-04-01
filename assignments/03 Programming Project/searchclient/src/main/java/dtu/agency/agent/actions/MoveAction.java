@@ -26,7 +26,9 @@ public class MoveAction extends Action {
         Position oldAgentPos = oldState.getAgentPosition();
         Position newAgentPos = new Position(oldAgentPos, direction);
         Position boxPos = oldState.getBoxPosition();
-        return new HTNEffect(newAgentPos, boxPos);
+
+        HTNEffect result = new HTNEffect(newAgentPos, boxPos);
+        return result.isLegal() ? result : null;
     }
 
     public Direction getDirection() {

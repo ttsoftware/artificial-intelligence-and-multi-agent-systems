@@ -70,7 +70,7 @@ public class ProblemMarshaller {
                 if ('+' == cell) {
                     // Its a wall cell
                     String label = String.valueOf(cell) + Integer.toString(wallCount);
-                    Wall wall = new Wall(label);
+                    Wall wall = new Wall(label, new Position(row, column));
                     walls.add(wall);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.WALL;

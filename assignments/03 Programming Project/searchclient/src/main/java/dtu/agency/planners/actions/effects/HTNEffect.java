@@ -3,6 +3,7 @@ package dtu.agency.planners.actions.effects;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.services.LevelService;
 
 /**
  * Created by Mads on 3/22/16.
@@ -42,13 +43,32 @@ public class HTNEffect extends Effect {
     }
 
     @Override
-    public boolean isLegal(Level level) {
+    public boolean isLegal() {
         boolean valid = true;
-        valid &= level.notWall(this.getAgentPosition());
-        valid &= level.notWall(this.getBoxPosition());
+        valid &= getAgentPosition()!=getBoxPosition();
+        valid &= LevelService.getInstance().getLevel().notWall(this.getAgentPosition());
+        valid &= LevelService.getInstance().getLevel().notWall(this.getBoxPosition());
         return valid;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("HTNEffect:[Agent:");
+        if (getAgentPosition()!= null) {
+            s.append(getAgentPosition().toString());
+        } else {
+            s.append("null");
+        }
+        s.append(", Box:");
+        if (getBoxPosition()!= null) {
+            s.append(getBoxPosition().toString());
+        } else {
+            s.append("null");
+        }
+        s.append("]");
+        return s.toString();
+    }
 
     public Direction getDirectionToBox() { // returns the direction from agent to box
         return agentPosition.getDirectionTo(boxPosition);

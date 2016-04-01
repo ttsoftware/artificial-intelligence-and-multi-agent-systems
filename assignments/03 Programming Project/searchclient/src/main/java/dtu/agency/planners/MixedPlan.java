@@ -35,4 +35,10 @@ public class MixedPlan implements AbstractPlan {
         actions.addAll(plan.getActions());
     }
     public boolean isEmpty() { return actions.isEmpty(); }
+
+    @Override
+    public String toString() {
+        return "MixedPlan:"+getActions().toString();
+    }
+
 }

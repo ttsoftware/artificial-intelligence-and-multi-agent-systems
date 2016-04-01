@@ -42,64 +42,98 @@ public class MoveBoxAction extends HLAction {
     }
 
     @Override
-    public boolean checkPreconditions(Level level, HTNEffect effect) {
+    public boolean checkPreconditions( HTNEffect effect) {
+        System.err.print("Check Preconditions Not Implemented!");
         return false;
     }
 
     @Override
-    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level) {
+    public boolean isPurposeFulfilled(HTNEffect effect) {
+        if (effect.getBoxPosition().equals(this.finalDestination)) { //
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState) {
+        System.err.println("MoveBoxAction.getRefinements - Initial" + priorState.toString());
+        if (isPurposeFulfilled(priorState)) return doneRefinement();
 
         ArrayList<MixedPlan> refinements = new ArrayList<>();
-        MixedPlan refinement;
-        Action push, pull;
-        HTNEffect result;
 
-        if (!priorState.boxIsMovable()) { return refinements; }
+        if (!priorState.boxIsMovable()) {
+            System.err.println("Box not movable, empty refinements returned.");
+            return refinements;
+        }
+
         Direction dirToBox = priorState.getDirectionToBox();
-        // then can we check if push/pull  direction os valid before adding it??
-        // else leave it for someone else
+        System.err.println("direction to box: " + dirToBox.toString());
 
         // PUSH REFINEMENTS
         for (Direction dir : Direction.values()) {
-            refinement = new MixedPlan();
+            MixedPlan refinement = new MixedPlan();
+            Action push = new PushAction(targetBox, dirToBox, dir);
+            HTNEffect result = push.applyTo(priorState);
+            if (result == null) continue; // then the action was illegal !
 
-            push = new PushAction(targetBox, dirToBox, dir);
-            result = push.applyTo(priorState);
-            if (!result.isLegal(level)) continue;
+            // print the action along with its result (only after validated)
+            //System.err.println("Action:" + push.toString() + ", " + result.toString());
 
-            // check if any of the resulting states fulfills this HLActions target,
-            // and if so, return only the action which does!
             refinement.addAction(push);
-            if (!result.getBoxPosition().equals(this.finalDestination)) { //
-                refinement.addAction(this);
-            } // if not, add this abstract action again
+            refinement.addAction(this);
+
+            //System.err.println(refinement.toString());
 
             refinements.add(refinement);
         }
 
         // PULL REFINEMENTS
         for (Direction dir : Direction.values()) {
-            refinement = new MixedPlan();
+            MixedPlan refinement = new MixedPlan();
+            Action pull = new PullAction(targetBox, dir, dirToBox);
+            HTNEffect result = pull.applyTo(priorState);
+            if (result == null) continue; // then the action was illegal !
 
-            pull = new PullAction(targetBox, dir, dirToBox);
-            result = pull.applyTo(priorState);
-            if (!result.isLegal(level)) continue;
+            // print the action along with its result (only after validated)
+            //System.err.println("Action:" + pull.toString() + ", Result:" + result.toString());
 
             // check if any of the resulting states fulfills this HLActions target,
             // and if so, return only the action which does!
             refinement.addAction(pull);
-            if (!result.getBoxPosition().equals(this.finalDestination)) { //
-                refinement.addAction(this);
-            } // if not, add this abstract action again
+            refinement.addAction(this);
 
             refinements.add(refinement);
         }
 
-        // else shuffle and return all refinements
-        long seed = System.nanoTime();
-        Collections.shuffle(refinements, new Random(seed));
+        // else shuffle (NO done in HTNNODE) and return all refinements
+        // long seed = System.nanoTime();
+        // Collections.shuffle(refinements, new Random(seed));
+        System.err.println(refinements.toString());
 
         return refinements;
+    }
+
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("MoveBoxAction(");
+        if (getBox()!=null) {
+            s.append(getBox().toString());
+        } else {
+            s.append("null");
+        }
+        s.append(",");
+        if (getGoal() != null) {
+            s.append(getGoal().toString());
+        } else {
+            if (getDestination() != null) {
+                s.append(getDestination().toString());
+            } else {
+                s.append("null");
+            }
+        }
+        s.append(")");
+        return s.toString();
     }
 
 }

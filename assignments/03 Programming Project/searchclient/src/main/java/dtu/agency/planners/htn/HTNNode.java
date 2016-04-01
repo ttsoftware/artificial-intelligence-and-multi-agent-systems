@@ -1,30 +1,18 @@
 package dtu.agency.planners.htn;
 
-import com.sun.org.apache.xerces.internal.dom.ChildNode;
 import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.board.Level;
-import dtu.agency.planners.AbstractPlan;
-import dtu.agency.planners.HTNPlan;
+import dtu.agency.agent.actions.NoAction;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.HLAction;
 import dtu.agency.planners.actions.effects.HTNEffect;
-import dtu.searchclient.Command;
-import dtu.searchclient.Command.dir;
-import dtu.searchclient.Command.type;
-import javafx.util.Pair;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Random;
 
 public class HTNNode {
-
-    // REALLY NEEDS SOME ATTENTION - SHOULD BE REVISITED FROM START TO END!
-    // Builds on Node from SearchClient, which is quite unlike what this should be like...
-
-
-    // public static Map<HTNEffect,boolean> visitedEffects = new HashMap<>(); // in strategy instead?!
 
     private static Random rnd = new Random(1);
 
@@ -50,55 +38,57 @@ public class HTNNode {
         return this.parent == null;
     }
 
-    public ArrayList<HTNNode> getRefinementNodes(Level level) {
+    public ArrayList<HTNNode> getRefinementNodes() {
+        System.err.println("HTNNode: getting refinements");
 
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
-        if (this.remainingActions.isEmpty()) {return refinementNodes;}
+        if (this.remainingActions.isEmpty()) {
+            System.err.println("No more remaining actions, returning empty list of refinements");
+            return refinementNodes;
+        }
 
         AbstractAction nextAction = remainingActions.removeFirst();
 
         if (nextAction instanceof Action) { // case the action is primitive, add it as only node,
+            System.err.println("Next action is Primitive, thus a single ChildNode is created");
             Action primitive = (Action) nextAction;
-            HTNNode only = childNode( primitive, this.remainingActions, level ); // is remainingActions correct?? has first been removed??
+            HTNNode only = childNode( primitive, this.remainingActions ); // is remainingActions correct?? has first been removed??
             if (only != null) { refinementNodes.add(only);}
+            System.err.println(refinementNodes.toString());
             return refinementNodes;
         }
 
         if (nextAction instanceof HLAction) { // case the action is high level, get the refinements from the action
+            System.err.println("Next action is High Level, thus a we seek refinements to it:");
             HLAction highLevelAction = (HLAction) nextAction;
-            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getEffect(), level);
-            // go nuts!
-            Action first;
-            HTNNode nextNode;
+            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getEffect());
+            System.err.println(refs.toString());
+
             for (MixedPlan refinement : refs) {
-                first = null; // remains null iff first action is abstract
+
+                Action first = null; // remains null iff first action is abstract
+
                 if (refinement.getFirst() instanceof Action) {
                     first = (Action) refinement.removeFirst();
                 }
                 refinement.extend(remainingActions);
-                nextNode = childNode( first, refinement, level );
+
+                HTNNode nextNode = childNode(first, refinement);
+
                 if (nextNode != null) {
                     refinementNodes.add(nextNode);
                 }
             }
-
-            //get refinements
-            // make sure to check if next's subgoal is reached by any of the refinements -- ?? how ?? store subgoal in hlaction??
         }
 
         Collections.shuffle(refinementNodes, rnd);
         return refinementNodes;
     }
 
-    private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions, Level level) {
+    private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions) {
         HTNEffect oldState = this.getEffect();
         HTNEffect newState = primitiveAction.applyTo(oldState);
-
-        // maybe postpone this check until HTNPlanner picks the Node??
-        // could be moved inside getRefinements, and spare iteration of illegal nodes.
-        // Then we will have the level available
-
         return new HTNNode(this, primitiveAction, newState, remainingActions);
     }
 
@@ -108,7 +98,7 @@ public class HTNNode {
         Action previous;
         while (!n.isInitialNode()) {
             previous = n.getAction();
-            if (previous != null) plan.addFirst(previous);
+            if ((previous != null) && !(previous instanceof NoAction)) plan.addFirst(previous);
             n = n.getParent();
         }
         return new PrimitivePlan(plan);
@@ -148,19 +138,11 @@ public class HTNNode {
 
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("HTNNode: \n");
-        s.append("Level :");
-        s.append(Integer.toString(this.g));
-        s.append("\n");
-        s.append("Action :");
-        s.append(this.action.toString());
-        s.append("\n");
-        s.append("Effect :");
-        s.append(this.effect.toString());
-        s.append("\n");
-        s.append("RemainingActions :");
-        s.append(this.remainingActions.toString());
-        s.append("\n");
+        s.append("HTNNode: {");
+        s.append("Generation: " + Integer.toString(this.g));
+        s.append(", Action: " + ((action!=null) ? action.toString() : "null") );
+        s.append(", Effect: " + this.effect.toString() + ",\n");
+        s.append("          RemainingActions: " + this.remainingActions.toString() + "}" );
         return s.toString();
     }
 

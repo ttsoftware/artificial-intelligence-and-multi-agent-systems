@@ -52,7 +52,7 @@ public class AgentThread implements Runnable {
         Goal goal = event.getGoal();
 
         // HTN plan?
-        HTNPlanner htnPlanner = new HTNPlanner(this.agent, level, goal);
+        HTNPlanner htnPlanner = new HTNPlanner(this.agent, goal);
         HTNPlan plan = htnPlanner.getBestPlan();
 
         htnPlans.put(goal.getLabel(), plan);

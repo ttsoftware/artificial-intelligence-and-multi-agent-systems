@@ -2,7 +2,9 @@ package dtu.agency.planners.htn;
 
 
 import dtu.Main;
+import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.Action;
+import dtu.agency.agent.actions.NoAction;
 import dtu.agency.board.*;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
@@ -14,6 +16,7 @@ import dtu.agency.planners.htn.heuristic.AStarHeuristic;
 import dtu.agency.planners.htn.heuristic.Heuristic;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
+import dtu.agency.services.LevelService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,59 +37,77 @@ public class HTNPlanner {
 
 
 
+    private Agent agent;
     public HTNNode initialNode;         // first node... ?
     ArrayList<HTNPlan> allPlans;        // list of all possible plans to solve the goal
     private HTNPlan bestPlan;           // High level actions only
-    private PrimitivePlan moveBoxPlan;  // Low level (primitive) actions only
+    //private PrimitivePlan moveBoxPlan;  // Low level (primitive) actions only
     private Goal finalGoal;             // to check goal state
-    private Level level;                // to check goal state
 
-    public HTNPlanner(Agent agent, Level level, Goal target ){
+    public HTNPlanner(Agent agent, Goal target ){
+        this.agent = agent;
+        this.finalGoal = target;
 
         // Use stderr to print to console
         System.err.println("HTN Planner initializing.");
 
-        this.finalGoal = target;
-        this.level = level;
+        //System.err.println("Agent Found at: " + agent.toString());
+        //System.err.println("Goal  Found at: " + finalGoal.toString());
 
-        this.allPlans = createAllPlans(level, target);
+        this.allPlans = createAllPlans(target);
+        //System.err.println("All Plans Generated: " + allPlans.toString());
 
-        this.bestPlan = findShorterPlan(agent, allPlans);
-        // could as well sort them, so that they can be polled one at a time
-        Box targetBox = bestPlan.getMoveBoxAction().getBox();
-
-        // The rest is for implementation of complete HTN planning to primitive actions
-        // define strategy and heuristic - may be injected or set in a different location, main for instance
-
-        // setting general HTNNode settings with copies of the initial state
-
-        // formulate the separation of problems ,// necessary??
-        // NOT Necessary!! The effect should 'spill' from node to node, so when MovetoAction is reached,
-        // it can be injected, heuristic should be sum of high level actions... it should be possible
-        HTNEffect initialEffect = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
-        initialNode = new HTNNode(null, null, initialEffect, new MixedPlan( bestPlan.getActions() ) );
-
-        Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, target);
-        Strategy strategy = new BestFirstStrategy(heuristic);
-
-        moveBoxPlan = plan(strategy);
-
+        rePlan();  // could as well sort them, so that they can be polled one at a time - NO! search linearly, as expected time is O(N)
+        System.err.println("BestPlan found:" + bestPlan.toString());
     }
 
-    public PrimitivePlan getMoveBoxPlan() {
-        return moveBoxPlan;
+    private ArrayList<HTNPlan> createAllPlans(Goal target) {
+        // find all boxes that correspond to goal
+        // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
+        // store this list of 'HTNPlans' to be retrieved by a method
+        ArrayList<HTNPlan> allPlans = new ArrayList<>();
+        ArrayList<Box> boxes = new ArrayList<>();
+        //System.err.println("Creating All Plans: ");
+
+        for (Box b : LevelService.getInstance().getLevel().getBoxes() ) {
+            if ( b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase()) ) {
+                boxes.add(b);
+            }
+        }
+        //System.err.println("Boxes found: ");
+        //System.err.println(boxes.toString());
+
+        for (Box b : boxes) {
+
+            GotoAction gta = new GotoAction(b);
+            //System.err.println("GotoAction created: ");
+            //System.err.println(gta.toString());
+
+            MoveBoxAction mba = new MoveBoxAction(b, target);
+            //System.err.println("MoveBoxAction created: ");
+            //System.err.println(mba.toString());
+
+            allPlans.add(new HTNPlan(gta, mba));
+        }
+        //System.err.println("AllPlans created: ");
+        //System.err.println(allPlans.toString());
+        return allPlans;
     }
 
-    private HTNPlan findShorterPlan(Agent agent, ArrayList<HTNPlan> allplans) {
+    private void rePlan() {
         Position a = agent.getPosition();
-        HTNPlan bestPlan = allplans.get(0);
+        if (allPlans.isEmpty()) {
+            this.bestPlan = null;
+            return;
+        }
+        HTNPlan bestPlan = allPlans.get(0);
 
         Box targetBox;
         Goal target;
         int minDist;
         int bestHeuristic = Integer.MAX_VALUE;
 
-        for (HTNPlan plan : allplans) {
+        for (HTNPlan plan : allPlans) {
             targetBox = plan.getMoveBoxAction().getBox();
             target = plan.getMoveBoxAction().getGoal();
 
@@ -97,46 +118,32 @@ public class HTNPlanner {
                 bestPlan = plan;
             }
         }
-        return bestPlan;
+        allPlans.remove(bestPlan);
+        this.bestPlan = bestPlan;
     }
-
-    private ArrayList<HTNPlan> createAllPlans(Level level, Goal target) {
-        // find all boxes that correspond to goal
-        // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
-        // store this list of 'HTNPlans' to be retrieved by a method
-        ArrayList<HTNPlan> allPlans = new ArrayList<>();
-        ArrayList<Box> boxes = new ArrayList<>();
-
-        for (Box b : level.getBoxes() ) {
-            if ( b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase()) ) {
-                boxes.add(b);
-            }
-        }
-
-        HTNPlan tempPlan;
-        for (Box b : boxes) {
-            tempPlan = new HTNPlan(new GotoAction(b), new MoveBoxAction(b, target));
-            allPlans.add(tempPlan);
-            tempPlan.clearActions();
-        }
-        return allPlans;
-    }
-
 
     public boolean isGoalState (HTNNode node) {
         return finalGoal.getPosition().equals( node.getEffect().getBoxPosition() );
     }
 
-    //public PrimitivePlan plan(Strategy strategy) throws IOException {
-    public PrimitivePlan plan(Strategy strategy) {
+    public PrimitivePlan plan() { // may return null if no plan is found!
+        Box targetBox = bestPlan.getMoveBoxAction().getBox();
+
+        HTNEffect initialEffect = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
+
+        initialNode = new HTNNode(null, null, initialEffect, new MixedPlan(bestPlan.getActions()) );
+
+        Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, finalGoal);
+        Strategy strategy = new BestFirstStrategy(heuristic);
+
         System.err.format("HTN plan starting with strategy %s\n", strategy);
         strategy.addToFrontier(initialNode);
 
         int iterations = 0;
         while(true) {
-            if (iterations % Main.printIterations == 0) {
+            //if (iterations % Main.printIterations == 0) {
                 System.err.println(strategy.status());
-            }
+            //}
 
             if (Memory.shouldEnd()) {
                 System.err.format("Memory limit almost reached, terminating search %s\n", Memory.stringRep());
@@ -149,25 +156,42 @@ public class HTNPlanner {
             }
 
             if (strategy.frontierIsEmpty()) {
+                System.err.format("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 return null;
             }
 
             HTNNode leafNode = strategy.getAndRemoveLeaf();
+            System.err.println(leafNode.toString());
 
-            if (strategy.isExplored(leafNode.getEffect()) ) { continue; } // reject nodes resulting in states visited already
+            if ( strategy.isExplored(leafNode.getEffect()) ) {
+                if (leafNode.getAction() instanceof NoAction) {
+                    // check for progression
+                    HTNNode n;
+                    boolean noProgression = true;
+                    for (int i = 0 ; i < 5 ; i++) {
+                        n = leafNode.getParent();
+                        noProgression &= (n.getAction() instanceof NoAction);
+                    }
+                    if (noProgression) continue;
+                } else {
+                    System.err.println("Effect already explored! skipping this node");
+                    continue;
+                }
+            } // reject nodes resulting in states visited already
 
             if (isGoalState(leafNode)) {
+                System.err.println("GOOOAAAAAAAALLL!!!!!");
                 return leafNode.extractPlan();
             }
 
             strategy.addToExplored(leafNode.getEffect());
 
             // beginning
-            for (HTNNode n : leafNode.getRefinementNodes(level)) {
+            for (HTNNode n : leafNode.getRefinementNodes()) {
                 // The list of expanded nodes is shuffled randomly; see Node.java
                 // and it might be empty!
-                if (strategy.isExplored(n.getEffect()) ) { continue; } // reject/ignore nodes resulting in states visited already
-                if (strategy.inFrontier(n)) { continue; }              // check if node is already in frontier ?? but how could it be??
+                //if (strategy.isExplored(n.getEffect()) ) { continue; } // reject/ignore nodes resulting in states visited already
+                //if (strategy.inFrontier(n)) { continue; }              // check if node is already in frontier ?? but how could it be??
 
                 strategy.addToFrontier(n);
             }

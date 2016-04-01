@@ -45,8 +45,9 @@ public class PullAction extends Action {
         valid &= newAgentPos.isNeighbour(newBoxPos);   // box and agent are still neighbours in posterior state
         // should the actual box be a part of the effect??
         // we do not have access to level, thus we cannot check box label.
-
-        return (valid) ? new HTNEffect(newAgentPos, newBoxPos) : null;
+        HTNEffect result = new HTNEffect(newAgentPos, newBoxPos);
+        valid &= result.isLegal();
+        return (valid) ? result : null;
     }
 
     public Box getBox() {

@@ -3,6 +3,7 @@ package dtu.agency.planners.actions;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.agent.actions.NoAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
@@ -41,44 +42,67 @@ public class GotoAction extends HLAction implements Serializable {
     }
 
     @Override
-    public boolean checkPreconditions(Level level, HTNEffect effect) {
+    public boolean checkPreconditions(HTNEffect effect) {
+        System.err.print("Check Preconditions Not Implemented!");
         return false;
     }
 
     @Override
-    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState, Level level) {
-        ArrayList<MixedPlan> refinements = new ArrayList<>();
-        MixedPlan refinement;
-        Action move;
-        HTNEffect result;
-        for (Direction dir : Direction.values()) {
-            refinement = new MixedPlan();
-            move = new MoveAction(dir);
-            refinement.addAction(move);
-            result = move.applyTo(priorState);
-            // check if any of the resulting states fulfills this HLActions target,
-            // and if so, return only the action which does!
-            if (this.targetBox == null) { // no box, agent should end up at finalDestination
-                if (!result.getAgentPosition().equals(this.finalDestination)) { //
-                    refinement.addAction(this);
-                }
-            } else { // box target, agent should end up at neighbouring cell
-                if (!result.getAgentPosition().isNeighbour(this.finalDestination)) { //
-                    refinement.addAction(this);
-                }
-            } // if not, add this abstract action again
-
-            if (result.isLegal(level)) {
-                refinements.add(refinement);
-
+    public boolean isPurposeFulfilled(HTNEffect effect) {
+        boolean fulfilled = false;
+        if (this.targetBox == null) { // no box, agent should end up at finalDestination
+            if (effect.getAgentPosition().equals(this.finalDestination)) { //
+                fulfilled = true;
+            }
+        } else { // box target, agent should end up at neighbouring cell
+            if (effect.getAgentPosition().isNeighbour(this.finalDestination)) { //
+                fulfilled = true;
             }
         }
+        if (fulfilled) System.err.println("This HLAction " + this.toString() + " is fulfilled" );
+        return fulfilled;
+    }
 
-        // else shuffle and return all refinements
-        long seed = System.nanoTime();
-        Collections.shuffle(refinements, new Random(seed));
+    @Override
+    public ArrayList<MixedPlan> getRefinements(HTNEffect priorState) {
+        // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
+        System.err.println("GotoAction.getRefinements - Initial" + priorState.toString());
+        if (isPurposeFulfilled(priorState)) return doneRefinement();
+
+        ArrayList<MixedPlan> refinements = new ArrayList<>();
+
+        for (Direction dir : Direction.values()) {
+            MixedPlan refinement = new MixedPlan();
+            Action move = new MoveAction(dir);
+            HTNEffect result = move.applyTo(priorState);
+            if (result==null) continue; // illegal move, discard it
+            refinement.addAction(move);
+            refinement.addAction(this); // append this action again
+            refinements.add(refinement);
+        }
+
+        // else shuffle (no done in HTNNODE) and return all refinements
+        // long seed = System.nanoTime();
+        // Collections.shuffle(refinements, new Random(seed));
 
         return refinements;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("GotoAction(");
+        if (getTargetBox() != null) {
+            s.append(getTargetBox().toString());
+        } else {
+            if (getDestination() != null) {
+                s.append(getDestination().toString());
+            } else {
+                s.append("null");
+            }
+        }
+        s.append(")");
+        return s.toString();
     }
 
     public boolean equals(GotoAction o) {

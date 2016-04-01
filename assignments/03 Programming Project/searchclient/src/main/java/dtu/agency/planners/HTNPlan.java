@@ -12,11 +12,6 @@ public class HTNPlan {
     private GotoAction gotoAction;
     private MoveBoxAction moveBoxAction;
 
-    public HTNPlan() {
-        this.gotoAction = null;
-        this.moveBoxAction = null;
-    }
-
     public HTNPlan(GotoAction gta, MoveBoxAction mba) {
         this.gotoAction = gta;
         this.moveBoxAction = mba;
@@ -52,4 +47,23 @@ public class HTNPlan {
     }
 
     public boolean isEmpty() { return (this.gotoAction==null && this.moveBoxAction==null); }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("HTNPlan[");
+        if (getGotoAction()!=null) {
+            s.append(getGotoAction().toString());
+        } else {
+            s.append("null");
+        }
+        s.append(",");
+        if (getMoveBoxAction()!=null) {
+            s.append(getMoveBoxAction().toString());
+        } else {
+            s.append("null");
+        }
+        s.append("]");
+        return s.toString();
+    }
 }
