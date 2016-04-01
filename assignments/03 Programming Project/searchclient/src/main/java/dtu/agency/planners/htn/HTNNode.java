@@ -39,7 +39,7 @@ public class HTNNode {
     }
 
     public ArrayList<HTNNode> getRefinementNodes() {
-        System.err.println("HTNNode: getting refinements");
+        //System.err.println("HTNNode: getting refinements");
 
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
@@ -73,7 +73,6 @@ public class HTNNode {
                     first = (Action) refinement.removeFirst();
                 }
                 refinement.extend(remainingActions);
-
                 HTNNode nextNode = childNode(first, refinement);
 
                 if (nextNode != null) {

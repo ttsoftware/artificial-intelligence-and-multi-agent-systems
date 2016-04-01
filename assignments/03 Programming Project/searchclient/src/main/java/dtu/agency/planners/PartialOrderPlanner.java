@@ -4,7 +4,6 @@ import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.AbstractAction;
-
 import java.util.ArrayList;
 import java.util.List;
 

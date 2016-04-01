@@ -206,32 +206,3 @@ public class HTNPlanner {
     }
 }
 
-// usage:
-/*
-
-// Read level and create the initial state of the problem
-HTNPlanner planner = new HTNPlanner(agent, level, goal, box);
-strategy = new BestFirstStrategy(new WeightedAStarHeuristic(planner.initialState));
-LinkedList<HTNNode> solution = planner.plan(strategy);
-
-// from SearchClient
-if (solution == null) {
-    System.err.println("Unable to solve level");
-    System.exit(0);
-} else {
-    System.err.println("\nSummary for " + strategy);
-    System.err.println("Found solution of length " + solution.size());
-    System.err.println(strategy.searchStatus());
-
-    for (Node n : solution) {
-        String act = n.getAction().toActionString();
-        System.out.println(act);
-        String response = serverMessages.readLine();
-        if (response.contains("false")) {
-            System.err.format("Server responded with %s to the inapplicable action: %s\n", response, act);
-            System.err.format("%s was attempted in \n%s\n", act, n);
-            break;
-        }
-    }
-}
-*/
