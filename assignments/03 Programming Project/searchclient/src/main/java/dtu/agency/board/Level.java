@@ -80,6 +80,7 @@ public class Level implements Serializable {
     }
 
     public boolean notWall(Position pos) {
+        //System.err.println(boardState[pos.getRow()][pos.getColumn()]);
         return boardState[pos.getRow()][pos.getColumn()] != BoardCell.WALL ;
     }
 }

@@ -64,7 +64,7 @@ public class GotoAction extends HLAction implements Serializable {
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNEffect priorState) {
         // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
-        System.err.println("GotoAction.getRefinements - Initial" + priorState.toString());
+        // System.err.println("GotoAction.getRefinements - Initial" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
 
         ArrayList<MixedPlan> refinements = new ArrayList<>();

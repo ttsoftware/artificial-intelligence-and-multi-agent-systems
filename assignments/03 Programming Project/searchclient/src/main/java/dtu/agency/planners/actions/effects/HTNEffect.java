@@ -25,12 +25,23 @@ public class HTNEffect extends Effect {
         return boxPosition;
     }
 
-    public boolean equals(HTNEffect o){
-        if ( getAgentPosition().equals( o.getAgentPosition() ) )
-            if ( getBoxPosition().equals( o.getBoxPosition() ) ) {
-                return true;
-            }
-        return false;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HTNEffect other = (HTNEffect) obj;
+        if (!agentPosition.equals( other.getAgentPosition()) )
+            return false;
+        if ((boxPosition == null) || (other.getBoxPosition() == null)) {
+            return boxPosition == other.getBoxPosition();
+        }
+        if (!boxPosition.equals(other.getBoxPosition()) )
+            return false;
+        return true;
     }
 
     @Override
@@ -45,22 +56,28 @@ public class HTNEffect extends Effect {
     @Override
     public boolean isLegal() {
         boolean valid = true;
-        valid &= getAgentPosition()!=getBoxPosition();
+        //System.err.println(!getAgentPosition().equals(getBoxPosition()));
+        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getAgentPosition()));
+        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getBoxPosition()));
+
+        valid &= !getAgentPosition().equals(getBoxPosition());
         valid &= LevelService.getInstance().getLevel().notWall(this.getAgentPosition());
-        valid &= LevelService.getInstance().getLevel().notWall(this.getBoxPosition());
+        if (boxPosition != null) {
+            valid &= LevelService.getInstance().getLevel().notWall(this.getBoxPosition());
+        }
         return valid;
     }
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("HTNEffect:[Agent:");
+        s.append("Eff:[A:");
         if (getAgentPosition()!= null) {
             s.append(getAgentPosition().toString());
         } else {
             s.append("null");
         }
-        s.append(", Box:");
+        s.append(",B:");
         if (getBoxPosition()!= null) {
             s.append(getBoxPosition().toString());
         } else {

@@ -36,5 +36,4 @@ public class BoardObject implements Serializable {
         return s.toString();
     }
 
-
 }

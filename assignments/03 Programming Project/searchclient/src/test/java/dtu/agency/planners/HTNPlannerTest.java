@@ -1,7 +1,7 @@
 package dtu.agency.planners;
 
 /**
- * Created by koeus on 4/1/16.
+ * Created by mads on 4/1/16.
  */
 
 import dtu.agency.ProblemMarshaller;
@@ -19,36 +19,62 @@ import static org.junit.Assert.assertTrue;
 
 public class HTNPlannerTest {
 
-    private static Agent agent;
-    private static Goal goal;
+    private Agent agent;
+    private Goal goal;
+    private String s;
+    private static Level sad1Goto;
+    private static Level sad1Move;
 
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
+        String levelPath;
+        FileInputStream inputStream;
+        BufferedReader fileReader;
 
-        FileInputStream inputStream = new FileInputStream(levelPath);
-        BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
+        levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
+        inputStream = new FileInputStream(levelPath);
+        fileReader = new BufferedReader(new InputStreamReader(inputStream));
+        sad1Goto = ProblemMarshaller.marshall(fileReader);
 
-        // Parse the level
-        Level level = ProblemMarshaller.marshall(fileReader);
-        LevelService.getInstance().setLevel(level);
-
-        agent = level.getAgents().get(0);
-        goal = level.getGoals().get(0);
+        levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_move_box.lvl";
+        inputStream = new FileInputStream(levelPath);
+        fileReader = new BufferedReader(new InputStreamReader(inputStream));
+        sad1Move = ProblemMarshaller.marshall(fileReader);
     }
 
-    @Test
-    public void planTest() {
+    public void levelTest(Level level, int maxSolutionLength) {
+        LevelService.getInstance().setLevel(level);
+
+        agent = LevelService.getInstance().getLevel().getAgents().get(0);
+        goal = LevelService.getInstance().getLevel().getGoals().get(0);
+
         HTNPlanner htn = new HTNPlanner(agent, goal);
         HTNPlan htnPlan = htn.getBestPlan();
         PrimitivePlan plan = htn.plan();
 
         System.err.println("");
-        System.err.println(htnPlan.toString());
-        System.err.println(plan.toString());
+        if (htnPlan!=null) System.err.println(htnPlan.toString());
+        if (plan!=null) System.err.println(plan.toString());
 
-        assertTrue(!htnPlan.isEmpty());
-        assertTrue(!htnPlan.isEmpty());
+        assertTrue("htnPlan does not exist", htnPlan!=null);
+        assertTrue("htnPlan is empty", !htnPlan.isEmpty());
+        assertTrue("primitivePlan is not found", plan!=null);
+        assertTrue("primitivePlan is empty", !plan.isEmpty());
+        s  = "primitivePlan is longer than " + Integer.toString(maxSolutionLength);
+        s += " steps, it is " + plan.getActions().size();
+        assertTrue(s, plan.getActions().size()<=maxSolutionLength);
+    }
+
+    @Test
+    public void sad1MoveTest() {
+        int maxSolutionLength = 1; // minSolutionLength = 1
+        levelTest(sad1Move, maxSolutionLength);
+    }
+
+    @Test
+    public void sad1GotoTest() {
+        int maxSolutionLength = 21; // minSolutionLength = 19
+        levelTest(sad1Goto, maxSolutionLength);
     }
 }

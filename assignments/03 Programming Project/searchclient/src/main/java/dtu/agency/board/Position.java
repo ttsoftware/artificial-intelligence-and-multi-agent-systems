@@ -50,16 +50,29 @@ public class Position implements Serializable {
         return column;
     }
 
-    public boolean equals(Position o) {
-        return (this.getColumn() == o.getColumn() && this.getRow() == o.getRow());
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Position other = (Position) obj;
+        if (column != other.getColumn() )
+            return false;
+        if (row != other.getRow() )
+            return false;
+        return true;
     }
 
     @Override
     public int hashCode() {
         int prime = 619;
-        int rowprime = 89; // larger than 70 ;-)
+        //int rowprime = 89; // larger than 70 ;-)
         int result = 1;
-        result = prime * result + rowprime * row;
+        //result = prime * result + rowprime * row;
+        result = prime * result + row;
         result = prime * result + column;
         return result;
     }

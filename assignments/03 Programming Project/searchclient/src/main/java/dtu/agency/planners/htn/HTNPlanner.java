@@ -164,6 +164,7 @@ public class HTNPlanner {
             System.err.println(leafNode.toString());
 
             if ( strategy.isExplored(leafNode.getEffect()) ) {
+                // reject nodes resulting in states visited already
                 if (leafNode.getAction() instanceof NoAction) {
                     // check for progression
                     HTNNode n;
@@ -172,12 +173,15 @@ public class HTNPlanner {
                         n = leafNode.getParent();
                         noProgression &= (n.getAction() instanceof NoAction);
                     }
-                    if (noProgression) continue;
+                    if (noProgression) {
+                        System.err.println("No progress for 5 nodes! skipping this node");
+                        continue;
+                    }
                 } else {
                     System.err.println("Effect already explored! skipping this node");
                     continue;
                 }
-            } // reject nodes resulting in states visited already
+            }
 
             if (isGoalState(leafNode)) {
                 System.err.println("GOOOAAAAAAAALLL!!!!!");
@@ -186,16 +190,13 @@ public class HTNPlanner {
 
             strategy.addToExplored(leafNode.getEffect());
 
-            // beginning
-            for (HTNNode n : leafNode.getRefinementNodes()) {
-                // The list of expanded nodes is shuffled randomly; see Node.java
-                // and it might be empty!
-                //if (strategy.isExplored(n.getEffect()) ) { continue; } // reject/ignore nodes resulting in states visited already
-                //if (strategy.inFrontier(n)) { continue; }              // check if node is already in frontier ?? but how could it be??
+            //if (leafNode.g() > 10) continue; // check only the first three generations
 
+            for (HTNNode n : leafNode.getRefinementNodes()) {
                 strategy.addToFrontier(n);
             }
-            // end
+            System.err.println("ExploredEffects:" + strategy.getExplored().toString());
+
             iterations++;
         }
 
