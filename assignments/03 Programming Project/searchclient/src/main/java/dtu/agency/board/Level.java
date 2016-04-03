@@ -1,8 +1,5 @@
 package dtu.agency.board;
 
-import dtu.agency.agent.actions.Direction;
-import javafx.util.Pair;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

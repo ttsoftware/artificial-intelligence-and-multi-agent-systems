@@ -9,8 +9,8 @@ import dtu.agency.board.*;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LevelService implements Serializable {
 
@@ -83,7 +83,7 @@ public class LevelService implements Serializable {
     private synchronized boolean moveObject(BoardObject boardObject, Direction direction) {
 
         BoardCell[][] boardState = level.getBoardState();
-        Hashtable<String, Position> objectPositions = level.getBoardObjectPositions();
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
 
         // find the object
         Position position = objectPositions.get(boardObject.getLabel());
@@ -374,7 +374,7 @@ public class LevelService implements Serializable {
      * @param positionB
      * @return The manhattan distance between the two objects
      */
-    public int manhattanDistance(Position positionA, Position positionB) {
+    public synchronized int manhattanDistance(Position positionA, Position positionB) {
         // O(1) time operations
         return Math.abs(positionA.getRow() - positionB.getRow())
                 + Math.abs(positionA.getColumn() - positionB.getColumn());
