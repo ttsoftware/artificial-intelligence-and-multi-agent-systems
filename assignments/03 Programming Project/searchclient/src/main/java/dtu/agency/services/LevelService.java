@@ -43,7 +43,6 @@ public class LevelService implements Serializable {
     }
 
     public synchronized boolean push(Agent agent, PushAction action) {
-
         // move the box to the new position
         boolean moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
 
@@ -56,7 +55,6 @@ public class LevelService implements Serializable {
     }
 
     public synchronized boolean pull(Agent agent, PullAction action) {
-
         // move the agency to the new position
         boolean moveSuccess = moveObject(agent, action.getAgentDirection());
 
@@ -150,7 +148,6 @@ public class LevelService implements Serializable {
     }
 
     private boolean causesCollision(int row, int column) {
-
         BoardCell nextCell = level.getBoardState()[row][column];
 
         switch (nextCell) {
@@ -166,6 +163,53 @@ public class LevelService implements Serializable {
         }
 
         return true;
+    }
+
+    /**
+     * We use Manhatten distances to define "closeness"
+     *
+     * @param agent
+     * @param goal
+     * @return The box closest to @agent which solves @goal
+     */
+    public Box closestBox(Agent agent, Goal goal) {
+
+        int shortestDistance = Integer.MAX_VALUE;
+        Box shortestDistanceBox = null;
+
+        // Find the closest box which solves @goal
+        for (Box box : level.getGoalsBoxes().get(goal.getLabel())) {
+            // boxes associated with @goal
+            int distance = manhattenDistance(box, agent);
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                shortestDistanceBox = box;
+            }
+        }
+
+        return shortestDistanceBox;
+    }
+
+    /**
+     * Manhattan distance: <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">https://en.wikipedia.org/wiki/Taxicab_geometry</a>
+     *
+     * Should have Expected O(1) time complexity.
+     *
+     * @param objectA
+     * @param objectB
+     * @return The manhattan distance between the two objects
+     */
+    public int manhattenDistance(BoardObject objectA, BoardObject objectB) {
+
+        // E[O(1)] time operations
+        Position positionA = level.getBoardObjectPositions().get(objectA.getLabel());
+        Position positionB = level.getBoardObjectPositions().get(objectB.getLabel());
+
+        // O(1) time operations
+        int distance = Math.abs(positionA.getRow() - positionB.getRow())
+                + Math.abs(positionA.getColumn() - positionB.getColumn());
+
+        return distance;
     }
 
     /**

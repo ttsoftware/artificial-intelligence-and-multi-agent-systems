@@ -1,10 +1,13 @@
 package dtu.agency.planners.actions;
 
-import dtu.agency.board.Goal;
-
 public class MoveBoxAction extends AbstractAction {
 
-    public MoveBoxAction(Goal goal) {
+    public MoveBoxAction(int estimatedDistance, int row, int column) {
+        this.estimatedDistance = estimatedDistance;
+    }
 
+    @Override
+    public int getEstimatedDistance() {
+        return estimatedDistance;
     }
 }

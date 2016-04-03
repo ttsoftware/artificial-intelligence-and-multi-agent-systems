@@ -4,11 +4,11 @@ import dtu.agency.events.Event;
 
 public class GoalEstimationEvent extends Event {
 
-    private String label;
+    private String agentLabel;
     private int steps;
 
-    public GoalEstimationEvent(String label, int steps) {
-        this.label = label;
+    public GoalEstimationEvent(String agentLabel, int steps) {
+        this.agentLabel = agentLabel;
         this.steps = steps;
     }
 
@@ -16,7 +16,7 @@ public class GoalEstimationEvent extends Event {
         return steps;
     }
 
-    public String getLabel() {
-        return label;
+    public String getAgentLabel() {
+        return agentLabel;
     }
 }

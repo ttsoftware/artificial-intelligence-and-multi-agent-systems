@@ -1,14 +1,13 @@
 package dtu.agency.planners.actions;
 
-import dtu.agency.board.Box;
-
 public class GotoAction extends AbstractAction {
 
-    public GotoAction(int row, int column) {
-
+    public GotoAction(int estimatedDistance, int row, int column) {
+        this.estimatedDistance = estimatedDistance;
     }
 
-    public GotoAction(Box box) {
-
+    @Override
+    public int getEstimatedDistance() {
+        return estimatedDistance;
     }
 }
