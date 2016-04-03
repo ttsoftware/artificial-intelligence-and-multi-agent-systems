@@ -46,7 +46,7 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
         agentEstimations.offer(event);
         // notify estimationsThread to see if all agents have estimated
         synchronized (goal) {
-            goal.notifyAll();
+            goal.notify();
         }
     }
 
