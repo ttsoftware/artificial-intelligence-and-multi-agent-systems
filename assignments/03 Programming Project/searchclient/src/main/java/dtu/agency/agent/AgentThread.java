@@ -5,12 +5,14 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
-import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.HTNPlan;
+import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.pop.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
 import java.util.Hashtable;
@@ -19,7 +21,7 @@ import java.util.Objects;
 public class AgentThread implements Runnable {
 
     // the agency object which this agency corresponds to
-    private Agent agent;
+    private final Agent agent;
     private Hashtable<String, HTNPlanner> htnPlanners;
 
     public AgentThread(Agent agent) {
@@ -30,15 +32,8 @@ public class AgentThread implements Runnable {
     @Override
     public void run() {
         // register all events handled by this class
-        EventBusService.getEventBus().register(this);
-        // keep thread running until stop event.
-        synchronized (this) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        }
+        EventBusService.register(this);
+        System.err.println("Started agent: " + agent.getLabel());
     }
 
     /**
@@ -84,14 +79,7 @@ public class AgentThread implements Runnable {
         }
     }
 
-    /**
-     * Stops the thread if this event is recieved
-     *
-     * @param event
-     */
-    @Subscribe
-    public void stopEvent(StopAllAgentsEvent event) {
-        System.err.println("Agent: " + agent.getLabel() + " recieved stop event");
-        Thread.currentThread().interrupt();
+    public Agent getAgent() {
+        return agent;
     }
 }

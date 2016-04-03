@@ -5,6 +5,7 @@ import dtu.agency.board.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ProblemMarshaller {
 
@@ -42,6 +43,8 @@ public class ProblemMarshaller {
         BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
         Hashtable<String, Position> boardObjectPositions = new Hashtable<>();
         PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
+        Hashtable<String, List<Goal>> boxesGoals = new Hashtable<>();
+        Hashtable<String, List<Box>> goalsBoxes = new Hashtable<>();
         List<Agent> agents = new ArrayList<>();
         List<Box> boxes = new ArrayList<>();
         List<Wall> walls = new ArrayList<>();
@@ -110,11 +113,31 @@ public class ProblemMarshaller {
             }
         }
 
+        // Assign box goals
+        for (Box box : boxes) {
+            List<Goal> boxGoals = goals.stream().filter(
+                    // If goal matches box
+                    goal -> goal.getLabel().startsWith(box.getLabel().substring(0, 1).toLowerCase())
+            ).collect(Collectors.toList());
+            boxesGoals.put(box.getLabel(), boxGoals);
+        }
+
+        // Assign goal boxes
+        for (Goal goal : goals) {
+            List<Box> goalBoxes = boxes.stream().filter(
+                    // If box matches goal
+                    box -> box.getLabel().startsWith(goal.getLabel().substring(0, 1).toUpperCase())
+            ).collect(Collectors.toList());
+            goalsBoxes.put(goal.getLabel(), goalBoxes);
+        }
+
         return new Level(
                 boardState,
                 boardObjects,
                 boardObjectPositions,
                 goalQueue,
+                boxesGoals,
+                goalsBoxes,
                 goals,
                 agents,
                 boxes,

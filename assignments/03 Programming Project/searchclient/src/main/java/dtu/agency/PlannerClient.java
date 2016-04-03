@@ -6,7 +6,6 @@ import dtu.agency.agent.actions.Action;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.SendServerActionsEvent;
-import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.services.EventBusService;
 
@@ -33,7 +32,7 @@ public class PlannerClient {
         numberOfAgents = level.getAgents().size();
 
         // Register for actions event
-        EventBusService.getEventBus().register(new EventSubscriber<SendServerActionsEvent>() {
+        EventBusService.register(new EventSubscriber<SendServerActionsEvent>() {
 
             @Subscribe
             @AllowConcurrentEvents
@@ -43,7 +42,7 @@ public class PlannerClient {
                 sendActions(event.getActions());
 
                 // Pretend problem is solved
-                EventBusService.getEventBus().post(new ProblemSolvedEvent());
+                EventBusService.post(new ProblemSolvedEvent());
             }
         });
 
@@ -84,7 +83,6 @@ public class PlannerClient {
             }
             if (response == null) {
                 System.err.format("Lost contact with the server. We stop now");
-                EventBusService.getEventBus().post(new StopAllAgentsEvent());
                 System.exit(1);
             }
             if (response.contains("false")) {
