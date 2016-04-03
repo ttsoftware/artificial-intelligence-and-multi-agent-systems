@@ -309,8 +309,9 @@ public class LevelService implements Serializable {
      */
     public synchronized boolean isFree(int row, int column) {
         if (isInLevel(row, column)) {
-            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
-                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
+            BoardCell cell = level.getBoardState()[row][column];
+            if (cell.equals(BoardCell.FREE_CELL)
+                    || cell.equals(BoardCell.GOAL)) {
                 return true;
             }
         }

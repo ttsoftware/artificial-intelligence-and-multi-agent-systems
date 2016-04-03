@@ -93,7 +93,6 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
     }
 
     /**
-     *
      * @param boxPrecondition
      * @return A queue of MoveBoxActions which solves the given precondition
      */
@@ -107,12 +106,23 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
         );
 
         if (freeBoxNeighbours.size() == 0) {
-            // No free neighbours to the boxPrecondition
+            // No free neighbours to the boxPrecondition, so we see if we can try moving a neighbour
             List<Neighbour> moveableBoxNeighbours = LevelService.getInstance().getMoveableNeighbours(
                     boxPrecondition.getBoxPosition()
             );
 
             // TODO do something with the moveable neighbours
+
+            if (moveableBoxNeighbours.size() == 0) {
+                // Nothing we can do at this point. Backtrack? Or fail outright?
+            }
+
+            for (Neighbour neighbour : moveableBoxNeighbours) {
+                // Move the neighbours if possible
+                if (neighbour.getPosition() == LevelService.getInstance().getPosition(boxPrecondition.getBox().getLabel())) {
+                    // This neighbour is actually the box we are trying to move
+                }
+            }
         }
 
         for (Neighbour boxNeighbour : freeBoxNeighbours) {
@@ -122,18 +132,18 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                     boxNeighbour.getPosition()
             );
 
-            for (Neighbour viableAgentPosition : viableAgentPositions) {
+            for (Neighbour viableAgentNeighbour : viableAgentPositions) {
 
                 // Push the box
                 PushAction nextPushAction = new PushAction(
                         boxPrecondition.getBox(),
                         boxPrecondition.getAgent(),
                         boxNeighbour.getPosition(),
-                        viableAgentPosition.getPosition(),
+                        viableAgentNeighbour.getPosition(),
                         boxNeighbour.getDirection().getInverse(),
-                        viableAgentPosition.getDirection().getInverse(),
+                        viableAgentNeighbour.getDirection().getInverse(),
                         LevelService.getInstance().manhattanDistance(
-                                viableAgentPosition.getPosition(),
+                                viableAgentNeighbour.getPosition(),
                                 agentStartPosition
                         )
                 );
@@ -143,11 +153,11 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                         boxPrecondition.getBox(),
                         boxPrecondition.getAgent(),
                         boxNeighbour.getPosition(),
-                        viableAgentPosition.getPosition(),
-                        viableAgentPosition.getDirection(),
-                        viableAgentPosition.getDirection().getInverse(),
+                        viableAgentNeighbour.getPosition(),
+                        viableAgentNeighbour.getDirection(),
+                        viableAgentNeighbour.getDirection().getInverse(),
                         LevelService.getInstance().manhattanDistance(
-                                viableAgentPosition.getPosition(),
+                                viableAgentNeighbour.getPosition(),
                                 agentStartPosition
                         )
                 );
