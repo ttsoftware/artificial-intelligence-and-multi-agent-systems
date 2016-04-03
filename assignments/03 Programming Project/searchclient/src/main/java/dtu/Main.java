@@ -14,7 +14,7 @@ public class Main {
 
         String[] serverArgs = {
                 "-l",
-                "levels/SAD1.lvl",
+                "levels/SAD2.lvl",
                 "-g",
                 "50",
                 "-t",

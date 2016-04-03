@@ -1,12 +1,13 @@
 package dtu.agency.planners.htn;
 
-import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.NoAction;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
+import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.actions.HLAction;
 import dtu.agency.planners.actions.effects.HTNEffect;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;

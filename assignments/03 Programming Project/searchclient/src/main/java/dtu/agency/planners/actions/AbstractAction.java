@@ -7,7 +7,6 @@ import java.util.Collection;
 
 public abstract class AbstractAction {
 
-    protected int estimatedDistance;
     private Collection<Precondition> preconditions;
     private Collection<Effect> effects;
 
@@ -26,6 +25,4 @@ public abstract class AbstractAction {
     public void setPreconditions(Collection<Precondition> preconditions) {
         this.preconditions = preconditions;
     }
-
-    public abstract int getEstimatedDistance();
 }

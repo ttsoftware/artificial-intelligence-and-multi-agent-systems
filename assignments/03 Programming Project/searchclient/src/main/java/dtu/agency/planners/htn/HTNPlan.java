@@ -17,17 +17,4 @@ public class HTNPlan implements AbstractPlan {
     public List<AbstractAction> getActions() {
         return this.actions;
     }
-
-    /**
-     * @return Sum of estimated distances
-     */
-    @Override
-    public int totalEstimatedDistance() {
-        return actions.stream().mapToInt(AbstractAction::getEstimatedDistance).sum();
-    }
-
-    @Override
-    public int getSteps() {
-        return actions.size();
-    }
 }

@@ -2,10 +2,11 @@ package dtu.agency.planners.htn;
 
 
 import dtu.Main;
-import dtu.agency.AbstractAction;
-import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.NoAction;
-import dtu.agency.board.*;
+import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
+import dtu.agency.board.Goal;
+import dtu.agency.board.Position;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
@@ -18,7 +19,6 @@ import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.services.LevelService;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
