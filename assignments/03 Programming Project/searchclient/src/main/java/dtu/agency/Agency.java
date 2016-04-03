@@ -87,13 +87,13 @@ public class Agency implements Runnable {
         // We need a strategy for doing this in the multi-agent case.
         // currentPlans.put(event.getAgent().getAgentLabel(), event.getPlan());
 
-        System.err.println("Recieved offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
+        System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
         EventBusService.post(new SendServerActionsEvent(event.getPlan().getActions()));
     }
 
     @Subscribe
-    public void problemSolverdEventSubscriber(ProblemSolvedEvent event) {
+    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
         // wait for all threads to finish
         EventBusService.getThreads().forEach(t -> {
             try {
