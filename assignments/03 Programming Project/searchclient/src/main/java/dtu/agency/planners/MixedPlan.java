@@ -1,8 +1,6 @@
 package dtu.agency.planners;
 
-
-import dtu.agency.AbstractAction;
-import dtu.agency.agent.actions.Action;
+import dtu.agency.planners.actions.AbstractAction;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +23,7 @@ public class MixedPlan implements AbstractPlan {
     }
 
     @Override
-    public List<AbstractAction> getActions() {
+    public List<? extends AbstractAction> getActions() {
         return actions;
     }
 

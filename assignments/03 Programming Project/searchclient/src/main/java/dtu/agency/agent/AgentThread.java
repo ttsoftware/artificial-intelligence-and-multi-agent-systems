@@ -5,41 +5,32 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
-import dtu.agency.events.agency.StopAllAgentsEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.HTNPlan;
+import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
-import dtu.agency.planners.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
 import java.util.Hashtable;
 import java.util.Objects;
-import java.util.Random;
 
 public class AgentThread implements Runnable {
 
     // the agency object which this agency corresponds to
-    private Agent agent;
-    private Hashtable<String, HTNPlan> htnPlans;
+    private final Agent agent;
+    private Hashtable<String, HTNPlanner> htnPlanners;
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        htnPlans = new Hashtable<>();
+        htnPlanners = new Hashtable<>();
     }
 
     @Override
     public void run() {
         // register all events handled by this class
-        EventBusService.getEventBus().register(this);
-        // keep thread running until stop event.
-        synchronized (this) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        }
+        EventBusService.register(this);
+        System.err.println("Started agent: " + agent.getLabel());
     }
 
     /**
@@ -55,14 +46,13 @@ public class AgentThread implements Runnable {
         HTNPlanner htnPlanner = new HTNPlanner(this.agent, goal);
         HTNPlan plan = htnPlanner.getBestPlan();
 
-        htnPlans.put(goal.getLabel(), plan);
+        htnPlanners.put(goal.getLabel(), htnPlanner);
 
-        Random random = new Random();
-        int randomSteps = random.nextInt();
+        int steps = plan.getActions().size();
 
-        System.err.println("Agent recieved a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(randomSteps));
+        System.err.println("Agent received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
-        EventBusService.getEventBus().post(new GoalEstimationEvent(agent.getLabel(), randomSteps));
+        EventBusService.getEventBus().post(new GoalEstimationEvent(agent.getLabel(), steps));
     }
 
     /**
@@ -77,27 +67,16 @@ public class AgentThread implements Runnable {
 
             System.err.println("I won the bid for: " + event.getGoal().getLabel());
 
-            // Find the HTNPlan for this goal
-            HTNPlan htnPlan = htnPlans.get(event.getGoal().getLabel());
+            // Find the HTNPlanner for this goal
+            HTNPlanner htnPlanner = htnPlanners.get(event.getGoal().getLabel());
 
-            // Partial order plan
-            htnPlan.getActions().forEach(abstractAction -> {
-                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
+            PrimitivePlan primitivePlan = htnPlanner.plan();
 
-                // Post the partial plan to the agency
-                EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
-            });
+            EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, primitivePlan));
         }
     }
 
-    /**
-     * Stops the thread if this event is recieved
-     *
-     * @param event
-     */
-    @Subscribe
-    public void stopEvent(StopAllAgentsEvent event) {
-        System.err.println("Agent: " + agent.getLabel() + " recieved stop event");
-        Thread.currentThread().interrupt();
+    public Agent getAgent() {
+        return agent;
     }
 }

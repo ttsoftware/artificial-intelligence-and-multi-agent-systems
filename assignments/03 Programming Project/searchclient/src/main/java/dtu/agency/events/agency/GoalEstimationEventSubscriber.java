@@ -6,32 +6,25 @@ import dtu.agency.board.Goal;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.agent.GoalEstimationEvent;
 
-import java.util.Hashtable;
-import java.util.List;
+import java.util.PriorityQueue;
 
 public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstimationEvent> {
 
     private final Goal goal;
-    // Agent label -> estimated steps to complete goal
-    private final Hashtable<String, Integer> agentStepsEstimation;
+    private PriorityQueue<GoalEstimationEvent> agentEstimations = new PriorityQueue<>(new GoalEstimationEventComparator());
 
-    public GoalEstimationEventSubscriber(Goal goal, List<String> agentLabels) {
+    public GoalEstimationEventSubscriber(Goal goal) {
         this.goal = goal;
-        this.agentStepsEstimation = new Hashtable<>();
-        agentLabels.forEach(label -> {
-            // initialize all estimations to -1
-            agentStepsEstimation.put(label, -1);
-        });
     }
 
     @Subscribe
     @AllowConcurrentEvents
     public void changeSubscriber(GoalEstimationEvent event) {
-        agentStepsEstimation.put(event.getLabel(), event.getSteps());
+        agentEstimations.add(event);
     }
 
-    public Hashtable<String, Integer> getAgentStepsEstimation() {
-        return agentStepsEstimation;
+    public PriorityQueue<GoalEstimationEvent> getAgentStepsEstimation() {
+        return agentEstimations;
     }
 
     public Goal getGoal() {

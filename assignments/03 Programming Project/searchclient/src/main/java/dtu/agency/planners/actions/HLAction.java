@@ -1,8 +1,6 @@
 package dtu.agency.planners.actions;
 
-import dtu.agency.AbstractAction;
 import dtu.agency.agent.actions.NoAction;
-import dtu.agency.board.Level;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.effects.HTNEffect;
 
