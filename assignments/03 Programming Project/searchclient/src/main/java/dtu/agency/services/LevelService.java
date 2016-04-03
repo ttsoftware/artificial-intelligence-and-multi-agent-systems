@@ -7,7 +7,7 @@ import dtu.agency.agent.actions.PushAction;
 import dtu.agency.board.*;
 
 import java.io.Serializable;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LevelService implements Serializable {
 
@@ -80,7 +80,7 @@ public class LevelService implements Serializable {
     private synchronized boolean moveObject(BoardObject boardObject, Direction direction) {
 
         BoardCell[][] boardState = level.getBoardState();
-        Hashtable<String, Position> objectPositions = level.getBoardObjectPositions();
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
 
         // find the object
         Position position = objectPositions.get(boardObject.getLabel());

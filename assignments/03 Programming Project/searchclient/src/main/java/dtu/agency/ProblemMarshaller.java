@@ -5,6 +5,8 @@ import dtu.agency.board.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.stream.Collectors;
 
 public class ProblemMarshaller {
@@ -41,10 +43,10 @@ public class ProblemMarshaller {
         // TODO: Fix board size to match actual board size
         BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
         BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
-        Hashtable<String, Position> boardObjectPositions = new Hashtable<>();
-        PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
-        Hashtable<String, List<Goal>> boxesGoals = new Hashtable<>();
-        Hashtable<String, List<Box>> goalsBoxes = new Hashtable<>();
+        ConcurrentHashMap<String, Position> boardObjectPositions = new ConcurrentHashMap<>();
+        PriorityBlockingQueue<Goal> goalQueue = new PriorityBlockingQueue<>();
+        ConcurrentHashMap<String, List<Goal>> boxesGoals = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<Box>> goalsBoxes = new ConcurrentHashMap<>();
         List<Agent> agents = new ArrayList<>();
         List<Box> boxes = new ArrayList<>();
         List<Wall> walls = new ArrayList<>();
@@ -107,7 +109,7 @@ public class ProblemMarshaller {
                     boardState[row][column] = BoardCell.GOAL;
                     boardObjects[row][column] = goal;
                     goals.add(goal);
-                    goalQueue.add(goal);
+                    goalQueue.offer(goal);
                     goalCount++;
                 }
             }

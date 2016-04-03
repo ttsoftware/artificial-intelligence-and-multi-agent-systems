@@ -6,28 +6,66 @@ import dtu.agency.board.Goal;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.agent.GoalEstimationEvent;
 
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstimationEvent> {
 
-    private final Goal goal;
-    private PriorityQueue<GoalEstimationEvent> agentEstimations = new PriorityQueue<>(new GoalEstimationEventComparator());
+    private GoalEstimationEvent lowestEstimation;
 
-    public GoalEstimationEventSubscriber(Goal goal) {
+    private final Goal goal;
+    private final int numberOfAgents;
+
+    private final Thread estimationsThread;
+
+    private PriorityBlockingQueue<GoalEstimationEvent> agentEstimations = new PriorityBlockingQueue<>();
+
+    public GoalEstimationEventSubscriber(Goal goal, int numberOfAgents) {
         this.goal = goal;
+        this.numberOfAgents = numberOfAgents;
+
+        // Initialize thread for synchronizing steps
+        estimationsThread = new Thread(() -> {
+            try {
+                synchronized (goal) {
+                    // Wait for all agents to finish
+                    while (agentEstimations.size() != numberOfAgents) {
+                        goal.wait();
+                    }
+                    lowestEstimation = agentEstimations.take();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+            }
+        });
+        estimationsThread.start();
     }
 
     @Subscribe
     @AllowConcurrentEvents
     public void changeSubscriber(GoalEstimationEvent event) {
-        agentEstimations.add(event);
-    }
-
-    public PriorityQueue<GoalEstimationEvent> getAgentStepsEstimation() {
-        return agentEstimations;
+        agentEstimations.offer(event);
+        // notify estimationsThread to see if all agents have estimated
+        synchronized (goal) {
+            goal.notifyAll();
+        }
     }
 
     public Goal getGoal() {
         return goal;
+    }
+
+    /**
+     * Waits for all estimations to finish before returning. Will block calling thread.
+     *
+     * @return The label of the agent whose estimation was lowest
+     */
+    public String getBestAgent() {
+        try {
+            // Wait for the value lowest estimation to be assigned
+            estimationsThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace(System.err);
+        }
+        return lowestEstimation.getAgentLabel();
     }
 }
