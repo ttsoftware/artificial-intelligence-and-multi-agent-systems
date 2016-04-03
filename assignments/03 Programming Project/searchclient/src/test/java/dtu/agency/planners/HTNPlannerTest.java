@@ -22,25 +22,32 @@ public class HTNPlannerTest {
     private Agent agent;
     private Goal goal;
     private String s;
-    private static Level sad1Goto;
-    private static Level sad1Move;
+    private static File resourcesDirectory;
+    private static Level sad1Goto, sad1Move;
+    private static Level lvl001, lvl002, lvl003, lvl004, lvl005, lvl006, lvl007, lvl008, lvl009;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        File resourcesDirectory = new File("src/test/resources");
-        String levelPath;
-        FileInputStream inputStream;
-        BufferedReader fileReader;
+        resourcesDirectory = new File("src/test/resources");
 
-        levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
-        inputStream = new FileInputStream(levelPath);
-        fileReader = new BufferedReader(new InputStreamReader(inputStream));
-        sad1Goto = ProblemMarshaller.marshall(fileReader);
+        sad1Goto = marshall("/SAD1_goto_box.lvl");
+        sad1Move = marshall("/SAD1_move_box.lvl");
+        lvl001 = marshall("/001.lvl"); // Fine plan - will solve the problem
+        lvl002 = marshall("/002.lvl"); // Fine plan - will solve the problem
+        lvl003 = marshall("/003.lvl"); // Fine plan - it will not solve the problem though :-)
+        lvl004 = marshall("/004.lvl"); // Fine plan - it will not solve the problem
+        lvl005 = marshall("/005.lvl"); // placeholder - implement level first
+        lvl006 = marshall("/006.lvl"); // placeholder - implement level first
+        lvl007 = marshall("/007.lvl"); // placeholder - implement level first
+        lvl008 = marshall("/008.lvl"); // placeholder - implement level first
+        lvl009 = marshall("/009.lvl"); // placeholder - implement level first
+    }
 
-        levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_move_box.lvl";
-        inputStream = new FileInputStream(levelPath);
-        fileReader = new BufferedReader(new InputStreamReader(inputStream));
-        sad1Move = ProblemMarshaller.marshall(fileReader);
+    private static Level marshall(String path) throws IOException {
+        String levelPath = resourcesDirectory.getAbsolutePath() + path;
+        FileInputStream inputStream = new FileInputStream(levelPath);
+        BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
+        return ProblemMarshaller.marshall(fileReader);
     }
 
     public void levelTest(Level level, int maxSolutionLength) {
@@ -77,4 +84,59 @@ public class HTNPlannerTest {
         int maxSolutionLength = 21; // minSolutionLength = 19
         levelTest(sad1Goto, maxSolutionLength);
     }
+
+    @Test
+    public void level001Test() {
+        int maxSolutionLength = 3; // minSolutionLength = 3
+        levelTest(lvl001, maxSolutionLength);
+    }
+
+    @Test
+    public void level002Test() {
+        int maxSolutionLength = 5; // minSolutionLength = 5
+        levelTest(lvl002, maxSolutionLength);
+    }
+
+    @Test
+    public void level003Test() {
+        int maxSolutionLength = 7; // minSolutionLength = 7
+        levelTest(lvl003, maxSolutionLength);
+    }
+
+    @Test
+    public void level004Test() {
+        int maxSolutionLength = 13; // minSolutionLength = 13
+        levelTest(lvl004, maxSolutionLength);
+    }
+
+    @Test
+    public void level005Test() {
+        int maxSolutionLength = 1; // minSolutionLength = 1
+        levelTest(lvl005, maxSolutionLength);
+    }
+
+    @Test
+    public void level006Test() {
+        int maxSolutionLength = 1; // minSolutionLength = 1
+        levelTest(lvl006, maxSolutionLength);
+    }
+
+    @Test
+    public void level007Test() {
+        int maxSolutionLength = 1; // minSolutionLength = 1
+        levelTest(lvl007, maxSolutionLength);
+    }
+
+    @Test
+    public void level008Test() {
+        int maxSolutionLength = 1; // minSolutionLength = 1
+        levelTest(lvl008, maxSolutionLength);
+    }
+
+    @Test
+    public void level009Test() {
+        int maxSolutionLength = 1; // minSolutionLength = 1
+        levelTest(lvl009, maxSolutionLength);
+    }
+
 }

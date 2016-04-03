@@ -4,10 +4,8 @@ package dtu.agency.Effect;
  * Created by koeus on 4/1/16.
  */
 
-import dtu.agency.board.Agent;
-import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNState;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -20,7 +18,7 @@ public class EffectTest {
 
     private static Position agentOne, agentTwo, agentThree;
     private static Position boxOne, boxTwo, boxThree;
-    private static HTNEffect a, b, c;
+    private static HTNState a, b, c;
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -31,9 +29,9 @@ public class EffectTest {
         boxTwo = new Position(2, 2);
         boxThree = new Position(2, 2);
 
-        a = new HTNEffect(agentOne, boxOne);
-        b = new HTNEffect(agentTwo, boxTwo);     // b == c
-        c = new HTNEffect(agentThree, boxThree);
+        a = new HTNState(agentOne, boxOne);
+        b = new HTNState(agentTwo, boxTwo);     // b == c
+        c = new HTNState(agentThree, boxThree);
     }
 
     @Test
@@ -59,7 +57,7 @@ public class EffectTest {
         assertTrue(a.hashCode() != c.hashCode());
         assertTrue(b.hashCode() == c.hashCode());
 
-        HashSet<HTNEffect> hs = new HashSet<>();
+        HashSet<HTNState> hs = new HashSet<>();
         assertTrue(hs.size() == 0);
         hs.add(a);
         hs.add(b);

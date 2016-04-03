@@ -1,7 +1,7 @@
 package dtu.agency.agent.actions;
 
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNState;
 
 public class MoveAction extends Action {
 
@@ -22,12 +22,12 @@ public class MoveAction extends Action {
     }
 
     @Override
-    public HTNEffect applyTo(HTNEffect oldState) {
+    public HTNState applyTo(HTNState oldState) {
         Position oldAgentPos = oldState.getAgentPosition();
         Position newAgentPos = new Position(oldAgentPos, direction);
         Position boxPos = oldState.getBoxPosition();
 
-        HTNEffect result = new HTNEffect(newAgentPos, boxPos);
+        HTNState result = new HTNState(newAgentPos, boxPos);
         return result.isLegal() ? result : null;
     }
 

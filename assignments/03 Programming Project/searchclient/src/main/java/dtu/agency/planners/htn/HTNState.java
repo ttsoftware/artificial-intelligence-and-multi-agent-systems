@@ -1,20 +1,20 @@
-package dtu.agency.planners.actions.effects;
+package dtu.agency.planners.htn;
 
 import dtu.agency.agent.actions.Direction;
-import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.planners.actions.effects.Effect;
 import dtu.agency.services.LevelService;
 
 /**
  * Created by Mads on 3/22/16.
  */
-public class HTNEffect extends Effect {
+public class HTNState extends Effect {
     private final Position agentPosition;
     private final Position boxPosition;
 
-    public HTNEffect(Position agent, Position targetbox){
+    public HTNState(Position agent, Position targetBox){
         this.agentPosition = agent;
-        this.boxPosition = targetbox;
+        this.boxPosition = targetBox;
     }
 
     public Position getAgentPosition() {
@@ -25,6 +25,27 @@ public class HTNEffect extends Effect {
         return boxPosition;
     }
 
+    public Direction getDirectionToBox() { // returns the direction from agent to box
+        return agentPosition.getDirectionTo(boxPosition);
+    }
+
+    public boolean boxIsMovable() {
+        return agentPosition.isNeighbour(boxPosition);
+    }
+
+    public boolean isLegal() {
+        boolean valid = true;
+        //System.err.println(!getAgentPosition().equals(getBoxPosition()));
+        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getAgentPosition()));
+        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getBoxPosition()));
+        valid &= !getAgentPosition().equals(getBoxPosition());
+        valid &= LevelService.getInstance().getLevel().notWall(this.getAgentPosition());
+        if (boxPosition != null) {
+            valid &= LevelService.getInstance().getLevel().notWall(this.getBoxPosition());
+        }
+        return valid;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -33,7 +54,7 @@ public class HTNEffect extends Effect {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        HTNEffect other = (HTNEffect) obj;
+        HTNState other = (HTNState) obj;
         if (!agentPosition.equals( other.getAgentPosition()) )
             return false;
         if ((boxPosition == null) || (other.getBoxPosition() == null)) {
@@ -51,21 +72,6 @@ public class HTNEffect extends Effect {
         result = prime * result + agentPosition.hashCode();
         result = prime * result + boxPosition.hashCode();
         return result;
-    }
-
-    @Override
-    public boolean isLegal() {
-        boolean valid = true;
-        //System.err.println(!getAgentPosition().equals(getBoxPosition()));
-        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getAgentPosition()));
-        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getBoxPosition()));
-
-        valid &= !getAgentPosition().equals(getBoxPosition());
-        valid &= LevelService.getInstance().getLevel().notWall(this.getAgentPosition());
-        if (boxPosition != null) {
-            valid &= LevelService.getInstance().getLevel().notWall(this.getBoxPosition());
-        }
-        return valid;
     }
 
     @Override
@@ -87,12 +93,4 @@ public class HTNEffect extends Effect {
         return s.toString();
     }
 
-    public Direction getDirectionToBox() { // returns the direction from agent to box
-        return agentPosition.getDirectionTo(boxPosition);
-    }
-
-
-    public boolean boxIsMovable() {
-        return agentPosition.isNeighbour(boxPosition);
-    }
 }

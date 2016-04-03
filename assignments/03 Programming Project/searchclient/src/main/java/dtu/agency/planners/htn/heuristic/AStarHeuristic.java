@@ -2,12 +2,12 @@ package dtu.agency.planners.htn.heuristic;
 
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
-import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.HTNNode;
 
 public class AStarHeuristic extends Heuristic {
 
-    public AStarHeuristic(HTNEffect initialEffect, Box targetBox, Goal targetGoal) {
+    public AStarHeuristic(HTNState initialEffect, Box targetBox, Goal targetGoal) {
         super(initialEffect, targetBox, targetGoal);
     }
 

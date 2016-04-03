@@ -2,7 +2,7 @@ package dtu.agency.agent.actions;
 
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNState;
 
 public class PushAction extends Action {
 
@@ -27,7 +27,7 @@ public class PushAction extends Action {
     }
 
     @Override
-    public HTNEffect applyTo(HTNEffect oldState) {
+    public HTNState applyTo(HTNState oldState) {
         // calculate new effects
         Position oldAgentPos = oldState.getAgentPosition();
         Position oldBoxPos = oldState.getBoxPosition();
@@ -43,9 +43,7 @@ public class PushAction extends Action {
         valid &= newAgentPos.equals(oldBoxPos);        // agent is at correct location
         valid &= !newBoxPos.equals(oldAgentPos);       // box and agent has not switched positions
         valid &= newAgentPos.isNeighbour(newBoxPos);   // box and agent are still neighbours in posterior state
-        // should the actual box be a part of the effect??
-        // we do not have access to level, thus we cannot check box label.
-        HTNEffect result = new HTNEffect(newAgentPos, newBoxPos);
+        HTNState result = new HTNState(newAgentPos, newBoxPos);
         valid &= result.isLegal();
         return (valid) ? result : null;
     }

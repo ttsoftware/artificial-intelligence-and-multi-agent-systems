@@ -6,7 +6,6 @@ import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.actions.HLAction;
-import dtu.agency.planners.actions.effects.HTNEffect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,14 +18,14 @@ public class HTNNode {
 
     private HTNNode parent;
     private Action action;   // primitive action represented by this node
-    private HTNEffect effect; // status of the relevant board features
+    private HTNState state; // status of the relevant board features
     private MixedPlan remainingActions; // list of successive (abstract) actions
     private int g; // generation - how many ancestors exist? -> how many moves have i performed
 
-    public HTNNode(HTNNode parent, Action action, HTNEffect initialEffects, MixedPlan highLevelPlan) {
+    public HTNNode(HTNNode parent, Action action, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
         this.action = action;
-        this.effect = initialEffects;
+        this.state = initialEffects;
         this.remainingActions = highLevelPlan;
         this.g = (parent == null) ? 0 : (parent.g + 1);
     }
@@ -39,32 +38,56 @@ public class HTNNode {
         return this.parent == null;
     }
 
+    public HTNNode getParent() {
+        return parent;
+    }
+
+    public void setParent(HTNNode parent) {
+        this.parent = parent;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public HTNState getState() {
+        return state;
+    }
+
+    public void setState(HTNState state) {
+        this.state = state;
+    }
+
     public ArrayList<HTNNode> getRefinementNodes() {
         //System.err.println("HTNNode: getting refinements");
 
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
         if (this.remainingActions.isEmpty()) {
-            System.err.println("No more remaining actions, returning empty list of refinements");
+            System.err.println("No more remaining actions, returning empty list of refinement nodes");
             return refinementNodes;
         }
 
         AbstractAction nextAction = remainingActions.removeFirst();
 
         if (nextAction instanceof Action) { // case the action is primitive, add it as only node,
-            System.err.println("Next action is Primitive, thus a single ChildNode is created");
+            //System.err.println("Next action is Primitive, thus a single ChildNode is created");
             Action primitive = (Action) nextAction;
             HTNNode only = childNode( primitive, this.remainingActions ); // is remainingActions correct?? has first been removed??
             if (only != null) { refinementNodes.add(only);}
-            System.err.println(refinementNodes.toString());
+            //System.err.println(refinementNodes.toString());
             return refinementNodes;
         }
 
         if (nextAction instanceof HLAction) { // case the action is high level, get the refinements from the action
-            System.err.println("Next action is High Level, thus a we seek refinements to it:");
+            //System.err.println("Next action is High Level, thus a we seek refinements to it:");
             HLAction highLevelAction = (HLAction) nextAction;
-            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getEffect());
-            System.err.println(refs.toString());
+            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getState());
+            //System.err.println(refs.toString());
 
             for (MixedPlan refinement : refs) {
 
@@ -87,19 +110,19 @@ public class HTNNode {
     }
 
     private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions) {
-        HTNEffect oldState = this.getEffect();
-        HTNEffect newState = primitiveAction.applyTo(oldState);
+        HTNState oldState = this.getState();
+        HTNState newState = primitiveAction.applyTo(oldState);
         return new HTNNode(this, primitiveAction, newState, remainingActions);
     }
 
     public PrimitivePlan extractPlan() {
         LinkedList<Action> plan = new LinkedList<>();
-        HTNNode n = this;
+        HTNNode node = this;
         Action previous;
-        while (!n.isInitialNode()) {
-            previous = n.getAction();
+        while (!node.isInitialNode()) {
+            previous = node.getAction();
             if ((previous != null) && !(previous instanceof NoAction)) plan.addFirst(previous);
-            n = n.getParent();
+            node = node.getParent();
         }
         return new PrimitivePlan(plan);
     }
@@ -110,7 +133,7 @@ public class HTNNode {
         int result = 1;
         result = prime * result + parent.hashCode();
         result = prime * result + action.hashCode();
-        result = prime * result + effect.hashCode();
+        result = prime * result + state.hashCode();
         result = prime * result + remainingActions.hashCode();
         return result;
     }
@@ -128,7 +151,7 @@ public class HTNNode {
             return false;
         if (action != other.action)
             return false;
-        if (effect != other.effect)
+        if (state != other.state)
             return false;
         if (!remainingActions.equals(other.remainingActions)) {
             return false;
@@ -136,37 +159,15 @@ public class HTNNode {
         return true;
     }
 
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("HTNNode: {");
         s.append("Generation: " + Integer.toString(this.g));
         s.append(", Action: " + ((action!=null) ? action.toString() : "null") );
-        s.append(", Effect: " + this.effect.toString() + ",\n");
+        s.append(", Effect: " + this.state.toString() + ",\n");
         s.append("          RemainingActions: " + this.remainingActions.toString() + "}" );
         return s.toString();
     }
 
-    public HTNNode getParent() {
-        return parent;
-    }
-
-    public void setParent(HTNNode parent) {
-        this.parent = parent;
-    }
-
-    public Action getAction() {
-        return action;
-    }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
-    public HTNEffect getEffect() {
-        return effect;
-    }
-
-    public void setEffect(HTNEffect effect) {
-        this.effect = effect;
-    }
 }

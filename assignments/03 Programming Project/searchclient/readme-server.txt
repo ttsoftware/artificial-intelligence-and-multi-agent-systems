@@ -57,7 +57,7 @@
         Linux/Mac: $ java -jar server.jar -l levels/MAsimple1.lvl -c "java searchclient.sampleclients.RandomWalkClient" > /dev/null
     Note that both messages from the client and important server messages (including success) both use 'standard error' for printing to console, hence they bypass this redirection.
     
-    To test the effect of actions you can try the user controlled client: 
+    To test the state of actions you can try the user controlled client:
         Windows: $ java -jar server.jar -l levels/SAsokobanLevel96.lvl -c "java searchclient.sampleclients.GuiClient" -g 200
         Linux:   $ java -Dsun.java2d.opengl=true -jar server.jar -l levels/SAsokobanLevel96.lvl -c "java searchclient.sampleclients.GuiClient" -g 200
     

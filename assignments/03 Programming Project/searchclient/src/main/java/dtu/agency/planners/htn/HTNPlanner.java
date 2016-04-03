@@ -12,7 +12,6 @@ import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.GotoAction;
 import dtu.agency.planners.actions.MoveBoxAction;
-import dtu.agency.planners.actions.effects.HTNEffect;
 import dtu.agency.planners.htn.heuristic.AStarHeuristic;
 import dtu.agency.planners.htn.heuristic.Heuristic;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
@@ -123,13 +122,13 @@ public class HTNPlanner {
     }
 
     public boolean isGoalState (HTNNode node) {
-        return finalGoal.getPosition().equals( node.getEffect().getBoxPosition() );
+        return finalGoal.getPosition().equals( node.getState().getBoxPosition() );
     }
 
     public PrimitivePlan plan() { // may return null if no plan is found!
         Box targetBox = bestPlan.getMoveBoxAction().getBox();
 
-        HTNEffect initialEffect = new HTNEffect(agent.getPosition(), targetBox.getPosition() );
+        HTNState initialEffect = new HTNState(agent.getPosition(), targetBox.getPosition() );
 
         initialNode = new HTNNode(null, null, initialEffect, new MixedPlan(bestPlan.getActions()) );
 
@@ -141,29 +140,32 @@ public class HTNPlanner {
 
         int iterations = 0;
         while(true) {
-            //if (iterations % Main.printIterations == 0) {
+            if (iterations % Main.printIterations == 0) {
                 System.err.println(strategy.status());
-            //}
+            }
 
             if (Memory.shouldEnd()) {
                 System.err.format("Memory limit almost reached, terminating search %s\n", Memory.stringRep());
+                System.err.println(strategy.status());
                 return null;
             }
 
             if (strategy.timeSpent() > Main.timeOut ) {
                 System.err.format("Time limit reached, terminating search %s\n", Memory.stringRep());
+                System.err.println(strategy.status());
                 return null;
             }
 
             if (strategy.frontierIsEmpty()) {
                 System.err.format("Frontier is empty, HTNPlanner failed to create a plan!\n");
+                System.err.println(strategy.status());
                 return null;
             }
 
             HTNNode leafNode = strategy.getAndRemoveLeaf();
-            System.err.println(leafNode.toString());
+            //System.err.println(leafNode.toString());
 
-            if ( strategy.isExplored(leafNode.getEffect()) ) {
+            if ( strategy.isExplored(leafNode.getState()) ) {
                 // reject nodes resulting in states visited already
                 if (leafNode.getAction() instanceof NoAction) {
                     // check for progression
@@ -178,24 +180,22 @@ public class HTNPlanner {
                         continue;
                     }
                 } else {
-                    System.err.println("Effect already explored! skipping this node");
+                    //System.err.println("Effect already explored! skipping this node");
                     continue;
                 }
             }
 
             if (isGoalState(leafNode)) {
                 System.err.println("GOOOAAAAAAAALLL!!!!!");
+                System.err.println(strategy.status());
                 return leafNode.extractPlan();
             }
 
-            strategy.addToExplored(leafNode.getEffect());
-
-            //if (leafNode.g() > 10) continue; // check only the first three generations
+            strategy.addToExplored(leafNode.getState());
 
             for (HTNNode n : leafNode.getRefinementNodes()) {
                 strategy.addToFrontier(n);
             }
-            System.err.println("ExploredEffects:" + strategy.getExplored().toString());
 
             iterations++;
         }

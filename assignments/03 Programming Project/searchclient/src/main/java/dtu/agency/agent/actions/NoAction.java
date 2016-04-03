@@ -1,6 +1,6 @@
 package dtu.agency.agent.actions;
 
-import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNState;
 
 public class NoAction extends Action {
 
@@ -19,7 +19,7 @@ public class NoAction extends Action {
     }
 
     @Override
-    public HTNEffect applyTo(HTNEffect oldState) {
+    public HTNState applyTo(HTNState oldState) {
         return oldState;
     }
 }

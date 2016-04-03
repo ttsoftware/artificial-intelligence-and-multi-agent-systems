@@ -9,11 +9,9 @@ import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.Direction;
 import dtu.agency.agent.actions.MoveAction;
 import dtu.agency.agent.actions.NoAction;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.effects.HTNEffect;
+import dtu.agency.planners.htn.HTNState;
 import dtu.agency.services.LevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class ActionTest {
     * This test class tests the Primitive actions when the are applied to different states
     * Author: Mads
     * */
-    private static HTNEffect noc,non,nos,noe,now, nbn,nbs,nbe,nbw, bne,bnw,bse,bsw;
+    private static HTNState noc,non,nos,noe,now, nbn,nbs,nbe,nbw, bne,bnw,bse,bsw;
     private static Position center, n,s,e,w, ne,se,nw,sw, z;
     private static Level level;
 
@@ -58,23 +56,23 @@ public class ActionTest {
         sw = new Position(3,1);
 
         // states where no box is present
-        noc = new HTNEffect(center,z);
-        non = new HTNEffect(n,z);
-        nos = new HTNEffect(s,z);
-        noe = new HTNEffect(e,z);
-        now = new HTNEffect(w,z);
+        noc = new HTNState(center,z);
+        non = new HTNState(n,z);
+        nos = new HTNState(s,z);
+        noe = new HTNState(e,z);
+        now = new HTNState(w,z);
 
         // states where box is neighbour to agent
-        nbn = new HTNEffect(center,n);
-        nbs = new HTNEffect(center,s);
-        nbe = new HTNEffect(center,e);
-        nbw = new HTNEffect(center,w);
+        nbn = new HTNState(center,n);
+        nbs = new HTNState(center,s);
+        nbe = new HTNState(center,e);
+        nbw = new HTNState(center,w);
 
         // states where box is NOT neighbour to agent
-        bne = new HTNEffect(center,ne);
-        bnw = new HTNEffect(center,nw);
-        bse = new HTNEffect(center,se);
-        bsw = new HTNEffect(center,sw);
+        bne = new HTNState(center,ne);
+        bnw = new HTNState(center,nw);
+        bse = new HTNState(center,se);
+        bsw = new HTNState(center,sw);
 
         File resourcesDirectory = new File("src/test/resources");
         String levelPath = resourcesDirectory.getAbsolutePath() + "/action_test.lvl";
@@ -88,7 +86,7 @@ public class ActionTest {
     public void nopTest() {
         LevelService.getInstance().setLevel( level );
         Action nop = new NoAction();
-        HTNEffect eff = nop.applyTo(nbn);
+        HTNState eff = nop.applyTo(nbn);
         assertTrue("Effect is not unchanged", eff.equals(nbn));
     }
 
