@@ -150,6 +150,7 @@ public class LevelService implements Serializable {
     private boolean causesCollision(int row, int column) {
         BoardCell nextCell = level.getBoardState()[row][column];
 
+<<<<<<< Updated upstream
         switch (nextCell) {
             case FREE_CELL:
                 // No collision
@@ -160,6 +161,159 @@ public class LevelService implements Serializable {
             default:
                 // All other cases are collisions
                 break;
+=======
+    /**
+     *
+     * @param position
+     * @param objectToIgnore
+     * @return A list of free cells adjacent to @position, and the neighbour that contains @objectToIgnore, if it exists
+     */
+    public synchronized List<Neighbour> getFreeNeighbours(Position position, BoardObject objectToIgnore) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1, objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1, objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn(), objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn(), objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
+    /**
+     *
+     * @param currentPosition
+     * @param movingDirection
+     * @return The position arrived at after moving from @currentPosition in @movingDirection
+     */
+    public synchronized Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
+        switch (movingDirection) {
+            case NORTH:
+                return new Position(currentPosition.getRow() - 1, currentPosition.getColumn());
+            case SOUTH:
+                return new Position(currentPosition.getRow() + 1, currentPosition.getColumn());
+            case WEST:
+                return new Position(currentPosition.getRow(), currentPosition.getColumn() - 1);
+            case EAST:
+                return new Position(currentPosition.getRow(), currentPosition.getColumn() + 1);
+            default:
+                return null;
+        }
+    }
+
+    /**
+     *
+     * @param positionA
+     * @param positionB
+     * @return The direction of positionB relative to positionA
+     */
+    public synchronized Direction getMovingDirection(Position positionA, Position positionB) {
+        if (positionA.getRow() == positionB.getRow()) {
+            if (positionA.getColumn() < positionB.getColumn()) {
+                return Direction.EAST;
+            } else {
+                return Direction.WEST;
+            }
+        } else if (positionA.getColumn() == positionB.getColumn()) {
+            if (positionA.getRow() < positionB.getRow()) {
+                return Direction.SOUTH;
+            } else {
+                return Direction.NORTH;
+            }
+        }
+        throw new InvalidParameterException("Given positions are not adjacent.");
+    }
+
+    /**
+     *
+     * @param position
+     * @return True if object at given position can be moved
+     */
+    public synchronized boolean isMoveable(Position position) {
+        return isMoveable(position.getRow(), position.getColumn());
+    }
+
+    /**
+     *
+     * @param row
+     * @param column
+     * @return True if object at given position can be moved
+     */
+    public synchronized boolean isMoveable(int row, int column) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
+                    || level.getBoardState()[row][column].equals(BoardCell.AGENT_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param position
+     * @return True if the given position is free
+     */
+    public synchronized boolean isFree(Position position) {
+        return isFree(position.getRow(), position.getColumn());
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @param objectToIgnore
+     * @return True if the given position is free or if it contains objectToIgnore
+     */
+    public synchronized boolean isFree(int row, int column, BoardObject objectToIgnore) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
+                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
+                return true;
+            }
+            else {
+                if (level.getBoardObjects()[row][column] != null) {
+                    if (level.getBoardObjects()[row][column].getLabel().equals(objectToIgnore.getLabel())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if the given position is free
+     */
+    public synchronized boolean isFree(int row, int column) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
+                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
+                return true;
+            }
+>>>>>>> Stashed changes
         }
 
         return true;
