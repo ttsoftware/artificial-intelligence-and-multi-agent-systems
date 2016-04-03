@@ -39,6 +39,15 @@ public class ActionTest {
         //z  = new Position(0,0);
         z  = null;
 
+        /*  R
+        *  C0 1 2 3
+        *   1
+        *   2     1
+        *   3 0
+        *   Position(R,C) -> Agent0 at Position(3,1)
+        *                 -> Agent1 at Position(2,3)
+        */
+
         n  = new Position(1,2);
         s  = new Position(3,2);
         e  = new Position(2,3);
@@ -97,6 +106,7 @@ public class ActionTest {
         Action goW = new MoveAction(Direction.WEST);
 
         // applyTo is the only method in need of testing
+        // check that you end up the right place
         assertTrue(non.equals(goN.applyTo(noc)));
         assertTrue(nos.equals(goS.applyTo(noc)));
         assertTrue(noe.equals(goE.applyTo(noc)));
@@ -107,6 +117,7 @@ public class ActionTest {
         assertTrue(noc.equals(goE.applyTo(now)));
         assertTrue(noc.equals(goW.applyTo(noe)));
 
+        // check that you do not end up the wrong place...
         assertTrue(!noc.equals(goN.applyTo(non)));
         assertTrue(!noc.equals(goS.applyTo(nos)));
         assertTrue(!noc.equals(goE.applyTo(noe)));
