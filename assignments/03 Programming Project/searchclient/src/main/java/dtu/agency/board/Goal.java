@@ -1,6 +1,6 @@
 package dtu.agency.board;
 
-public class Goal extends BoardObject {
+public class Goal extends BoardObject implements Comparable<Goal> {
 
     private int weight;
     private final int row;
@@ -27,5 +27,10 @@ public class Goal extends BoardObject {
 
     public int getColumn() {
         return column;
+    }
+
+    @Override
+    public int compareTo(Goal otherGoal) {
+        return weight - otherGoal.getWeight();
     }
 }
