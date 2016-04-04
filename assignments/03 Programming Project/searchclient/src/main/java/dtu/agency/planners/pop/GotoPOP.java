@@ -28,27 +28,34 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
 
         while (true) {
             PriorityQueue<Action> stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
-            MoveAction nextAction = (MoveAction) stepActions.poll();
 
-            Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
-                    nextAction.getAgentPosition(),
-                    nextAction.getDirection()
-            );
+            if(stepActions.size() > 0) {
+                MoveAction nextAction = (MoveAction) stepActions.poll();
 
-            if (nextActionPosition.isAdjacentTo(agentStartPosition)) {
-                actions.add(
-                        new MoveAction(
-                                LevelService.getInstance().getMovingDirection(
-                                        nextActionPosition,
-                                        agentStartPosition
-                                )
-                        )
+                Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
+                        nextAction.getAgentPosition(),
+                        nextAction.getDirection()
                 );
-                break;
+
+                if (nextActionPosition.isAdjacentTo(agentStartPosition)) {
+                    actions.add(
+                            new MoveAction(
+                                    LevelService.getInstance().getMovingDirection(
+                                            agentStartPosition,
+                                            nextActionPosition
+                                    )
+                            )
+                    );
+                    break;
+                }
+
+                actions.add(nextAction);
+                currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
             }
 
-            actions.add(nextAction);
-            currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
+            else {
+                //TODO: backtrack
+            }
         }
 
         if (!LevelService.getInstance().isFree(action.getPosition())) {

@@ -313,17 +313,14 @@ public class LevelService implements Serializable {
     }
 
     /**
-     *
      * @param row
      * @param column
-     * @return True if object at given position can be moved
+     * @return True if the given position is free
      */
     public synchronized boolean isFree(int row, int column) {
         if (isInLevel(row, column)) {
-            if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
-                    || level.getBoardState()[row][column].equals(BoardCell.AGENT_GOAL)
-                    || level.getBoardState()[row][column].equals(BoardCell.BOX_GOAL)
-                    || level.getBoardState()[row][column].equals(BoardCell.BOX)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
+                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
                 return true;
             }
         }
