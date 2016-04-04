@@ -11,14 +11,13 @@ public class MoveAction extends Action {
         this.direction = agentDirection;
     }
 
-    @Override
-    public ActionType getType() {
-        return ActionType.MOVE;
+    public Direction getDirection() {
+        return direction;
     }
 
     @Override
-    public String toString() {
-        return "Move(" + getDirection() + ")";
+    public ActionType getType() {
+        return ActionType.MOVE;
     }
 
     @Override
@@ -28,10 +27,13 @@ public class MoveAction extends Action {
         Position boxPos = oldState.getBoxPosition();
 
         HTNState result = new HTNState(newAgentPos, boxPos);
-        return result.isLegal() ? result : null;
+        boolean valid = result.isLegal();
+
+        return (valid) ? result : null;
     }
 
-    public Direction getDirection() {
-        return direction;
+    @Override
+    public String toString() {
+        return "Move(" + getDirection() + ")";
     }
 }

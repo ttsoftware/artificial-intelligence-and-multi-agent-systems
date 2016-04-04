@@ -21,12 +21,31 @@ public class HTNNode {
     private HTNState state;  // status of the relevant board features after applying the action of this node
     private MixedPlan remainingPlan; // list of successive (abstract) actions
     private int g; // generation - how many ancestors exist? -> how many moves have i performed
+    // private Relaxation r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
 
     public HTNNode(HTNNode parent, Action action, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
         this.action = action;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
+        this.g = (parent == null) ? 0 : (parent.g + 1);
+    }
+
+    public HTNNode(HTNState initialEffects, MixedPlan highLevelPlan) {
+        this.parent = null;
+        this.action = null;
+        this.state = initialEffects;
+        this.remainingPlan = highLevelPlan;
+        this.g = (parent == null) ? 0 : (parent.g + 1);
+    }
+
+    public HTNNode(HTNState initialEffects, HLAction highLevelAction) {
+        this.parent = null;
+        this.action = null;
+        this.state = initialEffects;
+        MixedPlan plan = new MixedPlan();
+        plan.addAction(highLevelAction);
+        this.remainingPlan = plan;
         this.g = (parent == null) ? 0 : (parent.g + 1);
     }
 

@@ -1,56 +1,18 @@
 package dtu.agency.planners.htn.heuristic;
 
 import dtu.agency.agent.actions.Action;
-import dtu.agency.board.Box;
-import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.actions.HLAction;
-import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.HTNNode;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public abstract class Heuristic implements Comparator<HTNNode> {
 
-    /*
-    public HTNState initialState;
-    public HLAction action;
-    public Box targetBox;
-    public Goal targetGoal;
-
-    public Position initialPosition;
-    public List<AbstractAction> actions;
-    */
-
     public Method method = Method.MANHATTAN;
-
-    /*
-    public Heuristic(HTNState initialEffect, Box targetBox, Goal targetGoal) {
-        this.initialState = initialEffect;
-        this.targetGoal = targetGoal;
-        this.targetBox = targetBox;
-    }
-
-    public Heuristic(HTNState initialEffect, Box targetBox, Goal targetGoal, Method method) {
-        this.initialState = initialEffect;
-        this.targetGoal = targetGoal;
-        this.targetBox = targetBox;
-        this.method = method;
-    }
-
-    // a new constructor is needed, taking a single HLAction, along with initial state, the rest must be found from this
-    public Heuristic(Position initialPosition) {
-        this.initialPosition = initialPosition;
-    }
-
-    public Heuristic(HTNNode node) {
-        this.initialState = node.getState();
-        this.actions = node.getRemainingPlan().getActions();
-    }*/
 
     public Heuristic(Method method) {
         this.method = method;
@@ -64,7 +26,6 @@ public abstract class Heuristic implements Comparator<HTNNode> {
         Position previous = n.getState().getAgentPosition();
         List<AbstractAction> actions = n.getRemainingPlan().getActions();
         int primitives = 0;
-        ArrayList<HLAction> midLevelActions = new ArrayList<>();
         for (AbstractAction action : actions) {
             // count primitive actions, and refine all pure HLActions, getting a list of HLActions
             // as no pure HLAction refines into other pure HLAction, this is not walked like a tree,
@@ -103,33 +64,6 @@ public abstract class Heuristic implements Comparator<HTNNode> {
         return primitives;
     }
 
-    /*
-    public int manhattan(HTNNode n) {
-        // this has to be improved somewhat: main idea is the following...
-        // refine all 'pure' HLActions, and concatenate plan
-        // for each entry in plan add previous destination to target destination, first on accepting initial HTNState.
-        int distToBox = Math.abs(n.getState().getAgentPosition().manhattanDist(targetBox.getPosition()) - 1) ; //next to is better
-        int distToGoal = n.getState().getBoxPosition().manhattanDist(targetGoal.getPosition());
-        return distToBox + distToGoal;
-    }
-
-    public int euclidean(HTNNode n) {
-        long distToBox  = Math.round(Math.abs(n.getState().getAgentPosition().eucDist(targetBox.getPosition()) - 1)) ; //next to is better
-        long distToGoal = Math.round(n.getState().getBoxPosition().eucDist(targetGoal.getPosition()));
-        return (int) (distToBox + distToGoal);
-    }
-
-    public int h(HTNNode n) {
-        switch (this.method) {
-            case MANHATTAN:
-                return manhattan(n);
-            case EUCLIDEAN:
-                return euclidean(n);
-        }
-
-        throw new UnsupportedOperationException("Invalid direction object.");
-    }
-    */
     private int distance(Position from, Position to) {
         int dist = 0;
         switch (method) {

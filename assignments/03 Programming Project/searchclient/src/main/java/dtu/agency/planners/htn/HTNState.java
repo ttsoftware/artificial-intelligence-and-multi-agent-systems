@@ -8,7 +8,7 @@ import dtu.agency.services.LevelService;
 /**
  * Created by Mads on 3/22/16.
  */
-public class HTNState extends Effect {
+public class HTNState {
     private final Position agentPosition;
     private final Position boxPosition;
 
@@ -33,7 +33,7 @@ public class HTNState extends Effect {
         return agentPosition.isNeighbour(boxPosition);
     }
 
-    public boolean isLegal() {
+    public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
         boolean valid = true;
         //System.err.println(!getAgentPosition().equals(getBoxPosition()));
         //System.err.println(LevelService.getInstance().getLevel().notWall(this.getAgentPosition()));

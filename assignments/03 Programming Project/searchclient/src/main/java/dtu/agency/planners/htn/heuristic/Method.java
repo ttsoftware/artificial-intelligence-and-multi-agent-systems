@@ -1,8 +1,5 @@
 package dtu.agency.planners.htn.heuristic;
 
-/**
- * Created by mads on 3/25/16.
- */
 public enum Method {
     MANHATTAN,
     EUCLIDEAN;
@@ -15,7 +12,6 @@ public enum Method {
             case EUCLIDEAN:
                 return "Flight";
         }
-
-        throw new UnsupportedOperationException("Invalid direction object.");
+        throw new UnsupportedOperationException("Invalid Method object.");
     }
 }

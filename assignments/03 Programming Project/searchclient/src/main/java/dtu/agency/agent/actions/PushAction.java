@@ -16,14 +16,21 @@ public class PushAction extends Action {
         this.boxDirection = boxDirection;
     }
 
-    @Override
-    public ActionType getType() {
-        return ActionType.PUSH;
+    public Box getBox() {
+        return box;
+    }
+
+    public Direction getAgentDirection() {
+        return agentDirection;
+    }
+
+    public Direction getBoxDirection() {
+        return boxDirection;
     }
 
     @Override
-    public String toString() {
-        return "Push(" + getAgentDirection() + "," + getBoxDirection() + ")";
+    public ActionType getType() {
+        return ActionType.PUSH;
     }
 
     @Override
@@ -48,15 +55,8 @@ public class PushAction extends Action {
         return (valid) ? result : null;
     }
 
-    public Box getBox() {
-        return box;
-    }
-
-    public Direction getAgentDirection() {
-        return agentDirection;
-    }
-
-    public Direction getBoxDirection() {
-        return boxDirection;
+    @Override
+    public String toString() {
+        return "Push(" + getAgentDirection() + "," + getBoxDirection() + ")";
     }
 }

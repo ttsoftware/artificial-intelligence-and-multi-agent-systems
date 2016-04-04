@@ -14,12 +14,12 @@ public class NoAction extends Action {
     }
 
     @Override
-    public String toString() {
-        return "NoOp";
+    public HTNState applyTo(HTNState oldState) {
+        return oldState;
     }
 
     @Override
-    public HTNState applyTo(HTNState oldState) {
-        return oldState;
+    public String toString() {
+        return "NoOp";
     }
 }

@@ -17,82 +17,67 @@ import dtu.agency.planners.htn.heuristic.Heuristic;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.services.LevelService;
-
 import java.util.ArrayList;
 
 /**
  * Created by Mads on 3/21/16.
+ * This Planner uses the Hierarchical Task Network method to subdivide high level tasks into primitive actions
  */
 public class HTNPlanner {
-    // Auxiliary static classes
-    public static void error(String msg) throws Exception {
-        throw new Exception("HTNError: " + msg);
-    }
-
     // split into two sub problems:
     // 1. move-path to box, initial state, agentPosition
     // 2. push/pull-path to goal from box, initialState: agentPosition(last from previous), BoxPosition
     // use HTNPlanner-search to find paths
 
-
-
     private Agent agent;
     public HTNNode initialNode;         // first node... ?
     ArrayList<HTNPlan> allPlans;        // list of all possible plans to solve the goal
     private HTNPlan bestPlan;           // High level actions only
-    //private PrimitivePlan moveBoxPlan;  // Low level (primitive) actions only
     private Goal finalGoal;             // to check goal state
 
+    // idea: use PriorityQueue to store allPlans, and make heuristic and nodes with toplevelaction SolveGoal
+    // then rePlan() is reduced to remove() on allPlans, and a plan can easily be made internally, choosing the
+    // best box, using a chosen heuristic (not necessary same as in plan())
+
+    /*
+    * Constructor: All a planner needs is the next goal and the agent solving it...
+    * */
     public HTNPlanner(Agent agent, Goal target ){
+        System.err.println("HTN Planner initializing.");
         this.agent = agent;
         this.finalGoal = target;
-
-        // Use stderr to print to console
-        System.err.println("HTN Planner initializing.");
-
-        //System.err.println("Agent Found at: " + agent.toString());
-        //System.err.println("Goal  Found at: " + finalGoal.toString());
-
+        //Heuristic heuristic = new WeightedAStarHeuristic(Main.heuristicMeasure, 2);
         this.allPlans = createAllPlans(target);
-        //System.err.println("All Plans Generated: " + allPlans.toString());
-
-        rePlan();  // could as well sort them, so that they can be polled one at a time - NO! search linearly, as expected time is O(N)
+        rePlan();  // store them in PriorityQueue or similar
         System.err.println("BestPlan found:" + bestPlan.toString());
     }
 
+    /*
+    *  Fills the data structure containing information on ways to solve this particular target
+    */
     private ArrayList<HTNPlan> createAllPlans(Goal target) {
         // find all boxes that correspond to goal
         // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
         // store this list of 'HTNPlans' to be retrieved by a method
         ArrayList<HTNPlan> allPlans = new ArrayList<>();
         ArrayList<Box> boxes = new ArrayList<>();
-        //System.err.println("Creating All Plans: ");
 
         for (Box b : LevelService.getInstance().getLevel().getBoxes() ) {
-            if ( b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase()) ) {
-                boxes.add(b);
-            }
+            if (b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) boxes.add(b);
         }
-        //System.err.println("Boxes found: ");
-        //System.err.println(boxes.toString());
 
         for (Box b : boxes) {
-
             GotoAction gta = new GotoAction(b);
-            //System.err.println("GotoAction created: ");
-            //System.err.println(gta.toString());
-
             MoveBoxAction mba = new MoveBoxAction(b, target);
-            //System.err.println("MoveBoxAction created: ");
-            //System.err.println(mba.toString());
-
             allPlans.add(new HTNPlan(gta, mba));
+            // allPlans.add(new SolveGoalAction(b, target)); // priority queue
         }
-        //System.err.println("AllPlans created: ");
-        //System.err.println(allPlans.toString());
         return allPlans;
     }
 
+    /*
+    * is used to find the next plan (using the next box in line)
+    */
     private void rePlan() {
         Position a = agent.getPosition();
         if (allPlans.isEmpty()) {
@@ -121,10 +106,24 @@ public class HTNPlanner {
         this.bestPlan = bestPlan;
     }
 
+    /*
+    * Returns the best suited HTN plan for use with other planner mechanisms
+    */
+    public HTNPlan getBestPlan() {
+        return bestPlan;
+    }
+
+    /*
+    * Checks whether the final goal is reached with a box
+    */
     public boolean isGoalState (HTNNode node) {
         return finalGoal.getPosition().equals( node.getState().getBoxPosition() );
     }
 
+    /*
+    * This method ensures a viable plan is found for solving a top level goal
+    * could introduce relaxation here
+    */
     public PrimitivePlan plan() { // may return null if no plan is found!
         Box targetBox = bestPlan.getMoveBoxAction().getBox();
 
@@ -132,7 +131,6 @@ public class HTNPlanner {
 
         initialNode = new HTNNode(null, null, initialEffect, new MixedPlan(bestPlan.getActions()) );
 
-        //Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, finalGoal);
         Heuristic heuristic = new AStarHeuristic(Main.heuristicMeasure);
         Strategy strategy = new BestFirstStrategy(heuristic);
 
@@ -203,8 +201,5 @@ public class HTNPlanner {
 
     }
 
-    public HTNPlan getBestPlan() {
-        return bestPlan;
-    }
 }
 

@@ -16,19 +16,25 @@ public class PullAction extends Action {
         this.boxDirection = boxDirection;
     }
 
+    public Box getBox() {
+        return box;
+    }
+
+    public Direction getAgentDirection() {
+        return agentDirection;
+    }
+
+    public Direction getBoxDirection() {
+        return boxDirection;
+    }
+
     @Override
     public ActionType getType() {
         return ActionType.PULL;
     }
 
     @Override
-    public String toString() {
-        return "Pull(" + getAgentDirection() + "," + getBoxDirection() + ")";
-    }
-
-    @Override
     public HTNState applyTo(HTNState oldState) {
-        // calculate new effects
         Position oldAgentPos = oldState.getAgentPosition();
         Position oldBoxPos = oldState.getBoxPosition();
 
@@ -43,20 +49,15 @@ public class PullAction extends Action {
         valid &= newBoxPos.equals(oldAgentPos);        // box and agent has not switched positions
         valid &= !newAgentPos.equals(oldBoxPos);       // agent is not at wrong location
         valid &= newAgentPos.isNeighbour(newBoxPos);   // box and agent are still neighbours in posterior state
+
         HTNState result = new HTNState(newAgentPos, newBoxPos);
         valid &= result.isLegal();
+
         return (valid) ? result : null;
     }
 
-    public Box getBox() {
-        return box;
-    }
-
-    public Direction getAgentDirection() {
-        return agentDirection;
-    }
-
-    public Direction getBoxDirection() {
-        return boxDirection;
+    @Override
+    public String toString() {
+        return "Pull(" + getAgentDirection() + "," + getBoxDirection() + ")";
     }
 }
