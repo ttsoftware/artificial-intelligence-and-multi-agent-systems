@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 public class LevelService implements Serializable {
 
@@ -186,6 +185,8 @@ public class LevelService implements Serializable {
         return neighbours;
     }
 
+
+
     /**
      *
      * @param position
@@ -222,6 +223,44 @@ public class LevelService implements Serializable {
         return neighbours;
     }
 
+
+    /**
+     *
+     * @param position
+     * @param objectToIgnore
+     * @return A list of free cells adjacent to @position, and the neighbour that contains @objectToIgnore, if it exists
+     */
+    public synchronized List<Neighbour> getFreeNeighbours(Position position, BoardObject objectToIgnore) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1, objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1, objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn(), objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn(), objectToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
     /**
      *
      * @param currentPosition
@@ -241,84 +280,8 @@ public class LevelService implements Serializable {
             default:
                 return null;
         }
-    }
 
-    /**
-     *
-     * @param positionA
-     * @param positionB
-     * @return The direction of positionB relative to positionA
-     */
-    public synchronized Direction getMovingDirection(Position positionA, Position positionB) {
-        if (positionA.getRow() == positionB.getRow()) {
-            if (positionA.getColumn() < positionB.getColumn()) {
-                return Direction.EAST;
-            } else {
-                return Direction.WEST;
-            }
-        } else if (positionA.getColumn() == positionB.getColumn()) {
-            if (positionA.getRow() > positionB.getRow()) {
-                return Direction.SOUTH;
-            } else {
-                return Direction.NORTH;
-            }
-        }
-        throw new InvalidParameterException("Given positions are not adjacent.");
-    }
-
-    /**
-     *
-     * @param position
-     * @return True if object at given position can be moved
-     */
-    public synchronized boolean isMoveable(Position position) {
-        return isMoveable(position.getRow(), position.getColumn());
-    }
-
-    /**
-     *
-     * @param row
-     * @param column
-     * @return True if object at given position can be moved
-     */
-    public synchronized boolean isMoveable(int row, int column) {
-        if (isInLevel(row, column)) {
-            if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
-                    || level.getBoardState()[row][column].equals(BoardCell.AGENT_GOAL)
-                    || level.getBoardState()[row][column].equals(BoardCell.BOX_GOAL)
-                    || level.getBoardState()[row][column].equals(BoardCell.BOX)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     *
-     * @param position
-     * @return True if the given position is free
-     */
-    public synchronized boolean isFree(Position position) {
-        return isFree(position.getRow(), position.getColumn());
-    }
-
-    /**
-     * @param row
-     * @param column
-     * @return True if the given position is free
-     */
-    public synchronized boolean isFree(int row, int column) {
-        if (isInLevel(row, column)) {
-            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
-                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public synchronized Position getPosition(String objectLabel) {
-        return level.getBoardObjectPositions().get(objectLabel);
+        return true;
     }
 
     /**
@@ -348,7 +311,7 @@ public class LevelService implements Serializable {
 
     /**
      * Manhattan distance: <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">https://en.wikipedia.org/wiki/Taxicab_geometry</a>
-     * <p>
+     *
      * Should have Expected O(1) time complexity.
      *
      * @param objectA
@@ -378,26 +341,8 @@ public class LevelService implements Serializable {
         // O(1) time operations
         return Math.abs(positionA.getRow() - positionB.getRow())
                 + Math.abs(positionA.getColumn() - positionB.getColumn());
-    }
 
-    /**
-     * @param position
-     * @return True if the position exists in the level
-     */
-    public synchronized boolean isInLevel(Position position) {
-        return isInLevel(position.getRow(), position.getColumn());
-    }
-
-    /**
-     * @param row
-     * @param column
-     * @return True if the position exists in the level
-     */
-    public synchronized boolean isInLevel(int row, int column) {
-        return (row >= 0
-                && column >= 0
-                && level.getBoardState().length > row
-                && level.getBoardState()[0].length > column);
+        return distance;
     }
 
     /**
