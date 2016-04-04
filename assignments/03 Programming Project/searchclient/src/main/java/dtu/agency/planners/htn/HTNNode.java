@@ -1,11 +1,14 @@
 package dtu.agency.planners.htn;
 
+import dtu.Main;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.NoAction;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.actions.HLAction;
+import dtu.agency.planners.htn.heuristic.AStarHeuristic;
+import dtu.agency.planners.htn.heuristic.Heuristic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +62,14 @@ public class HTNNode {
 
     public HTNNode getParent() {
         return parent;
+    }
+
+    public HTNNode getParent(int generation) {
+        HTNNode n = this;
+        for (int i = 0 ; i < generation ; i++) {
+            n = (n.isInitialNode()) ? null : n.getParent();
+        }
+        return n;
     }
 
     public void setParent(HTNNode parent) {
@@ -134,7 +145,9 @@ public class HTNNode {
 
     private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions) {
         HTNState oldState = this.getState();
-        HTNState newState = primitiveAction.applyTo(oldState);
+        HTNState newState = (primitiveAction==null) ? oldState : primitiveAction.applyTo(oldState);
+        primitiveAction = (primitiveAction==null) ? new NoAction() : primitiveAction;
+        //System.err.println("RemActions: " + remainingActions.toString());
         return new HTNNode(this, primitiveAction, newState, remainingActions);
     }
 
@@ -184,11 +197,13 @@ public class HTNNode {
 
     @Override
     public String toString() {
+        Heuristic h = new AStarHeuristic(Main.heuristicMeasure);
         StringBuilder s = new StringBuilder();
         s.append("HTNNode: {");
         s.append("Generation: " + Integer.toString(this.g));
+        s.append(", Heuristic: " + Integer.toString(h.h(this)));
         s.append(", Action: " + ((action!=null) ? action.toString() : "null") );
-        s.append(", Effect: " + this.state.toString() + ",\n");
+        s.append(", State: " + this.state.toString() + ",\n");
         s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );
         return s.toString();
     }

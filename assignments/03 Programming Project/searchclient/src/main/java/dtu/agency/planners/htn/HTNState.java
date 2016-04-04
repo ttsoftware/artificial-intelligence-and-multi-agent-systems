@@ -1,6 +1,8 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.agent.actions.Direction;
+import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.effects.Effect;
 import dtu.agency.services.LevelService;
@@ -15,6 +17,11 @@ public class HTNState {
     public HTNState(Position agent, Position targetBox){
         this.agentPosition = agent;
         this.boxPosition = targetBox;
+    }
+
+    public HTNState(Agent agent, Box targetBox){
+        this.agentPosition = agent.getPosition();
+        this.boxPosition = targetBox.getPosition();
     }
 
     public Position getAgentPosition() {

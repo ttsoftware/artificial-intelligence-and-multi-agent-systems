@@ -6,18 +6,18 @@ import dtu.agency.agent.actions.NoAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
-import dtu.agency.board.Position;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
-import dtu.agency.planners.actions.GotoAction;
-import dtu.agency.planners.actions.MoveBoxAction;
+import dtu.agency.planners.actions.HLAction;
+import dtu.agency.planners.actions.SolveGoalAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristic;
 import dtu.agency.planners.htn.heuristic.Heuristic;
+import dtu.agency.planners.htn.heuristic.WeightedAStarHeuristic;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.services.LevelService;
-import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 /**
  * Created by Mads on 3/21/16.
@@ -29,15 +29,9 @@ public class HTNPlanner {
     // 2. push/pull-path to goal from box, initialState: agentPosition(last from previous), BoxPosition
     // use HTNPlanner-search to find paths
 
-    private Agent agent;
-    public HTNNode initialNode;         // first node... ?
-    ArrayList<HTNPlan> allPlans;        // list of all possible plans to solve the goal
-    private HTNPlan bestPlan;           // High level actions only
-    private Goal finalGoal;             // to check goal state
-
-    // idea: use PriorityQueue to store allPlans, and make heuristic and nodes with toplevelaction SolveGoal
-    // then rePlan() is reduced to remove() on allPlans, and a plan can easily be made internally, choosing the
-    // best box, using a chosen heuristic (not necessary same as in plan())
+    private Agent agent;                      // agent to perform the actions
+    private Goal finalGoal;                   // to check goal state
+    PriorityQueue<HTNNode> allInitialNodes;   // list of all possible plans to solve the goal
 
     /*
     * Constructor: All a planner needs is the next goal and the agent solving it...
@@ -46,71 +40,53 @@ public class HTNPlanner {
         System.err.println("HTN Planner initializing.");
         this.agent = agent;
         this.finalGoal = target;
-        //Heuristic heuristic = new WeightedAStarHeuristic(Main.heuristicMeasure, 2);
-        this.allPlans = createAllPlans(target);
-        rePlan();  // store them in PriorityQueue or similar
-        System.err.println("BestPlan found:" + bestPlan.toString());
+
+        Heuristic heuristic = new WeightedAStarHeuristic(Main.heuristicMeasure, 2);
+        this.allInitialNodes = createAllNodes(target, heuristic);
+        //System.err.println("Nodes: " + allInitialNodes.toString());
     }
 
     /*
     *  Fills the data structure containing information on ways to solve this particular target
     */
-    private ArrayList<HTNPlan> createAllPlans(Goal target) {
-        // find all boxes that correspond to goal
-        // produce plans [ [goto(B1), MoveTo(B1,g)],...,[goto(B2), MoveTo(B2,g)] ]
-        // store this list of 'HTNPlans' to be retrieved by a method
-        ArrayList<HTNPlan> allPlans = new ArrayList<>();
-        ArrayList<Box> boxes = new ArrayList<>();
+    private PriorityQueue<HTNNode> createAllNodes(Goal target, Heuristic heuristic) {
+        //System.err.println("CreateAllNodes: ");
+        PriorityQueue<HTNNode> allNodes = new PriorityQueue<>(heuristic);
 
-        for (Box b : LevelService.getInstance().getLevel().getBoxes() ) {
-            if (b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) boxes.add(b);
+        for ( Box b : LevelService.getInstance().getLevel().getBoxes() ) {
+            if (b.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) {
+                HTNState initialState = new HTNState(agent, b);
+                HLAction initialAction = new SolveGoalAction(b, target);
+                allNodes.offer( new HTNNode(initialState, initialAction) );
+            }
         }
-
-        for (Box b : boxes) {
-            GotoAction gta = new GotoAction(b);
-            MoveBoxAction mba = new MoveBoxAction(b, target);
-            allPlans.add(new HTNPlan(gta, mba));
-            // allPlans.add(new SolveGoalAction(b, target)); // priority queue
-        }
-        return allPlans;
+        return allNodes;
     }
 
     /*
     * is used to find the next plan (using the next box in line)
     */
-    private void rePlan() {
-        Position a = agent.getPosition();
-        if (allPlans.isEmpty()) {
-            this.bestPlan = null;
-            return;
-        }
-        HTNPlan bestPlan = allPlans.get(0);
-
-        Box targetBox;
-        Goal target;
-        int minDist;
-        int bestHeuristic = Integer.MAX_VALUE;
-
-        for (HTNPlan plan : allPlans) {
-            targetBox = plan.getMoveBoxAction().getBox();
-            target = plan.getMoveBoxAction().getGoal();
-
-            minDist = a.manhattanDist(targetBox.getPosition());
-            minDist += targetBox.getPosition().manhattanDist(target.getPosition());
-            if (minDist < bestHeuristic) {
-                bestHeuristic = minDist;
-                bestPlan = plan;
+    public PrimitivePlan plan() {
+        PrimitivePlan plan = null;
+        for (int i = 0; i < allInitialNodes.size(); i++) {
+            plan = rePlan();
+            if (!(plan == null)) {
+                System.err.println(plan.toString());
+                return plan;
             }
         }
-        allPlans.remove(bestPlan);
-        this.bestPlan = bestPlan;
+        return null;
     }
 
     /*
     * Returns the best suited HTN plan for use with other planner mechanisms
     */
     public HTNPlan getBestPlan() {
-        return bestPlan;
+        HTNNode node = allInitialNodes.poll();
+        SolveGoalAction action = (SolveGoalAction) node.getRemainingPlan().getActions().getFirst();
+        HTNState state = node.getState();
+        MixedPlan plan = action.getRefinements(state).get(0);
+        return new HTNPlan(plan);
     }
 
     /*
@@ -124,12 +100,8 @@ public class HTNPlanner {
     * This method ensures a viable plan is found for solving a top level goal
     * could introduce relaxation here
     */
-    public PrimitivePlan plan() { // may return null if no plan is found!
-        Box targetBox = bestPlan.getMoveBoxAction().getBox();
-
-        HTNState initialEffect = new HTNState(agent.getPosition(), targetBox.getPosition() );
-
-        initialNode = new HTNNode(null, null, initialEffect, new MixedPlan(bestPlan.getActions()) );
+    private PrimitivePlan rePlan() { // may return null if no plan is found!
+        HTNNode initialNode = allInitialNodes.poll();
 
         Heuristic heuristic = new AStarHeuristic(Main.heuristicMeasure);
         Strategy strategy = new BestFirstStrategy(heuristic);
@@ -171,8 +143,13 @@ public class HTNPlanner {
                     HTNNode n;
                     boolean noProgression = true;
                     for (int i = 0 ; i < 5 ; i++) {
-                        n = leafNode.getParent();
+                        n = leafNode.getParent(i);
+                        if (n==null) {
+                            noProgression = false;
+                            break;
+                        }
                         noProgression &= (n.getAction() instanceof NoAction);
+                        //System.err.println(Boolean.toString(noProgression));
                     }
                     if (noProgression) {
                         System.err.println("No progress for 5 nodes! skipping this node");
@@ -193,6 +170,7 @@ public class HTNPlanner {
             strategy.addToExplored(leafNode.getState());
 
             for (HTNNode n : leafNode.getRefinementNodes()) {
+                System.err.println(n.toString());
                 strategy.addToFrontier(n);
             }
 

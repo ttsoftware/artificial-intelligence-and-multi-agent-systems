@@ -17,6 +17,11 @@ public class HTNPlan {
         this.moveBoxAction = mba;
     }
 
+    public HTNPlan(MixedPlan mpl) {
+        this.gotoAction = (GotoAction) mpl.removeFirst();
+        this.moveBoxAction = (MoveBoxAction) mpl.removeFirst();
+    }
+
     public List<HLAction> getActions() {
         LinkedList<HLAction> actions = new LinkedList<>();
         if (this.gotoAction!=null) {actions.add(this.gotoAction);}

@@ -58,6 +58,8 @@ public class HTNPlannerTest {
 
         HTNPlanner htn = new HTNPlanner(agent, goal);
         HTNPlan htnPlan = htn.getBestPlan();
+
+        htn = new HTNPlanner(agent, goal);
         PrimitivePlan plan = htn.plan();
 
         System.err.println("");
