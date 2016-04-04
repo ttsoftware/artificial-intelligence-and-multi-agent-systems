@@ -228,31 +228,32 @@ public class LevelService implements Serializable {
     /**
      *
      * @param position
-     * @param objectToIgnore
-     * @return A list of free cells adjacent to @position, and the neighbour that contains @objectToIgnore, if it exists
+     * @param objectsToIgnore
+     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
+     * if any of them exists
      */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position, BoardObject objectToIgnore) {
+    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1, objectToIgnore)) {
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() - 1),
                     Direction.WEST
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1, objectToIgnore)) {
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() + 1),
                     Direction.EAST
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn(), objectToIgnore)) {
+        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() - 1, position.getColumn()),
                     Direction.NORTH
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn(), objectToIgnore)) {
+        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
@@ -341,19 +342,21 @@ public class LevelService implements Serializable {
     /**
      * @param row
      * @param column
-     * @param objectToIgnore
-     * @return True if the given position is free or if it contains objectToIgnore
+     * @param objectsToIgnore
+     * @return True if the given position is free or if it contains one object from the objectsToIgnore list
      */
-    public synchronized boolean isFree(int row, int column, BoardObject objectToIgnore) {
+    public synchronized boolean isFree(int row, int column, List<BoardObject> objectsToIgnore) {
         if (isInLevel(row, column)) {
             if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
                     || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
                 return true;
             }
             else {
-                if (level.getBoardObjects()[row][column] != null) {
-                    if (level.getBoardObjects()[row][column].getLabel().equals(objectToIgnore.getLabel())) {
-                        return true;
+                for(BoardObject objectToIgnore : objectsToIgnore) {
+                    if (level.getBoardObjects()[row][column] != null) {
+                        if (level.getBoardObjects()[row][column].getLabel().equals(objectToIgnore.getLabel())) {
+                            return true;
+                        }
                     }
                 }
             }

@@ -3,13 +3,11 @@ package dtu.agency.planners.pop;
 import dtu.agency.agent.actions.*;
 import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Neighbour;
-import dtu.agency.board.Position;
+import dtu.agency.board.*;
 import dtu.agency.planners.actions.MoveBoxAbstractAction;
 import dtu.agency.services.LevelService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
@@ -112,9 +110,13 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
         PriorityQueue<MoveBoxAction> actions = new PriorityQueue<>(new ActionComparator());
 
+        List<BoardObject> objectsToIgnore = new ArrayList<>();
+        //objectsToIgnore.add(boxPrecondition.getBox());
+        objectsToIgnore.add(agent);
+
         // Find the free neighbour cells to the box
         List<Neighbour> viableBoxPositions = LevelService.getInstance().getFreeNeighbours(
-                boxPrecondition.getBoxPosition(), agent
+                boxPrecondition.getBoxPosition(), objectsToIgnore
         );
 
         if (viableBoxPositions.size() == 0) {
@@ -146,11 +148,15 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
     {
         PriorityQueue<MoveBoxAction> pushActions = new PriorityQueue<>(new ActionComparator());
 
+        List<BoardObject> objectsToIgnore = new ArrayList<>();
+        objectsToIgnore.add(boxPrecondition.getBox());
+        objectsToIgnore.add(agent);
+
         for (Neighbour viableBoxPosition : viableBoxPositions) {
 
             // Find the free cells where the agent can be
             List<Neighbour> viableAgentPositions = LevelService.getInstance().getFreeNeighbours(
-                    viableBoxPosition.getPosition(), boxPrecondition.getBox()
+                    viableBoxPosition.getPosition(), objectsToIgnore
             );
 
             for (Neighbour viableAgentPosition : viableAgentPositions) {
@@ -162,10 +168,10 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                             viableAgentPosition.getPosition(),
                             viableBoxPosition.getDirection().getInverse(),
                             viableAgentPosition.getDirection().getInverse(),
-                            LevelService.getInstance().manhattanDistance(
-                                    viableAgentPosition.getPosition(),
-                                    agentStartPosition
-                            )
+                            LevelService.getInstance().
+                                    manhattanDistance(viableAgentPosition.getPosition(), agentStartPosition)
+                                    + LevelService.getInstance().
+                                    manhattanDistance(viableBoxPosition.getPosition(), boxStartPosition)
                     ));
                 }
             }
@@ -174,6 +180,10 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
         return pushActions;
     }
 
+
+    //in order to pull a box in the current box's position, the agent must already be there; the only thing that we
+    //can control is the place where the agent goes after it has pulled the box in the current goal position
+    //this position will be one of the other valid neighbours of the box's goal position
     public PriorityQueue<MoveBoxAction> getPullActions(List<Neighbour> viableBoxPositions, BoxAtPrecondition boxPrecondition) {
         PriorityQueue<MoveBoxAction> pullActions = new PriorityQueue<>(new ActionComparator());
 
@@ -183,20 +193,21 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
         for (Neighbour viableBoxPosition : viableBoxPositions) {
 
-            for (Neighbour viableAgentPosition : viableBoxPositions) {
-                if (!viableAgentPosition.equals(viableBoxPosition)) {
+            for (Neighbour viableFutureAgentPosition : viableBoxPositions) {
+                if(viableFutureAgentPosition != viableBoxPosition) {
                     pullActions.add(new PullAction(
                             boxPrecondition.getBox(),
                             boxPrecondition.getAgent(),
                             viableBoxPosition.getPosition(),
-                            viableAgentPosition.getPosition(),
+                            boxPrecondition.getBoxPosition(),
                             //TODO: we should change this to the direction that the box was moving in previously
-                            viableAgentPosition.getDirection(),
-                            viableAgentPosition.getDirection(),
-                            LevelService.getInstance().manhattanDistance(
-                                    viableAgentPosition.getPosition(),
-                                    agentStartPosition
-                            )
+                            viableFutureAgentPosition.getDirection(),
+                            LevelService.getInstance().getMovingDirection(
+                                    boxPrecondition.getBoxPosition(), viableFutureAgentPosition.getPosition()),
+                            LevelService.getInstance().
+                                    manhattanDistance(boxPrecondition.getBoxPosition(), agentStartPosition)
+                                    + LevelService.getInstance().
+                                    manhattanDistance(viableBoxPosition.getPosition(), boxStartPosition)
                     ));
                 }
             }
