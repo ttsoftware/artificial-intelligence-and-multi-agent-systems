@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 public class LevelService implements Serializable {
 
@@ -280,9 +281,113 @@ public class LevelService implements Serializable {
             default:
                 return null;
         }
-
-        return true;
     }
+
+    /**
+     *
+     * @param position
+     * @return True if object at given position can be moved
+     */
+       public synchronized boolean isMoveable(Position position) {
+           return isMoveable(position.getRow(), position.getColumn());
+       }
+
+    /**
+     *
+     * @param row
+     * @param column
+     * @return True if object at given position can be moved
+     */
+
+    public synchronized boolean isMoveable(int row, int column) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
+                    || level.getBoardState()[row][column].equals(BoardCell.AGENT_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param row
+     * @param column
+     * @return True if object at given position can be moved
+     */
+    public synchronized boolean isFree(int row, int column) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
+                    || level.getBoardState()[row][column].equals(BoardCell.AGENT_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX_GOAL)
+                    || level.getBoardState()[row][column].equals(BoardCell.BOX)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param position
+     * @return True if the given position is free
+     */
+    public synchronized boolean isFree(Position position) {
+        return isFree(position.getRow(), position.getColumn());
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @param objectToIgnore
+     * @return True if the given position is free or if it contains objectToIgnore
+     */
+    public synchronized boolean isFree(int row, int column, BoardObject objectToIgnore) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
+                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
+                return true;
+            }
+            else {
+                if (level.getBoardObjects()[row][column] != null) {
+                    if (level.getBoardObjects()[row][column].getLabel().equals(objectToIgnore.getLabel())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param positionA
+     * @param positionB
+     * @return The direction of positionB relative to positionA
+     */
+    public synchronized Direction getMovingDirection(Position positionA, Position positionB) {
+        if (positionA.getRow() == positionB.getRow()) {
+            if (positionA.getColumn() < positionB.getColumn()) {
+                return Direction.EAST;
+            } else {
+                return Direction.WEST;
+            }
+        } else if (positionA.getColumn() == positionB.getColumn()) {
+            if (positionA.getRow() < positionB.getRow()) {
+                return Direction.SOUTH;
+            } else {
+                return Direction.NORTH;
+            }
+        }
+        throw new InvalidParameterException("Given positions are not adjacent.");
+    }
+
+    public synchronized Position getPosition(String objectLabel) {
+        return level.getBoardObjectPositions().get(objectLabel);
+    }
+
 
     /**
      * We use Manhattan distances to define "closeness"
@@ -341,8 +446,26 @@ public class LevelService implements Serializable {
         // O(1) time operations
         return Math.abs(positionA.getRow() - positionB.getRow())
                 + Math.abs(positionA.getColumn() - positionB.getColumn());
+    }
 
-        return distance;
+    /**
+     * @param position
+     * @return True if the position exists in the level
+     */
+    public synchronized boolean isInLevel(Position position) {
+        return isInLevel(position.getRow(), position.getColumn());
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if the position exists in the level
+     */
+    public synchronized boolean isInLevel(int row, int column) {
+        return (row >= 0
+                && column >= 0
+                && level.getBoardState().length > row
+                && level.getBoardState()[0].length > column);
     }
 
     /**
