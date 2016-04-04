@@ -19,25 +19,31 @@ public class MoveBoxAction extends HLAction {
         this.boxDestination = target;
         this.targetBox = box;
         this.targetGoal = null;
+        if (box == null || target == null) {
+            throw new AssertionError("MoveBoxAction: null values not accepted as target box or destination");
+        }
     }
 
     public MoveBoxAction(Box box, Goal goal) {
         this.boxDestination = goal.getPosition();
         this.targetBox = box;
         this.targetGoal = goal;
+        if (box == null || goal == null || boxDestination == null) {
+            throw new AssertionError("MoveBoxAction: null values not accepted as target box or destination");
+        }
     }
 
     public Box getBox() {
         return targetBox;
     }
 
+    public Goal getGoal() {
+        return targetGoal;
+    }
+
     @Override
     public Position getDestination() {
         return boxDestination;
-    }
-
-    public Goal getGoal() {
-        return targetGoal;
     }
 
     @Override
@@ -87,32 +93,41 @@ public class MoveBoxAction extends HLAction {
             refinements.add(refinement);
             //System.err.println("Action:" + pull.toString() + ", Result:" + result.toString());
         }
-
-        // shuffling is done in HTNNode
         //System.err.println(refinements.toString());
         return refinements;
     }
 
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("MoveBoxAction(");
-        if (getBox()!=null) {
-            s.append(getBox().toString());
-        } else {
-            s.append("null");
-        }
+        s.append(getBox().toString());
         s.append(",");
         if (getGoal() != null) {
             s.append(getGoal().toString());
         } else {
-            if (getDestination() != null) {
-                s.append(getDestination().toString());
-            } else {
-                s.append("null");
-            }
+            s.append(getDestination().toString());
         }
         s.append(")");
         return s.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MoveBoxAction other = (MoveBoxAction) obj;
+        if (!this.getBox().equals(other.getBox()))
+            return false;
+        if (!this.getGoal().equals(other.getGoal()))
+            return false;
+        if (!this.getDestination().equals(other.getDestination()))
+            return false;
+        return true;
     }
 
 }

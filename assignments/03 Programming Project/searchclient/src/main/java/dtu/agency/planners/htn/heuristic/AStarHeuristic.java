@@ -7,8 +7,12 @@ import dtu.agency.planners.htn.HTNNode;
 
 public class AStarHeuristic extends Heuristic {
 
+    /*
     public AStarHeuristic(HTNState initialEffect, Box targetBox, Goal targetGoal) {
         super(initialEffect, targetBox, targetGoal);
+    }*/
+    public AStarHeuristic(Method method) {
+        super(method);
     }
 
     public int f(HTNNode n) {

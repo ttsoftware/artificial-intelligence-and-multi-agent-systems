@@ -7,9 +7,8 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
 
 public class GotoAction extends HLAction implements Serializable {
 
@@ -19,20 +18,26 @@ public class GotoAction extends HLAction implements Serializable {
     public GotoAction(Position position) {
         this.agentDestination = position;
         this.targetBox = null;
+        if (agentDestination == null) {
+            throw new AssertionError("GotoAction: null values not accepted as target destination");
+        }
     }
 
     public GotoAction(Box box) {
         this.agentDestination = box.getPosition();
         this.targetBox = box;
+        if (agentDestination == null) {
+            throw new AssertionError("GotoAction: null values not accepted as target destination");
+        }
+    }
+
+    public Box getTargetBox() {
+        return targetBox;
     }
 
     @Override
     public Position getDestination() {
         return this.agentDestination;
-    }
-
-    public Box getTargetBox() {
-        return targetBox;
     }
 
     @Override
@@ -68,11 +73,7 @@ public class GotoAction extends HLAction implements Serializable {
             refinement.addAction(this); // append this action again
             refinements.add(refinement);
         }
-
         // else shuffle (no done in HTNNODE) and return all refinements
-        // long seed = System.nanoTime();
-        // Collections.shuffle(refinements, new Random(seed));
-
         return refinements;
     }
 
@@ -83,19 +84,26 @@ public class GotoAction extends HLAction implements Serializable {
         if (getTargetBox() != null) {
             s.append(getTargetBox().toString());
         } else {
-            if (getDestination() != null) {
-                s.append(getDestination().toString());
-            } else {
-                s.append("null");
-            }
+            s.append(getDestination().toString());
         }
         s.append(")");
         return s.toString();
     }
 
-    public boolean equals(GotoAction o) {
-        if (this.getTargetBox().equals(o.getTargetBox()))
-            if (this.getDestination().equals(o.getDestination())) return true;
-        return false;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        GotoAction other = (GotoAction) obj;
+        if (!this.getTargetBox().equals(other.getTargetBox()))
+            return false;
+        if (!this.getDestination().equals(other.getDestination()))
+            return false;
+        return true;
     }
+
 }

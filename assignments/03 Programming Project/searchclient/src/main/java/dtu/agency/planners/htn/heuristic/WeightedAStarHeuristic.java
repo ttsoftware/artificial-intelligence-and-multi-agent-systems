@@ -10,10 +10,17 @@ public class WeightedAStarHeuristic extends Heuristic {
 
     private int W;
 
+    /*
     public WeightedAStarHeuristic(HTNState initialEffect, Box targetBox, Goal targetGoal, int weight) {
         super(initialEffect, targetBox, targetGoal);
         W = weight;
+    }*/
+
+    public WeightedAStarHeuristic(Method method, int weight) {
+        super(method);
+        W = weight;
     }
+
     public int f(HTNNode n) {
         return n.g() + W * h(n);
     }

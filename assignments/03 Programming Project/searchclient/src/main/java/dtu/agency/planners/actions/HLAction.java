@@ -10,37 +10,23 @@ import java.util.ArrayList;
 
 public abstract class HLAction extends AbstractAction implements Serializable {
 
-    // mads: should not be a collection, but rather the single accumulated state in the given parameters
-    // e.g. HTNState has agent and box position, nothing else changes from the perspective of this action,
-    // as it is residing within a planner, tasked with a single agent and a single box (it is NOT global)
-    protected HTNState state;
-
-    public HTNState getState() {
-        return state;
-    }
-
-    public void setEffects(HTNState htnState) {
-        this.state = htnState;
-    }
-
-
     /*
      * This serves as a method to calculate distances for the heuristics
      */
     public abstract Position getDestination();
 
     /*
-     * Tells if this HLAction refines purely to other HLActions, for heuristic purposes
+     * Tells if this HLAction refines purely to OTHER HLActions (primitive actions are allowed), for heuristic purposes
      */
     public boolean isPureHLAction() { return false; }
 
     /*
-     * Checks whether the purpose/subgoal of this highlevel action is completed
+     * Checks whether the purpose/sub goal of this high level action is completed
      */
     public abstract boolean isPurposeFulfilled( HTNState htnState );
 
     /*
-     * Creates an empty refinement of known signature, to return if subgoal is completed
+     * Creates an empty refinement of known signature, to return if sub goal is completed
      */
     public ArrayList<MixedPlan> doneRefinement() {
         ArrayList<MixedPlan> refinements = new ArrayList<>();

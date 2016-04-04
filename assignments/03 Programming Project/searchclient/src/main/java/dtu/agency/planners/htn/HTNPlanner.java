@@ -132,7 +132,8 @@ public class HTNPlanner {
 
         initialNode = new HTNNode(null, null, initialEffect, new MixedPlan(bestPlan.getActions()) );
 
-        Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, finalGoal);
+        //Heuristic heuristic = new AStarHeuristic(initialEffect, targetBox, finalGoal);
+        Heuristic heuristic = new AStarHeuristic(Main.heuristicMeasure);
         Strategy strategy = new BestFirstStrategy(heuristic);
 
         System.err.format("HTN plan starting with strategy %s\n", strategy);

@@ -18,15 +18,15 @@ public class HTNNode {
 
     private HTNNode parent;
     private Action action;   // primitive action represented by this node
-    private HTNState state; // status of the relevant board features
-    private MixedPlan remainingActions; // list of successive (abstract) actions
+    private HTNState state;  // status of the relevant board features after applying the action of this node
+    private MixedPlan remainingPlan; // list of successive (abstract) actions
     private int g; // generation - how many ancestors exist? -> how many moves have i performed
 
     public HTNNode(HTNNode parent, Action action, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
         this.action = action;
         this.state = initialEffects;
-        this.remainingActions = highLevelPlan;
+        this.remainingPlan = highLevelPlan;
         this.g = (parent == null) ? 0 : (parent.g + 1);
     }
 
@@ -62,22 +62,26 @@ public class HTNNode {
         this.state = state;
     }
 
+    public MixedPlan getRemainingPlan() {
+        return remainingPlan;
+    }
+
     public ArrayList<HTNNode> getRefinementNodes() {
         //System.err.println("HTNNode: getting refinements");
 
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
-        if (this.remainingActions.isEmpty()) {
+        if (this.remainingPlan.isEmpty()) {
             System.err.println("No more remaining actions, returning empty list of refinement nodes");
             return refinementNodes;
         }
 
-        AbstractAction nextAction = remainingActions.removeFirst();
+        AbstractAction nextAction = remainingPlan.removeFirst();
 
         if (nextAction instanceof Action) { // case the action is primitive, add it as only node,
             //System.err.println("Next action is Primitive, thus a single ChildNode is created");
             Action primitive = (Action) nextAction;
-            HTNNode only = childNode( primitive, this.remainingActions ); // is remainingActions correct?? has first been removed??
+            HTNNode only = childNode( primitive, this.remainingPlan); // is remainingPlan correct?? has first been removed??
             if (only != null) { refinementNodes.add(only);}
             //System.err.println(refinementNodes.toString());
             return refinementNodes;
@@ -96,7 +100,7 @@ public class HTNNode {
                 if (refinement.getFirst() instanceof Action) {
                     first = (Action) refinement.removeFirst();
                 }
-                refinement.extend(remainingActions);
+                refinement.extend(remainingPlan);
                 HTNNode nextNode = childNode(first, refinement);
 
                 if (nextNode != null) {
@@ -134,7 +138,7 @@ public class HTNNode {
         result = prime * result + parent.hashCode();
         result = prime * result + action.hashCode();
         result = prime * result + state.hashCode();
-        result = prime * result + remainingActions.hashCode();
+        result = prime * result + remainingPlan.hashCode();
         return result;
     }
 
@@ -153,7 +157,7 @@ public class HTNNode {
             return false;
         if (state != other.state)
             return false;
-        if (!remainingActions.equals(other.remainingActions)) {
+        if (!remainingPlan.equals(other.remainingPlan)) {
             return false;
         }
         return true;
@@ -166,7 +170,7 @@ public class HTNNode {
         s.append("Generation: " + Integer.toString(this.g));
         s.append(", Action: " + ((action!=null) ? action.toString() : "null") );
         s.append(", Effect: " + this.state.toString() + ",\n");
-        s.append("          RemainingActions: " + this.remainingActions.toString() + "}" );
+        s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );
         return s.toString();
     }
 

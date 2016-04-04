@@ -23,7 +23,7 @@ public class MixedPlan implements AbstractPlan {
     }
 
     @Override
-    public List<? extends AbstractAction> getActions() {
+    public LinkedList<AbstractAction> getActions() {
         return actions;
     }
 

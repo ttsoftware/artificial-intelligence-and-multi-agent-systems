@@ -7,8 +7,13 @@ import dtu.agency.planners.htn.HTNNode;
 
 public class GreedyHeuristic extends Heuristic {
 
+    /*
     public GreedyHeuristic(HTNState initialEffect, Box targetBox, Goal targetGoal) {
         super(initialEffect, targetBox, targetGoal);
+    }*/
+
+    public GreedyHeuristic(Method method) {
+        super(method);
     }
 
     public int f(HTNNode n) {
