@@ -1,11 +1,10 @@
-package dtu.agency.Effect;
+package dtu.agency.planners.htn;
 
 /**
  * Created by koeus on 4/1/16.
  */
 
 import dtu.agency.board.Position;
-import dtu.agency.planners.htn.HTNState;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -14,7 +13,7 @@ import java.util.HashSet;
 
 import static org.junit.Assert.assertTrue;
 
-public class EffectTest {
+public class HTNStateTest {
 
     private static Position agentOne, agentTwo, agentThree;
     private static Position boxOne, boxTwo, boxThree;

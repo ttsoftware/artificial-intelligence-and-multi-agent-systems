@@ -114,7 +114,7 @@ public class HTNPlanner {
             if (iterations % Main.printIterations == 0) {
                 System.err.println(strategy.status());
             }
-
+            /*
             if (Memory.shouldEnd()) {
                 System.err.format("Memory limit almost reached, terminating search %s\n", Memory.stringRep());
                 System.err.println(strategy.status());
@@ -125,7 +125,7 @@ public class HTNPlanner {
                 System.err.format("Time limit reached, terminating search %s\n", Memory.stringRep());
                 System.err.println(strategy.status());
                 return null;
-            }
+            }*/
 
             if (strategy.frontierIsEmpty()) {
                 System.err.format("Frontier is empty, HTNPlanner failed to create a plan!\n");
