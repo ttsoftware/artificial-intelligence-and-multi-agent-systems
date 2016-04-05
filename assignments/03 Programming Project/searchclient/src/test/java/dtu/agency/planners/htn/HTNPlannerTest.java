@@ -54,19 +54,27 @@ public class HTNPlannerTest {
         goal = LevelService.getInstance().getLevel().getGoals().get(0);
 
         HTNPlanner htn = new HTNPlanner(agent, goal);
-        HTNPlan htnPlan = htn.getBestPlan();
+        //System.err.println(htn.toString());
 
-        htn = new HTNPlanner(agent, goal);
+        //HTNPlan htnPlan = htn.getBestPlan(); // no longer needed??
+        //System.err.println(htnPlan.toString());
+
+        int stepsApproximation = htn.getBestPlanApproximation();
         PrimitivePlan plan = htn.plan();
+        //System.err.println(plan.toString());
 
         System.err.println("");
-        if (htnPlan != null) System.err.println(htnPlan.toString());
-        if (plan != null) System.err.println(plan.toString());
+        //if (htnPlan != null) System.err.println(htnPlan.toString());
 
-        assertTrue("htnPlan does not exist", htnPlan != null);
-        assertTrue("htnPlan is empty", !htnPlan.isEmpty());
+        //assertTrue("htnPlan does not exist", htnPlan != null);
+        //assertTrue("htnPlan is empty", !htnPlan.isEmpty());
+
+        assertTrue("Heuristic Approximation should be non-negative", stepsApproximation>=0);
         assertTrue("primitivePlan is not found", plan != null);
         assertTrue("primitivePlan is empty", !plan.isEmpty());
+        System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation));
+        System.err.println(plan.toString());
+
         s = "primitivePlan is longer than " + Integer.toString(maxSolutionLength);
         s += " steps, it is " + plan.getActions().size();
         assertTrue(s, plan.getActions().size() <= maxSolutionLength);

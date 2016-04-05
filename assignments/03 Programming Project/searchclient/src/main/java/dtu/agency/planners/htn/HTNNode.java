@@ -31,7 +31,11 @@ public class HTNNode {
         this.concreteAction = concreteAction;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
-        this.generation = (parent == null) ? 0 : (parent.generation + 1);
+        if (parent == null) {
+            this.generation = 0;
+        } else {
+            this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
+        }
     }
 
     public HTNNode(HTNState initialEffects, MixedPlan highLevelPlan) {
@@ -39,7 +43,11 @@ public class HTNNode {
         this.concreteAction = null;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
-        this.generation = (parent == null) ? 0 : (parent.generation + 1);
+        if (parent == null) {
+            this.generation = 0;
+        } else {
+            this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
+        }
     }
 
     public HTNNode(HTNState initialEffects, HLAction highLevelAction) {
@@ -152,15 +160,15 @@ public class HTNNode {
     }
 
     public PrimitivePlan extractPlan() {
-        LinkedList<ConcreteAction> plan = new LinkedList<>();
+        PrimitivePlan plan = new PrimitivePlan();
         HTNNode node = this;
         ConcreteAction previous;
         while (!node.isInitialNode()) {
             previous = node.getConcreteAction();
-            if ((previous != null) && !(previous instanceof NoConcreteAction)) plan.addFirst(previous);
+            if ((previous != null) && !(previous instanceof NoConcreteAction)) plan.pushAction(previous);
             node = node.getParent();
         }
-        return new PrimitivePlan(plan);
+        return plan;
     }
 
     @Override

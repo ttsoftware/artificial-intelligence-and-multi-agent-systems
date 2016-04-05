@@ -9,12 +9,21 @@ public class PrimitivePlan implements ConcretePlan {
 
     private Stack<ConcreteAction> concreteActions;
 
+    public PrimitivePlan() {
+        concreteActions = new Stack<>();
+    }
+
     public PrimitivePlan(LinkedList<ConcreteAction> plan) {
-        concreteActions.addAll(plan);
+        concreteActions = new Stack<>();
+        concreteActions.addAll(plan); // Watch It!!! reverse order plan!
     }
 
     public Stack<ConcreteAction> getActions() {
         return concreteActions;
+    }
+
+    public void pushAction( ConcreteAction action) {
+        concreteActions.push(action);
     }
 
     public boolean isEmpty() { return this.concreteActions.isEmpty(); }

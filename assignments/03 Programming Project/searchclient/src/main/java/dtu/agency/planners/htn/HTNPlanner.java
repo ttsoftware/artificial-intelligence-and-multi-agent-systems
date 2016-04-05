@@ -2,15 +2,14 @@ package dtu.agency.planners.htn;
 
 import dtu.Main;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Goal;
+import dtu.agency.board.*;
 import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
+import dtu.agency.planners.htn.heuristic.Heuristic;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.planners.htn.heuristic.WeightedAStarHeuristicComparator;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
@@ -31,17 +30,17 @@ public class HTNPlanner {
     private Agent agent;                      // agent to perform the actions
     private Goal finalGoal;                   // to check goal state
     PriorityQueue<HTNNode> allInitialNodes;   // list of all possible plans to solve the goal
+    HeuristicComparator aStarHeuristicComparator;
 
     /*
     * Constructor: All a planner needs is the next goal and the agent solving it...
     * */
     public HTNPlanner(Agent agent, Goal target) {
-        System.err.println("HTN Planner initializing.");
+        //System.err.println("HTN Planner initializing.");
         this.agent = agent;
         this.finalGoal = target;
-
-        HeuristicComparator heuristicComparator = new WeightedAStarHeuristicComparator(Main.heuristicMeasure, 2);
-        this.allInitialNodes = createAllNodes(target, heuristicComparator);
+        aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
+        this.allInitialNodes = createAllNodes(target, aStarHeuristicComparator);
         //System.err.println("Nodes: " + allInitialNodes.toString());
     }
 
@@ -70,13 +69,15 @@ public class HTNPlanner {
     */
     public PrimitivePlan plan() {
         PrimitivePlan plan = null;
+        //System.err.println("size of allinitialnodes:" + allInitialNodes.size());
         for (int i = 0; i < allInitialNodes.size(); i++) {
             plan = rePlan();
             if (!(plan == null)) {
-                System.err.println(plan.toString());
+                //System.err.println("HELLO" + plan.toString());
                 return plan;
             }
         }
+        //System.err.println("HELLO" + plan.toString());
         return null;
     }
 
@@ -89,6 +90,10 @@ public class HTNPlanner {
         HTNState state = node.getState();
         MixedPlan plan = action.getRefinements(state).get(0);
         return new HTNPlan(plan);
+    }
+
+    public int getBestPlanApproximation() {
+        return aStarHeuristicComparator.h( allInitialNodes.peek() );
     }
 
     /*
@@ -104,11 +109,9 @@ public class HTNPlanner {
     */
     private PrimitivePlan rePlan() { // may return null if no plan is found!
         HTNNode initialNode = allInitialNodes.poll();
+        Strategy strategy = new BestFirstStrategy(aStarHeuristicComparator);
 
-        HeuristicComparator heuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
-        Strategy strategy = new BestFirstStrategy(heuristicComparator);
-
-        System.err.format("HTN plan starting with strategy %s\n", strategy);
+        //System.err.format("HTN plan starting with strategy %s\n", strategy);
         strategy.addToFrontier(initialNode);
 
         int iterations = 0;
@@ -131,12 +134,13 @@ public class HTNPlanner {
 
             if (strategy.frontierIsEmpty()) {
                 System.err.format("Frontier is empty, HTNPlanner failed to create a plan!\n");
-                System.err.println(strategy.status());
+                //System.err.println(strategy.status());
                 return null;
             }
 
             HTNNode leafNode = strategy.getAndRemoveLeaf();
             //System.err.println(leafNode.toString());
+            //System.err.println(strategy.status());
 
             if (strategy.isExplored(leafNode.getState())) {
                 // reject nodes resulting in states visited already
@@ -154,13 +158,14 @@ public class HTNPlanner {
                         //System.err.println(Boolean.toString(noProgression));
                     }
                     if (noProgression) {
-                        System.err.println("No progress for 5 nodes! skipping this node");
+                        //System.err.println("No progress for 5 nodes! skipping this node");
                         continue;
                     }
                 } else {
                     //System.err.println("Effect already explored! skipping this node");
                     continue;
                 }
+                //System.err.println("Effect already explored, but NoActions, so still interesting!");
             }
 
             if (isGoalState(leafNode)) {
@@ -172,7 +177,7 @@ public class HTNPlanner {
             strategy.addToExplored(leafNode.getState());
 
             for (HTNNode n : leafNode.getRefinementNodes()) {
-                System.err.println(n.toString());
+                //System.err.println("Adding refinement node:" + n.toString());
                 strategy.addToFrontier(n);
             }
 

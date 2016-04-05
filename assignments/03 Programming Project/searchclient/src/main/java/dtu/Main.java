@@ -8,7 +8,6 @@ public class Main {
 
     // Settings to replace magic numbers in code
     public static int printIterations = 200;   // print status for every x nodes explored
-    public static int timeOut = 300;           // seconds to timeout
     public static Heuristic heuristicMeasure = new ManhattanHeuristic();
 
     public static void main(String[] args) {

@@ -61,7 +61,7 @@ public class SolveGoalAction extends HLAction implements Serializable {
                 LevelService.getInstance().getPosition(goal)
         ));
         refinements.add(refinement);
-
+        //System.err.println("SGA.getRefine(): "+ refinements.toString());
         return refinements;
     }
 

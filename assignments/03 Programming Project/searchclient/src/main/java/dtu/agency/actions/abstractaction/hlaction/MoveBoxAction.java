@@ -57,7 +57,7 @@ public class MoveBoxAction extends HLAction {
      */
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        //System.err.println("MoveBoxConcreteAction.getRefinements - Initial" + priorState.toString());
+        //System.err.println("MoveBoxAction.getRefinements:" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
         ArrayList<MixedPlan> refinements = new ArrayList<>();
 
@@ -100,7 +100,7 @@ public class MoveBoxAction extends HLAction {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("MoveBoxConcreteAction(");
+        s.append("MoveBoxAction(");
         s.append(getBox().toString());
         s.append(",");
         s.append(moveToPosition.toString());
