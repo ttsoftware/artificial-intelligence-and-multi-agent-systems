@@ -12,18 +12,18 @@ import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.services.EventBusService;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AgentThread implements Runnable {
 
     // the agency object which this agency corresponds to
     private final Agent agent;
-    private Hashtable<String, HTNPlanner> htnPlanners;
+    private HashMap<String, HTNPlanner> htnPlanners;
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        htnPlanners = new Hashtable<>();
+        htnPlanners = new HashMap<>();
     }
 
     @Override
@@ -44,11 +44,10 @@ public class AgentThread implements Runnable {
 
         // HTN plan?
         HTNPlanner htnPlanner = new HTNPlanner(this.agent, goal);
-        HTNPlan plan = htnPlanner.getBestPlan();
 
         htnPlanners.put(goal.getLabel(), htnPlanner);
 
-        int steps = plan.getActions().size();
+        int steps = htnPlanner.getBestHeuristic();
 
         System.err.println("Agent received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
@@ -71,6 +70,10 @@ public class AgentThread implements Runnable {
             HTNPlanner htnPlanner = htnPlanners.get(event.getGoal().getLabel());
 
             PrimitivePlan primitivePlan = htnPlanner.plan();
+
+            if (primitivePlan == null) {
+                // Zero steps, the planner could not find a way.
+            }
 
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, primitivePlan));
         }

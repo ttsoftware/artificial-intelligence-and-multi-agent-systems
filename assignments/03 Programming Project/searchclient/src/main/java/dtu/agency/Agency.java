@@ -8,18 +8,15 @@ import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
-import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.LevelService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Agency implements Runnable {
-
-    private Hashtable<String, ConcretePlan> currentPlans = new Hashtable<>();
 
     public Agency(Level level) {
         LevelService.getInstance().setLevel(level);
@@ -48,35 +45,22 @@ public class Agency implements Runnable {
         LevelService.getInstance().getLevel().getGoalQueue().forEach(goal -> {
 
             // Register for incoming goal estimations
-            GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal);
+            GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels.size());
             EventBusService.register(goalEstimationEventSubscriber);
+
+            // store the subscriber
             goalEstimationSubscribers.add(goalEstimationEventSubscriber);
 
             System.err.println("Offering goal: " + goal.getLabel());
             EventBusService.post(new GoalOfferEvent(goal));
         });
 
-        boolean estimationsCompleted = false;
-
-        // TODO: This way of waiting is pretty ugly. Lets find a better way.
-
-        // wait for agents to estimate goals
-        while (!estimationsCompleted) {
-            boolean allSubscribersCompleted = true;
-            for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
-                allSubscribersCompleted &= subscriber.getAgentStepsEstimation().size() == agentLabels.size();
-            }
-            estimationsCompleted = allSubscribersCompleted;
-        }
-
-        // Get the goal estimations
+        // Get the goal estimations and assign goals
         for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
+            String bestAgent = subscriber.getBestAgent();
 
-            PriorityQueue<GoalEstimationEvent> agentEstimations = subscriber.getAgentStepsEstimation();
-            GoalEstimationEvent lowestEstimation = agentEstimations.poll();
-
-            System.err.println("Assigning goal " + subscriber.getGoal().getLabel() + " to " + lowestEstimation.getAgentLabel());
-            EventBusService.post(new GoalAssignmentEvent(lowestEstimation.getAgentLabel(), subscriber.getGoal()));
+            System.err.println("Assigning goal " + subscriber.getGoal().getLabel() + " to " + bestAgent);
+            EventBusService.post(new GoalAssignmentEvent(bestAgent, subscriber.getGoal()));
         }
     }
 
@@ -84,10 +68,7 @@ public class Agency implements Runnable {
     @AllowConcurrentEvents
     public void planOfferEventSubscriber(PlanOfferEvent event) {
 
-        // We need a strategy for doing this in the multi-agent case.
-        // currentPlans.put(event.getAgent().getAgentLabel(), event.getPlan());
-
-        System.err.println("Recieved offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
+        System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
         EventBusService.post(new SendServerActionsEvent(event.getPlan().getActions()));
     }

@@ -82,7 +82,7 @@ public class HTNPlanner {
     * Returns the best suited HTN plan for use with other planner mechanisms
     */
     public HTNPlan getBestPlan() {
-        HTNNode node = allInitialNodes.poll();
+        HTNNode node = allInitialNodes.peek();
         SolveGoalAction action = (SolveGoalAction) node.getRemainingPlan().getActions().getFirst();
         HTNState state = node.getState();
         MixedPlan plan = action.getRefinements(state).get(0);
@@ -179,5 +179,8 @@ public class HTNPlanner {
 
     }
 
+    public int getBestHeuristic() {
+        return getBestPlan().getActions().size();
+    }
 }
 

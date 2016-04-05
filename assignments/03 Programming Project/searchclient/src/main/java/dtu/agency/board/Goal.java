@@ -1,6 +1,6 @@
 package dtu.agency.board;
 
-public class Goal extends BoardObject {
+public class Goal extends BoardObject implements Comparable<Goal> {
 
     private int weight;
     private final Position goalPosition; // new FINAL variable
@@ -33,9 +33,7 @@ public class Goal extends BoardObject {
     }
 
     @Override
-    public void setPosition(Position position) {
-        // does nothing - its final in a goal
-        // ?? should it throw an exception, to ensure fail fast ??
+    public int compareTo(Goal otherGoal) {
+        return weight - otherGoal.getWeight();
     }
-
 }
