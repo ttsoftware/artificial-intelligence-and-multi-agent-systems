@@ -9,22 +9,21 @@ import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.htn.HTNPlan;
 import dtu.agency.planners.htn.HTNPlanner;
-import dtu.agency.planners.pop.POPPlan;
 import dtu.agency.planners.pop.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AgentThread implements Runnable {
 
     // the agency object which this agency corresponds to
     private final Agent agent;
-    private Hashtable<String, HTNPlan> htnPlans;
+    private HashMap<String, HTNPlan> htnPlans;
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        htnPlans = new Hashtable<>();
+        htnPlans = new HashMap<>();
     }
 
     @Override
@@ -49,10 +48,10 @@ public class AgentThread implements Runnable {
         htnPlans.put(goal.getLabel(), plan);
 
         System.err.println(
-                "Agent recieved a goaloffer " +
-                        goal.getLabel() +
-                        " event and returned estimation: " +
-                        Integer.toString(plan.totalEstimatedDistance())
+                "Agent received a goaloffer " +
+                goal.getLabel() +
+                " event and returned estimation: " +
+                Integer.toString(plan.totalEstimatedDistance())
         );
 
         EventBusService.post(new GoalEstimationEvent(agent.getLabel(), plan.totalEstimatedDistance()));
@@ -76,12 +75,10 @@ public class AgentThread implements Runnable {
             System.err.println(String.format("Number of abstract actions: %d", htnPlan.getActions().size()));
 
             htnPlan.getActions().forEach(abstractAction -> {
-                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
-
-                POPPlan plan = popPlanner.plan();
+                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
 
                 // Post the partial plan to the agency
-                EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, plan));
+                EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
             });
         }
     }
