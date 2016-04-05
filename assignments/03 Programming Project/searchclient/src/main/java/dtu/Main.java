@@ -22,7 +22,7 @@ public class Main {
                 "-t",
                 "60",
                 "-c",
-                "java -jar out/artifacts/The_Agency_jar/The_Agency.jar"
+                "java -jar out/artifacts/agency_jar/The_Agency.jar"
         };
 
         Runner.main(serverArgs);

@@ -7,23 +7,22 @@ import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.HTNPlan;
-import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.pop.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AgentThread implements Runnable {
 
     // the agency object which this agency corresponds to
     private final Agent agent;
-    private Hashtable<String, HTNPlanner> htnPlanners;
+    private HashMap<String, HTNPlanner> htnPlanners;
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        htnPlanners = new Hashtable<>();
+        htnPlanners = new HashMap<>();
     }
 
     @Override
@@ -42,7 +41,6 @@ public class AgentThread implements Runnable {
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
         Goal goal = event.getGoal();
 
-        // HTN plan?
         HTNPlanner htnPlanner = new HTNPlanner(this.agent, goal);
         HTNPlan plan = htnPlanner.getBestPlan();
 

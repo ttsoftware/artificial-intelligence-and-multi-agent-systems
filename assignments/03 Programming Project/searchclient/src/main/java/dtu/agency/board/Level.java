@@ -1,18 +1,18 @@
 package dtu.agency.board;
 
 import java.io.Serializable;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class Level implements Serializable {
 
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;
-    private Hashtable<String, Position> boardObjectPositions;
-    private PriorityQueue<Goal> goalQueue;
-    private Hashtable<String, List<Goal>> boxesGoals;
-    private Hashtable<String, List<Box>> goalsBoxes;
+    private ConcurrentHashMap<String, Position> boardObjectPositions;
+    private PriorityBlockingQueue<Goal> goalQueue;
+    private ConcurrentHashMap<String, List<Goal>> boxesGoals;
+    private ConcurrentHashMap<String, List<Box>> goalsBoxes;
     private List<Goal> goals;
     private List<Agent> agents;
     private List<Box> boxes;
@@ -20,10 +20,10 @@ public class Level implements Serializable {
 
     public Level(BoardCell[][] boardState,
                  BoardObject[][] boardObjects,
-                 Hashtable<String, Position> boardObjectPositions,
-                 PriorityQueue<Goal> goalQueue,
-                 Hashtable<String, List<Goal>> boxesGoals,
-                 Hashtable<String, List<Box>> goalsBoxes,
+                 ConcurrentHashMap<String, Position> boardObjectPositions,
+                 PriorityBlockingQueue<Goal> goalQueue,
+                 ConcurrentHashMap<String, List<Goal>> boxesGoals,
+                 ConcurrentHashMap<String, List<Box>> goalsBoxes,
                  List<Goal> goals,
                  List<Agent> agents,
                  List<Box> boxes,
@@ -56,23 +56,23 @@ public class Level implements Serializable {
         this.boardObjects = boardObjects;
     }
 
-    public Hashtable<String, Position> getBoardObjectPositions() {
+    public ConcurrentHashMap<String, Position> getBoardObjectPositions() {
         return boardObjectPositions;
     }
 
-    public void setBoardObjectPositions(Hashtable<String, Position> boardObjectPositions) {
+    public void setBoardObjectPositions(ConcurrentHashMap<String, Position> boardObjectPositions) {
         this.boardObjectPositions = boardObjectPositions;
     }
 
-    public PriorityQueue<Goal> getGoalQueue() {
+    public PriorityBlockingQueue<Goal> getGoalQueue() {
         return goalQueue;
     }
 
-    public Hashtable<String, List<Goal>> getBoxesGoals() {
+    public ConcurrentHashMap<String, List<Goal>> getBoxesGoals() {
         return boxesGoals;
     }
 
-    public Hashtable<String, List<Box>> getGoalsBoxes() {
+    public ConcurrentHashMap<String, List<Box>> getGoalsBoxes() {
         return goalsBoxes;
     }
 

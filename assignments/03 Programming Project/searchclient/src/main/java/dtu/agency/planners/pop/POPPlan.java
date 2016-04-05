@@ -3,18 +3,18 @@ package dtu.agency.planners.pop;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.planners.ConcretePlan;
 
-import java.util.List;
+import java.util.Stack;
 
 public class POPPlan implements ConcretePlan {
 
-    private final List<Action> actions;
+    private final Stack<Action> actions;
 
-    public POPPlan(List<Action> actions) {
+    public POPPlan(Stack<Action> actions) {
         this.actions = actions;
     }
 
     @Override
-    public List<Action> getActions() {
+    public Stack<Action> getActions() {
         return actions;
     }
 }
