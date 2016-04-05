@@ -44,11 +44,10 @@ public class AgentThread implements Runnable {
 
         // HTN plan?
         HTNPlanner htnPlanner = new HTNPlanner(this.agent, goal);
-        HTNPlan plan = htnPlanner.getBestPlan();
 
         htnPlanners.put(goal.getLabel(), htnPlanner);
 
-        int steps = plan.getActions().size();
+        int steps = htnPlanner.getBestHeuristic();
 
         System.err.println("Agent received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
