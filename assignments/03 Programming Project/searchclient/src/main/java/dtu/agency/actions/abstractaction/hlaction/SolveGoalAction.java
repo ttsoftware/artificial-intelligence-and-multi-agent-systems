@@ -1,5 +1,7 @@
-package dtu.agency.actions.abstractaction;
+package dtu.agency.actions.abstractaction.hlaction;
 
+import dtu.agency.actions.abstractaction.AbstractActionType;
+import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;

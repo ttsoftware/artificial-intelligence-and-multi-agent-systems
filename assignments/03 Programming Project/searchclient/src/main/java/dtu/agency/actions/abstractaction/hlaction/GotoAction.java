@@ -1,6 +1,8 @@
-package dtu.agency.actions.abstractaction;
+package dtu.agency.actions.abstractaction.hlaction;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.AbstractActionType;
+import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Position;

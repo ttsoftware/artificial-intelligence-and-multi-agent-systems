@@ -9,7 +9,7 @@ import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.actions.abstractaction.HLAction;
-import dtu.agency.actions.abstractaction.SolveGoalAction;
+import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.planners.htn.heuristic.WeightedAStarHeuristicComparator;

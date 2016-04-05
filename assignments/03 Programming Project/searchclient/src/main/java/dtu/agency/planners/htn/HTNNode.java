@@ -207,5 +207,4 @@ public class HTNNode {
         s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );
         return s.toString();
     }
-
 }

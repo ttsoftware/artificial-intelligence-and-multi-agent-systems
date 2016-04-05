@@ -36,14 +36,18 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
             if (action instanceof ConcreteAction) {
                 primitives += 1;
             } else { // (action instanceof HLAction)
+
                 HLAction act = (HLAction) action;
                 if (act.isPureHLAction()) {
+
                     ArrayList<MixedPlan> plans = ((HLAction) action).getRefinements(n.getState());
                     int minPlanPrimitives = Integer.MAX_VALUE;
                     Position minPlanPrevious = null;
+
                     for (MixedPlan plan : plans) {
                         int planPrimitives = 0;
                         Position planPrevious = previous;
+
                         for (Action a : plan.getActions()) {
                             if (a instanceof ConcreteAction) {
                                 planPrimitives += 1;
