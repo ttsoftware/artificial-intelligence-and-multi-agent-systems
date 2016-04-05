@@ -7,7 +7,6 @@ import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.htn.HTNPlan;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.pop.POPPlan;
@@ -51,9 +50,9 @@ public class AgentThread implements Runnable {
 
         System.err.println(
                 "Agent recieved a goaloffer " +
-                goal.getLabel() +
-                " event and returned estimation: " +
-                Integer.toString(plan.totalEstimatedDistance())
+                        goal.getLabel() +
+                        " event and returned estimation: " +
+                        Integer.toString(plan.totalEstimatedDistance())
         );
 
         EventBusService.post(new GoalEstimationEvent(agent.getLabel(), plan.totalEstimatedDistance()));
@@ -74,8 +73,9 @@ public class AgentThread implements Runnable {
             // Find the HTNPlan for this goal
             HTNPlan htnPlan = htnPlans.get(event.getGoal().getLabel());
 
-            // Partial order plan
-            /*htnPlan.getActions().forEach(abstractAction -> {
+            System.err.println(String.format("Number of abstract actions: %d", htnPlan.getActions().size()));
+
+            htnPlan.getActions().forEach(abstractAction -> {
                 PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
 
                 POPPlan plan = popPlanner.plan();
@@ -83,16 +83,6 @@ public class AgentThread implements Runnable {
                 // Post the partial plan to the agency
                 EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, plan));
             });
-            */
-
-            AbstractAction abstractAction = htnPlan.getActions().get(0);
-
-            PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
-
-            POPPlan plan = popPlanner.plan();
-
-            // Post the partial plan to the agency
-            EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, plan));
         }
     }
 
