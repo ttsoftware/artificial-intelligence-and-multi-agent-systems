@@ -17,9 +17,4 @@ public class POPPlan implements ConcretePlan {
     public List<Action> getActions() {
         return actions;
     }
-
-    @Override
-    public int getSteps() {
-        return actions.size();
-    }
 }

@@ -1,8 +1,14 @@
 package dtu;
 
+import dtu.agency.planners.htn.heuristic.Method;
 import server.Runner;
 
 public class Main {
+
+    // Settings to replace magic numbers in code
+    public static int printIterations = 200;   // print status for every x nodes explored
+    public static int timeOut = 300;           // seconds to timeout
+    public static Method heuristicMeasure = Method.MANHATTAN;
 
     public static void main(String[] args) {
 
