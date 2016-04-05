@@ -6,7 +6,6 @@ import dtu.agency.agent.actions.Action;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.SendServerActionsEvent;
-import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.services.EventBusService;
 
 import java.io.BufferedReader;
@@ -42,7 +41,7 @@ public class PlannerClient {
                 sendActions(event.getActions());
 
                 // Pretend problem is solved
-                EventBusService.post(new ProblemSolvedEvent());
+                // EventBusService.post(new ProblemSolvedEvent());
             }
         });
 

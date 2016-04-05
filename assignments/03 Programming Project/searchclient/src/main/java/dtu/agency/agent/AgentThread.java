@@ -7,25 +7,23 @@ import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.actions.AbstractAction;
 import dtu.agency.planners.htn.HTNPlan;
 import dtu.agency.planners.htn.HTNPlanner;
-import dtu.agency.planners.pop.POPPlan;
 import dtu.agency.planners.pop.PartialOrderPlanner;
 import dtu.agency.services.EventBusService;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AgentThread implements Runnable {
 
     // the agency object which this agency corresponds to
     private final Agent agent;
-    private Hashtable<String, HTNPlan> htnPlans;
+    private HashMap<String, HTNPlan> htnPlans;
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        htnPlans = new Hashtable<>();
+        htnPlans = new HashMap<>();
     }
 
     @Override
@@ -50,7 +48,7 @@ public class AgentThread implements Runnable {
         htnPlans.put(goal.getLabel(), plan);
 
         System.err.println(
-                "Agent recieved a goaloffer " +
+                "Agent received a goaloffer " +
                 goal.getLabel() +
                 " event and returned estimation: " +
                 Integer.toString(plan.totalEstimatedDistance())
@@ -74,25 +72,16 @@ public class AgentThread implements Runnable {
             // Find the HTNPlan for this goal
             HTNPlan htnPlan = htnPlans.get(event.getGoal().getLabel());
 
-            // Partial order plan
-            /*htnPlan.getActions().forEach(abstractAction -> {
+            System.err.println(String.format("Number of abstract actions: %d", htnPlan.getActions().size()));
+
+            htnPlan.getActions().forEach(abstractAction -> {
                 PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
 
-                POPPlan plan = popPlanner.plan();
+                System.err.println(String.format("Trying to solve: %s", abstractAction.getType().toString()));
 
                 // Post the partial plan to the agency
-                EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, plan));
+                EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
             });
-            */
-
-            AbstractAction abstractAction = htnPlan.getActions().get(0);
-
-            PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
-
-            POPPlan plan = popPlanner.plan();
-
-            // Post the partial plan to the agency
-            EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, plan));
         }
     }
 
