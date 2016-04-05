@@ -75,7 +75,9 @@ public class AgentThread implements Runnable {
             System.err.println(String.format("Number of abstract actions: %d", htnPlan.getActions().size()));
 
             htnPlan.getActions().forEach(abstractAction -> {
-                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction);
+                PartialOrderPlanner popPlanner = new PartialOrderPlanner(abstractAction, agent);
+
+                System.err.println(String.format("Trying to solve: %s", abstractAction.getType().toString()));
 
                 // Post the partial plan to the agency
                 EventBusService.post(new PlanOfferEvent(event.getGoal(), agent, popPlanner.plan()));
