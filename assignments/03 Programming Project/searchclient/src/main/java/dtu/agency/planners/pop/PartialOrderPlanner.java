@@ -1,12 +1,12 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.Direction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Agent;
-import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.GotoAbstractAction;
-import dtu.agency.planners.actions.MoveBoxAbstractAction;
+import dtu.agency.actions.AbstractAction;
+import dtu.agency.actions.abstractaction.GotoAbstractAction;
+import dtu.agency.actions.abstractaction.MoveBoxAbstractAction;
 
 import java.util.Stack;
 
@@ -36,11 +36,11 @@ public class PartialOrderPlanner {
     }
 
     public POPPlan plan1() {
-        Stack<Action> actions = new Stack<>();
-        actions.add(new MoveAction(Direction.EAST));
-        actions.add(new MoveAction(Direction.EAST));
-        actions.add(new MoveAction(Direction.EAST));
-        actions.add(new MoveAction(Direction.EAST));
-        return new POPPlan(actions);
+        Stack<ConcreteAction> concreteActions = new Stack<>();
+        concreteActions.add(new MoveConcreteAction(Direction.EAST));
+        concreteActions.add(new MoveConcreteAction(Direction.EAST));
+        concreteActions.add(new MoveConcreteAction(Direction.EAST));
+        concreteActions.add(new MoveConcreteAction(Direction.EAST));
+        return new POPPlan(concreteActions);
     }
 }

@@ -1,4 +1,7 @@
 package dtu.agency.actions;
 
-public class Action {
+import java.io.Serializable;
+
+public interface Action<T extends Enum<T>> extends Serializable {
+    T getType();
 }

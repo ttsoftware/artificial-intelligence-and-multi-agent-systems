@@ -1,10 +1,11 @@
-package dtu.agency.actions.concrete;
+package dtu.agency.actions.concreteaction;
 
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 
-public abstract class MoveBoxAction extends Action {
+public abstract class MoveBoxConcreteAction extends ConcreteAction {
 
     protected Box box;
     protected Agent agent;
@@ -13,7 +14,7 @@ public abstract class MoveBoxAction extends Action {
     protected Direction boxDirection;
     protected Direction agentDirection;
 
-    public MoveBoxAction(Box box, Agent agent, Position boxPosition, Position agentPosition, Direction boxDirection, Direction agentDirection) {
+    public MoveBoxConcreteAction(Box box, Agent agent, Position boxPosition, Position agentPosition, Direction boxDirection, Direction agentDirection) {
         this.box = box;
         this.agent = agent;
         this.boxPosition = boxPosition;

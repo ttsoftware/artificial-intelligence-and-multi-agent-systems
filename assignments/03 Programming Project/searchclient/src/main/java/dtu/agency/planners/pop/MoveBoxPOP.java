@@ -1,16 +1,13 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.*;
-import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
-import dtu.agency.agent.actions.preconditions.Precondition;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.MoveBoxAbstractAction;
+import dtu.agency.actions.concreteaction.ActionComparator;
+import dtu.agency.actions.concreteaction.MoveBoxConcreteAction;
 import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.MoveBoxAbstractAction;
-import dtu.agency.services.LevelService;
+import dtu.agency.planners.pop.preconditions.BoxAtPrecondition;
 
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
@@ -23,8 +20,9 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
     }
 
     public POPPlan plan(MoveBoxAbstractAction action) {
-        Stack<Action> actions = new Stack<>();
+        Stack<ConcreteAction> concreteActions = new Stack<>();
 
+        /*
         Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 
         Box box = action.getBox();
@@ -34,8 +32,8 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
         while (true) {
 
-            PriorityQueue<MoveBoxAction> stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
-            MoveBoxAction nextAction = stepActions.poll();
+            PriorityQueue<MoveBoxConcreteAction> stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
+            MoveBoxConcreteAction nextAction = stepActions.poll();
 
             Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
                     nextAction.getBoxPosition(),
@@ -46,7 +44,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                 // Bigger switch please
                 switch (nextAction.getType()) {
                     case PUSH:
-                        actions.add(new PushAction(
+                        concreteActions.add(new PushConcreteAction(
                                 box,
                                 agent,
                                 boxStartPosition,
@@ -63,7 +61,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                         ));
                         break;
                     case PULL:
-                        actions.add(new PullAction(
+                        concreteActions.add(new PullConcreteAction(
                                 box,
                                 agent,
                                 boxStartPosition,
@@ -85,20 +83,23 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                 break;
             }
 
-            actions.add(nextAction);
+            concreteActions.add(nextAction);
             currentPrecondition = new BoxAtPrecondition(box, agent, nextAction.getBoxPosition());
         }
+        */
 
-        return new POPPlan(actions);
+        return new POPPlan(concreteActions);
     }
 
     /**
      * @param boxPrecondition
      * @return A queue of MoveBoxActions which solves the given precondition
      */
-    public PriorityQueue<MoveBoxAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
+    public PriorityQueue<MoveBoxConcreteAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
 
-        PriorityQueue<MoveBoxAction> actions = new PriorityQueue<>(new ActionComparator());
+        PriorityQueue<MoveBoxConcreteAction> actions = new PriorityQueue<>(new ActionComparator());
+
+        /*
 
         // Find the free neighbour cells to the boxPrecondition
         List<Neighbour> freeBoxNeighbours = LevelService.getInstance().getFreeNeighbours(
@@ -135,7 +136,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
             for (Neighbour viableAgentNeighbour : viableAgentPositions) {
 
                 // Push the box
-                PushAction nextPushAction = new PushAction(
+                PushConcreteAction nextPushAction = new PushConcreteAction(
                         boxPrecondition.getBox(),
                         boxPrecondition.getAgent(),
                         boxNeighbour.getPosition(),
@@ -149,7 +150,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                 );
 
                 // Pull the box
-                PullAction nextPullAction = new PullAction(
+                PullConcreteAction nextPullAction = new PullConcreteAction(
                         boxPrecondition.getBox(),
                         boxPrecondition.getAgent(),
                         boxNeighbour.getPosition(),
@@ -166,6 +167,8 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                 actions.add(nextPushAction);
             }
         }
+        */
+
         return actions;
     }
 }

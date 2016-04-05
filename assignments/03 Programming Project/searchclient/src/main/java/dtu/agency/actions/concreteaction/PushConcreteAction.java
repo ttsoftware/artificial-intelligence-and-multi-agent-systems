@@ -1,16 +1,18 @@
-package dtu.agency.actions.concrete;
+package dtu.agency.actions.concreteaction;
 
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
+import dtu.agency.services.LevelService;
 
-public class PushAction extends Action {
+public class PushConcreteAction extends ConcreteAction {
 
     private final Box box;
     private final Direction agentDirection;  // direction to box from agent POV
     private final Direction boxDirection;    // desired direction the box should move
 
-    public PushAction(Box box, Direction agentDirection, Direction boxDirection) {
+    public PushConcreteAction(Box box, Direction agentDirection, Direction boxDirection) {
         this.box = box;
         this.agentDirection = agentDirection;
         this.boxDirection = boxDirection;
@@ -29,8 +31,8 @@ public class PushAction extends Action {
     }
 
     @Override
-    public ActionType getType() {
-        return ActionType.PUSH;
+    public ConcreteActionType getType() {
+        return ConcreteActionType.PUSH;
     }
 
     @Override
@@ -39,8 +41,8 @@ public class PushAction extends Action {
         Position oldAgentPos = oldState.getAgentPosition();
         Position oldBoxPos = oldState.getBoxPosition();
 
-        Position newAgentPos = new Position(oldAgentPos, agentDirection);
-        Position newBoxPos = new Position(oldBoxPos, boxDirection);
+        Position newAgentPos = LevelService.getInstance().getPositionInDirection(oldAgentPos, agentDirection);
+        Position newBoxPos = LevelService.getInstance().getPositionInDirection(oldBoxPos, boxDirection);
 
         boolean valid = true;
         // check preconditions !!! THIS IS PUSH

@@ -4,12 +4,12 @@ import dtu.agency.planners.htn.HTNNode;
 
 public class GreedyHeuristicComparator extends HeuristicComparator {
 
-    public GreedyHeuristicComparator(Method method) {
-        super(method);
+    public GreedyHeuristicComparator(Heuristic heuristic) {
+        super(heuristic);
     }
 
-    public int f(HTNNode n) {
-        return h(n);
+    public int f(HTNNode node) {
+        return h(node);
     }
 
     public String toString() {

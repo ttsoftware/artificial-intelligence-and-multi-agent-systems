@@ -13,8 +13,8 @@ public class AgentThreadTest {
     @Test
     public void testRun() throws InterruptedException {
 
-        Agent agent1 = new Agent("0", new Position(1,2));
-        Agent agent2 = new Agent("1", new Position(2,2));
+        Agent agent1 = new Agent("0");
+        Agent agent2 = new Agent("1");
 
         Thread t1 = new Thread(new AgentThread(agent1));
         Thread t2 = new Thread(new AgentThread(agent2));

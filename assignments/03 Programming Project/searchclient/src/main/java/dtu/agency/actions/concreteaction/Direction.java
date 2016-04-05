@@ -1,4 +1,4 @@
-package dtu.agency.actions.concrete;
+package dtu.agency.actions.concreteaction;
 
 import java.io.Serializable;
 

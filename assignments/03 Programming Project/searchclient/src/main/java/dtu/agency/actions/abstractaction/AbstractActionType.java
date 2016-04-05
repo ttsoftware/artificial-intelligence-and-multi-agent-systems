@@ -1,4 +1,4 @@
-package dtu.agency.planners.actions;
+package dtu.agency.actions.abstractaction;
 
 public enum AbstractActionType {
     GotoAction,

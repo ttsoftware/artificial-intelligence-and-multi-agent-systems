@@ -1,6 +1,6 @@
-package dtu.agency.actions.concrete.preconditions;
+package dtu.agency.planners.pop.preconditions;
 
-import dtu.agency.actions.concrete.Direction;
+import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Position;
 

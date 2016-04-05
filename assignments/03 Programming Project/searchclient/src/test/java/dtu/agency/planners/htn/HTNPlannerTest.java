@@ -1,14 +1,11 @@
-package dtu.agency.planners;
-
-/**
- * Created by mads on 4/1/16.
- */
+package dtu.agency.planners.htn;
 
 import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.HTNPlan;
+import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.services.LevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,16 +60,16 @@ public class HTNPlannerTest {
         PrimitivePlan plan = htn.plan();
 
         System.err.println("");
-        if (htnPlan!=null) System.err.println(htnPlan.toString());
-        if (plan!=null) System.err.println(plan.toString());
+        if (htnPlan != null) System.err.println(htnPlan.toString());
+        if (plan != null) System.err.println(plan.toString());
 
-        assertTrue("htnPlan does not exist", htnPlan!=null);
+        assertTrue("htnPlan does not exist", htnPlan != null);
         assertTrue("htnPlan is empty", !htnPlan.isEmpty());
-        assertTrue("primitivePlan is not found", plan!=null);
+        assertTrue("primitivePlan is not found", plan != null);
         assertTrue("primitivePlan is empty", !plan.isEmpty());
-        s  = "primitivePlan is longer than " + Integer.toString(maxSolutionLength);
+        s = "primitivePlan is longer than " + Integer.toString(maxSolutionLength);
         s += " steps, it is " + plan.getActions().size();
-        assertTrue(s, plan.getActions().size()<=maxSolutionLength);
+        assertTrue(s, plan.getActions().size() <= maxSolutionLength);
     }
 
     @Test

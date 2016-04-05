@@ -1,8 +1,9 @@
-package dtu.agency.planners.actions;
+package dtu.agency.actions.abstractaction;
 
-import dtu.agency.agent.actions.*;
+import dtu.agency.actions.concreteaction.*;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Box;
-import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
@@ -11,53 +12,50 @@ import java.util.ArrayList;
 
 public class MoveBoxAction extends HLAction {
 
-    private final Position boxDestination;
-    private final Box targetBox;
-    private final Goal targetGoal;
+    private final Box box;
+    private final Position moveToPosition;
 
-    public MoveBoxAction(Box box, Position target) {
-        this.boxDestination = target;
-        this.targetBox = box;
-        this.targetGoal = null;
-        if (box == null || target == null) {
-            throw new AssertionError("MoveBoxAction: null values not accepted as target box or destination");
-        }
-    }
-
-    public MoveBoxAction(Box box, Goal goal) {
-        this.boxDestination = goal.getPosition();
-        this.targetBox = box;
-        this.targetGoal = goal;
-        if (box == null || goal == null || boxDestination == null) {
-            throw new AssertionError("MoveBoxAction: null values not accepted as target box or destination");
-        }
+    public MoveBoxAction(Box box, Position moveToPosition) {
+        this.box = box;
+        this.moveToPosition = moveToPosition;
     }
 
     public Box getBox() {
-        return targetBox;
-    }
-
-    public Goal getGoal() {
-        return targetGoal;
+        return box;
     }
 
     @Override
     public Position getDestination() {
-        return boxDestination;
+        return moveToPosition;
     }
 
     @Override
+    public boolean isPureHLAction() {
+        return false;
+    }
+
+    /**
+     * TODO: Add comments here
+     * @param htnState
+     * @return
+     */
+    @Override
     public boolean isPurposeFulfilled(HTNState htnState) {
-        if (htnState.getBoxPosition().equals(this.boxDestination)) { //
+        if (htnState.getBoxPosition().equals(moveToPosition)) { //
             //System.err.println("This HLAction " + this.toString() + " is fulfilled" );
             return true;
         }
         return false;
     }
 
+    /**
+     * TODO: Add comments here
+     * @param priorState
+     * @return
+     */
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        //System.err.println("MoveBoxAction.getRefinements - Initial" + priorState.toString());
+        //System.err.println("MoveBoxConcreteAction.getRefinements - Initial" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
         ArrayList<MixedPlan> refinements = new ArrayList<>();
 
@@ -72,26 +70,26 @@ public class MoveBoxAction extends HLAction {
         // PUSH REFINEMENTS
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
-            Action push = new PushAction(targetBox, dirToBox, dir);
+            ConcreteAction push = new PushConcreteAction(box, dirToBox, dir);
             HTNState result = push.applyTo(priorState);
             if (result == null) continue; // then the action was illegal !
             refinement.addAction(push);
             refinement.addAction(this);
             refinements.add(refinement);
-            //System.err.println("Action:" + push.toString() + ", " + result.toString());
+            //System.err.println("ConcreteAction:" + push.toString() + ", " + result.toString());
             //System.err.println(refinement.toString());
         }
 
         // PULL REFINEMENTS
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
-            Action pull = new PullAction(targetBox, dir, dirToBox);
+            ConcreteAction pull = new PullConcreteAction(box, dir, dirToBox);
             HTNState result = pull.applyTo(priorState);
             if (result == null) continue; // then the action was illegal !
             refinement.addAction(pull);
             refinement.addAction(this);
             refinements.add(refinement);
-            //System.err.println("Action:" + pull.toString() + ", Result:" + result.toString());
+            //System.err.println("ConcreteAction:" + pull.toString() + ", Result:" + result.toString());
         }
         //System.err.println(refinements.toString());
         return refinements;
@@ -100,18 +98,19 @@ public class MoveBoxAction extends HLAction {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("MoveBoxAction(");
+        s.append("MoveBoxConcreteAction(");
         s.append(getBox().toString());
         s.append(",");
-        if (getGoal() != null) {
-            s.append(getGoal().toString());
-        } else {
-            s.append(getDestination().toString());
-        }
+        s.append(moveToPosition.toString());
         s.append(")");
         return s.toString();
     }
 
+    /**
+     * TODO: What is this even?
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -123,11 +122,15 @@ public class MoveBoxAction extends HLAction {
         MoveBoxAction other = (MoveBoxAction) obj;
         if (!this.getBox().equals(other.getBox()))
             return false;
-        if (!this.getGoal().equals(other.getGoal()))
+        if (!this.moveToPosition.equals(other.moveToPosition))
             return false;
         if (!this.getDestination().equals(other.getDestination()))
             return false;
         return true;
     }
 
+    @Override
+    public AbstractActionType getType() {
+        return AbstractActionType.MoveBoxAction;
+    }
 }

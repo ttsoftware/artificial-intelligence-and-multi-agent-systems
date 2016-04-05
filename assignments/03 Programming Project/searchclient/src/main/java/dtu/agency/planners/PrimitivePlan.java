@@ -1,34 +1,26 @@
 package dtu.agency.planners;
 
-import dtu.agency.agent.actions.Action;
+import dtu.agency.actions.ConcreteAction;
 
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Stack;
 
 public class PrimitivePlan implements ConcretePlan {
 
-    private LinkedList<Action> actions;
+    private Stack<ConcreteAction> concreteActions;
 
-    public PrimitivePlan() {
-        this.actions = new LinkedList<>();
-    }
-    public PrimitivePlan(List<Action> actions) {
-        this.actions = new LinkedList<>(actions);
+    public PrimitivePlan(LinkedList<ConcreteAction> plan) {
+        concreteActions.addAll(plan);
     }
 
-    @Override
-    public LinkedList<Action> getActions() {
-        return actions;
+    public Stack<ConcreteAction> getActions() {
+        return concreteActions;
     }
 
-    public Action getFirst() { return actions.peekFirst(); }
-    public Action removeFirst() { return actions.removeFirst(); }
-    public Action removeLast() { return actions.removeLast(); }
-
-    public boolean isEmpty() { return this.actions.isEmpty(); }
+    public boolean isEmpty() { return this.concreteActions.isEmpty(); }
 
     @Override
     public String toString() {
-        return "PrimitivePlan:"+getActions().toString();
+        return "PrimitivePlan:"+ getActions().toString();
     }
 }

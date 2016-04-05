@@ -1,56 +1,43 @@
-package dtu.agency.planners.actions;
+package dtu.agency.actions.abstractaction;
 
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
-import dtu.agency.board.Box;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.Direction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class GotoAction extends HLAction implements Serializable {
 
-    private final Position agentDestination;
-    private final Box targetBox;
+    private final Position gotoPosition;
 
-    public GotoAction(Position position) {
-        this.agentDestination = position;
-        this.targetBox = null;
-        if (agentDestination == null) {
-            throw new AssertionError("GotoAction: null values not accepted as target destination");
-        }
-    }
-
-    public GotoAction(Box box) {
-        this.agentDestination = box.getPosition();
-        this.targetBox = box;
-        if (agentDestination == null) {
-            throw new AssertionError("GotoAction: null values not accepted as target destination");
-        }
-    }
-
-    public Box getTargetBox() {
-        return targetBox;
+    public GotoAction(Position gotoPosition) {
+        this.gotoPosition = gotoPosition;
     }
 
     @Override
     public Position getDestination() {
-        return this.agentDestination;
+        return gotoPosition;
+    }
+
+    @Override
+    public boolean isPureHLAction() {
+        return false;
+    }
+
+    @Override
+    public AbstractActionType getType() {
+        return AbstractActionType.GotoAction;
     }
 
     @Override
     public boolean isPurposeFulfilled(HTNState htnState) {
         boolean fulfilled = false;
-        if (this.targetBox == null) { // no box, agent should end up at agentDestination
-            if (htnState.getAgentPosition().equals(this.agentDestination)) { //
-                fulfilled = true;
-            }
-        } else { // box target, agent should end up at neighbouring cell
-            if (htnState.getAgentPosition().isNeighbour(this.agentDestination)) { //
-                fulfilled = true;
-            }
+        if (htnState.getAgentPosition().isAdjacentTo(getDestination())) { //
+            fulfilled = true;
         }
         //if (fulfilled) System.err.println("This HLAction " + this.toString() + " is fulfilled" );
         return fulfilled;
@@ -66,9 +53,9 @@ public class GotoAction extends HLAction implements Serializable {
 
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
-            Action move = new MoveAction(dir);
+            ConcreteAction move = new MoveConcreteAction(dir);
             HTNState result = move.applyTo(priorState);
-            if (result==null) continue; // illegal move, discard it
+            if (result == null) continue; // illegal move, discard it
             refinement.addAction(move);
             refinement.addAction(this); // append this action again
             refinements.add(refinement);
@@ -81,8 +68,8 @@ public class GotoAction extends HLAction implements Serializable {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("GotoAction(");
-        if (getTargetBox() != null) {
-            s.append(getTargetBox().toString());
+        if (getDestination() != null) {
+            s.append(getDestination().toString());
         } else {
             s.append(getDestination().toString());
         }
@@ -90,6 +77,12 @@ public class GotoAction extends HLAction implements Serializable {
         return s.toString();
     }
 
+    /**
+     * TODO: What do we need all these equals for?
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -99,11 +92,10 @@ public class GotoAction extends HLAction implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         GotoAction other = (GotoAction) obj;
-        if (!this.getTargetBox().equals(other.getTargetBox()))
+        if (!this.getDestination().equals(other.getDestination()))
             return false;
         if (!this.getDestination().equals(other.getDestination()))
             return false;
         return true;
     }
-
 }

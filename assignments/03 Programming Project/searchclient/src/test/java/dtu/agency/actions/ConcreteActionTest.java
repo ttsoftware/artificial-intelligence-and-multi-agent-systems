@@ -5,10 +5,8 @@ package dtu.agency.actions;
  */
 
 import dtu.agency.ProblemMarshaller;
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
-import dtu.agency.agent.actions.NoAction;
+import dtu.agency.actions.concreteaction.*;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
@@ -20,7 +18,7 @@ import java.io.*;
 
 import static org.junit.Assert.assertTrue;
 
-public class ActionTest {
+public class ConcreteActionTest {
 
     /*
     * This test class tests the Primitive actions when the are applied to different states
@@ -85,7 +83,7 @@ public class ActionTest {
     @Test
     public void nopTest() {
         LevelService.getInstance().setLevel( level );
-        Action nop = new NoAction();
+        ConcreteAction nop = new NoConcreteAction();
         HTNState eff = nop.applyTo(nbn);
         assertTrue("Effect is not unchanged", eff.equals(nbn));
     }
@@ -98,12 +96,12 @@ public class ActionTest {
         //System.err.println(LevelService.getInstance().getLevel().getWalls());
         //System.err.println(LevelService.getInstance().getLevel().notWall(center));
 
-        Action goN = new MoveAction(Direction.NORTH);
-        Action goS = new MoveAction(Direction.SOUTH);
-        Action goE = new MoveAction(Direction.EAST);
-        Action goW = new MoveAction(Direction.WEST);
+        ConcreteAction goN = new MoveConcreteAction(Direction.NORTH);
+        ConcreteAction goS = new MoveConcreteAction(Direction.SOUTH);
+        ConcreteAction goE = new MoveConcreteAction(Direction.EAST);
+        ConcreteAction goW = new MoveConcreteAction(Direction.WEST);
 
-        // applyTo is the only method in need of testing
+        // applyTo is the only heuristic in need of testing
         // check that you end up the right place
         assertTrue(non.equals(goN.applyTo(noc)));
         assertTrue(nos.equals(goS.applyTo(noc)));

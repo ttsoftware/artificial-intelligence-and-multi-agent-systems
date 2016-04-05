@@ -1,6 +1,6 @@
 package dtu.agency.board;
 
-import dtu.agency.agent.actions.Direction;
+import dtu.agency.actions.concreteaction.Direction;
 
 public class Neighbour {
 

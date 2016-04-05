@@ -4,18 +4,18 @@ import dtu.agency.planners.htn.HTNNode;
 
 public class WeightedAStarHeuristicComparator extends HeuristicComparator {
 
-    private int W;
+    private int weight;
 
-    public WeightedAStarHeuristicComparator(Method method, int weight) {
-        super(method);
-        W = weight;
+    public WeightedAStarHeuristicComparator(Heuristic heuristic, int weight) {
+        super(heuristic);
+        this.weight = weight;
     }
 
-    public int f(HTNNode n) {
-        return n.g() + W * h(n);
+    public int f(HTNNode node) {
+        return node.getGeneration() + weight * h(node);
     }
 
     public String toString() {
-        return String.format("WA*(%d) evaluation", W);
+        return String.format("WA*(%d) evaluation", weight);
     }
 }

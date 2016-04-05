@@ -1,14 +1,14 @@
 package dtu.agency.planners.htn;
 
 import dtu.Main;
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.NoAction;
+import dtu.agency.actions.Action;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.PrimitivePlan;
-import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.HLAction;
-import dtu.agency.planners.htn.heuristic.AStarHeuristic;
-import dtu.agency.planners.htn.heuristic.Heuristic;
+import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
+import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,40 +20,40 @@ public class HTNNode {
     private static Random rnd = new Random(1);
 
     private HTNNode parent;
-    private Action action;   // primitive action represented by this node
-    private HTNState state;  // status of the relevant board features after applying the action of this node
+    private ConcreteAction concreteAction;   // primitive concreteAction represented by this node
+    private HTNState state;  // status of the relevant board features after applying the concreteAction of this node
     private MixedPlan remainingPlan; // list of successive (abstract) actions
-    private int g; // generation - how many ancestors exist? -> how many moves have i performed
+    private int generation; // generation - how many ancestors exist? -> how many moves have i performed
     // private Relaxation r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
 
-    public HTNNode(HTNNode parent, Action action, HTNState initialEffects, MixedPlan highLevelPlan) {
+    public HTNNode(HTNNode parent, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
-        this.action = action;
+        this.concreteAction = concreteAction;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
-        this.g = (parent == null) ? 0 : (parent.g + 1);
+        this.generation = (parent == null) ? 0 : (parent.generation + 1);
     }
 
     public HTNNode(HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = null;
-        this.action = null;
+        this.concreteAction = null;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
-        this.g = (parent == null) ? 0 : (parent.g + 1);
+        this.generation = (parent == null) ? 0 : (parent.generation + 1);
     }
 
     public HTNNode(HTNState initialEffects, HLAction highLevelAction) {
         this.parent = null;
-        this.action = null;
+        this.concreteAction = null;
         this.state = initialEffects;
         MixedPlan plan = new MixedPlan();
         plan.addAction(highLevelAction);
         this.remainingPlan = plan;
-        this.g = (parent == null) ? 0 : (parent.g + 1);
+        this.generation = (parent == null) ? 0 : (parent.generation + 1);
     }
 
-    public int g() {
-        return g;
+    public int getGeneration() {
+        return generation;
     }
 
     public boolean isInitialNode() {
@@ -76,12 +76,12 @@ public class HTNNode {
         this.parent = parent;
     }
 
-    public Action getAction() {
-        return action;
+    public ConcreteAction getConcreteAction() {
+        return concreteAction;
     }
 
-    public void setAction(Action action) {
-        this.action = action;
+    public void setConcreteAction(ConcreteAction concreteAction) {
+        this.concreteAction = concreteAction;
     }
 
     public HTNState getState() {
@@ -106,29 +106,29 @@ public class HTNNode {
             return refinementNodes;
         }
 
-        AbstractAction nextAction = remainingPlan.removeFirst();
+        Action nextAction = remainingPlan.removeFirst();
 
-        if (nextAction instanceof Action) { // case the action is primitive, add it as only node,
-            //System.err.println("Next action is Primitive, thus a single ChildNode is created");
-            Action primitive = (Action) nextAction;
+        if (nextAction instanceof ConcreteAction) { // case the concreteAction is primitive, add it as only node,
+            //System.err.println("Next concreteAction is Primitive, thus a single ChildNode is created");
+            ConcreteAction primitive = (ConcreteAction) nextAction;
             HTNNode only = childNode( primitive, this.remainingPlan); // is remainingPlan correct?? has first been removed??
             if (only != null) { refinementNodes.add(only);}
             //System.err.println(refinementNodes.toString());
             return refinementNodes;
         }
 
-        if (nextAction instanceof HLAction) { // case the action is high level, get the refinements from the action
-            //System.err.println("Next action is High Level, thus a we seek refinements to it:");
+        if (nextAction instanceof HLAction) { // case the concreteAction is high level, get the refinements from the concreteAction
+            //System.err.println("Next concreteAction is High Level, thus a we seek refinements to it:");
             HLAction highLevelAction = (HLAction) nextAction;
             ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getState());
             //System.err.println(refs.toString());
 
             for (MixedPlan refinement : refs) {
 
-                Action first = null; // remains null iff first action is abstract
+                ConcreteAction first = null; // remains null iff first concreteAction is abstract
 
-                if (refinement.getFirst() instanceof Action) {
-                    first = (Action) refinement.removeFirst();
+                if (refinement.getFirst() instanceof ConcreteAction) {
+                    first = (ConcreteAction) refinement.removeFirst();
                 }
                 refinement.extend(remainingPlan);
                 HTNNode nextNode = childNode(first, refinement);
@@ -143,21 +143,21 @@ public class HTNNode {
         return refinementNodes;
     }
 
-    private HTNNode childNode(Action primitiveAction, MixedPlan remainingActions) {
+    private HTNNode childNode(ConcreteAction primitiveConcreteAction, MixedPlan remainingActions) {
         HTNState oldState = this.getState();
-        HTNState newState = (primitiveAction==null) ? oldState : primitiveAction.applyTo(oldState);
-        primitiveAction = (primitiveAction==null) ? new NoAction() : primitiveAction;
+        HTNState newState = (primitiveConcreteAction ==null) ? oldState : primitiveConcreteAction.applyTo(oldState);
+        primitiveConcreteAction = (primitiveConcreteAction ==null) ? new NoConcreteAction() : primitiveConcreteAction;
         //System.err.println("RemActions: " + remainingActions.toString());
-        return new HTNNode(this, primitiveAction, newState, remainingActions);
+        return new HTNNode(this, primitiveConcreteAction, newState, remainingActions);
     }
 
     public PrimitivePlan extractPlan() {
-        LinkedList<Action> plan = new LinkedList<>();
+        LinkedList<ConcreteAction> plan = new LinkedList<>();
         HTNNode node = this;
-        Action previous;
+        ConcreteAction previous;
         while (!node.isInitialNode()) {
-            previous = node.getAction();
-            if ((previous != null) && !(previous instanceof NoAction)) plan.addFirst(previous);
+            previous = node.getConcreteAction();
+            if ((previous != null) && !(previous instanceof NoConcreteAction)) plan.addFirst(previous);
             node = node.getParent();
         }
         return new PrimitivePlan(plan);
@@ -168,7 +168,7 @@ public class HTNNode {
         final int prime = 31;
         int result = 1;
         result = prime * result + parent.hashCode();
-        result = prime * result + action.hashCode();
+        result = prime * result + concreteAction.hashCode();
         result = prime * result + state.hashCode();
         result = prime * result + remainingPlan.hashCode();
         return result;
@@ -185,7 +185,7 @@ public class HTNNode {
         HTNNode other = (HTNNode) obj;
         if (parent != other.parent)
             return false;
-        if (action != other.action)
+        if (concreteAction != other.concreteAction)
             return false;
         if (state != other.state)
             return false;
@@ -197,12 +197,12 @@ public class HTNNode {
 
     @Override
     public String toString() {
-        Heuristic h = new AStarHeuristic(Main.heuristicMeasure);
+        HeuristicComparator h = new AStarHeuristicComparator(Main.heuristicMeasure);
         StringBuilder s = new StringBuilder();
         s.append("HTNNode: {");
-        s.append("Generation: " + Integer.toString(this.g));
-        s.append(", Heuristic: " + Integer.toString(h.h(this)));
-        s.append(", Action: " + ((action!=null) ? action.toString() : "null") );
+        s.append("Generation: " + Integer.toString(this.generation));
+        s.append(", HeuristicComparator: " + Integer.toString(h.h(this)));
+        s.append(", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null") );
         s.append(", State: " + this.state.toString() + ",\n");
         s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );
         return s.toString();

@@ -1,18 +1,16 @@
-package dtu.agency.actions.concrete;
+package dtu.agency.actions;
 
-import dtu.agency.planners.actions.AbstractAction;
+import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.planners.htn.HTNState;
 
-import java.io.Serializable;
-
-public abstract class Action extends AbstractAction implements Serializable {
+public abstract class ConcreteAction implements Action<ConcreteActionType> {
 
     protected int heuristicValue;
 
-    // public abstract ActionType getType();
+    // public abstract ConcreteActionType getType();
 
     /*
-    * Used by HTN planner to get information of the new state, if Action is performed.
+    * Used by HTN planner to get information of the new state, if ConcreteAction is performed.
     * ** heuristic of relaxation could be added here **
     */
     public abstract HTNState applyTo(HTNState oldState);

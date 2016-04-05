@@ -1,8 +1,8 @@
 package dtu.agency.planners;
 
-import dtu.agency.planners.actions.GotoAction;
-import dtu.agency.planners.actions.HLAction;
-import dtu.agency.planners.actions.MoveBoxAction;
+import dtu.agency.actions.abstractaction.GotoAction;
+import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.MoveBoxAction;
 
 import java.util.LinkedList;
 import java.util.List;

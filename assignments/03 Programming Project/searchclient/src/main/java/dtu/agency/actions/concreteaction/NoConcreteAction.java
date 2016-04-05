@@ -1,16 +1,17 @@
-package dtu.agency.actions.concrete;
+package dtu.agency.actions.concreteaction;
 
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.planners.htn.HTNState;
 
-public class NoAction extends Action {
+public class NoConcreteAction extends ConcreteAction {
 
-    public NoAction() {
+    public NoConcreteAction() {
         // I do nothing at all
     }
 
     @Override
-    public ActionType getType() {
-        return ActionType.NONE;
+    public ConcreteActionType getType() {
+        return ConcreteActionType.NONE;
     }
 
     @Override

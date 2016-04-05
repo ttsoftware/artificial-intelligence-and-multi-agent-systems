@@ -1,36 +1,39 @@
 package dtu.agency.planners.htn.heuristic;
 
-import dtu.agency.agent.actions.Action;
+import dtu.agency.actions.Action;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
-import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.HLAction;
 import dtu.agency.planners.htn.HTNNode;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public abstract class HeuristicComparator implements Comparator<HTNNode> {
 
-    public Method method = Method.MANHATTAN;
+    public Heuristic heuristic;
 
-    public HeuristicComparator(Method method) {
-        this.method = method;
+    public HeuristicComparator(Heuristic heuristic) {
+        this.heuristic = heuristic;
     }
 
-    public int compare(HTNNode n1, HTNNode n2) {
-        return f(n1) - f(n2);
-    }
-
+    /**
+     * TODO: We need a more descriptive name for 'h'
+     *
+     * @param n
+     * @return
+     */
     public int h(HTNNode n) {
         Position previous = n.getState().getAgentPosition();
-        List<AbstractAction> actions = n.getRemainingPlan().getActions();
+        List<Action> actions = n.getRemainingPlan().getActions();
         int primitives = 0;
-        for (AbstractAction action : actions) {
+        for (Action action : actions) {
             // count primitive actions, and refine all pure HLActions, getting a list of HLActions
             // as no pure HLAction refines into other pure HLAction, this is not walked like a tree,
             // this has to be corrected is such HLActions are introduced
-            if (action instanceof Action) {
+            if (action instanceof ConcreteAction) {
                 primitives += 1;
             } else { // (action instanceof HLAction)
                 HLAction act = (HLAction) action;
@@ -41,12 +44,12 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
                     for (MixedPlan plan : plans) {
                         int planPrimitives = 0;
                         Position planPrevious = previous;
-                        for (AbstractAction a : plan.getActions()) {
-                            if (a instanceof Action) {
+                        for (Action a : plan.getActions()) {
+                            if (a instanceof ConcreteAction) {
                                 planPrimitives += 1;
                             } else { // impure actions! by previous definition - else this is to be rewritten
                                 HLAction a_ = (HLAction) a;
-                                planPrimitives += distance(planPrevious, a_.getDestination());
+                                planPrimitives += heuristic.distance(planPrevious, a_.getDestination());
                                 planPrevious = act.getDestination();
                             }
                         }
@@ -56,7 +59,7 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
                     previous = minPlanPrevious;
                     primitives += minPlanPrimitives;
                 } else { // 'impure' HLAction
-                    primitives += distance(previous, act.getDestination());
+                    primitives += heuristic.distance(previous, act.getDestination());
                     previous = act.getDestination();
                 }
             }
@@ -64,18 +67,15 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
         return primitives;
     }
 
-    private int distance(Position from, Position to) {
-        int dist = 0;
-        switch (method) {
-            case MANHATTAN:
-                dist = from.manhattanDist(to);
-                break;
-            case EUCLIDEAN:
-                dist = (int) Math.round(from.eucDist(to));
-                break;
-        }
-        return dist;
+    public int compare(HTNNode node1, HTNNode node2) {
+        return f(node1) - f(node2);
     }
 
-    public abstract int f(HTNNode n);
+    /**
+     * TODO: We need a more descriptive name for 'f'
+     *
+     * @param node
+     * @return
+     */
+    public abstract int f(HTNNode node);
 }

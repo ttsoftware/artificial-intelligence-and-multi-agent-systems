@@ -1,14 +1,14 @@
-package dtu.agency.planners.actions;
+package dtu.agency.actions.abstractaction;
 
+import dtu.agency.actions.AbstractAction;
 import dtu.agency.board.Position;
 
 public class GotoAbstractAction extends AbstractAction {
 
     private Position position;
 
-    public GotoAbstractAction(int estimatedDistance, Position position) {
+    public GotoAbstractAction(Position position) {
         this.position = position;
-        this.estimatedDistance = estimatedDistance;
     }
 
     @Override
@@ -18,10 +18,5 @@ public class GotoAbstractAction extends AbstractAction {
 
     public Position getPosition() {
         return position;
-    }
-
-    @Override
-    public int getEstimatedDistance() {
-        return estimatedDistance;
     }
 }

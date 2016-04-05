@@ -1,5 +1,6 @@
-package dtu.agency.planners.actions;
+package dtu.agency.actions.abstractaction;
 
+import dtu.agency.actions.AbstractAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 
@@ -8,8 +9,7 @@ public class MoveBoxAbstractAction extends AbstractAction {
     private Box box;
     private Goal goal;
 
-    public MoveBoxAbstractAction(int estimatedDistance, Box box, Goal goal) {
-        this.estimatedDistance = estimatedDistance;
+    public MoveBoxAbstractAction(Box box, Goal goal) {
         this.box = box;
         this.goal = goal;
     }
@@ -20,11 +20,6 @@ public class MoveBoxAbstractAction extends AbstractAction {
 
     public Goal getGoal() {
         return goal;
-    }
-
-    @Override
-    public int getEstimatedDistance() {
-        return estimatedDistance;
     }
 
     @Override

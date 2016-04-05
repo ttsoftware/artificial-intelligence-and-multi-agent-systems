@@ -1,6 +1,6 @@
-package dtu.agency.actions.concrete.effects;
+package dtu.agency.planners.pop.effects;
 
-import dtu.agency.actions.concrete.MoveAction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.BoardCell;
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Level;
@@ -9,7 +9,7 @@ import dtu.agency.services.LevelService;
 
 public class MoveAgentEffect extends Effect {
 
-    public Level applyChangeToLevel(Level level, MoveAction action) {
+    public Level applyChangeToLevel(Level level, MoveConcreteAction action) {
 
         Position goalPosition = LevelService.getInstance().getPositionInDirection(action.getAgentPosition(), action.getDirection());
         BoardCell[][] boardState = level.getBoardState();
@@ -20,7 +20,7 @@ public class MoveAgentEffect extends Effect {
         return level;
     }
 
-    private BoardCell[][] applyEffectToBoard(Level level, Position goalPosition, MoveAction action) {
+    private BoardCell[][] applyEffectToBoard(Level level, Position goalPosition, MoveConcreteAction action) {
         BoardCell[][] boardState = level.getBoardState();
         BoardObject[][] boardObjects = level.getBoardObjects();
 

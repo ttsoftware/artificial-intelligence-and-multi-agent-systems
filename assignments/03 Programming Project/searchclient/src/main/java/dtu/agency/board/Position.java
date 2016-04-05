@@ -1,6 +1,5 @@
 package dtu.agency.board;
 
-import dtu.agency.agent.actions.Direction;
 import java.io.Serializable;
 
 public class Position implements Serializable {
