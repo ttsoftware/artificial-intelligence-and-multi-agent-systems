@@ -72,6 +72,10 @@ public class AgentThread implements Runnable {
 
             PrimitivePlan primitivePlan = htnPlanner.plan();
 
+            if (primitivePlan == null) {
+                // Zero steps, the planner could not find a way.
+            }
+
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, primitivePlan));
         }
     }
