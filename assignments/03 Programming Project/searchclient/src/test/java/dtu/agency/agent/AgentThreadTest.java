@@ -2,6 +2,7 @@ package dtu.agency.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Position;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.services.EventBusService;
@@ -20,7 +21,7 @@ public class AgentThreadTest {
         t1.start();
         t2.start();
 
-        Goal goal = new Goal("A", 0, 0, 0);
+        Goal goal = new Goal("A", new Position(0, 0), 0);
 
         GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, 2);
         EventBusService.register(goalEstimationEventSubscriber);

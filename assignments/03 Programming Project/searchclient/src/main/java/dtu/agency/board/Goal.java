@@ -3,13 +3,11 @@ package dtu.agency.board;
 public class Goal extends BoardObject implements Comparable<Goal> {
 
     private int weight;
-    private final int row;
-    private final int column;
+    private final Position position;
 
-    public Goal(String label, int row, int column, int weight) {
+    public Goal(String label, Position position, int weight) {
         super(label);
-        this.column = column;
-        this.row = row;
+        this.position = position;
         this.weight = weight;
     }
 
@@ -17,16 +15,8 @@ public class Goal extends BoardObject implements Comparable<Goal> {
         return weight;
     }
 
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
+    public Position getPosition() {
+        return position;
     }
 
     @Override
