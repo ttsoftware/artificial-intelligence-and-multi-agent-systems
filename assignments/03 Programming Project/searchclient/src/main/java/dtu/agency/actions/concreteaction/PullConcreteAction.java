@@ -33,8 +33,8 @@ public class PullConcreteAction extends ConcreteAction {
         Position oldAgentPos = oldState.getAgentPosition();
         Position oldBoxPos = oldState.getBoxPosition();
 
-        Position newAgentPos = LevelService.getInstance().getPositionInDirection(oldAgentPos, agentDirection);
-        Position newBoxPos = LevelService.getInstance().getPositionInDirection(oldBoxPos, boxDirection.getInverse());
+        Position newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, agentDirection);
+        Position newBoxPos = LevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, boxDirection.getInverse());
 
         boolean valid = true;
         // check preconditions !!! THIS IS PULL

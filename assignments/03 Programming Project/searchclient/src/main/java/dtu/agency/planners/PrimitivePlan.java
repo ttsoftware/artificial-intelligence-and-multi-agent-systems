@@ -2,20 +2,14 @@ package dtu.agency.planners;
 
 import dtu.agency.actions.ConcreteAction;
 
-import java.util.LinkedList;
 import java.util.Stack;
 
 public class PrimitivePlan implements ConcretePlan {
 
-    private Stack<ConcreteAction> concreteActions;
+    private Stack<ConcreteAction> concreteActions = new Stack<>();
 
     public PrimitivePlan() {
         concreteActions = new Stack<>();
-    }
-
-    public PrimitivePlan(LinkedList<ConcreteAction> plan) {
-        concreteActions = new Stack<>();
-        concreteActions.addAll(plan); // Watch It!!! reverse order plan!
     }
 
     public Stack<ConcreteAction> getActions() {

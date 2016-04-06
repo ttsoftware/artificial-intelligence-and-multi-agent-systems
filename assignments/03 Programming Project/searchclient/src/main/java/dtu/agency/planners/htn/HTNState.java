@@ -15,8 +15,7 @@ public class HTNState {
     }
 
     public Direction getDirectionToBox() { // returns the direction from agent to box
-        //return LevelService.getInstance().getMovingDirection(agentPosition, boxPosition); // WRONG!!!
-        return LevelService.getInstance().getMovingDirection(boxPosition, agentPosition); // this is not intuitive rename/create another helper in LevelService??
+        return LevelService.getInstance().getRelativeDirection(agentPosition, boxPosition, false);
     }
 
     public boolean boxIsMovable() {

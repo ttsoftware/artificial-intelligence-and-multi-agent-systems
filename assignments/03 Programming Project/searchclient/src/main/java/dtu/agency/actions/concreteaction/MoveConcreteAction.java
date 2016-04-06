@@ -32,7 +32,7 @@ public class MoveConcreteAction extends ConcreteAction {
     @Override
     public HTNState applyTo(HTNState oldState) {
         Position oldAgentPos = oldState.getAgentPosition();
-        Position newAgentPos = LevelService.getInstance().getPositionInDirection(oldAgentPos, direction);
+        Position newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, direction);
         Position boxPos = oldState.getBoxPosition();
 
         HTNState result = new HTNState(newAgentPos, boxPos);

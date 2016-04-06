@@ -41,8 +41,8 @@ public class PushConcreteAction extends ConcreteAction {
         Position oldAgentPos = oldState.getAgentPosition();
         Position oldBoxPos = oldState.getBoxPosition();
 
-        Position newAgentPos = LevelService.getInstance().getPositionInDirection(oldAgentPos, agentDirection);
-        Position newBoxPos = LevelService.getInstance().getPositionInDirection(oldBoxPos, boxDirection);
+        Position newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, agentDirection);
+        Position newBoxPos = LevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, boxDirection);
 
         boolean valid = true;
         // check preconditions !!! THIS IS PUSH
