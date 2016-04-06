@@ -84,10 +84,9 @@ public class ConcreteActionTest {
     public void nopTest() {
         LevelService.getInstance().setLevel( level );
         ConcreteAction nop = new NoConcreteAction();
-        HTNState eff = nop.applyTo(nbn);
+        HTNState eff = nbn.applyConcreteAction(nop);
         assertTrue("Effect is not unchanged", eff.equals(nbn));
     }
-
 
     @Test
     public void moveTest() {
@@ -103,21 +102,21 @@ public class ConcreteActionTest {
 
         // applyTo is the only heuristic in need of testing
         // check that you end up the right place
-        assertTrue(non.equals(goN.applyTo(noc)));
-        assertTrue(nos.equals(goS.applyTo(noc)));
-        assertTrue(noe.equals(goE.applyTo(noc)));
-        assertTrue(now.equals(goW.applyTo(noc)));
+        assertTrue(non.equals(noc.applyConcreteAction(goN)));
+        assertTrue(nos.equals(noc.applyConcreteAction(goS)));
+        assertTrue(noe.equals(noc.applyConcreteAction(goE)));
+        assertTrue(now.equals(noc.applyConcreteAction(goW)));
 
-        assertTrue(noc.equals(goN.applyTo(nos)));
-        assertTrue(noc.equals(goS.applyTo(non)));
-        assertTrue(noc.equals(goE.applyTo(now)));
-        assertTrue(noc.equals(goW.applyTo(noe)));
+        assertTrue(noc.equals(nos.applyConcreteAction(goN)));
+        assertTrue(noc.equals(non.applyConcreteAction(goS)));
+        assertTrue(noc.equals(now.applyConcreteAction(goE)));
+        assertTrue(noc.equals(noe.applyConcreteAction(goW)));
 
         // check that you do not end up the wrong place...
-        assertTrue(!noc.equals(goN.applyTo(non)));
-        assertTrue(!noc.equals(goS.applyTo(nos)));
-        assertTrue(!noc.equals(goE.applyTo(noe)));
-        assertTrue(!noc.equals(goW.applyTo(now)));
+        assertTrue(!noc.equals(non.applyConcreteAction(goN)));
+        assertTrue(!noc.equals(nos.applyConcreteAction(goS)));
+        assertTrue(!noc.equals(noe.applyConcreteAction(goE)));
+        assertTrue(!noc.equals(now.applyConcreteAction(goW)));
     }
 
     @Test
