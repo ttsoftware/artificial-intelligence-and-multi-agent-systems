@@ -1,6 +1,7 @@
-package dtu.agency.planners;
+package dtu.agency.planners.htn;
 
 import dtu.agency.actions.Action;
+import dtu.agency.planners.Plan;
 
 import java.util.LinkedList;
 import java.util.List;

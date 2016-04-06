@@ -5,14 +5,11 @@ import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
-import dtu.agency.planners.MixedPlan;
-import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Random;
 
 public class HTNNode {
