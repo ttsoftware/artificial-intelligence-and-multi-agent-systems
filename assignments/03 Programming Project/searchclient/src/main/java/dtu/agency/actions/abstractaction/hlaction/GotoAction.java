@@ -56,7 +56,7 @@ public class GotoAction extends HLAction implements Serializable {
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction move = new MoveConcreteAction(dir);
-            HTNState result = move.applyTo(priorState);
+            HTNState result = priorState.applyConcreteAction(move);
             if (result == null) continue; // illegal move, discard it
             refinement.addAction(move);
             refinement.addAction(this); // append this action again

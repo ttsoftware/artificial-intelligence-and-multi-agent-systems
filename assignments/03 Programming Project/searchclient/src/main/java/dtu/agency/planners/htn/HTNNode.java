@@ -150,7 +150,7 @@ public class HTNNode {
 
     private HTNNode childNode(ConcreteAction primitiveConcreteAction, MixedPlan remainingActions) {
         HTNState oldState = this.getState();
-        HTNState newState = (primitiveConcreteAction ==null) ? oldState : primitiveConcreteAction.applyTo(oldState);
+        HTNState newState = (primitiveConcreteAction ==null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
         primitiveConcreteAction = (primitiveConcreteAction ==null) ? new NoConcreteAction() : primitiveConcreteAction;
         //System.err.println("RemActions: " + remainingActions.toString());
         return new HTNNode(this, primitiveConcreteAction, newState, remainingActions);
