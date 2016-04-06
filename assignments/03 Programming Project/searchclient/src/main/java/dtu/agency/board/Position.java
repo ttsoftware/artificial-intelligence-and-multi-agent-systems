@@ -1,45 +1,15 @@
 package dtu.agency.board;
 
-import dtu.agency.agent.actions.Direction;
 import java.io.Serializable;
 
 public class Position implements Serializable {
 
-    private int row;
-    private int column;
+    private final int row;
+    private final int column;
 
     public Position(int row, int column) {
         this.row = row;
         this.column = column;
-    }
-
-    public Position(Position other) {
-        this.row = other.getRow();
-        this.column = other.getColumn();
-    }
-
-    public Position(Position old, Direction dir) {
-        // Coordinates used to interpret direction
-        //  R
-        //C 0 1 2
-        //  1
-        //  2
-        this.row = old.getRow();
-        this.column = old.getColumn();
-        switch (dir) { // (0,0) is NORTH-WEST corner
-            case NORTH:
-                this.row -= 1;
-                break;
-            case SOUTH:
-                this.row += 1;
-                break;
-            case EAST:
-                this.column += 1;
-                break;
-            case WEST:
-                this.column -= 1;
-                break;
-        }
     }
 
     public int getRow() {
@@ -50,20 +20,22 @@ public class Position implements Serializable {
         return column;
     }
 
+    public boolean isAdjacentTo(Position otherPosition) {
+        return (Math.abs(otherPosition.getRow() - row) == 1
+                && Math.abs(otherPosition.getColumn() - column) == 0)
+                || (Math.abs(otherPosition.getRow() - row) == 0
+                    && Math.abs(otherPosition.getColumn() - column) == 1);
+    }
+
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Position other = (Position) obj;
-        if (column != other.getColumn() )
-            return false;
-        if (row != other.getRow() )
-            return false;
-        return true;
+    public boolean equals(Object object) {
+        if (object.getClass() == this.getClass()) {
+            Position foreignPosition = (Position) object;
+            return (foreignPosition.getRow() == row
+                    && foreignPosition.getColumn() == column);
+        } else {
+            throw new RuntimeException("Invalid position object comparision.");
+        }
     }
 
     @Override
@@ -77,56 +49,12 @@ public class Position implements Serializable {
         return result;
     }
 
-    public static int manhattanDist(Position p1, Position p2) {
-        return Math.abs(p1.getRow() - p2.getRow()) + Math.abs(p1.getColumn() - p2.getColumn());
-    }
-
-    public int manhattanDist(Position position) {
-        return manhattanDist(this, position);
-    }
-
-    public static double eucDist(Position p1, Position p2) {
-        return Math.sqrt( (p1.getRow() - p2.getRow())^2 + (p1.getColumn() - p2.getColumn())^2 );
-    }
-
-    public double eucDist(Position position) {
-        return eucDist(this, position);
-    }
-
-    public boolean isNeighbour(Position other) {
-        return (manhattanDist(other) == 1);
-    }
-
-    public Direction getDirectionTo(Position other) { // returns the direction from this to other
-        // Coordinates used to extract direction
-        //  R
-        //C 0 1 2
-        //  1
-        //  2
-        int ns = this.getRow() - other.getRow(); // if positive, other is north of agent
-        int ew = this.getColumn() - other.getColumn(); // if positive, other is west of agent
-        if (Math.abs(ns) > Math.abs(ew)) {
-            if (ns > 0) {
-                return Direction.NORTH;
-            } else {
-                return Direction.SOUTH;
-            }
-        } else {
-            if (ew > 0) {
-                return Direction.WEST;
-            } else {
-                return Direction.EAST;
-            }
-        }
-    }
-
     public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("(");
-        s.append(Integer.toString(getRow()));
-        s.append(",");
-        s.append(Integer.toString(getColumn()));
-        s.append(")");
-        return s.toString();
+        String s = "(" +
+                Integer.toString(getRow()) +
+                "," +
+                Integer.toString(getColumn()) +
+                ")";
+        return s;
     }
 }

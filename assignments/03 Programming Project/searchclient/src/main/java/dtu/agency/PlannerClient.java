@@ -2,17 +2,16 @@ package dtu.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.agent.actions.Action;
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.SendServerActionsEvent;
-import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.services.EventBusService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
+import java.util.Stack;
 
 public class PlannerClient {
 
@@ -38,11 +37,11 @@ public class PlannerClient {
             @AllowConcurrentEvents
             public void changeSubscriber(SendServerActionsEvent event) {
 
-                System.err.println("Recieved actions from Agency: " + event.getActions().size());
-                sendActions(event.getActions());
+                System.err.println("Received actions from Agency: " + event.getConcreteActions().size());
+                sendActions(event.getConcreteActions());
 
                 // Pretend problem is solved
-                EventBusService.post(new ProblemSolvedEvent());
+                // EventBusService.post(new ProblemSolvedEvent());
             }
         });
 
@@ -53,17 +52,17 @@ public class PlannerClient {
     /**
      * Interact with the server
      *
-     * @param actions One or more actions to send to the server
+     * @param concreteActions One or more concreteActions to send to the server
      */
-    private static void sendActions(List<Action> actions) {
+    private static void sendActions(Stack<ConcreteAction> concreteActions) {
 
         /*
-        if (actions.size() != numberOfAgents) {
-            throw new UnsupportedOperationException("Invalid number of actions. The number of actions must be equal to the number of agents.");
+        if (concreteActions.size() != numberOfAgents) {
+            throw new UnsupportedOperationException("Invalid number of concreteActions. The number of concreteActions must be equal to the number of agents.");
         }
 
         String serverAction = "";
-        for (Action action : actions) {
+        for (ConcreteAction action : concreteActions) {
             serverAction += action + ",";
         }
 
@@ -71,22 +70,24 @@ public class PlannerClient {
         serverAction = serverAction.substring(0, serverAction.length() -1);
         */
 
-        for (Action action : actions) {
-            System.err.println("Trying: [" + action + "]");
-            System.out.println("[" + action + "]");
+        while (!concreteActions.empty()) {
+            ConcreteAction concreteAction = concreteActions.pop();
+
+            System.err.println("Trying: [" + concreteAction + "]");
+            System.out.println("[" + concreteAction + "]");
 
             String response = null;
             try {
                 response = serverMessages.readLine();
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
             if (response == null) {
                 System.err.format("Lost contact with the server. We stop now");
                 System.exit(1);
             }
             if (response.contains("false")) {
-                System.err.format("Server responsed with %s to the inapplicable action: %s\n", response, action);
+                System.err.format("Server responded with %s to the inapplicable concreteAction: %s\n", response, concreteAction);
             }
         }
     }

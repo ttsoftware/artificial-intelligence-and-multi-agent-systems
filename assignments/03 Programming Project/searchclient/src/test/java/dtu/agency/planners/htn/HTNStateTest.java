@@ -1,9 +1,5 @@
 package dtu.agency.planners.htn;
 
-/**
- * Created by koeus on 4/1/16.
- */
-
 import dtu.agency.board.Position;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -7,7 +7,6 @@ import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.services.EventBusService;
@@ -42,12 +41,11 @@ public class AgentThread implements Runnable {
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
         Goal goal = event.getGoal();
 
-        // HTN plan?
         HTNPlanner htnPlanner = new HTNPlanner(this.agent, goal);
 
         htnPlanners.put(goal.getLabel(), htnPlanner);
 
-        int steps = htnPlanner.getBestHeuristic();
+        int steps = htnPlanner.getBestPlanApproximation();
 
         System.err.println("Agent received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
@@ -70,10 +68,6 @@ public class AgentThread implements Runnable {
             HTNPlanner htnPlanner = htnPlanners.get(event.getGoal().getLabel());
 
             PrimitivePlan primitivePlan = htnPlanner.plan();
-
-            if (primitivePlan == null) {
-                // Zero steps, the planner could not find a way.
-            }
 
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, primitivePlan));
         }
