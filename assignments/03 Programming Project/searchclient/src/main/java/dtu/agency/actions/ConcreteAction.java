@@ -7,8 +7,6 @@ public abstract class ConcreteAction implements Action<ConcreteActionType> {
 
     protected int heuristicValue;
 
-    // public abstract ConcreteActionType getType();
-
     /*
     * Used by HTN planner to get information of the new state, if ConcreteAction is performed.
     * ** heuristic of relaxation could be added here **
