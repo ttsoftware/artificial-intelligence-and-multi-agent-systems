@@ -14,7 +14,7 @@ public class ProblemMarshallerTest {
     public void testMarshall() throws IOException {
 
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));

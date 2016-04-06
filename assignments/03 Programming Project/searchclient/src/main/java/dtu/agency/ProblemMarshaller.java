@@ -75,7 +75,7 @@ public class ProblemMarshaller {
                 if ('+' == cell) {
                     // Its a wall cell
                     String label = String.valueOf(cell) + Integer.toString(wallCount);
-                    Wall wall = new Wall(label, new Position(row, column));
+                    Wall wall = new Wall(label);
                     walls.add(wall);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.WALL;
@@ -85,7 +85,7 @@ public class ProblemMarshaller {
                 else if ('0' <= cell && cell <= '9') {
                     // Its an agency cell
                     String label = String.valueOf(cell);
-                    Agent agent = new Agent(label, new Position(row, column));
+                    Agent agent = new Agent(label);
                     agents.add(agent);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.AGENT;
@@ -94,7 +94,7 @@ public class ProblemMarshaller {
                 else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     String label = String.valueOf(cell) + Integer.toString(boxCount);
-                    Box box = new Box(label, new Position(row, column));
+                    Box box = new Box(label);
                     boxes.add(box);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.BOX;
@@ -104,13 +104,16 @@ public class ProblemMarshaller {
                 else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
                     String label = String.valueOf(cell) + Integer.toString(goalCount);
-                    Goal goal = new Goal(label, row, column, DEFAULT_WEIGHT);
+                    Goal goal = new Goal(label, new Position(row, column), DEFAULT_WEIGHT);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.GOAL;
                     boardObjects[row][column] = goal;
                     goals.add(goal);
                     goalQueue.offer(goal);
                     goalCount++;
+                }
+                else {
+                    boardState[row][column] = BoardCell.FREE_CELL;
                 }
             }
         }

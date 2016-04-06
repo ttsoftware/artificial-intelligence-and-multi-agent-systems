@@ -74,7 +74,7 @@ public class Agency implements Runnable {
     }
 
     @Subscribe
-    public void problemSolverdEventSubscriber(ProblemSolvedEvent event) {
+    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
         // wait for all threads to finish
         EventBusService.getThreads().forEach(t -> {
             try {

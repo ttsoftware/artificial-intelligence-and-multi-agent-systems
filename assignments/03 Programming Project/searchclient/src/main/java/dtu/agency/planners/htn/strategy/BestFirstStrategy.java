@@ -1,19 +1,19 @@
 package dtu.agency.planners.htn.strategy;
 
 import dtu.agency.planners.htn.HTNNode;
-import dtu.agency.planners.htn.heuristic.Heuristic;
+import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 
 import java.util.PriorityQueue;
 
 public class BestFirstStrategy extends Strategy {
 
-    private Heuristic heuristic;
+    private HeuristicComparator heuristicComparator;
     private PriorityQueue<HTNNode> frontier;
 
-    public BestFirstStrategy(Heuristic h) {
+    public BestFirstStrategy(HeuristicComparator h) {
         super();
-        heuristic = h;
-        frontier = new PriorityQueue<>(heuristic);
+        heuristicComparator = h;
+        frontier = new PriorityQueue<>(heuristicComparator);
     }
 
     public HTNNode getAndRemoveLeaf() {
@@ -37,6 +37,6 @@ public class BestFirstStrategy extends Strategy {
     }
 
     public String toString() {
-        return "Best-first Search (PriorityQueue) using " + heuristic.toString();
+        return "Best-first Search (PriorityQueue) using " + heuristicComparator.toString();
     }
 }

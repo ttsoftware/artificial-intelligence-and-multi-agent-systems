@@ -1,34 +1,33 @@
 package dtu.agency.planners;
 
-import dtu.agency.planners.actions.AbstractAction;
+import dtu.agency.actions.Action;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class MixedPlan implements AbstractPlan {
+public class MixedPlan implements Plan {
 
-    private LinkedList<AbstractAction> actions;
+    private LinkedList<Action> actions;
 
     public MixedPlan() {
         this.actions = new LinkedList<>();
     }
 
-    public MixedPlan(List<? extends AbstractAction> actions) {
+    public MixedPlan(List<? extends Action> actions) {
         this.actions = new LinkedList<>(actions);
     }
 
-
-    public void addAction(AbstractAction a) {
+    public void addAction(Action a) {
         this.actions.add(a);
     }
 
     @Override
-    public LinkedList<AbstractAction> getActions() {
+    public LinkedList<Action> getActions() {
         return actions;
     }
 
-    public AbstractAction getFirst() { return actions.peekFirst(); }
-    public AbstractAction removeFirst() { return actions.removeFirst(); }
+    public Action getFirst() { return actions.peekFirst(); }
+    public Action removeFirst() { return actions.removeFirst(); }
     public void extend(MixedPlan plan) {
         actions.addAll(plan.getActions());
     }
@@ -36,7 +35,7 @@ public class MixedPlan implements AbstractPlan {
 
     @Override
     public String toString() {
-        return "MixedPlan:"+getActions().toString();
+        return "MixedPlan:"+ getActions().toString();
     }
 
 }
