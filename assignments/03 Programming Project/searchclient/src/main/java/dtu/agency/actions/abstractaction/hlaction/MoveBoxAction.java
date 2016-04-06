@@ -73,7 +73,7 @@ public class MoveBoxAction extends HLAction {
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction push = new PushConcreteAction(box, dirToBox, dir);
-            HTNState result = push.applyTo(priorState);
+            HTNState result = priorState.applyConcreteAction(push);
             if (result == null) continue; // then the action was illegal !
             refinement.addAction(push);
             refinement.addAction(this);
@@ -86,7 +86,7 @@ public class MoveBoxAction extends HLAction {
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction pull = new PullConcreteAction(box, dir, dirToBox);
-            HTNState result = pull.applyTo(priorState);
+            HTNState result = priorState.applyConcreteAction(pull);
             if (result == null) continue; // then the action was illegal !
             refinement.addAction(pull);
             refinement.addAction(this);

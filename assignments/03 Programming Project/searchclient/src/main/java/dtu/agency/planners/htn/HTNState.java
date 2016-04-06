@@ -1,6 +1,10 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.Direction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
+import dtu.agency.actions.concreteaction.PullConcreteAction;
+import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Position;
 import dtu.agency.services.LevelService;
 
@@ -20,6 +24,74 @@ public class HTNState {
 
     public boolean boxIsMovable() {
         return agentPosition.isAdjacentTo(boxPosition);
+    }
+
+    /**
+     * Refactored this, such that the action does not apply a state, but a state applies an action.
+     * The given instance is the "oldState", and the returned state is the "newState"
+     *
+     * @param concreteAction
+     * @return a new HTNState instance with @concreteAction applied to it
+     */
+    public HTNState applyConcreteAction(ConcreteAction concreteAction) {
+
+        // calculate new effects
+        Position oldAgentPos = getAgentPosition();
+        Position oldBoxPos = getBoxPosition();
+
+        Position newAgentPos;
+        Position newBoxPos;
+
+        boolean valid = true;
+
+        switch (concreteAction.getType()) {
+            case MOVE: {
+                MoveConcreteAction moveAction = (MoveConcreteAction) concreteAction;
+                newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
+
+                HTNState result = new HTNState(newAgentPos, oldBoxPos);
+
+                return (result.isLegal()) ? result : null;
+            }
+            case PUSH: {
+
+                PushConcreteAction pushAction = (PushConcreteAction) concreteAction;
+
+                newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
+                newBoxPos = LevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
+
+                // check preconditions !!! THIS IS PUSH
+                valid &= !pushAction.getAgentDirection().getInverse().equals(pushAction.getBoxDirection()); // NOT opposite directions (would be pull!)
+                break;
+            }
+            case PULL: {
+
+                PullConcreteAction pullAction = (PullConcreteAction) concreteAction;
+
+                newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
+                newBoxPos = LevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
+
+                // check preconditions !!! THIS IS PULL
+                valid &= !pullAction.getAgentDirection().equals(pullAction.getBoxDirection()); // NOT same directions (would be push)
+                break;
+            }
+            case NONE: {
+                return this;
+            }
+            default:
+                throw new UnsupportedOperationException("Invalid action type");
+        }
+
+        valid &= oldAgentPos.isAdjacentTo(oldBoxPos);   // box and agent is neighbor in prior state // is this unnecessary?
+        // post conditions
+        valid &= newBoxPos.equals(oldAgentPos);        // box and agent has not switched positions
+        valid &= !newAgentPos.equals(oldBoxPos);       // agent is not at wrong location
+        valid &= newAgentPos.isAdjacentTo(newBoxPos);   // box and agent are still neighbours in posterior state
+
+        HTNState result = new HTNState(newAgentPos, newBoxPos);
+        valid &= result.isLegal();
+
+        return (valid) ? result : null;
     }
 
     public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
