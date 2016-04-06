@@ -1,6 +1,7 @@
-package dtu.agency.planners;
+package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.planners.ConcretePlan;
 
 import java.util.Stack;
 

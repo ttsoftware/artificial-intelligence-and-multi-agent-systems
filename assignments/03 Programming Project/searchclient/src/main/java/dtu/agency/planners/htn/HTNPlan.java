@@ -1,4 +1,4 @@
-package dtu.agency.planners;
+package dtu.agency.planners.htn;
 
 import dtu.agency.actions.abstractaction.hlaction.GotoAction;
 import dtu.agency.actions.abstractaction.HLAction;

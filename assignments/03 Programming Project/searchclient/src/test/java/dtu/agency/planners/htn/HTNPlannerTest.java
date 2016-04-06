@@ -4,7 +4,6 @@ import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.services.LevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
