@@ -23,7 +23,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
         Stack<ConcreteAction> concreteActions = new Stack<>();
 
         /*
-        Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
+        Position goalPosition = LevelService.getInstance().getPosition(action.getAgentDestination().getLabel());
 
         Box box = action.getBox();
         boxStartPosition = LevelService.getInstance().getPosition(box.getLabel());

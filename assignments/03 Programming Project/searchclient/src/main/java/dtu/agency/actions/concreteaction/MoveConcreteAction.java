@@ -50,6 +50,10 @@ public class MoveConcreteAction extends ConcreteAction {
         return direction;
     }
 
+    public Direction getAgentDirection() {
+        return direction;
+    }
+
     public Position getAgentPosition() {
         return agentPosition;
     }

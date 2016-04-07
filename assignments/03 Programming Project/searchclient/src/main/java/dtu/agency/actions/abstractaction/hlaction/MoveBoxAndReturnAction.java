@@ -3,7 +3,6 @@ package dtu.agency.actions.abstractaction.hlaction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.board.Box;
-import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
@@ -12,16 +11,22 @@ import dtu.agency.services.LevelService;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class SolveGoalAction extends HLAction implements Serializable {
+/*
+* This Action tries to circumvent a Box in an open environment using just concrete 'move' actions
+* THIS CLASS IS NOT FINISHED! NEEDS NEW REFINEMENTS! THINKING...
+*/
+public class MoveBoxAndReturnAction extends HLAction implements Serializable {
 
     private final Box box;
-    private final Goal goal;
+    private final Position boxDestination;
+    private final Position agentDestination;
 
-    public SolveGoalAction(Box box, Goal goal) throws AssertionError {
+    public MoveBoxAndReturnAction(Box box, Position boxDestination, Position agentDestination) throws AssertionError {
         this.box = box;
-        this.goal = goal;
-        if (this.box == null || this.goal == null) {
-            throw new AssertionError("SolveGoalAction: null values not accepted for box or goal");
+        this.boxDestination = boxDestination;
+        this.agentDestination = agentDestination;
+        if (this.box == null || this.boxDestination == null || this.agentDestination == null) {
+            throw new AssertionError("CircumventBoxAction: null values not accepted for box or agentDestination");
         }
     }
 
@@ -32,15 +37,17 @@ public class SolveGoalAction extends HLAction implements Serializable {
 /*
     @Override
     public boolean isGoalState(HTNState state) {
-        return LevelService.getInstance().getPosition(box).equals(state.getBoxPosition());
+        return state.getBoxPosition().equals(boxDestination) && state.getAgentPosition().equals(agentDestination);
     }
 */
 
-    public Goal getGoal() { return goal; }
+    public Position getBoxDestination() { return boxDestination; }
+
+    public Position getAgentDestination() { return agentDestination; }
 
     @Override
     public Position getDestination() {
-        return this.goal.getPosition();
+        return getAgentDestination();
     }
 
     @Override
@@ -48,12 +55,14 @@ public class SolveGoalAction extends HLAction implements Serializable {
 
     @Override
     public boolean isPurposeFulfilled(HTNState htnState) {
-        return htnState.getBoxPosition().equals(this.getGoal().getPosition());
+        boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
+        fulfilled &= htnState.getBoxPosition().equals( getBoxDestination() );
+        return fulfilled;
     }
 
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
+        // check if the prior state fulfills this HLActions agentDestination, and if so return empty plan of refinements
         // System.err.println("SolveGoalAction.getRefinements - Initial" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
 
@@ -61,12 +70,10 @@ public class SolveGoalAction extends HLAction implements Serializable {
 
         MixedPlan refinement = new MixedPlan();
         refinement.addAction(new GotoAction(
-                LevelService.getInstance().getPosition(box)
-        ));
-        refinement.addAction(new MoveBoxAction(
-                box,
-                LevelService.getInstance().getPosition(goal)
-        ));
+                LevelService.getInstance().getPosition(getBox())
+        ) );
+        refinement.addAction(new MoveBoxAction( getBox(), getBoxDestination() ) );
+        refinement.addAction(new GotoAction( getAgentDestination() ) );
         refinements.add(refinement);
         //System.err.println("SGA.getRefine(): "+ refinements.toString());
         return refinements;
@@ -75,10 +82,10 @@ public class SolveGoalAction extends HLAction implements Serializable {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("SolveGoalAction(");
+        s.append("CircumventBoxAction(");
         s.append(getBox().toString());
         s.append(",");
-        s.append(getGoal().toString());
+        s.append(getAgentDestination().toString());
         s.append(")");
         return s.toString();
     }
@@ -91,16 +98,16 @@ public class SolveGoalAction extends HLAction implements Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SolveGoalAction other = (SolveGoalAction) obj;
+        MoveBoxAndReturnAction other = (MoveBoxAndReturnAction) obj;
         if (!this.getBox().equals(other.getBox()))
             return false;
-        if (!this.getGoal().equals(other.getGoal()))
+        if (!this.getAgentDestination().equals(other.getAgentDestination()))
             return false;
         return true;
     }
 
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.SolveGoal;
+        return AbstractActionType.MoveBoxAndReturn;
     }
 }

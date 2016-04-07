@@ -29,6 +29,7 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
         Position previous = n.getState().getAgentPosition();
         List<Action> actions = n.getRemainingPlan().getActions();
         int primitives = 0;
+
         for (Action action : actions) {
             // count primitive actions, and refine all pure HLActions, getting a list of HLActions
             // as no pure HLAction refines into other pure HLAction, this is not walked like a tree,
@@ -38,9 +39,11 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
             } else { // (action instanceof HLAction)
 
                 HLAction act = (HLAction) action;
+
                 if (act.isPureHLAction()) {
 
                     ArrayList<MixedPlan> plans = ((HLAction) action).getRefinements(n.getState());
+
                     int minPlanPrimitives = Integer.MAX_VALUE;
                     Position minPlanPrevious = null;
 

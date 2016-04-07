@@ -1,6 +1,7 @@
 package dtu.agency.actions;
 
 import dtu.agency.actions.concreteaction.ConcreteActionType;
+import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.planners.htn.HTNState;
 
 public abstract class ConcreteAction implements Action<ConcreteActionType> {
@@ -21,4 +22,6 @@ public abstract class ConcreteAction implements Action<ConcreteActionType> {
     public int getHeuristicValue() {
         return heuristicValue;
     }
+
+    public abstract Direction getAgentDirection();
 }

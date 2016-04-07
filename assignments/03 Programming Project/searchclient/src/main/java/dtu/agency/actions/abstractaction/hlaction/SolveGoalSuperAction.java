@@ -6,22 +6,23 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.htn.HTNNode;
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.services.LevelService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class SolveGoalAction extends HLAction implements Serializable {
+public class SolveGoalSuperAction extends HLAction implements Serializable {
 
     private final Box box;
     private final Goal goal;
 
-    public SolveGoalAction(Box box, Goal goal) throws AssertionError {
-        this.box = box;
+    public SolveGoalSuperAction(Goal goal) throws AssertionError {
+        this.box = null;
         this.goal = goal;
-        if (this.box == null || this.goal == null) {
-            throw new AssertionError("SolveGoalAction: null values not accepted for box or goal");
+        if (this.goal == null) {
+            throw new AssertionError("SolveGoalSuperAction: null values not accepted for goal");
         }
     }
 
@@ -29,55 +30,44 @@ public class SolveGoalAction extends HLAction implements Serializable {
         return box;
     }
 
-/*
-    @Override
-    public boolean isGoalState(HTNState state) {
-        return LevelService.getInstance().getPosition(box).equals(state.getBoxPosition());
-    }
-*/
-
     public Goal getGoal() { return goal; }
 
     @Override
     public Position getDestination() {
-        return this.goal.getPosition();
+        return LevelService.getInstance().getPosition(goal);
     }
 
     @Override
     public boolean isPureHLAction() { return true; }
 
     @Override
-    public boolean isPurposeFulfilled(HTNState htnState) {
-        return htnState.getBoxPosition().equals(this.getGoal().getPosition());
+    public boolean isPurposeFulfilled(HTNState state) {
+//        System.err.println("SGSA.isPurposeFulfilled(): goal: " + goal.toString());
+        return (state.getBoxPosition()!=null) ? state.getBoxPosition().equals(this.getGoal().getPosition()): false;
     }
 
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
-        // System.err.println("SolveGoalAction.getRefinements - Initial" + priorState.toString());
+        // System.err.println("SGSA.getRefinements - Initial" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
 
         ArrayList<MixedPlan> refinements = new ArrayList<>();
 
-        MixedPlan refinement = new MixedPlan();
-        refinement.addAction(new GotoAction(
-                LevelService.getInstance().getPosition(box)
-        ));
-        refinement.addAction(new MoveBoxAction(
-                box,
-                LevelService.getInstance().getPosition(goal)
-        ));
-        refinements.add(refinement);
-        //System.err.println("SGA.getRefine(): "+ refinements.toString());
+        for (Box box : LevelService.getInstance().getLevel().getBoxes()) {
+            if (box.getLabel().toLowerCase().equals(goal.getLabel().toLowerCase())) {
+                MixedPlan refinement = new MixedPlan();
+                refinement.addAction( new SolveGoalAction(box, goal) );
+                refinements.add(refinement);
+            }
+        }
+        //System.err.println("SGSA.getRefine(): "+ refinements.toString());
         return refinements;
     }
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("SolveGoalAction(");
-        s.append(getBox().toString());
-        s.append(",");
+        s.append("SolveGoalSuperAction(");
         s.append(getGoal().toString());
         s.append(")");
         return s.toString();
@@ -91,7 +81,7 @@ public class SolveGoalAction extends HLAction implements Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SolveGoalAction other = (SolveGoalAction) obj;
+        SolveGoalSuperAction other = (SolveGoalSuperAction) obj;
         if (!this.getBox().equals(other.getBox()))
             return false;
         if (!this.getGoal().equals(other.getGoal()))
@@ -101,6 +91,6 @@ public class SolveGoalAction extends HLAction implements Serializable {
 
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.SolveGoal;
+        return AbstractActionType.SolveGoalSuper;
     }
 }

@@ -23,4 +23,9 @@ public class NoConcreteAction extends ConcreteAction {
     public String toString() {
         return "NoOp";
     }
+
+    @Override
+    public Direction getAgentDirection() {
+        return null;
+    }
 }

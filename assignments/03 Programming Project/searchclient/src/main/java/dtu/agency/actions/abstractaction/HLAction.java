@@ -2,19 +2,28 @@ package dtu.agency.actions.abstractaction;
 
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
+import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class HLAction extends AbstractAction implements Serializable {
+public abstract class HLAction extends AbstractAction {
+
+    @Override
+    public abstract AbstractActionType getType();
 
     /*
-     * This serves as a heuristic to calculate distances for the heuristics
+     * This is where the agent is going to be after completing this action
      */
     public abstract Position getDestination();
+
+    /*
+     * This is the targeted box during this action(s)
+     */
+    public abstract Box getBox();
+
 
     /*
      * TODO: This returns false almost always - maybe we can revise this?

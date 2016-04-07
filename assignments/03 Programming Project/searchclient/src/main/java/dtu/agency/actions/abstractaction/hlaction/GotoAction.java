@@ -5,6 +5,7 @@ import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
+import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
@@ -26,6 +27,11 @@ public class GotoAction extends HLAction implements Serializable {
     }
 
     @Override
+    public Box getBox() {
+        return null;
+    }
+
+    @Override
     public boolean isPureHLAction() {
         return false;
     }
@@ -41,14 +47,14 @@ public class GotoAction extends HLAction implements Serializable {
         if (htnState.getAgentPosition().isAdjacentTo(getDestination())) { //
             fulfilled = true;
         }
-        //if (fulfilled) System.err.println("This HLAction " + this.toString() + " is fulfilled" );
+        //if (fulfilled) System.err.println("GTA.isFulfilled() " + this.toString() );
         return fulfilled;
     }
 
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
         // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
-        // System.err.println("GotoAction.getRefinements - Initial" + priorState.toString());
+        // System.err.println("GTA.getRefinements - Initial" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
 
         ArrayList<MixedPlan> refinements = new ArrayList<>();

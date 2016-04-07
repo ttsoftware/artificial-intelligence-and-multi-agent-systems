@@ -129,4 +129,13 @@ public class ConcreteActionTest {
     public void pullTest() {
         assertTrue(1==2);
     }
+
+    @Test
+    public void directionTests() {
+        assertTrue(nbn.getDirectionToBox()== Direction.NORTH);
+        assertTrue(nbs.getDirectionToBox()== Direction.SOUTH);
+        assertTrue(nbe.getDirectionToBox()== Direction.EAST);
+        assertTrue(nbw.getDirectionToBox()== Direction.WEST);
+    }
+
 }

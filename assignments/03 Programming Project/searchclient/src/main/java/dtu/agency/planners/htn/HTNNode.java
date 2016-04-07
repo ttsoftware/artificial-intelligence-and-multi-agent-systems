@@ -21,10 +21,10 @@ public class HTNNode {
 
     private HTNNode parent;
     private ConcreteAction concreteAction;   // primitive concreteAction represented by this node
-    private HTNState state;  // status of the relevant board features after applying the concreteAction of this node
-    private MixedPlan remainingPlan; // list of successive (abstract) actions
-    private int generation; // generation - how many ancestors exist? -> how many moves have i performed
-    // private Relaxation r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
+    private HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
+    private MixedPlan remainingPlan;         // list of successive (abstract) actions
+    private int generation;                  // generation - how many ancestors exist? -> how many moves have i performed
+//    private Relaxation r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
 
     public HTNNode(HTNNode parent, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
@@ -54,9 +54,8 @@ public class HTNNode {
         this.parent = null;
         this.concreteAction = null;
         this.state = initialEffects;
-        MixedPlan plan = new MixedPlan();
-        plan.addAction(highLevelAction);
-        this.remainingPlan = plan;
+        this.remainingPlan = new MixedPlan();
+        this.remainingPlan.addAction(highLevelAction);
         this.generation = (parent == null) ? 0 : (parent.generation + 1);
     }
 
@@ -105,7 +104,7 @@ public class HTNNode {
     }
 
     public ArrayList<HTNNode> getRefinementNodes() {
-        //System.err.println("HTNNode: getting refinements");
+//        System.err.println("HTNNode: getting refinements");
 
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
@@ -117,7 +116,7 @@ public class HTNNode {
         Action nextAction = remainingPlan.removeFirst();
 
         if (nextAction instanceof ConcreteAction) { // case the concreteAction is primitive, add it as only node,
-            //System.err.println("Next concreteAction is Primitive, thus a single ChildNode is created");
+            System.err.println("Next concreteAction is Primitive, thus a single ChildNode is created");
             ConcreteAction primitive = (ConcreteAction) nextAction;
             HTNNode only = childNode( primitive, this.remainingPlan); // is remainingPlan correct?? has first been removed??
             if (only != null) { refinementNodes.add(only);}
@@ -126,10 +125,10 @@ public class HTNNode {
         }
 
         if (nextAction instanceof HLAction) { // case the concreteAction is high level, get the refinements from the concreteAction
-            //System.err.println("Next concreteAction is High Level, thus a we seek refinements to it:");
+//            System.err.println("Next concreteAction is High Level, thus a we seek refinements to it:");
             HLAction highLevelAction = (HLAction) nextAction;
             ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getState());
-            //System.err.println(refs.toString());
+//            System.err.println("HTNNode.getRefinements(): " + refs.toString());
 
             for (MixedPlan refinement : refs) {
 

@@ -4,7 +4,6 @@ import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.planners.HTNPlan;
 import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.services.LevelService;
 import org.junit.BeforeClass;
@@ -53,25 +52,21 @@ public class HTNPlannerTest {
         agent = LevelService.getInstance().getLevel().getAgents().get(0);
         goal = LevelService.getInstance().getLevel().getGoals().get(0);
 
-        HTNPlanner htn = new HTNPlanner(agent, goal);
-        //System.err.println(htn.toString());
+//        System.err.println("HTNPlannerTest: Agent:" + agent.toString() + " Goal:" + goal.toString());
 
-        //HTNPlan htnPlan = htn.getBestPlan(); // no longer needed??
-        //System.err.println(htnPlan.toString());
+        HTNPlanner htn = new HTNGoalPlanner(agent, goal);
+//        System.err.println("HTNPlannerTest: " + htn.toString());
 
         int stepsApproximation = htn.getBestPlanApproximation();
+//        System.err.println("HTNPlannerTest: Plan approximation: " + Integer.toString(stepsApproximation));
+
         PrimitivePlan plan = htn.plan();
-        //System.err.println(plan.toString());
 
-        System.err.println("");
-        //if (htnPlan != null) System.err.println(htnPlan.toString());
+//        System.err.println("HTNPlannerTest: " + plan.toString());
 
-        //assertTrue("htnPlan does not exist", htnPlan != null);
-        //assertTrue("htnPlan is empty", !htnPlan.isEmpty());
-
-        assertTrue("Heuristic Approximation should be non-negative", stepsApproximation>=0);
-        assertTrue("primitivePlan is not found", plan != null);
-        assertTrue("primitivePlan is empty", !plan.isEmpty());
+        assertTrue("HTNPlannerTest: Heuristic Approximation should be non-negative", stepsApproximation>=0);
+        assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
+        assertTrue("HTNPlannerTest: primitivePlan is empty", !plan.isEmpty());
         System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation));
         System.err.println(plan.toString());
 

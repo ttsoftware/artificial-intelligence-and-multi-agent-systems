@@ -1,5 +1,6 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.board.Position;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -67,7 +68,5 @@ public class HTNStateTest {
         // to be written
         assertTrue(1 == 2);
     }
-
-
 
 }

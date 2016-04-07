@@ -240,6 +240,24 @@ public class LevelService implements Serializable {
         }
     }
 
+
+    public Direction getDirectionToBox(Position agentPosition, Position boxPosition) { // returns the direction from agent to box
+        if (agentPosition.getRow() == boxPosition.getRow()) {
+            if (agentPosition.getColumn() < boxPosition.getColumn()) {
+                return Direction.EAST;
+            } else {
+                return Direction.WEST;
+            }
+        } else if (agentPosition.getColumn() == boxPosition.getColumn()) {
+            if (agentPosition.getRow() > boxPosition.getRow()) {
+                return Direction.NORTH;
+            } else {
+                return Direction.SOUTH;
+            }
+        }
+        throw new InvalidParameterException("Given positions are not adjacent.");
+    }
+
     /**
      * @param positionA
      * @param positionB

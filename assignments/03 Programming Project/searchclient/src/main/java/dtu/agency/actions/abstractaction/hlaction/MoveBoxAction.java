@@ -44,7 +44,7 @@ public class MoveBoxAction extends HLAction {
     @Override
     public boolean isPurposeFulfilled(HTNState htnState) {
         if (htnState.getBoxPosition().equals(moveToPosition)) { //
-            //System.err.println("This HLAction " + this.toString() + " is fulfilled" );
+            //System.err.println("MBA.isFulfilled " + this.toString() );
             return true;
         }
         return false;
@@ -57,17 +57,17 @@ public class MoveBoxAction extends HLAction {
      */
     @Override
     public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        //System.err.println("MoveBoxAction.getRefinements:" + priorState.toString());
+//        System.err.println("MBA.getRefinements:" + priorState.toString());
         if (isPurposeFulfilled(priorState)) return doneRefinement();
         ArrayList<MixedPlan> refinements = new ArrayList<>();
 
         if (!priorState.boxIsMovable()) {
-            //System.err.println("Box not movable, empty refinements returned.");
+            System.err.println("Box not movable, empty refinements returned.");
             return refinements;
         }
 
         Direction dirToBox = priorState.getDirectionToBox();
-        //System.err.println("direction to box: " + dirToBox.toString());
+//        System.err.println("direction to box: " + dirToBox.toString());
 
         // PUSH REFINEMENTS
         for (Direction dir : Direction.values()) {
@@ -86,14 +86,15 @@ public class MoveBoxAction extends HLAction {
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction pull = new PullConcreteAction(box, dir, dirToBox);
+//            System.err.println(pull.toString());
             HTNState result = pull.applyTo(priorState);
             if (result == null) continue; // then the action was illegal !
             refinement.addAction(pull);
             refinement.addAction(this);
             refinements.add(refinement);
-            //System.err.println("ConcreteAction:" + pull.toString() + ", Result:" + result.toString());
+//            System.err.println("ConcreteAction:" + pull.toString() + ", Result:" + result.toString());
         }
-        //System.err.println(refinements.toString());
+//        System.err.println(refinements.toString());
         return refinements;
     }
 

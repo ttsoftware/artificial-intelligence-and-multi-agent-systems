@@ -36,6 +36,9 @@ public class PullConcreteAction extends ConcreteAction {
         Position newAgentPos = LevelService.getInstance().getPositionInDirection(oldAgentPos, agentDirection);
         Position newBoxPos = LevelService.getInstance().getPositionInDirection(oldBoxPos, boxDirection.getInverse());
 
+//        HTNState s2 = new HTNState(newAgentPos, newBoxPos);
+//        System.err.println("pull s1:" + oldState.toString() + " s2:" + s2.toString() );
+
         boolean valid = true;
         // check preconditions !!! THIS IS PULL
         valid &= !agentDirection.equals(boxDirection); // NOT same directions (would be push)
