@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 /*
 * This Action tries to circumvent a Box in an open environment using just concrete 'move' actions
-* THIS CLASS IS NOT FINISHED! NEEDS NEW REFINEMENTS! THINKING...
 */
 public class CircumventBoxAction extends HLAction implements Serializable {
 
@@ -43,25 +42,8 @@ public class CircumventBoxAction extends HLAction implements Serializable {
     public boolean isPureHLAction() { return false; }
 
     @Override
-    public boolean isPurposeFulfilled(HTNState htnState) {
-        boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
-        fulfilled &= htnState.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(box) );
-        return fulfilled;
-    }
-
-    @Override
-    public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        // check if the prior state fulfills this HLActions agentDestination, and if so return empty plan of refinements
-        // System.err.println("CBA.getRefinements - Initial" + priorState.toString());
-        if (isPurposeFulfilled(priorState)) return doneRefinement();
-
-        ArrayList<MixedPlan> refinements = new ArrayList<>();
-
-        MixedPlan refinement = new MixedPlan();
-        refinement.addAction(new GotoAction( getAgentDestination() ) );
-        refinements.add(refinement);
-        //System.err.println("CBA.getRefine(): "+ refinements.toString());
-        return refinements;
+    public AbstractActionType getType() {
+        return AbstractActionType.Circumvent;
     }
 
     @Override
@@ -89,10 +71,5 @@ public class CircumventBoxAction extends HLAction implements Serializable {
         if (!this.getAgentDestination().equals(other.getAgentDestination()))
             return false;
         return true;
-    }
-
-    @Override
-    public AbstractActionType getType() {
-        return AbstractActionType.Circumvent;
     }
 }

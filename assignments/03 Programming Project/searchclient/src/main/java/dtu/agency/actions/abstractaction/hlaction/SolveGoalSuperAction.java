@@ -40,30 +40,6 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
     public boolean isPureHLAction() { return true; }
 
     @Override
-    public boolean isPurposeFulfilled(HTNState state) {
-//        System.err.println("SGSA.isPurposeFulfilled(): goal: " + goal.toString());
-        return (state.getBoxPosition()!=null) ? state.getBoxPosition().equals(this.getGoal().getPosition()): false;
-    }
-
-    @Override
-    public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        // System.err.println("SGSA.getRefinements - Initial" + priorState.toString());
-        if (isPurposeFulfilled(priorState)) return doneRefinement();
-
-        ArrayList<MixedPlan> refinements = new ArrayList<>();
-
-        for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
-            if (box.getLabel().toLowerCase().equals(goal.getLabel().toLowerCase())) {
-                MixedPlan refinement = new MixedPlan();
-                refinement.addAction( new SolveGoalAction(box, goal) );
-                refinements.add(refinement);
-            }
-        }
-        //System.err.println("SGSA.getRefine(): "+ refinements.toString());
-        return refinements;
-    }
-
-    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("SolveGoalSuperAction(");

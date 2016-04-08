@@ -109,7 +109,7 @@ public class HTNPlanner {
                 debug("Effect already explored, but NoActions, so still interesting!");
             }
 
-            if (action.isPurposeFulfilled(leafNode.getState())) {
+            if (leafNode.getState().isPurposeFulfilled(action)) {
                 debug(strategy.status(), -2);
                 return leafNode.extractPlan();
             }

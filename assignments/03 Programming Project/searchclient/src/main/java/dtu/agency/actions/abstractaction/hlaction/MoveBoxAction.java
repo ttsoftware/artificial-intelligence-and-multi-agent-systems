@@ -36,68 +36,6 @@ public class MoveBoxAction extends HLAction {
         return false;
     }
 
-    /**
-     * TODO: Add comments here
-     * @param htnState
-     * @return
-     */
-    @Override
-    public boolean isPurposeFulfilled(HTNState htnState) {
-        if (htnState.getBoxPosition().equals(moveToPosition)) { //
-            //System.err.println("MBA.isFulfilled " + this.toString() );
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * TODO: Add comments here
-     * @param priorState
-     * @return
-     */
-    @Override
-    public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-//        System.err.println("MBA.getRefinements:" + priorState.toString());
-        if (isPurposeFulfilled(priorState)) return doneRefinement();
-        ArrayList<MixedPlan> refinements = new ArrayList<>();
-
-        if (!priorState.boxIsMovable()) {
-            System.err.println("Box not movable, empty refinements returned.");
-            return refinements;
-        }
-
-        Direction dirToBox = priorState.getDirectionToBox();
-        //System.err.println("direction to box: " + dirToBox.toString());
-
-        // PUSH REFINEMENTS
-        for (Direction dir : Direction.values()) {
-            MixedPlan refinement = new MixedPlan();
-            ConcreteAction push = new PushConcreteAction(box, dirToBox, dir);
-            HTNState result = priorState.applyConcreteAction(push);
-            if (result == null) continue; // then the action was illegal !
-            System.err.print("push, " + result.toString());
-            refinement.addAction(push);
-            refinement.addAction(this);
-            refinements.add(refinement);
-            //System.err.println("ConcreteAction:" + push.toString() + ", " + result.toString());
-            //System.err.println(refinement.toString());
-        }
-
-        // PULL REFINEMENTS
-        for (Direction dir : Direction.values()) {
-            MixedPlan refinement = new MixedPlan();
-            ConcreteAction pull = new PullConcreteAction(box, dir, dirToBox);
-            HTNState result = priorState.applyConcreteAction(pull);
-            if (result == null) continue; // then the action was illegal !
-            refinement.addAction(pull);
-            refinement.addAction(this);
-            refinements.add(refinement);
-//            System.err.println("ConcreteAction:" + pull.toString() + ", Result:" + result.toString());
-        }
-        System.err.println(refinements.toString());
-        return refinements;
-    }
-
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();

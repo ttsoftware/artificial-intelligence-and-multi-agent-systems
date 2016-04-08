@@ -7,12 +7,15 @@ import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
+import dtu.agency.services.DebugService;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
 public class HTNNode {
+    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    private static void debug(String msg){ debug(msg, 0); }
 
     private static Random rnd = new Random(1);
 
@@ -76,24 +79,12 @@ public class HTNNode {
         return n;
     }
 
-    public void setParent(HTNNode parent) {
-        this.parent = parent;
-    }
-
     public ConcreteAction getConcreteAction() {
         return concreteAction;
     }
 
-    public void setConcreteAction(ConcreteAction concreteAction) {
-        this.concreteAction = concreteAction;
-    }
-
     public HTNState getState() {
         return state;
-    }
-
-    public void setState(HTNState state) {
-        this.state = state;
     }
 
     public MixedPlan getRemainingPlan() {
@@ -101,33 +92,32 @@ public class HTNNode {
     }
 
     public ArrayList<HTNNode> getRefinementNodes() {
-//        System.err.println("HTNNode: getting refinements");
-
+        debug("HTNNode.getRefinements()",2);
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
         if (this.remainingPlan.isEmpty()) {
-            System.err.println("No more remaining actions, returning empty list of refinement nodes");
+            debug("No more remaining actions, returning empty list of refinement nodes", -2);
             return refinementNodes;
         }
 
         Action nextAction = remainingPlan.removeFirst();
 
         if (nextAction instanceof ConcreteAction) { // case the concreteAction is primitive, add it as only node,
-            System.err.println("Next concreteAction is Primitive, thus a single ChildNode is created");
+            debug("Next concreteAction is Primitive, thus a single ChildNode is created");
             ConcreteAction primitive = (ConcreteAction) nextAction;
-            HTNNode only = childNode( primitive, this.remainingPlan); // is remainingPlan correct?? has first been removed??
+            HTNNode only = childNode( primitive, this.remainingPlan);
             if (only != null) { refinementNodes.add(only);}
-            //System.err.println(refinementNodes.toString());
+            debug("Refinement: " + refinementNodes.toString(), -2);
             return refinementNodes;
         }
 
         if (nextAction instanceof HLAction) { // case the concreteAction is high level, get the refinements from the concreteAction
-//            System.err.println("Next concreteAction is High Level, thus a we seek refinements to it:");
+            debug("Next concreteAction is High Level, thus a we seek refinements to it:");
             HLAction highLevelAction = (HLAction) nextAction;
-            ArrayList<MixedPlan> refs = highLevelAction.getRefinements(this.getState());
-//            System.err.println("HTNNode.getRefinements(): " + refs.toString());
+            ArrayList<MixedPlan> refinements = this.getState().getRefinements(highLevelAction);
+            debug("HTNNode.getRefinements() got: " + refinements.toString());
 
-            for (MixedPlan refinement : refs) {
+            for (MixedPlan refinement : refinements) {
 
                 ConcreteAction first = null; // remains null iff first concreteAction is abstract
 
@@ -144,6 +134,7 @@ public class HTNNode {
         }
 
         Collections.shuffle(refinementNodes, rnd);
+        debug("Refinements: " + refinementNodes.toString(), -2);
         return refinementNodes;
     }
 
@@ -178,6 +169,9 @@ public class HTNNode {
         return result;
     }
 
+    /*
+    * Comparing nodes to other nodes...
+    */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

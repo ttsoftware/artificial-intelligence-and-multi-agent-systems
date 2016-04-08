@@ -42,37 +42,6 @@ public class GotoAction extends HLAction implements Serializable {
     }
 
     @Override
-    public boolean isPurposeFulfilled(HTNState htnState) {
-        boolean fulfilled = false;
-        if (htnState.getAgentPosition().isAdjacentTo(getDestination())) { //
-            fulfilled = true;
-        }
-        //if (fulfilled) System.err.println("GTA.isFulfilled() " + this.toString() );
-        return fulfilled;
-    }
-
-    @Override
-    public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
-        // System.err.println("GTA.getRefinements - Initial" + priorState.toString());
-        if (isPurposeFulfilled(priorState)) return doneRefinement();
-
-        ArrayList<MixedPlan> refinements = new ArrayList<>();
-
-        for (Direction dir : Direction.values()) {
-            MixedPlan refinement = new MixedPlan();
-            ConcreteAction move = new MoveConcreteAction(dir);
-            HTNState result = priorState.applyConcreteAction(move);
-            if (result == null) continue; // illegal move, discard it
-            refinement.addAction(move);
-            refinement.addAction(this); // append this action again
-            refinements.add(refinement);
-        }
-        // else shuffle (no done in HTNNODE) and return all refinements
-        return refinements;
-    }
-
-    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("GotoAction(");

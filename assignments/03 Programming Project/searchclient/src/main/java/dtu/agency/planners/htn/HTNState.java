@@ -1,13 +1,18 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
+import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+
+import java.util.ArrayList;
 
 public class HTNState {
     private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
@@ -27,6 +32,129 @@ public class HTNState {
 
     public boolean boxIsMovable() {
         return agentPosition.isAdjacentTo(boxPosition);
+    }
+
+    /*
+     * Any High Level ConcreteAction can be refined, as per the Hierarchical Task Network (HTN) approach
+     */
+    public ArrayList<MixedPlan> getRefinements(HLAction action){
+        debug("getRefinements(): " + action.toString(), 2);
+        HTNState priorState = this;
+        // check if the prior state fulfills this HLActions agentDestination, and if so return empty plan of refinements
+
+        ArrayList<MixedPlan> refinements = new ArrayList<>();
+
+        if (this.isPurposeFulfilled(action)) {
+            refinements = action.doneRefinement();
+
+        } else {
+
+            switch (action.getType()) {
+
+                case SolveGoal:
+                    SolveGoalAction sga = (SolveGoalAction) action;
+                    MixedPlan sgRefinement = new MixedPlan();
+
+                    sgRefinement.addAction(new GotoAction(
+                            GlobalLevelService.getInstance().getPosition(sga.getBox()) // TODO: PlannerLevelService !?
+                    ));
+                    sgRefinement.addAction(new MoveBoxAction(
+                            sga.getBox(),
+                            GlobalLevelService.getInstance().getPosition(sga.getGoal()) // TODO: PlannerLevelService !?
+                    ));
+                    refinements.add(sgRefinement);
+
+                    break;
+
+                case Circumvent:
+                    CircumventBoxAction circAction = (CircumventBoxAction) action;
+                    MixedPlan circRefinement = new MixedPlan();
+
+                    circRefinement.addAction(new GotoAction(circAction.getAgentDestination())); // TODO: no relaxation!?
+                    refinements.add(circRefinement);
+                    break;
+
+                case GotoAction:
+                    GotoAction gta = (GotoAction) action;
+
+                    for (Direction dir : Direction.values()) {
+                        MixedPlan gotoRefinement = new MixedPlan();
+                        ConcreteAction move = new MoveConcreteAction(dir);
+                        HTNState result = priorState.applyConcreteAction(move);
+                        if (result == null) continue; // illegal move, discard it
+
+                        debug(move.toString() + " -> " + result.toString());
+                        gotoRefinement.addAction(move);
+                        gotoRefinement.addAction(gta); // append this action again recursively
+                        refinements.add(gotoRefinement);
+                    }
+                    break;
+
+                    case MoveBoxAction:
+                        MoveBoxAction mba = (MoveBoxAction) action;
+                        if (!this.boxIsMovable()) {
+                            debug("Box not movable");
+                        } else {
+
+                            Direction dirToBox = priorState.getDirectionToBox();
+                            debug("direction to box: " + dirToBox.toString());
+
+                            // PUSH REFINEMENTS
+                            for (Direction dir : Direction.values()) {
+                                MixedPlan pushRefinement = new MixedPlan();
+                                ConcreteAction push = new PushConcreteAction(mba.getBox(), dirToBox, dir);
+                                HTNState result = priorState.applyConcreteAction(push);
+                                if (result == null) continue; // then the action was illegal !
+                                debug(push.toString() + " -> " + result.toString());
+                                pushRefinement.addAction(push);
+                                pushRefinement.addAction(mba);
+                                refinements.add(pushRefinement);
+                            }
+
+                            // PULL REFINEMENTS
+                            for (Direction dir : Direction.values()) {
+                                MixedPlan pullRefinement = new MixedPlan();
+                                ConcreteAction pull = new PullConcreteAction(mba.getBox(), dir, dirToBox);
+                                HTNState result = priorState.applyConcreteAction(pull);
+                                if (result == null) continue; // then the action was illegal !
+                                debug(pull.toString() + " -> " + result.toString());
+                                pullRefinement.addAction(pull);
+                                pullRefinement.addAction(mba);
+                                refinements.add(pullRefinement);
+                            }
+                        }
+                        break;
+
+                    case SolveGoalSuper:
+                        SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
+
+                        for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
+                            if (box.getLabel().toLowerCase().equals(sgsa.getGoal().getLabel().toLowerCase())) {
+                                MixedPlan sgsaRefinement = new MixedPlan();
+                                SolveGoalAction sgAction = new SolveGoalAction(box, sgsa.getGoal());
+                                debug(sgAction.toString());
+                                sgsaRefinement.addAction( sgAction );
+                                refinements.add(sgsaRefinement);
+                            }
+                        }
+                        break;
+
+                    case MoveBoxAndReturn:
+                        MoveBoxAndReturnAction mbar = (MoveBoxAndReturnAction) action;
+                        MixedPlan mbarRefinement = new MixedPlan();
+
+                        mbarRefinement.addAction(new GotoAction( // TODO: PlannerLevelService??
+                                GlobalLevelService.getInstance().getPosition(mbar.getBox())
+                        ) );
+                        mbarRefinement.addAction(new MoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
+                        mbarRefinement.addAction(new GotoAction( mbar.getAgentDestination() ) );
+                        refinements.add(mbarRefinement);
+                        break;
+                }
+            }
+
+        debug("refinements: " + refinements.toString(), -2);
+        return refinements;
     }
 
     /**
@@ -146,6 +274,86 @@ public class HTNState {
         debug("", -2);
         return valid;
     }
+
+    /**
+     * TODO: Checks if the purpose of the current high level action is fulfilled
+     * @param action
+     * @return boolean
+     */
+    public boolean isPurposeFulfilled(HLAction action) {
+        debug("isPurposeFulfilled(" + action.toString() + "):", 2);
+        boolean fulfilled = false;
+
+        switch (action.getType()) {
+            case SolveGoal:
+                SolveGoalAction sga = (SolveGoalAction) action;
+                fulfilled = this.getBoxPosition().equals(sga.getGoal().getPosition());
+                debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at goal location");
+                break;
+//                public boolean isPurposeFulfilled(HTNState htnState) {
+//                    return htnState.getBoxPosition().equals(this.getGoal().getPosition());
+//                }
+//
+            case Circumvent:
+                fulfilled  = this.getAgentPosition().equals( action.getDestination() );
+                fulfilled &= this.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(action.getBox()) ); // TODO: PlannerLevelService
+                debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
+                break;
+//                public boolean isPurposeFulfilled(HTNState htnState) {
+//                    boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
+//                    fulfilled &= htnState.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(box) );
+//                    return fulfilled;
+//                }
+
+            case GotoAction:
+                fulfilled = this.getAgentPosition().isAdjacentTo(action.getDestination()); // TODO: adjacent is enough?? only if box is null
+                debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
+                break;
+//                if (htnState.getAgentPosition().isAdjacentTo(getDestination())) { //
+//                    fulfilled = true;
+//                }
+
+            case MoveBoxAction:
+                fulfilled = (this.getBoxPosition().equals(action.getDestination()));
+                debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destination");
+                break;
+//                if (htnState.getBoxPosition().equals(moveToPosition)) { //
+//                    return true;
+//                }
+
+            case SolveGoalSuper:
+                SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
+                fulfilled = (this.getBoxPosition()!=null) ? this.getBoxPosition().equals(sgsa.getGoal().getPosition()): false;
+                debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destinations");
+                break;
+//                debug("isPurposeFulfilled(): " + goal.toString());
+//                return (state.getBoxPosition()!=null) ? state.getBoxPosition().equals(this.getGoal().getPosition()): false;
+
+            case MoveBoxAndReturn:
+                MoveBoxAndReturnAction mbarAction = (MoveBoxAndReturnAction) action;
+                fulfilled  = this.getAgentPosition().equals( mbarAction.getAgentDestination() );
+                fulfilled &= this.getBoxPosition().equals( mbarAction.getBoxDestination() );
+                debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
+                break;
+//            public boolean isPurposeFulfilled(HTNState htnState) {
+//                boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
+//                fulfilled &= htnState.getBoxPosition().equals( getBoxDestination() );
+//                return fulfilled;
+//            }
+
+            default:
+                debug("", -2);
+                throw new UnsupportedOperationException("Invalid HLAction type");
+        }
+
+        if (fulfilled) {
+            debug("Purpose of HLAction is fulfilled: " + action.toString(), -2);
+        } else {
+            debug("Purpose of HLAction is not fulfilled: " + action.toString(), -2);
+        }
+        return fulfilled;
+    }
+
 
     /**
      * What does this do? As far as i can see it does not return anything meaningful

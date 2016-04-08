@@ -42,7 +42,7 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
 
                 if (act.isPureHLAction()) {
 
-                    ArrayList<MixedPlan> plans = ((HLAction) action).getRefinements(n.getState());
+                    ArrayList<MixedPlan> plans = n.getState().getRefinements(act);
 
                     int minPlanPrimitives = Integer.MAX_VALUE;
                     Position minPlanPrevious = null;

@@ -29,13 +29,6 @@ public class SolveGoalAction extends HLAction implements Serializable {
         return box;
     }
 
-/*
-    @Override
-    public boolean isGoalState(HTNState state) {
-        return LevelService.getInstance().getPosition(box).equals(state.getBoxPosition());
-    }
-*/
-
     public Goal getGoal() { return goal; }
 
     @Override
@@ -45,32 +38,6 @@ public class SolveGoalAction extends HLAction implements Serializable {
 
     @Override
     public boolean isPureHLAction() { return true; }
-
-    @Override
-    public boolean isPurposeFulfilled(HTNState htnState) {
-        return htnState.getBoxPosition().equals(this.getGoal().getPosition());
-    }
-
-    @Override
-    public ArrayList<MixedPlan> getRefinements(HTNState priorState) {
-        // check if the prior state fulfills this HLActions target, and if so return empty plan of refinements
-        // System.err.println("SolveGoalAction.getRefinements - Initial" + priorState.toString());
-        if (isPurposeFulfilled(priorState)) return doneRefinement();
-
-        ArrayList<MixedPlan> refinements = new ArrayList<>();
-
-        MixedPlan refinement = new MixedPlan();
-        refinement.addAction(new GotoAction(
-                GlobalLevelService.getInstance().getPosition(box)
-        ));
-        refinement.addAction(new MoveBoxAction(
-                box,
-                GlobalLevelService.getInstance().getPosition(goal)
-        ));
-        refinements.add(refinement);
-        //System.err.println("SGA.getRefine(): "+ refinements.toString());
-        return refinements;
-    }
 
     @Override
     public String toString() {

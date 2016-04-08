@@ -62,7 +62,7 @@ public class HTNPlannerTest {
         System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
 
         // does it find a plan? Maybe we would like to debug this area of the code
-        boolean oldDebugMode = DebugService.setDebugMode(true);
+        boolean oldDebugMode = DebugService.setDebugMode(false);
         PrimitivePlan plan = htn.plan();
         DebugService.setDebugMode(oldDebugMode);
 

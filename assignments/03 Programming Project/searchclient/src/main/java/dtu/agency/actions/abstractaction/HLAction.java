@@ -34,11 +34,6 @@ public abstract class HLAction extends AbstractAction {
     public abstract boolean isPureHLAction();
 
     /*
-     * Checks whether the purpose/sub goal of this high level action is completed
-     */
-    public abstract boolean isPurposeFulfilled(HTNState htnState);
-
-    /*
      * Creates an empty refinement of known signature, to return if sub goal is completed
      */
     public ArrayList<MixedPlan> doneRefinement() {
@@ -48,11 +43,6 @@ public abstract class HLAction extends AbstractAction {
         refinements.add(refinement);
         return refinements;
     }
-
-    /*
-     * Any High Level ConcreteAction can be refined, as per the Hierarchical Task Network (HTN) approach
-     */
-    public abstract ArrayList<MixedPlan> getRefinements(HTNState priorState);
 
     @Override
     public abstract String toString();
