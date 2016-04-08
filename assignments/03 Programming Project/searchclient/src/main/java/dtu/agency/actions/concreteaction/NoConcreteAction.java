@@ -1,7 +1,6 @@
 package dtu.agency.actions.concreteaction;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.planners.htn.HTNState;
 
 public class NoConcreteAction extends ConcreteAction {
 
@@ -15,17 +14,8 @@ public class NoConcreteAction extends ConcreteAction {
     }
 
     @Override
-    public HTNState applyTo(HTNState oldState) {
-        return oldState;
-    }
-
-    @Override
     public String toString() {
         return "NoOp";
     }
 
-    @Override
-    public Direction getAgentDirection() {
-        return null;
-    }
 }

@@ -225,7 +225,7 @@ public class LevelService implements Serializable {
      * @param movingDirection
      * @return The position arrived at after moving from @currentPosition in @movingDirection
      */
-    public synchronized Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
+    public synchronized Position getAdjacentPositionInDirection(Position currentPosition, Direction movingDirection) {
         switch (movingDirection) {
             case NORTH:
                 return new Position(currentPosition.getRow() - 1, currentPosition.getColumn());
@@ -261,20 +261,21 @@ public class LevelService implements Serializable {
     /**
      * @param positionA
      * @param positionB
+     * @param reverse Whether to return the inverse direction
      * @return The direction of positionB relative to positionA
      */
-    public synchronized Direction getMovingDirection(Position positionA, Position positionB) {
+    public synchronized Direction getRelativeDirection(Position positionA, Position positionB, boolean reverse) {
         if (positionA.getRow() == positionB.getRow()) {
             if (positionA.getColumn() < positionB.getColumn()) {
-                return Direction.EAST;
+                return !reverse ? Direction.EAST : Direction.WEST;
             } else {
-                return Direction.WEST;
+                return !reverse ? Direction.WEST : Direction.EAST;
             }
         } else if (positionA.getColumn() == positionB.getColumn()) {
             if (positionA.getRow() > positionB.getRow()) {
-                return Direction.SOUTH;
+                return !reverse ? Direction.NORTH : Direction.SOUTH;
             } else {
-                return Direction.NORTH;
+                return !reverse ? Direction.SOUTH : Direction.NORTH;
             }
         }
         throw new InvalidParameterException("Given positions are not adjacent.");
@@ -379,14 +380,26 @@ public class LevelService implements Serializable {
         return shortestDistanceBox;
     }
 
-    public int euclideanDistance(BoardObject boardObjectA, BoardObject boardObjectB) {
+    /**
+     *
+     * @param boardObjectA
+     * @param boardObjectB
+     * @return The euclidean distance from @boardObjectA to @boardObjectB
+     */
+    public synchronized int euclideanDistance(BoardObject boardObjectA, BoardObject boardObjectB) {
         return euclideanDistance(
                 getPosition(boardObjectA.getLabel()),
                 getPosition(boardObjectB.getLabel())
         );
     }
 
-    public int euclideanDistance(Position positionA, Position positionB) {
+    /**
+     *
+     * @param positionA
+     * @param positionB
+     * @return The euclidean distance from @positionA to @positionB
+     */
+    public synchronized int euclideanDistance(Position positionA, Position positionB) {
         return (int) Math.round(
                 Math.sqrt(
                         (positionA.getRow() - positionB.getRow()) ^ 2

@@ -4,7 +4,6 @@ import dtu.Main;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.agent.bdi.Belief;
 import dtu.agency.board.*;
-import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
@@ -13,7 +12,6 @@ import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.services.LevelService;
 
-import java.util.PriorityQueue;
 
 /**
  * This Planner uses the Hierarchical Task Network heuristic to subdivide high level tasks into primitive actions
@@ -59,11 +57,11 @@ public class HTNPlanner {
     }
 
     public PrimitivePlan rePlan(HTNNode node) {
-//        System.err.println("HTNPlanner.rePlan(): initialnode" + node.toString());
+        System.err.println("HTNPlanner.rePlan(): initialnode" + node.toString());
 
         Strategy strategy = new BestFirstStrategy(aStarHeuristicComparator);
 
-        //System.err.format("HTN plan starting with strategy %s\n", strategy);
+        System.err.format("HTN plan starting with strategy %s\n", strategy);
         strategy.addToFrontier(node);
 
         int iterations = 0;
@@ -79,7 +77,7 @@ public class HTNPlanner {
             }
 
             HTNNode leafNode = strategy.getAndRemoveLeaf();
-//            System.err.println(leafNode.toString());
+            System.err.println(leafNode.toString());
             //System.err.println(strategy.status());
 
             if (strategy.isExplored(leafNode.getState())) {
@@ -116,7 +114,7 @@ public class HTNPlanner {
 //            System.err.println("replan(): Adding node to explored");
 
             for (HTNNode n : leafNode.getRefinementNodes()) {
-//                System.err.println("replan(): Adding refinement node:" + n.toString());
+                System.err.println("replan(): Adding refinement node:" + n.toString());
                 strategy.addToFrontier(n);
             }
 

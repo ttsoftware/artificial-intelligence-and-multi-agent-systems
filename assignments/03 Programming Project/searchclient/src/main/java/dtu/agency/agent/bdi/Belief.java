@@ -37,7 +37,7 @@ public class Belief {
             case NONE:
                 break;
             default:
-                agentCurrentPosition = LevelService.getInstance().getPositionInDirection(agentCurrentPosition, action.getAgentDirection());
+                //agentCurrentPosition = LevelService.getInstance().getAdjacentPositionInDirection(agentCurrentPosition, action.getAgentDirection());
                 break;
         }
     }
@@ -72,7 +72,7 @@ public class Belief {
                 break;
             case PUSH:
                 PushConcreteAction push = (PushConcreteAction) action;
-                newBoxPosition = LevelService.getInstance().getPositionInDirection(
+                newBoxPosition = LevelService.getInstance().getAdjacentPositionInDirection(
                         oldBoxPosition,
                         push.getBoxDirection()
                 );
@@ -80,7 +80,7 @@ public class Belief {
                 break;
             case PULL:
                 PullConcreteAction pull = (PullConcreteAction) action;
-                newBoxPosition = LevelService.getInstance().getPositionInDirection(
+                newBoxPosition = LevelService.getInstance().getAdjacentPositionInDirection(
                         oldBoxPosition,
                         pull.getBoxDirection()
                 );

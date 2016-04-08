@@ -10,7 +10,7 @@ import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.PrimitivePlan;
+import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.services.EventBusService;
 

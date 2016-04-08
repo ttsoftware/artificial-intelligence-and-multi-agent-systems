@@ -29,6 +29,10 @@ public class Position implements Serializable {
 
     @Override
     public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (object == null)
+            return false;
         if (object.getClass() == this.getClass()) {
             Position foreignPosition = (Position) object;
             return (foreignPosition.getRow() == row

@@ -4,7 +4,6 @@ import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.planners.PrimitivePlan;
 import dtu.agency.services.LevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,26 +51,24 @@ public class HTNPlannerTest {
         agent = LevelService.getInstance().getLevel().getAgents().get(0);
         goal = LevelService.getInstance().getLevel().getGoals().get(0);
 
-//        System.err.println("HTNPlannerTest: Agent:" + agent.toString() + " Goal:" + goal.toString());
-
+        // Planner initialization
         HTNPlanner htn = new HTNGoalPlanner(agent, goal);
-//        System.err.println("HTNPlannerTest: " + htn.toString());
+        System.err.println("HTNPlannerTest: " + htn.toString() + "\n");
 
+        // Does heuristics calculation work
         int stepsApproximation = htn.getBestPlanApproximation();
-//        System.err.println("HTNPlannerTest: Plan approximation: " + Integer.toString(stepsApproximation));
-
-        PrimitivePlan plan = htn.plan();
-
-//        System.err.println("HTNPlannerTest: " + plan.toString());
-
         assertTrue("HTNPlannerTest: Heuristic Approximation should be non-negative", stepsApproximation>=0);
-        assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
-        assertTrue("HTNPlannerTest: primitivePlan is empty", !plan.isEmpty());
-        System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation));
-        System.err.println(plan.toString());
+        System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
 
+        // does it find a plan?
+        PrimitivePlan plan = htn.plan();
+        assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
+        System.err.println("HTNPlannerTest: " + plan.toString() + "\n");
+        assertTrue("HTNPlannerTest: primitivePlan is empty", !plan.isEmpty());
+
+        // is the plan within expected length?
         s = "primitivePlan is longer than " + Integer.toString(maxSolutionLength);
-        s += " steps, it is " + plan.getActions().size();
+        s += " steps, it is " + plan.getActions().size() + "\n";
         assertTrue(s, plan.getActions().size() <= maxSolutionLength);
     }
 

@@ -4,9 +4,6 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Position;
 
-import dtu.agency.planners.htn.HTNState;
-import dtu.agency.services.LevelService;
-
 public class MoveConcreteAction extends ConcreteAction {
 
     private Direction direction;
@@ -27,18 +24,6 @@ public class MoveConcreteAction extends ConcreteAction {
     @Override
     public ConcreteActionType getType() {
         return ConcreteActionType.MOVE;
-    }
-
-    @Override
-    public HTNState applyTo(HTNState oldState) {
-        Position oldAgentPos = oldState.getAgentPosition();
-        Position newAgentPos = LevelService.getInstance().getPositionInDirection(oldAgentPos, direction);
-        Position boxPos = oldState.getBoxPosition();
-
-        HTNState result = new HTNState(newAgentPos, boxPos);
-        boolean valid = result.isLegal();
-
-        return (valid) ? result : null;
     }
 
     @Override

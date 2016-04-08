@@ -30,7 +30,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             PriorityQueue<ConcreteAction> stepConcreteActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
             MoveConcreteAction nextAction = (MoveConcreteAction) stepConcreteActions.poll();
 
-            Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
+            Position nextActionPosition = LevelService.getInstance().getAdjacentPositionInDirection(
                     nextAction.getAgentPosition(),
                     nextAction.getDirection()
             );
@@ -38,9 +38,10 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             if (nextActionPosition.isAdjacentTo(agentStartPosition)) {
                 concreteActions.add(
                         new MoveConcreteAction(
-                                LevelService.getInstance().getMovingDirection(
+                                LevelService.getInstance().getRelativeDirection(
                                         nextActionPosition,
-                                        agentStartPosition
+                                        agentStartPosition,
+                                        true
                                 )
                         )
                 );

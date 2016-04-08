@@ -7,7 +7,7 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.htn.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
 
 import java.util.ArrayList;
@@ -67,14 +67,15 @@ public class MoveBoxAction extends HLAction {
         }
 
         Direction dirToBox = priorState.getDirectionToBox();
-//        System.err.println("direction to box: " + dirToBox.toString());
+        //System.err.println("direction to box: " + dirToBox.toString());
 
         // PUSH REFINEMENTS
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction push = new PushConcreteAction(box, dirToBox, dir);
-            HTNState result = push.applyTo(priorState);
+            HTNState result = priorState.applyConcreteAction(push);
             if (result == null) continue; // then the action was illegal !
+            System.err.print("push, " + result.toString());
             refinement.addAction(push);
             refinement.addAction(this);
             refinements.add(refinement);
@@ -86,15 +87,14 @@ public class MoveBoxAction extends HLAction {
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction pull = new PullConcreteAction(box, dir, dirToBox);
-//            System.err.println(pull.toString());
-            HTNState result = pull.applyTo(priorState);
+            HTNState result = priorState.applyConcreteAction(pull);
             if (result == null) continue; // then the action was illegal !
             refinement.addAction(pull);
             refinement.addAction(this);
             refinements.add(refinement);
 //            System.err.println("ConcreteAction:" + pull.toString() + ", Result:" + result.toString());
         }
-//        System.err.println(refinements.toString());
+        System.err.println(refinements.toString());
         return refinements;
     }
 

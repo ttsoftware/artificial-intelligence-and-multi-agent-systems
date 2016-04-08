@@ -7,7 +7,7 @@ import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.htn.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
 
 import java.io.Serializable;
@@ -62,7 +62,7 @@ public class GotoAction extends HLAction implements Serializable {
         for (Direction dir : Direction.values()) {
             MixedPlan refinement = new MixedPlan();
             ConcreteAction move = new MoveConcreteAction(dir);
-            HTNState result = move.applyTo(priorState);
+            HTNState result = priorState.applyConcreteAction(move);
             if (result == null) continue; // illegal move, discard it
             refinement.addAction(move);
             refinement.addAction(this); // append this action again

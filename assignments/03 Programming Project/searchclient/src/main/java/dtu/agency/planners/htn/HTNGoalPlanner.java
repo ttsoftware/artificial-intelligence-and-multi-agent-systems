@@ -1,19 +1,13 @@
 package dtu.agency.planners.htn;
 
-import dtu.Main;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
-import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.agent.bdi.Belief;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
-import dtu.agency.planners.PrimitivePlan;
-import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
-import dtu.agency.planners.htn.strategy.BestFirstStrategy;
-import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.services.LevelService;
 
 import java.util.PriorityQueue;
@@ -28,10 +22,10 @@ public class HTNGoalPlanner extends HTNPlanner {
     * Constructor: All a planner needs is the next goal and the agent solving it...
     * */
     public HTNGoalPlanner(Agent agent, Goal target) {
-        //System.err.println("HTN Planner initializing.");
         super(agent, new SolveGoalSuperAction(target));
+//        System.err.println("HTN Planner initializing.");
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
-        //System.err.println("Nodes: " + allInitialNodes.toString());
+//        System.err.println("Nodes: " + allInitialNodes.toString());
     }
 
     /*

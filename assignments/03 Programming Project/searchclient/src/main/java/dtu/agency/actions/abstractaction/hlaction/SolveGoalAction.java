@@ -5,7 +5,7 @@ import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
-import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.htn.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.services.LevelService;
 

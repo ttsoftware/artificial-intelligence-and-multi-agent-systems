@@ -4,7 +4,7 @@ import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.planners.MixedPlan;
+import dtu.agency.planners.htn.MixedPlan;
 import dtu.agency.planners.htn.HTNState;
 
 import java.util.ArrayList;

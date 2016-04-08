@@ -11,7 +11,7 @@ public class MoveAgentEffect extends Effect {
 
     public Level applyChangeToLevel(Level level, MoveConcreteAction action) {
 
-        Position goalPosition = LevelService.getInstance().getPositionInDirection(action.getAgentPosition(), action.getDirection());
+        Position goalPosition = LevelService.getInstance().getAdjacentPositionInDirection(action.getAgentPosition(), action.getDirection());
         BoardCell[][] boardState = level.getBoardState();
         BoardObject[][] boardObjects = level.getBoardObjects();
 
