@@ -27,7 +27,9 @@ public abstract class HLAction extends AbstractAction {
 
     /*
      * TODO: This returns false almost always - maybe we can revise this?
+     * TODO: This will change when more types of High Level Actions are written
      * Tells if this HLAction refines purely to OTHER HLActions (primitive actions are allowed), for heuristic purposes
+     * If recursive behavior in getRefinements, HLAction is -> UN-pure     else   -> pure
      */
     public abstract boolean isPureHLAction();
 

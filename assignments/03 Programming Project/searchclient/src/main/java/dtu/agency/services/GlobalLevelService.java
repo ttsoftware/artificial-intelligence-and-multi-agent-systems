@@ -12,26 +12,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LevelService implements Serializable {
+public class GlobalLevelService implements Serializable {
 
-    private static LevelService instance = null;
+    private static GlobalLevelService instance = null;
     private Level level = null;
 
-    private LevelService() {
+    private GlobalLevelService() {
     }
 
     /**
-     * Gets the singleton LevelService
+     * Gets the singleton GlobalLevelService
      * We use this singleton to store the current level instance, and to make operations on this object.
      *
-     * @return LevelService
+     * @return GlobalLevelService
      */
-    public static LevelService getInstance() {
+    public static GlobalLevelService getInstance() {
         if (instance == null) {
             // Creating an instance must be synchronized
-            synchronized (LevelService.class) {
+            synchronized (GlobalLevelService.class) {
                 if (instance == null) {
-                    instance = new LevelService();
+                    instance = new GlobalLevelService();
                 }
             }
         }
@@ -157,25 +157,25 @@ public class LevelService implements Serializable {
     public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isMoveable(position.getRow(), position.getColumn() - 1)) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow(), position.getColumn() - 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() - 1),
                     Direction.WEST
             ));
         }
-        if (LevelService.getInstance().isMoveable(position.getRow(), position.getColumn() + 1)) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow(), position.getColumn() + 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() + 1),
                     Direction.EAST
             ));
         }
-        if (LevelService.getInstance().isMoveable(position.getRow() - 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow() - 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() - 1, position.getColumn()),
                     Direction.NORTH
             ));
         }
-        if (LevelService.getInstance().isMoveable(position.getRow() + 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow() + 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
@@ -192,25 +192,25 @@ public class LevelService implements Serializable {
     public synchronized List<Neighbour> getFreeNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1)) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() - 1),
                     Direction.WEST
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1)) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() + 1),
                     Direction.EAST
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow() - 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() - 1, position.getColumn()),
                     Direction.NORTH
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow() + 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH

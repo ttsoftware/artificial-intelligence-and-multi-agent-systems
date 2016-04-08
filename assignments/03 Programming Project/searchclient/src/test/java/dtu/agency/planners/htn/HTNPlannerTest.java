@@ -4,7 +4,8 @@ import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.DebugService;
+import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,10 +47,10 @@ public class HTNPlannerTest {
     }
 
     public void levelTest(Level level, int maxSolutionLength) {
-        LevelService.getInstance().setLevel(level);
+        GlobalLevelService.getInstance().setLevel(level);
 
-        agent = LevelService.getInstance().getLevel().getAgents().get(0);
-        goal = LevelService.getInstance().getLevel().getGoals().get(0);
+        agent = GlobalLevelService.getInstance().getLevel().getAgents().get(0);
+        goal = GlobalLevelService.getInstance().getLevel().getGoals().get(0);
 
         // Planner initialization
         HTNPlanner htn = new HTNGoalPlanner(agent, goal);
@@ -60,8 +61,11 @@ public class HTNPlannerTest {
         assertTrue("HTNPlannerTest: Heuristic Approximation should be non-negative", stepsApproximation>=0);
         System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
 
-        // does it find a plan?
+        // does it find a plan? Maybe we would like to debug this area of the code
+        boolean oldDebugMode = DebugService.setDebugMode(true);
         PrimitivePlan plan = htn.plan();
+        DebugService.setDebugMode(oldDebugMode);
+
         assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
         System.err.println("HTNPlannerTest: " + plan.toString() + "\n");
         assertTrue("HTNPlannerTest: primitivePlan is empty", !plan.isEmpty());

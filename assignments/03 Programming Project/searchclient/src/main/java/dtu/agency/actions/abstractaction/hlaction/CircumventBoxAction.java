@@ -6,7 +6,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.MixedPlan;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class CircumventBoxAction extends HLAction implements Serializable {
     @Override
     public boolean isPurposeFulfilled(HTNState htnState) {
         boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
-        fulfilled &= htnState.getBoxPosition().equals( LevelService.getInstance().getPosition(box) );
+        fulfilled &= htnState.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(box) );
         return fulfilled;
     }
 

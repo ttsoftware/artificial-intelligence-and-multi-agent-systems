@@ -2,7 +2,7 @@ package dtu.agency.services;
 
 import org.junit.Test;
 
-public class LevelServiceTest {
+public class GlobalLevelServiceTest {
 
     @Test
     public void testMove() {

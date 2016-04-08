@@ -6,7 +6,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.MixedPlan;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class MoveBoxAndReturnAction extends HLAction implements Serializable {
 
         MixedPlan refinement = new MixedPlan();
         refinement.addAction(new GotoAction(
-                LevelService.getInstance().getPosition(getBox())
+                GlobalLevelService.getInstance().getPosition(getBox())
         ) );
         refinement.addAction(new MoveBoxAction( getBox(), getBoxDestination() ) );
         refinement.addAction(new GotoAction( getAgentDestination() ) );

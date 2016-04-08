@@ -7,7 +7,7 @@ import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.MixedPlan;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
 
     @Override
     public Position getDestination() {
-        return LevelService.getInstance().getPosition(goal);
+        return GlobalLevelService.getInstance().getPosition(goal);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
 
         ArrayList<MixedPlan> refinements = new ArrayList<>();
 
-        for (Box box : LevelService.getInstance().getLevel().getBoxes()) {
+        for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
             if (box.getLabel().toLowerCase().equals(goal.getLabel().toLowerCase())) {
                 MixedPlan refinement = new MixedPlan();
                 refinement.addAction( new SolveGoalAction(box, goal) );

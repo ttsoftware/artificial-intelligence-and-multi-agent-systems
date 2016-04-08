@@ -11,7 +11,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -113,7 +113,7 @@ public class ConcreteActionTest {
 
     @Test
     public void nopTest() {
-        LevelService.getInstance().setLevel( level );
+        GlobalLevelService.getInstance().setLevel( level );
         ConcreteAction nop = new NoConcreteAction();
         HTNState eff = acbn.applyConcreteAction(nop);
         assertTrue("Effect is not unchanged", eff.equals(acbn));
@@ -121,10 +121,10 @@ public class ConcreteActionTest {
 
     @Test
     public void moveTest() {
-        LevelService.getInstance().setLevel( level );
+        GlobalLevelService.getInstance().setLevel( level );
         //System.err.println("printing walls");
-        //System.err.println(LevelService.getInstance().getLevel().getWalls());
-        //System.err.println(LevelService.getInstance().getLevel().notWall(pc));
+        //System.err.println(GlobalLevelService.getInstance().getLevel().getWalls());
+        //System.err.println(GlobalLevelService.getInstance().getLevel().notWall(pc));
 
         ConcreteAction goN = new MoveConcreteAction(n);
         ConcreteAction goS = new MoveConcreteAction(s);
@@ -156,7 +156,7 @@ public class ConcreteActionTest {
 
     @Test
     public void pushTest() {
-        LevelService.getInstance().setLevel( level );
+        GlobalLevelService.getInstance().setLevel( level );
         // acbn - neighbor box to north - nb+ N S E W
         // acbne - box at north east - not neighbor b+ NE SE NW SW
         ConcreteAction pushNN = new PushConcreteAction(box,n,n);
@@ -221,7 +221,7 @@ public class ConcreteActionTest {
 
     @Test
     public void pullTest() {
-        LevelService.getInstance().setLevel( level );
+        GlobalLevelService.getInstance().setLevel( level );
         // acbn - neighbor box to north - nb+ N S E W
         // acbne - box at north east - not neighbor b+ NE SE NW SW
         ConcreteAction pullNN = new PullConcreteAction(box,n,n); // invalid

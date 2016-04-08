@@ -8,7 +8,7 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.PriorityQueue;
 
@@ -35,11 +35,11 @@ public class HTNGoalPlanner extends HTNPlanner {
         //System.err.println("CreateAllNodes: ");
         PriorityQueue<HTNNode> allNodes = new PriorityQueue<>(heuristicComparator);
 
-        for (Box box : LevelService.getInstance().getLevel().getBoxes()) {
+        for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
             if (box.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) {
                 HTNState initialState = new HTNState(
-                        LevelService.getInstance().getPosition(this.agent),
-                        LevelService.getInstance().getPosition(box)
+                        GlobalLevelService.getInstance().getPosition(this.agent),
+                        GlobalLevelService.getInstance().getPosition(box)
                 );
                 HLAction initialAction = new SolveGoalAction(box, target);
                 allNodes.offer(new HTNNode(initialState, initialAction));

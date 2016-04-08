@@ -3,7 +3,7 @@ package dtu.agency.planners.pop;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Position;
 import dtu.agency.actions.AbstractAction;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 public abstract class AbstractPOP<T extends AbstractAction> {
 
@@ -12,7 +12,7 @@ public abstract class AbstractPOP<T extends AbstractAction> {
 
     public AbstractPOP(Agent agent) {
         this.agent = agent;
-        this.agentStartPosition = LevelService.getInstance().getLevel()
+        this.agentStartPosition = GlobalLevelService.getInstance().getLevel()
                 .getBoardObjectPositions().get(agent.getLabel());
     }
 

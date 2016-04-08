@@ -6,7 +6,7 @@ import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +20,11 @@ public class Belief {
     //LinkedList<AgentPlan> plans;
 
     public Belief( Agent agent ) {
-        agentCurrentPosition = LevelService.getInstance().getPosition(agent);
-        List<Box> boxList = LevelService.getInstance().getLevel().getBoxes();
+        agentCurrentPosition = GlobalLevelService.getInstance().getPosition(agent);
+        List<Box> boxList = GlobalLevelService.getInstance().getLevel().getBoxes();
         this.currentBoxPositions = new HashMap<>();
         for (Box b : boxList) {
-            currentBoxPositions.put(b.getLabel(), LevelService.getInstance().getPosition(b));
+            currentBoxPositions.put(b.getLabel(), GlobalLevelService.getInstance().getPosition(b));
         }
     }
 
@@ -37,7 +37,7 @@ public class Belief {
             case NONE:
                 break;
             default:
-                //agentCurrentPosition = LevelService.getInstance().getAdjacentPositionInDirection(agentCurrentPosition, action.getAgentDirection());
+                //agentCurrentPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(agentCurrentPosition, action.getAgentDirection());
                 break;
         }
     }
@@ -72,7 +72,7 @@ public class Belief {
                 break;
             case PUSH:
                 PushConcreteAction push = (PushConcreteAction) action;
-                newBoxPosition = LevelService.getInstance().getAdjacentPositionInDirection(
+                newBoxPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(
                         oldBoxPosition,
                         push.getBoxDirection()
                 );
@@ -80,7 +80,7 @@ public class Belief {
                 break;
             case PULL:
                 PullConcreteAction pull = (PullConcreteAction) action;
-                newBoxPosition = LevelService.getInstance().getAdjacentPositionInDirection(
+                newBoxPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(
                         oldBoxPosition,
                         pull.getBoxDirection()
                 );

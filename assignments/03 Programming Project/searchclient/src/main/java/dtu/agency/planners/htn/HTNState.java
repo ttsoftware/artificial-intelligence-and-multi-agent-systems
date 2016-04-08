@@ -6,9 +6,12 @@ import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Position;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.DebugService;
+import dtu.agency.services.GlobalLevelService;
 
 public class HTNState {
+    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    private static void debug(String msg){ debug(msg, 0); }
 
     private final Position agentPosition;
     private final Position boxPosition;
@@ -19,7 +22,7 @@ public class HTNState {
     }
 
     public Direction getDirectionToBox() { // returns the direction from agent to box
-        return LevelService.getInstance().getRelativeDirection(agentPosition, boxPosition, false);
+        return GlobalLevelService.getInstance().getRelativeDirection(agentPosition, boxPosition, false);
     }
 
     public boolean boxIsMovable() {
@@ -34,31 +37,29 @@ public class HTNState {
      * @return a new HTNState instance with @concreteAction applied to it
      */
     public HTNState applyConcreteAction(ConcreteAction concreteAction) {
-
-        // calculate new effects
+        debug("applyConcreteActions():", 2);
         Position oldAgentPos = getAgentPosition();
-        Position oldBoxPos = getBoxPosition();
+        Position oldBoxPos   = getBoxPosition();
+        Position newAgentPos, newBoxPos;
+        HTNState result;
 
-        Position newAgentPos;
-        Position newBoxPos;
-
-        // precondition(s)
+        // keep track of validity of the action
         boolean valid =  true;
-
-        //System.err.print(this.toString() );
+        debug(this.toString() );
 
         switch (concreteAction.getType()) {
             case MOVE: {
                 MoveConcreteAction moveAction = (MoveConcreteAction) concreteAction;
-                newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
+                newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
 
-                HTNState result = new HTNState(newAgentPos, oldBoxPos);
+                result = new HTNState(newAgentPos, oldBoxPos);
+                debug(" + " + moveAction.toString() + " -> " + result.toString() );
 
-                //System.err.println(result.toString());
                 if (result.isLegal()) {
+                    debug("", -2);
                     return result;
                 } else {
-                    //System.err.println("HTNState.applyMove: Invalid result " + result.toString());
+                    debug("HTNState.applyMove: Invalid result " + result.toString(), -2);
                     return null;
                 }
             }
@@ -66,21 +67,22 @@ public class HTNState {
 
                 PushConcreteAction pushAction = (PushConcreteAction) concreteAction;
 
-                newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
-                newBoxPos = LevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
+                newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
+                newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
+                result = new HTNState(newAgentPos, newBoxPos);
 
-                //System.err.print(" + " + pushAction.toString() + " -> " + newAgentPos.toString() + " " + newBoxPos.toString());
+                debug(" + " + pushAction.toString() + " -> " + result.toString());
                 // check preconditions !!! THIS IS PUSH
 
                 valid &= !pushAction.getAgentDirection().getInverse().equals(pushAction.getBoxDirection()); // NOT opposite directions (would be pull!)
-                //System.err.println(" validation push not opposite directions:" + Boolean.toString(valid));
+                debug(" validation push not opposite directions:" + Boolean.toString(valid));
 
                 // post conditions
                 valid &= newAgentPos.equals(oldBoxPos);        // Push: agent follows box
-                //System.err.println(" validation push agent follows box:" + Boolean.toString(valid));
+                debug(" validation push agent follows box:" + Boolean.toString(valid));
 
                 valid &= !newBoxPos.equals(oldAgentPos);       // Push: agent is not at wrong location
-                //System.err.println(" validation push box is not at old agent location:" + Boolean.toString(valid));
+                debug(" validation push box is not at old agent location:" + Boolean.toString(valid));
 
                 break;
             }
@@ -88,52 +90,60 @@ public class HTNState {
 
                 PullConcreteAction pullAction = (PullConcreteAction) concreteAction;
 
-                newAgentPos = LevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
-                newBoxPos = LevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
+                newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
+                newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
+                result = new HTNState(newAgentPos, newBoxPos);
 
-                //System.err.print(" + " + pullAction.toString() + " -> " + newAgentPos.toString() + " " + newBoxPos.toString());
+                debug(" + " + pullAction.toString() + " -> " + result.toString());
+
                 // check preconditions !!! THIS IS PULL
                 valid &= !pullAction.getAgentDirection().equals(pullAction.getBoxDirection()); // NOT same directions (would be push)
-                //System.err.println(" validation pull not same directions:" + Boolean.toString(valid));
+                debug(" validation pull not same directions:" + Boolean.toString(valid));
 
                 // post conditions
                 valid &= newBoxPos.equals(oldAgentPos);        // Pull: box follows agent
-                //System.err.println(" validation pull box follows agent :" + Boolean.toString(valid));
+                debug(" validation pull box follows agent :" + Boolean.toString(valid));
 
                 valid &= (!newAgentPos.equals(oldBoxPos));       // Pull: agent is not at wrong location
-                //System.err.println(" validation pull agent is not at old box location:" + Boolean.toString(valid));
+                debug(" validation pull agent is not at old box location:" + Boolean.toString(valid));
 
                 break;
             }
             case NONE: {
+                debug("", -2);
                 return this;
             }
             default:
+                debug("", -2);
                 throw new UnsupportedOperationException("Invalid action type");
         }
         valid &= oldAgentPos.isAdjacentTo(oldBoxPos);   // box and agent is neighbor in prior state // is this unnecessary?
-        //System.err.println(" validation box and agent is neighbor in prior state:" + Boolean.toString(valid));
+        debug(" validation box and agent is neighbor in prior state:" + Boolean.toString(valid));
 
         valid &= newAgentPos.isAdjacentTo(newBoxPos);   // box and agent are still neighbours in posterior state
-        //System.err.println(" validation box and agent are still neighbours in posterior state:" + Boolean.toString(valid));
+        debug(" validation box and agent are still neighbours in posterior state:" + Boolean.toString(valid));
 
-        HTNState result = new HTNState(newAgentPos, newBoxPos);
         valid &= result.isLegal();
-        //System.err.println(" validation: is the new state even legal?:" + Boolean.toString(valid));
+        debug(" validation the new state is legal:" + Boolean.toString(valid));
 
+        debug("", -2);
         return (valid) ? result : null;
     }
 
     public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
-        boolean valid = true;
-        //System.err.println(!getAgentPosition().equals(getBoxPosition()));
-        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getAgentPosition()));
-        //System.err.println(LevelService.getInstance().getLevel().notWall(this.getBoxPosition()));
-        valid &= !agentPosition.equals(boxPosition);
-        valid &= !LevelService.getInstance().isWall(agentPosition);
+        debug("isLegal():", 2);
+
+        boolean valid = !agentPosition.equals(boxPosition);
+        debug("box and agent position are not identical:" + Boolean.toString(valid) );
+
+        valid &= !GlobalLevelService.getInstance().isWall(agentPosition);
+        debug("agent is not at wall:" + Boolean.toString(valid) );
+
         if (boxPosition != null) {
-            valid &= !LevelService.getInstance().isWall(boxPosition);
+            valid &= !GlobalLevelService.getInstance().isWall(boxPosition);
+            debug("box is not at wall:" + Boolean.toString(valid) );
         }
+        debug("", -2);
         return valid;
     }
 
@@ -175,10 +185,10 @@ public class HTNState {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("State:[Ag:" + agentPosition.toString());
-        s.append(",Bx:" + ((boxPosition!=null) ? boxPosition.toString() : "null") + "]");
-        return s.toString();
+        String s;
+        s  = "State:[Ag:" + agentPosition.toString();
+        s += ",Bx:" + ((boxPosition!=null) ? boxPosition.toString() : "null") + "]";
+        return s;
     }
 
     public Position getAgentPosition() {
