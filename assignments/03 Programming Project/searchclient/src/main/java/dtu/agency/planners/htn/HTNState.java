@@ -26,12 +26,37 @@ public class HTNState {
         this.boxPosition = boxPosition;
     }
 
-    public Direction getDirectionToBox() { // returns the direction from agent to box
-        return GlobalLevelService.getInstance().getRelativeDirection(agentPosition, boxPosition, false);
+    public Position getAgentPosition() {
+        return agentPosition;
+    }
+
+    public Position getBoxPosition() {
+        return boxPosition;
     }
 
     public boolean boxIsMovable() {
         return agentPosition.isAdjacentTo(boxPosition);
+    }
+
+    public Direction getDirectionToBox() { // returns the direction from agent to box
+        return GlobalLevelService.getInstance().getRelativeDirection(agentPosition, boxPosition, false);
+    }
+
+    public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
+        debug("isLegal():", 2);
+
+        boolean valid = !agentPosition.equals(boxPosition);
+        debug("box and agent position are not identical:" + Boolean.toString(valid) );
+
+        valid &= !GlobalLevelService.getInstance().isWall(agentPosition);
+        debug("agent is not at wall:" + Boolean.toString(valid) );
+
+        if (boxPosition != null) {
+            valid &= !GlobalLevelService.getInstance().isWall(boxPosition);
+            debug("box is not at wall:" + Boolean.toString(valid) );
+        }
+        debug("", -2);
+        return valid;
     }
 
     /*
@@ -139,7 +164,10 @@ public class HTNState {
                         }
                         break;
 
-                    case MoveBoxAndReturn:
+                case No:
+                    break;
+
+                case MoveBoxAndReturn:
                         MoveBoxAndReturnAction mbar = (MoveBoxAndReturnAction) action;
                         MixedPlan mbarRefinement = new MixedPlan();
 
@@ -258,23 +286,6 @@ public class HTNState {
         return (valid) ? result : null;
     }
 
-    public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
-        debug("isLegal():", 2);
-
-        boolean valid = !agentPosition.equals(boxPosition);
-        debug("box and agent position are not identical:" + Boolean.toString(valid) );
-
-        valid &= !GlobalLevelService.getInstance().isWall(agentPosition);
-        debug("agent is not at wall:" + Boolean.toString(valid) );
-
-        if (boxPosition != null) {
-            valid &= !GlobalLevelService.getInstance().isWall(boxPosition);
-            debug("box is not at wall:" + Boolean.toString(valid) );
-        }
-        debug("", -2);
-        return valid;
-    }
-
     /**
      * TODO: Checks if the purpose of the current high level action is fulfilled
      * @param action
@@ -290,44 +301,32 @@ public class HTNState {
                 fulfilled = this.getBoxPosition().equals(sga.getGoal().getPosition());
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at goal location");
                 break;
-//                public boolean isPurposeFulfilled(HTNState htnState) {
-//                    return htnState.getBoxPosition().equals(this.getGoal().getPosition());
-//                }
-//
+
             case Circumvent:
                 fulfilled  = this.getAgentPosition().equals( action.getDestination() );
                 fulfilled &= this.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(action.getBox()) ); // TODO: PlannerLevelService
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
-//                public boolean isPurposeFulfilled(HTNState htnState) {
-//                    boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
-//                    fulfilled &= htnState.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(box) );
-//                    return fulfilled;
-//                }
 
             case GotoAction:
                 fulfilled = this.getAgentPosition().isAdjacentTo(action.getDestination()); // TODO: adjacent is enough?? only if box is null
                 debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
                 break;
-//                if (htnState.getAgentPosition().isAdjacentTo(getDestination())) { //
-//                    fulfilled = true;
-//                }
 
             case MoveBoxAction:
                 fulfilled = (this.getBoxPosition().equals(action.getDestination()));
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destination");
                 break;
-//                if (htnState.getBoxPosition().equals(moveToPosition)) { //
-//                    return true;
-//                }
 
             case SolveGoalSuper:
                 SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
                 fulfilled = (this.getBoxPosition()!=null) ? this.getBoxPosition().equals(sgsa.getGoal().getPosition()): false;
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
-//                debug("isPurposeFulfilled(): " + goal.toString());
-//                return (state.getBoxPosition()!=null) ? state.getBoxPosition().equals(this.getGoal().getPosition()): false;
+
+            case No:
+                fulfilled = true;
+                break;
 
             case MoveBoxAndReturn:
                 MoveBoxAndReturnAction mbarAction = (MoveBoxAndReturnAction) action;
@@ -335,11 +334,6 @@ public class HTNState {
                 fulfilled &= this.getBoxPosition().equals( mbarAction.getBoxDestination() );
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
-//            public boolean isPurposeFulfilled(HTNState htnState) {
-//                boolean fulfilled = htnState.getAgentPosition().equals( getAgentDestination() );
-//                fulfilled &= htnState.getBoxPosition().equals( getBoxDestination() );
-//                return fulfilled;
-//            }
 
             default:
                 debug("", -2);
@@ -399,11 +393,4 @@ public class HTNState {
         return s;
     }
 
-    public Position getAgentPosition() {
-        return agentPosition;
-    }
-
-    public Position getBoxPosition() {
-        return boxPosition;
-    }
 }

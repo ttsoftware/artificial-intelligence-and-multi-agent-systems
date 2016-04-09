@@ -3,7 +3,6 @@ package dtu.agency.planners.htn;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
-import dtu.agency.agent.bdi.Belief;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
@@ -23,16 +22,16 @@ public class HTNGoalPlanner extends HTNPlanner {
     * */
     public HTNGoalPlanner(Agent agent, Goal target) {
         super(agent, new SolveGoalSuperAction(target));
-//        System.err.println("HTN Planner initializing.");
+        debug("HTN Planner initializing.",2);
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
-//        System.err.println("Nodes: " + allInitialNodes.toString());
+        debug("Nodes: " + allInitialNodes.toString(),-2);
     }
 
     /*
     *  Fills the data structure containing information on ways to solve this particular target
     */
     private PriorityQueue<HTNNode> createAllNodes(Goal target, HeuristicComparator heuristicComparator) {
-        //System.err.println("CreateAllNodes: ");
+        debug("HTNGoalPlanner.createAllNodes(): ", 2);
         PriorityQueue<HTNNode> allNodes = new PriorityQueue<>(heuristicComparator);
 
         for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
@@ -45,6 +44,7 @@ public class HTNGoalPlanner extends HTNPlanner {
                 allNodes.offer(new HTNNode(initialState, initialAction));
             }
         }
+        debug("Nodes created: \n" + String.join("\n", allNodes.toString()) , -2);
         return allNodes;
     }
 
@@ -53,34 +53,20 @@ public class HTNGoalPlanner extends HTNPlanner {
     */
     @Override
     public PrimitivePlan plan() {
-//        System.err.println("HTNGoalPlanner.plan(): size of allinitialnodes:" + allInitialNodes.size());
+        debug("HTNGoalPlanner.plan(): size of allinitialnodes:" + allInitialNodes.size(), 2);
         PrimitivePlan plan = null;
         HTNNode node;
         do {
             node = allInitialNodes.poll();
-//            System.err.println("HTNGoalPlanner.plan():");
+            debug("HTNGoalPlanner.rePlan() on " +node.toString());
             plan = rePlan(node);
             if (!(plan == null)) {
-//                System.err.println("HTNGoalPlanner.plan(): " + plan.toString());
+                debug("Plan found: " + plan.toString(), -2);
                 return plan;
             }
         } while (allInitialNodes.size() > 0);
-//        System.err.println("plan is null :-(");
+        debug("Failed to find a plan", -2);
         return null;
-    }
-
-    @Override
-    public HLAction getBestIntention() {
-        return (HLAction) allInitialNodes.peek().getRemainingPlan().getFirst();
-    }
-
-    @Override
-    public Belief getBestBelief() {
-        HTNNode node = allInitialNodes.peek();
-        SolveGoalAction sga = (SolveGoalAction) node.getRemainingPlan().getFirst();
-        Belief belief = new Belief(agent);
-        belief.setCurrentTargetBox(sga.getBox().getLabel());
-        return belief;
     }
 }
 

@@ -1,17 +1,30 @@
 package dtu.agency.agent;
 
+import dtu.agency.ProblemMarshallerTest;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.services.EventBusService;
+import dtu.agency.services.GlobalLevelService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+
 public class AgentThreadTest {
+    private static Level twoAgents;
+
+    @BeforeClass
+    public static void setUp() throws IOException {
+        twoAgents = ProblemMarshallerTest.marshall("/two_agents.lvl");
+    }
 
     @Test
     public void testRun() throws InterruptedException {
+        GlobalLevelService.getInstance().setLevel(twoAgents);
 
         Agent agent1 = new Agent("0");
         Agent agent2 = new Agent("1");

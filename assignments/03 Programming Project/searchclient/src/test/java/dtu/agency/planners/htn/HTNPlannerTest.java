@@ -1,6 +1,6 @@
 package dtu.agency.planners.htn;
 
-import dtu.agency.ProblemMarshaller;
+import dtu.agency.ProblemMarshallerTest;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
@@ -18,14 +18,11 @@ public class HTNPlannerTest {
     private Agent agent;
     private Goal goal;
     private String s;
-    private static File resourcesDirectory;
     private static Level sad1Goto, sad1Move;
     private static Level lvl001, lvl002, lvl003, lvl004, lvl005, lvl006, lvl007, lvl008, lvl009;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        resourcesDirectory = new File("src/test/resources");
-
         sad1Goto = marshall("/SAD1_goto_box.lvl");
         sad1Move = marshall("/SAD1_move_box.lvl");
         lvl001 = marshall("/001.lvl"); // Fine plan - will solve the problem
@@ -40,10 +37,7 @@ public class HTNPlannerTest {
     }
 
     private static Level marshall(String path) throws IOException {
-        String levelPath = resourcesDirectory.getAbsolutePath() + path;
-        FileInputStream inputStream = new FileInputStream(levelPath);
-        BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
-        return ProblemMarshaller.marshall(fileReader);
+        return ProblemMarshallerTest.marshall(path);
     }
 
     public void levelTest(Level level, int maxSolutionLength) {

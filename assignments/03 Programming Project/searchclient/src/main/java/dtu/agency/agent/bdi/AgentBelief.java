@@ -12,14 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class Belief {
+public class AgentBelief {
     // should reflect where the agentCurrentPosition thinks the box(es) currently targeted are positioned
     Position agentCurrentPosition;                   // agent's believed own position
     HashMap<String, Position> currentBoxPositions;   // agent's believed currentBoxPositions position
-    String currentTargetBox;                         // the box (by label) that the agent is currently targeting
-    //LinkedList<AgentPlan> plans;
 
-    public Belief( Agent agent ) {
+    public AgentBelief(Agent agent ) {
         agentCurrentPosition = GlobalLevelService.getInstance().getPosition(agent);
         List<Box> boxList = GlobalLevelService.getInstance().getLevel().getBoxes();
         this.currentBoxPositions = new HashMap<>();
@@ -42,14 +40,6 @@ public class Belief {
         }
     }
 
-    public String getCurrentTargetBox() {
-        return currentTargetBox;
-    }
-
-    public void setCurrentTargetBox(String currentTargetBox) {
-        this.currentTargetBox = currentTargetBox;
-    }
-
     public Position getBoxPosition(String boxLabel) {
         return currentBoxPositions.get(boxLabel);
     }
@@ -57,12 +47,6 @@ public class Belief {
     public void setBoxPosition(String boxLabel, Position boxPosition) {
         currentBoxPositions.put(boxLabel, boxPosition);
     }
-
-    public void setBoxPosition(Position boxPosition) {
-        currentBoxPositions.put(currentTargetBox, boxPosition);
-    }
-
-    public void updateBoxPosition(ConcreteAction action) { updateBoxPosition(currentTargetBox, action); }
 
     public void updateBoxPosition(String targetBox, ConcreteAction action) {
         Position oldBoxPosition = currentBoxPositions.get(targetBox);

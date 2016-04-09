@@ -2,10 +2,8 @@ package dtu.agency.planners.htn;
 
 import dtu.Main;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
-import dtu.agency.agent.bdi.Belief;
 import dtu.agency.board.*;
 import dtu.agency.actions.abstractaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
@@ -18,8 +16,8 @@ import dtu.agency.services.GlobalLevelService;
  * This Planner uses the Hierarchical Task Network heuristic to subdivide high level tasks into primitive actions
  */
 public class HTNPlanner {
-    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    private static void debug(String msg){ debug(msg, 0); }
+    protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    protected static void debug(String msg){ debug(msg, 0); }
 
     protected Agent agent;                  // agent to perform the actions
     protected HLAction action;              // original action
@@ -127,15 +125,17 @@ public class HTNPlanner {
         }
     }
 
-    public HLAction getBestIntention() {
+    public HLAction getIntention() {
         return action;
     }
 
-    public Belief getBestBelief() {
+/*
+    public AgentBelief getBestBelief() {
         SolveGoalAction sga = (SolveGoalAction) initialNode.getRemainingPlan().getFirst();
-        Belief belief = new Belief(agent);
+        AgentBelief belief = new AgentBelief(agent);
         belief.setCurrentTargetBox(sga.getBox().getLabel());
         return belief;
     }
+*/
 }
 

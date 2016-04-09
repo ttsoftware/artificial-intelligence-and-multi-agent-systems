@@ -5,5 +5,5 @@ public enum AbstractActionType {
     Circumvent,
     GotoAction,
     MoveBoxAction,
-    SolveGoalSuper, MoveBoxAndReturn
+    SolveGoalSuper, No, MoveBoxAndReturn
 }
