@@ -3,6 +3,7 @@ package dtu.agency;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
+import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
 import dtu.agency.events.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -39,29 +40,29 @@ public class Agency implements Runnable {
         // Register for self-handled events
         EventBusService.register(this);
 
-        List<GoalEstimationEventSubscriber> goalEstimationSubscribers = new ArrayList<>();
-
         // Offer goals to agents
-        LevelService.getInstance().getLevel().getGoalQueue().forEach(goal -> {
+        // Each goalQueue is independent of one another so we can parallelStream
+        LevelService.getInstance().getLevel().getGoalQueues().parallelStream().forEach(goalQueue -> {
 
-            // Register for incoming goal estimations
-            GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels.size());
-            EventBusService.register(goalEstimationEventSubscriber);
+            Goal goal;
+            // we can poll(), since we know all estimations have finished
+            while ((goal = goalQueue.poll()) != null) {
 
-            // store the subscriber
-            goalEstimationSubscribers.add(goalEstimationEventSubscriber);
+                // Register for incoming goal estimations
+                GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels.size());
+                EventBusService.register(goalEstimationSubscriber);
 
-            System.err.println("Offering goal: " + goal.getLabel());
-            EventBusService.post(new GoalOfferEvent(goal));
+                // offer the goal
+                System.err.println("Offering goal: " + goal.getLabel());
+                EventBusService.post(new GoalOfferEvent(goal));
+
+                // Get the goal estimations and assign goals
+                String bestAgent = goalEstimationSubscriber.getBestAgent();
+
+                System.err.println("Assigning goal " + goalEstimationSubscriber.getGoal().getLabel() + " to " + bestAgent);
+                EventBusService.post(new GoalAssignmentEvent(bestAgent, goalEstimationSubscriber.getGoal()));
+            }
         });
-
-        // Get the goal estimations and assign goals
-        for (GoalEstimationEventSubscriber subscriber : goalEstimationSubscribers) {
-            String bestAgent = subscriber.getBestAgent();
-
-            System.err.println("Assigning goal " + subscriber.getGoal().getLabel() + " to " + bestAgent);
-            EventBusService.post(new GoalAssignmentEvent(bestAgent, subscriber.getGoal()));
-        }
     }
 
     @Subscribe
