@@ -28,7 +28,7 @@
     The -l <level path> argument specifies the level to run the client on.
     
     The -g [<milliseconds>] argument enables the server's graphical interface.
-    The GUI will execute an action every <milliseconds> (default 150), though at least every 30 milliseconds.
+    The GUI will execute an concreteAction every <milliseconds> (default 150), though at least every 30 milliseconds.
     
     The -p argument starts the graphical interface in paused mode. Actions are executed after the GUI is unpaused.
     
@@ -57,12 +57,12 @@
         Linux/Mac: $ java -jar server.jar -l levels/MAsimple1.lvl -c "java searchclient.sampleclients.RandomWalkClient" > /dev/null
     Note that both messages from the client and important server messages (including success) both use 'standard error' for printing to console, hence they bypass this redirection.
     
-    To test the effect of actions you can try the user controlled client: 
+    To test the state of concreteActions you can try the user controlled client:
         Windows: $ java -jar server.jar -l levels/SAsokobanLevel96.lvl -c "java searchclient.sampleclients.GuiClient" -g 200
         Linux:   $ java -Dsun.java2d.opengl=true -jar server.jar -l levels/SAsokobanLevel96.lvl -c "java searchclient.sampleclients.GuiClient" -g 200
     
-    GuiClient works by creating a joint action of identical individual actions for each agent on the level; e.g. clicking Move(W) on a level with 3 agents sends [Move(W),Move(W),Move(W)].
-    For each argument passed to GuiClient, a custom text field is created with that joint action; e.g.:
+    GuiClient works by creating a joint concreteAction of identical individual concreteActions for each agent on the level; e.g. clicking Move(W) on a level with 3 agents sends [Move(W),Move(W),Move(W)].
+    For each argument passed to GuiClient, a custom text field is created with that joint concreteAction; e.g.:
         Windows: $ java -jar server.jar -l levels/MAsimple3.lvl -c "java searchclient.sampleclients.GuiClient [NoOp,Push(E,E)] [Push(E,E),Push(E,N)] [Push(E,E),Pull(W,N)] [Pull(W,E),NoOp]" -g 100
         Linux:   $ java -Dsun.java2d.opengl=true -jar server.jar -l levels/MAsimple3.lvl -c "java searchclient.sampleclients.GuiClient [NoOp,Push(E,E)] [Push(E,E),Push(E,N)] [Push(E,E),Pull(W,N)] [Pull(W,E),NoOp]" -g 100
     fills the custom commands upon startup.

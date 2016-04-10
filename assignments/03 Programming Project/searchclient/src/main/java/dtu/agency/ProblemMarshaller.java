@@ -5,6 +5,9 @@ import dtu.agency.board.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Collectors;
 
 public class ProblemMarshaller {
 
@@ -40,8 +43,11 @@ public class ProblemMarshaller {
         // TODO: Fix board size to match actual board size
         BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
         BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
-        Hashtable<String, Position> boardObjectPositions = new Hashtable<>();
-        PriorityQueue<Goal> goalQueue = new PriorityQueue<>(new GoalComparator());
+        ConcurrentHashMap<String, Position> boardObjectPositions = new ConcurrentHashMap<>();
+        List<PriorityBlockingQueue<Goal>> goalQueues = new ArrayList<>();
+        PriorityBlockingQueue<Goal> goalQueue = new PriorityBlockingQueue<>();
+        ConcurrentHashMap<String, List<Goal>> boxesGoals = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<Box>> goalsBoxes = new ConcurrentHashMap<>();
         List<Agent> agents = new ArrayList<>();
         List<Box> boxes = new ArrayList<>();
         List<Wall> walls = new ArrayList<>();
@@ -99,22 +105,48 @@ public class ProblemMarshaller {
                 else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
                     String label = String.valueOf(cell) + Integer.toString(goalCount);
-                    Goal goal = new Goal(label, row, column, DEFAULT_WEIGHT);
+                    Goal goal = new Goal(label, new Position(row, column), DEFAULT_WEIGHT);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.GOAL;
                     boardObjects[row][column] = goal;
                     goals.add(goal);
-                    goalQueue.add(goal);
+                    // add goal to queue
+                    goalQueue.offer(goal);
                     goalCount++;
                 }
+                else {
+                    boardState[row][column] = BoardCell.FREE_CELL;
+                }
             }
+        }
+
+        goalQueues.add(goalQueue);
+
+        // Assign box goals
+        for (Box box : boxes) {
+            List<Goal> boxGoals = goals.stream().filter(
+                    // If goal matches box
+                    goal -> goal.getLabel().startsWith(box.getLabel().substring(0, 1).toLowerCase())
+            ).collect(Collectors.toList());
+            boxesGoals.put(box.getLabel(), boxGoals);
+        }
+
+        // Assign goal boxes
+        for (Goal goal : goals) {
+            List<Box> goalBoxes = boxes.stream().filter(
+                    // If box matches goal
+                    box -> box.getLabel().startsWith(goal.getLabel().substring(0, 1).toUpperCase())
+            ).collect(Collectors.toList());
+            goalsBoxes.put(goal.getLabel(), goalBoxes);
         }
 
         return new Level(
                 boardState,
                 boardObjects,
                 boardObjectPositions,
-                goalQueue,
+                goalQueues,
+                boxesGoals,
+                goalsBoxes,
                 goals,
                 agents,
                 boxes,

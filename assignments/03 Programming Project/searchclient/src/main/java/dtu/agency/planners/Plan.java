@@ -1,7 +1,9 @@
 package dtu.agency.planners;
 
-import java.util.List;
+import dtu.agency.actions.Action;
 
-public interface Plan<T> {
-    List<T> getActions();
+import java.util.Collection;
+
+public interface Plan<T extends Action> {
+    Collection<? extends T> getActions();
 }
