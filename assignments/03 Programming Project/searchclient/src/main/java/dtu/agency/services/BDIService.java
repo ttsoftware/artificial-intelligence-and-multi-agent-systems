@@ -1,7 +1,10 @@
-package dtu.agency.agent.bdi;
+package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.agent.bdi.AgentBelief;
+import dtu.agency.agent.bdi.AgentDesire;
+import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.Agent;
 import dtu.agency.planners.htn.HTNPlanner;
 

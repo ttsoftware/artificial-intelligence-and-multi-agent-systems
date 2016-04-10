@@ -2,9 +2,6 @@ package dtu.agency.services;
 
 import java.util.Collections;
 
-/**
- * Created by koeus on 4/8/16.
- */
 public class DebugService {
     public static boolean inDebugMode = false;
     public static int currentIndentation = 0;

@@ -3,7 +3,7 @@ package dtu.agency.agent;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.abstractaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
-import dtu.agency.agent.bdi.BDIService;
+import dtu.agency.services.BDIService;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -14,7 +14,6 @@ import dtu.agency.planners.agentplanner.HLPlan;
 import dtu.agency.planners.agentplanner.HLPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
-import dtu.agency.services.DebugService;
 import dtu.agency.services.EventBusService;
 
 import java.util.Objects;
