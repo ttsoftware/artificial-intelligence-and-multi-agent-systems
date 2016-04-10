@@ -7,12 +7,11 @@ import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
-import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.services.EventBusService;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public class AgentThread implements Runnable {
 
@@ -59,7 +58,7 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
-        if (Objects.equals(event.getAgentLabel(), agent.getLabel())) {
+        if (event.getAgentLabel().equals(agent.getLabel())) {
             // We won the bid for this goal!
 
             System.err.println("I won the bid for: " + event.getGoal().getLabel());

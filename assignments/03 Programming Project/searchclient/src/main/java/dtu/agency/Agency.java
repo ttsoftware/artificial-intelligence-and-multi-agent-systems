@@ -56,7 +56,7 @@ public class Agency implements Runnable {
                 System.err.println("Offering goal: " + goal.getLabel());
                 EventBusService.post(new GoalOfferEvent(goal));
 
-                // Get the goal estimations and assign goals
+                // Get the goal estimations and assign goals (blocks)
                 String bestAgent = goalEstimationSubscriber.getBestAgent();
 
                 System.err.println("Assigning goal " + goalEstimationSubscriber.getGoal().getLabel() + " to " + bestAgent);

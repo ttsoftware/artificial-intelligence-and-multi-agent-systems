@@ -59,11 +59,11 @@ public class PlannerClient {
             }
         });
 
-        Agency agency = new Agency(level);
-        agency.run();
-
         Thread t = new Thread(PlannerClient::sendActions);
         t.start();
+
+        Agency agency = new Agency(level);
+        agency.run();
 
         // Join when problem has been solved
         t.join();
@@ -75,20 +75,23 @@ public class PlannerClient {
     public static void sendActions() {
 
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
+        SendServerActionsEvent sendActionsEvent = null;
 
         try {
-            SendServerActionsEvent sendActionsEvent;
-
-            // We take the next collection of plans from the queue
             // .take() will call Thread.wait() until an element (Stack) becomes available
-            while ((sendActionsEvent = sendServerActionsQueue.take()) != null) {
-                currentPlans.put(
-                        Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
-                        sendActionsEvent.getConcretePlan()
-                );
-            }
+            sendActionsEvent = sendServerActionsQueue.take();
         } catch (InterruptedException e) {
             e.printStackTrace(System.err);
+        }
+
+        // We take the next collection of plans from the queue
+        while (sendActionsEvent != null) {
+            currentPlans.put(
+                    Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
+                    sendActionsEvent.getConcretePlan()
+            );
+            // poll next element, without waiting
+            sendActionsEvent = sendServerActionsQueue.poll();
         }
 
         // we should now have emptied the queue
@@ -108,10 +111,16 @@ public class PlannerClient {
 
         // add plans back into the stack - they are now missing an action each
         currentPlans.forEach((agentNumber, concretePlan) -> {
-            sendServerActionsQueue.add(new SendServerActionsEvent(
-                    new Agent(Integer.toString(agentNumber)),
-                    concretePlan
-            ));
+            if (concretePlan.getActions().size() != 0) {
+                // Add plan if it has at least 1 move left
+                sendServerActionsQueue.add(new SendServerActionsEvent(
+                        new Agent(Integer.toString(agentNumber)),
+                        concretePlan
+                ));
+            }
+            else {
+                // TODO: Somehow notify Agency that an agent has finished it's plan
+            }
         });
 
         // TODO At some point we should stop this recursion. How do we know that the whole level is solved?
