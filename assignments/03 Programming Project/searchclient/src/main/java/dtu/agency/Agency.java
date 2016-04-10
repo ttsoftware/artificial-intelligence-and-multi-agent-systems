@@ -2,7 +2,6 @@ package dtu.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.actions.ConcreteAction;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
@@ -17,12 +16,8 @@ import dtu.agency.services.LevelService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Agency implements Runnable {
-
-    private ConcurrentHashMap<String, Stack<ConcreteAction>> agentActions = new ConcurrentHashMap<>();
 
     public Agency(Level level) {
         LevelService.getInstance().setLevel(level);
@@ -76,9 +71,7 @@ public class Agency implements Runnable {
 
         System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
-        agentActions.put(event.getAgent().getLabel(), event.getPlan().getActions());
-
-        EventBusService.post(new SendServerActionsEvent(event.getPlan().getActions()));
+        EventBusService.post(new SendServerActionsEvent(event.getAgent(), event.getPlan()));
     }
 
     @Subscribe
