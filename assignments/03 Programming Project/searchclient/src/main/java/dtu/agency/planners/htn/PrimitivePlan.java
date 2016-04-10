@@ -2,6 +2,7 @@ package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.planners.ConcretePlan;
+import sun.awt.image.ImageWatched;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,6 +27,10 @@ public class PrimitivePlan implements ConcretePlan {
         return actions;
     }
 
+    public LinkedList<ConcreteAction> getActionList() {
+        return concreteActions;
+    }
+
     public void pushAction( ConcreteAction action) {
         concreteActions.addFirst(action);
     }
@@ -39,5 +44,9 @@ public class PrimitivePlan implements ConcretePlan {
     @Override
     public String toString() {
         return "PrimitivePlan:"+ getActions().toString();
+    }
+
+    public void appendActions(PrimitivePlan other) {
+        concreteActions.addAll(other.getActionList());
     }
 }

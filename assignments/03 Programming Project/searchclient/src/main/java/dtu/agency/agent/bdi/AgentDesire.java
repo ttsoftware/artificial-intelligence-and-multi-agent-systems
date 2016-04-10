@@ -1,42 +1,33 @@
 package dtu.agency.agent.bdi;
 
 import dtu.agency.actions.abstractaction.HLAction;
-import dtu.agency.planners.agentplanner.AgentPlan;
 import dtu.agency.planners.htn.PrimitivePlan;
 
-import java.util.LinkedList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class AgentDesire { // everything the agent might want to achieve
-    private LinkedList<AgentPlan> desires;
-    private int size;
-
-    public AgentDesire() {
-        desires = new LinkedList<>();
-        size = 0;
-    }
-
-    public AgentPlan getNextDesire() {
-        return desires.pollFirst();
-    }
-    public AgentPlan peekNextDesire() {
-        return desires.peekFirst();
-    }
-
-    public void add(HLAction action, PrimitivePlan plan) {
-        if (plan!=null) {
-            desires.add( new AgentPlan(action, plan) );
-            size += plan.size();
+    class PPComparator implements Comparator<PrimitivePlan> {
+        @Override
+        public int compare(PrimitivePlan o1, PrimitivePlan o2) {
+            return o2.size() - o1.size();
         }
     }
+    private HLAction intention;
+    private PriorityQueue<PrimitivePlan> desires;
 
-    public void add(AgentPlan agentPlan) {
-        if (agentPlan!=null) {
-            desires.add( agentPlan );
-            size += agentPlan.getPlan().size();
-        }
+    public AgentDesire(HLAction intention) {
+        this.intention = intention;
+        desires = new PriorityQueue<>(new PPComparator());
     }
 
-    public int getSize() {
-        return size;
+    public PrimitivePlan getNextDesire() {
+        return desires.poll();
+    }
+
+    public void add(PrimitivePlan plan) {
+        if (plan !=null) {
+            desires.add(plan);
+        }
     }
 }

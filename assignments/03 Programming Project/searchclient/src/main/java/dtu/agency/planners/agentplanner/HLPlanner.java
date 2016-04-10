@@ -1,6 +1,5 @@
 package dtu.agency.planners.agentplanner;
 
-
 import dtu.agency.agent.bdi.AgentBelief;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
@@ -9,14 +8,14 @@ import dtu.agency.planners.htn.PrimitivePlan;
  * This Planner uses the Hierarchical Task Network heuristic to subdivide
  * high level tasks all the way into sequences of primitive actions
  */
-public class AgentPlanner  {
+public class HLPlanner {
 
     AgentBelief beliefs;      // location of agent and boxes
     PlanDesire desires;       // what the agent would desire to do next in the planning phase
     PlanIntention intentions; // the hierarchy of intentions build from the original SolveGoalAction.
     HTNPlanner htnPlanner;
 
-    public AgentPlanner(AgentBelief belief, HTNPlanner htnPlanner ) {
+    public HLPlanner(AgentBelief belief, HTNPlanner htnPlanner ) {
         beliefs = belief;
         this.htnPlanner = htnPlanner;
         intentions = new PlanIntention( htnPlanner.getIntention() );
@@ -24,9 +23,17 @@ public class AgentPlanner  {
         desires = new PlanDesire();
     }
 
-    public PrimitivePlan plan() {
+    public PrimitivePlan llPlan() {
+        // return a low level plan of concrete actions, if one exist
         return htnPlanner.plan();
     }
+
+    public HLPlan plan() {
+        // change this to return an ordered list of HLActions, which if  performed in this order
+        // will solve the problem in topLevelIntention
+        return new HLPlan( intentions.getTopLevelIntention() );
+    }
+
 
 
 /*

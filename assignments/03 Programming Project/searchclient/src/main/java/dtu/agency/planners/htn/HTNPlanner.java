@@ -1,6 +1,7 @@
 package dtu.agency.planners.htn;
 
 import dtu.Main;
+import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.*;
 import dtu.agency.actions.abstractaction.HLAction;

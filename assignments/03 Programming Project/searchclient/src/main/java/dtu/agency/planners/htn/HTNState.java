@@ -381,7 +381,7 @@ public class HTNState {
         final int prime = 31;
         int result = 1;
         result = prime * result + agentPosition.hashCode();
-        result = prime * result + boxPosition.hashCode();
+        result = prime * result + ((boxPosition!=null) ? boxPosition.hashCode() : 0);
         return result;
     }
 

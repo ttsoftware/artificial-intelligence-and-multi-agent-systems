@@ -3,11 +3,14 @@ package dtu.agency.planners.htn;
 import dtu.Main;
 import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.services.DebugService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,6 +144,16 @@ public class HTNNode {
     private HTNNode childNode(ConcreteAction primitiveConcreteAction, MixedPlan remainingActions) {
         HTNState oldState = this.getState();
         HTNState newState = (primitiveConcreteAction ==null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
+        if (newState.getBoxPosition()==null) {
+            HLAction nextHLA = (HLAction) remainingActions.getFirst();
+            if (nextHLA.getType()== AbstractActionType.SolveGoal) {
+                SolveGoalAction sga = (SolveGoalAction) nextHLA;
+                newState = new HTNState(
+                        newState.getAgentPosition(),
+                        GlobalLevelService.getInstance().getPosition(sga.getBox())
+                );
+            }
+        }
         primitiveConcreteAction = (primitiveConcreteAction ==null) ? new NoConcreteAction() : primitiveConcreteAction;
         //System.err.println("RemActions: " + remainingActions.toString());
         return new HTNNode(this, primitiveConcreteAction, newState, remainingActions);
