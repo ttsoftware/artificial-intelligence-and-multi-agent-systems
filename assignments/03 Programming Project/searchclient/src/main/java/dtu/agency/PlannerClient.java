@@ -2,6 +2,7 @@ package dtu.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
@@ -65,13 +66,13 @@ public class PlannerClient {
         t.start();
 
         // Join when problem has been solved
-        // t.join();
+        t.join();
     }
 
     /**
      * Interact with the server. Pop the next stack of actions.
      */
-    private static void sendActions() {
+    public static void sendActions() {
 
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
 
@@ -93,26 +94,33 @@ public class PlannerClient {
         // we should now have emptied the queue
         assert sendServerActionsQueue.size() == 0;
 
-        // take one action from each plan and combine them
-        StringJoiner toServerBuilder = new StringJoiner(",", "[", "]");
+        int firstPlanActionCount = currentPlans.get(0).getActions().size();
 
-        // Java 8 is awesome
-        IntStream.range(0, numberOfAgents - 1).forEach(i -> {
-            ConcretePlan agentPlan = currentPlans.get(i);
-            if (agentPlan != null) {
-                // append the action
-                toServerBuilder.add(agentPlan.getActions().pop().toString());
-                // update the plan map with the now -1 action plan
-                currentPlans.put(i, agentPlan);
-            } else {
-                // we must add a NoOp for this agent at this time
-                toServerBuilder.add(new NoConcreteAction().toString());
-            }
+        HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
+        // pop the next action from each plan
+        currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.getActions().pop()));
+
+        // send actions to server
+        send(buildActionSet(agentsActions));
+
+        // we should be missing an action in the plan
+        assert currentPlans.get(0).getActions().size() == firstPlanActionCount - 1;
+
+        // add plans back into the stack - they are now missing an action each
+        currentPlans.forEach((agentNumber, concretePlan) -> {
+            sendServerActionsQueue.add(new SendServerActionsEvent(
+                    new Agent(Integer.toString(agentNumber)),
+                    concretePlan
+            ));
         });
 
-        String toServer = toServerBuilder.toString();
+        // TODO At some point we should stop this recursion. How do we know that the whole level is solved?
 
-        // TODO: send the combined actions to server
+        // Send the next set of actions
+        sendActions();
+    }
+
+    public static void send(String toServer) {
         System.err.println("Trying: " + toServer);
         System.out.println(toServer);
 
@@ -129,18 +137,28 @@ public class PlannerClient {
         if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
         }
+    }
 
-        // add plans back into the stack - they are now missing an action each
-        currentPlans.forEach((agentNumber, concretePlan) -> {
-            sendServerActionsQueue.add(new SendServerActionsEvent(
-                    new Agent(Integer.toString(agentNumber)),
-                    concretePlan
-            ));
+    public static String buildActionSet(HashMap<Integer, ConcreteAction> agentsPlans) {
+        return buildActionSet(agentsPlans, numberOfAgents);
+    }
+
+    public static String buildActionSet(HashMap<Integer, ConcreteAction> agentsActions, int numberOfAgents) {
+        // take one action from each plan and combine them
+        StringJoiner toServerBuilder = new StringJoiner(",", "[", "]");
+
+        // Java 8 is awesome
+        IntStream.range(0, numberOfAgents).forEach(i -> {
+            ConcreteAction agentAction = agentsActions.get(i);
+            if (agentAction != null) {
+                // append the action
+                toServerBuilder.add(agentAction.toString());
+            } else {
+                // we must add a NoOp for this agent at this time
+                toServerBuilder.add(new NoConcreteAction().toString());
+            }
         });
 
-        // TODO At some point we should stop this recursion
-
-        // Send the next set of actions
-        sendActions();
+        return toServerBuilder.toString();
     }
 }
