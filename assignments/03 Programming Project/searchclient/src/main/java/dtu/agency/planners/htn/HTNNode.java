@@ -27,7 +27,7 @@ public class HTNNode {
     private HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
     private MixedPlan remainingPlan;         // list of successive (abstract) actions
     private int generation;                  // generation - how many ancestors exist? -> how many moves have i performed
-//    private RelaxationType r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
+//    private RelaxationMode r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
 
     public HTNNode(HTNNode parent, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;
@@ -159,7 +159,8 @@ public class HTNNode {
                 SolveGoalAction sga = (SolveGoalAction) nextHLA;
                 newState = new HTNState(
                         newState.getAgentPosition(),
-                        GlobalLevelService.getInstance().getPosition(sga.getBox())
+                        GlobalLevelService.getInstance().getPosition(sga.getBox()), // TODO: GlobalLevelService
+                        oldState.getRelaxationMode()
                 );
             }
         }

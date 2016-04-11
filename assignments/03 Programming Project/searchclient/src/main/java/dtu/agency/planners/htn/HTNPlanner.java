@@ -29,7 +29,7 @@ public class HTNPlanner {
     /**
     * Constructor: All a planner needs is the the agent and the action to perform
     * */
-    public HTNPlanner(Agent agent, HLAction action) {
+    public HTNPlanner(Agent agent, HLAction action, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
         this.agent = agent;
         this.action = action;
@@ -39,12 +39,15 @@ public class HTNPlanner {
         if (action.getBox()!=null) {
             boxPosition = GlobalLevelService.getInstance().getPosition(action.getBox());
         }
-
-        HTNState initialState = new HTNState( agentPosition, boxPosition );
+        HTNState initialState = new HTNState( agentPosition, boxPosition, mode );
         debug("initial" + initialState.toString());
         debug( ((action==null) ? "HLAction is null" : action.toString())  );
         this.initialNode = new HTNNode(initialState, action);
         debug(initialNode.toString(),-2);
+    }
+
+    public void setRelaxationMode(RelaxationMode mode) {
+        initialNode.getState().setRelaxationMode(mode);
     }
 
     /**

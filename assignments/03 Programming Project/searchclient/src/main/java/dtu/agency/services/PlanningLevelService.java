@@ -32,7 +32,7 @@ public class PlanningLevelService implements Serializable {
         return level;
     }
 
-    public void updateLevel() {
+    private void updateLevel() {
         this.level = GlobalLevelService.getInstance().getLevel();
     }
 }

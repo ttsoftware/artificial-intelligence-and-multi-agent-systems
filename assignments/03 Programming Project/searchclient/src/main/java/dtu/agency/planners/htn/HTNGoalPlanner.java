@@ -21,7 +21,7 @@ public class HTNGoalPlanner extends HTNPlanner {
      * Constructor: All a planner needs is the next goal and the agent solving it...
      */
     public HTNGoalPlanner(Agent agent, Goal target) {
-        super(agent, new SolveGoalSuperAction(target));
+        super(agent, new SolveGoalSuperAction(target), RelaxationMode.NoAgentsNoBoxes);
         debug("HTNGoalPlanner initializing.",2);
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
         this.initialNode = allInitialNodes.peek();
@@ -43,7 +43,8 @@ public class HTNGoalPlanner extends HTNPlanner {
                         // TODO: agent intentional destination!! :-)
                         GlobalLevelService.getInstance().getPosition(this.agent),
                         // TODO: agents believed position of box :-)
-                        GlobalLevelService.getInstance().getPosition(box)
+                        GlobalLevelService.getInstance().getPosition(box),
+                        RelaxationMode.NoAgentsNoBoxes
                 );
                 HLAction initialAction = new SolveGoalAction(box, target);
                 allNodes.offer(new HTNNode(initialState, initialAction));
@@ -51,6 +52,14 @@ public class HTNGoalPlanner extends HTNPlanner {
         }
         debug("Nodes created: \n" + String.join("\n", allNodes.toString()) , -2);
         return allNodes;
+    }
+
+    @Override
+    public void setRelaxationMode(RelaxationMode mode) {
+        super.setRelaxationMode(mode);
+        for (HTNNode node : allInitialNodes) {
+            node.getState().setRelaxationMode(mode);
+        }
     }
 
     /**

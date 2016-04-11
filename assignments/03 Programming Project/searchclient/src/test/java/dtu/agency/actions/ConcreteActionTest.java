@@ -11,6 +11,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +32,7 @@ public class ConcreteActionTest {
     private static Direction n, s, e, w;
     private static Box box;
     private static Level level;
+    private static RelaxationMode mode = RelaxationMode.None;
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -63,43 +65,43 @@ public class ConcreteActionTest {
         psw = new Position(3,1);
 
         // states where no box is present
-        noc = new HTNState(pc,z);
-        non = new HTNState(pn,z);
-        nos = new HTNState(ps,z);
-        noe = new HTNState(pe,z);
-        now = new HTNState(pw,z);
+        noc = new HTNState(pc,z, mode);
+        non = new HTNState(pn,z, mode);
+        nos = new HTNState(ps,z, mode);
+        noe = new HTNState(pe,z, mode);
+        now = new HTNState(pw,z, mode);
 
         // states where box is neighbour to agent
-        acbn = new HTNState(pc, pn);
-        acbs = new HTNState(pc, ps);
-        acbe = new HTNState(pc, pe);
-        acbw = new HTNState(pc, pw);
-        anbc = new HTNState(pn, pc);
-        asbc = new HTNState(ps, pc);
-        aebc = new HTNState(pe, pc);
-        awbc = new HTNState(pw, pc);
+        acbn = new HTNState(pc, pn, mode);
+        acbs = new HTNState(pc, ps, mode);
+        acbe = new HTNState(pc, pe, mode);
+        acbw = new HTNState(pc, pw, mode);
+        anbc = new HTNState(pn, pc, mode);
+        asbc = new HTNState(ps, pc, mode);
+        aebc = new HTNState(pe, pc, mode);
+        awbc = new HTNState(pw, pc, mode);
 
         // states where box is NOT neighbour to agent
-        acbne = new HTNState(pc, pne);
-        acbnw = new HTNState(pc, pnw);
-        acbse = new HTNState(pc, pse);
-        acbsw = new HTNState(pc, psw);
+        acbne = new HTNState(pc, pne, mode);
+        acbnw = new HTNState(pc, pnw, mode);
+        acbse = new HTNState(pc, pse, mode);
+        acbsw = new HTNState(pc, psw, mode);
 
         // other states
-        anbne = new HTNState(pn, pne);
-        anbnw = new HTNState(pn, pnw);
-        aebne = new HTNState(pe, pne);
-        aebse = new HTNState(pe, pse);
-        asbse = new HTNState(ps, pse);
-        asbsw = new HTNState(ps, psw);
-        awbnw = new HTNState(pw, pnw);
-        awbsw = new HTNState(pw, psw);
+        anbne = new HTNState(pn, pne, mode);
+        anbnw = new HTNState(pn, pnw, mode);
+        aebne = new HTNState(pe, pne, mode);
+        aebse = new HTNState(pe, pse, mode);
+        asbse = new HTNState(ps, pse, mode);
+        asbsw = new HTNState(ps, psw, mode);
+        awbnw = new HTNState(pw, pnw, mode);
+        awbsw = new HTNState(pw, psw, mode);
 
 
-        aswbs = new HTNState(psw, ps);
-        aswbw = new HTNState(psw, pw);
-        anebn = new HTNState(pne, pn);
-        anebe = new HTNState(pne, pe);
+        aswbs = new HTNState(psw, ps, mode);
+        aswbw = new HTNState(psw, pw, mode);
+        anebn = new HTNState(pne, pn, mode);
+        anebe = new HTNState(pne, pe, mode);
 
         box = new Box("A");
 

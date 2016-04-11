@@ -1,8 +1,9 @@
 package dtu.agency.planners.agentplanner;
 
-import dtu.agency.agent.bdi.AgentBelief;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
+import dtu.agency.planners.htn.RelaxationMode;
+import dtu.agency.services.PlanningLevelService;
 
 /**
  * This Planner uses the Hierarchical Task Network heuristic to subdivide
@@ -10,13 +11,13 @@ import dtu.agency.planners.htn.PrimitivePlan;
  */
 public class HLPlanner {
 
-    AgentBelief beliefs;      // location of agent and boxes
-    PlanDesire desires;       // what the agent would desire to do next in the planning phase
-    PlanIntention intentions; // the hierarchy of intentions build from the original SolveGoalAction.
+    private PlanningLevelService pls; // location of agent and boxes
+    private PlanDesire desires;               // what the agent would desire to do next in the planning phase
+    PlanIntention intentions;         // the hierarchy of intentions build from the original SolveGoalAction.
     HTNPlanner htnPlanner;
 
-    public HLPlanner(AgentBelief belief, HTNPlanner htnPlanner ) {
-        beliefs = belief;
+    public HLPlanner( HTNPlanner htnPlanner ) {
+        pls = new PlanningLevelService(htnPlanner.getIntention().getBox());
         this.htnPlanner = htnPlanner;
         intentions = new PlanIntention( htnPlanner.getIntention() );
         intentions.setCurrentIntention( htnPlanner.getIntention() );
@@ -25,6 +26,7 @@ public class HLPlanner {
 
     public PrimitivePlan llPlan() {
         // return a low level plan of concrete actions, if one exist
+        htnPlanner.setRelaxationMode(RelaxationMode.None);
         return htnPlanner.plan();
     }
 
@@ -33,15 +35,5 @@ public class HLPlanner {
         // will solve the problem in topLevelIntention
         return new HLPlan( intentions.getTopLevelIntention() );
     }
-
-
-
-/*
-    // check that the plan in its entirety is 'sound', that is that all cells in the path is free
-    if (!planIsSound(plan, intention)) {
-        ; // replan! or extend plan until it is
-        // or send distress communication and ask for help/forgiveness/permission to commit suicide/whatever
-    }
-*/
 
 }

@@ -2,8 +2,8 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.planners.htn.HTNGoalPlanner;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.BDIService;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
@@ -28,7 +28,7 @@ public class AgentThread implements Runnable {
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        bdi = new BDIService(agent);
+        bdi = new BDIService(agent); // ThreadLocal!!!
     }
 
     @Override
@@ -75,8 +75,8 @@ public class AgentThread implements Runnable {
             bdi.appendIntention(htnPlanner.getIntention());
 
             // tools for enable/disable debug printing mode
-            boolean oldDebugMode = DebugService.setDebugMode(true); // DEBUGGING ON
-            DebugService.setDebugMode(oldDebugMode);                // DEBUGGING OFF
+//            boolean oldDebugMode = DebugService.setDebugMode(true); // DEBUGGING ON
+//            DebugService.setDebugMode(oldDebugMode);                // DEBUGGING OFF
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
@@ -85,7 +85,7 @@ public class AgentThread implements Runnable {
 
             // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires
-            HLPlanner planner = new HLPlanner(bdi.getState(), htnPlanner);
+            HLPlanner planner = new HLPlanner(htnPlanner);
             HLPlan hlPlan = planner.plan();
             if (hlPlan!=null) {
                 System.err.println("Agent " +agent.getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
@@ -102,8 +102,13 @@ public class AgentThread implements Runnable {
                 llPlan = new PrimitivePlan();
                 while (!hlPlan.isEmpty()) {
                     action = hlPlan.poll();
-                    htnPlanner = new HTNPlanner(agent, action);
+                    htnPlanner = new HTNPlanner(agent, action, RelaxationMode.NoAgentsNoBoxes);
+                    // TODO: NEED a correct implementation using PlanningLevelService
+                    // TODO: replacing GlobalLevelService.
+                    htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
+//                    boolean oldDebugMode = DebugService.setDebugMode(true);
                     PrimitivePlan plan = htnPlanner.plan();
+//                    DebugService.setDebugMode(oldDebugMode);
                     llPlan.appendActions(plan);
                 }
             }
@@ -111,8 +116,6 @@ public class AgentThread implements Runnable {
 
             // store the resulting plans and states in bdiservice after planning..
 
-//            boolean oldDebugMode = DebugService.setDebugMode(true);
-//            DebugService.setDebugMode(oldDebugMode);
 
             System.err.println("Agent " +agent.getLabel()+ ": Using Concrete Plan: " + llPlan.toString());
             // are we gonna submit the entire primitivePlan to the agency at once??
