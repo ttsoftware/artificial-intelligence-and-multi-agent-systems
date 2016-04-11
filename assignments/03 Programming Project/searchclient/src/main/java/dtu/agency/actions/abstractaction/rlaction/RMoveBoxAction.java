@@ -15,7 +15,6 @@ public class RMoveBoxAction extends RLAction {
     }
 
     public RMoveBoxAction(RMoveBoxAction other) {
-        super();
         this.box = new Box(other.getBox());
         this.boxDestination = new Position(other.getDestination());
     }

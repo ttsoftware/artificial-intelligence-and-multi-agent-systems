@@ -21,7 +21,6 @@ public class SolveGoalAction extends HLAction implements Serializable {
     }
 
     public SolveGoalAction(SolveGoalAction other) {
-        super();
         this.box = new Box(other.getBox());
         this.goal = new Goal(other.getGoal());
     }

@@ -13,7 +13,6 @@ public class RGotoAction extends RLAction {
     }
 
     public RGotoAction(RGotoAction other) {
-        super();
         agentDestination = new Position(other.getDestination());
     }
 

@@ -30,50 +30,7 @@ public class HTNPlanner {
         this.agent = new Agent(other.agent);
         this.initialNode = new HTNNode(other.getInitialNode());
         this.aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
-        HLAction hlAction = other.action;
-        if (action==null) {
-            this.action = null;
-        } else {
-            switch (hlAction.getType()) {
-                case SolveGoal:
-                    SolveGoalAction sga = (SolveGoalAction) hlAction;
-                    this.action = new SolveGoalAction(sga);
-                    break;
-
-                case Circumvent:
-                    CircumventBoxAction cba = (CircumventBoxAction) hlAction;
-                    this.action = new CircumventBoxAction(cba);
-                    break;
-
-                case RGotoAction:
-                    RGotoAction gta = (RGotoAction) hlAction;
-                    this.action = new RGotoAction(gta);
-                    break;
-
-                case MoveBoxAction:
-                    RMoveBoxAction rmba = (RMoveBoxAction) hlAction;
-                    this.action = new RMoveBoxAction(rmba);
-                    break;
-
-                case SolveGoalSuper:
-                    SolveGoalSuperAction sgs = (SolveGoalSuperAction) hlAction;
-                    this.action = new SolveGoalSuperAction(sgs);
-                    break;
-
-                case No:
-                    NoAction na = (NoAction) hlAction;
-                    this.action = new NoAction(na);
-                    break;
-
-                case MoveBoxAndReturn:
-                    HMoveBoxAction hmba = (HMoveBoxAction) hlAction;
-                    this.action = new HMoveBoxAction(hmba);
-                    break;
-
-                default:
-                    this.action = null;
-            }
-        }
+        this.action = other.getAction();
     }
         /**
         * Constructor: All a planner needs is the the agent and the action to perform
@@ -96,7 +53,7 @@ public class HTNPlanner {
     }
 
     public HTNNode getInitialNode() {
-        return initialNode;
+        return new HTNNode(initialNode);
     }
 
     public RelaxationMode getRelaxationMode() {
@@ -111,7 +68,7 @@ public class HTNPlanner {
      * Returns the intention to be solved by this planner
      */
     public HLAction getIntention() {
-        return action;
+        return getAction();
     }
 
     /**
@@ -182,7 +139,7 @@ public class HTNPlanner {
                 debug("Effect already explored, but NoActions, so still interesting!");
             }
 
-            if (leafNode.getState().isPurposeFulfilled(action)) {
+            if (leafNode.getState().isPurposeFulfilled( getAction() )) {
                 debug(strategy.status(), -2);
                 return leafNode.extractPlan();
             }
@@ -199,5 +156,49 @@ public class HTNPlanner {
             iterations++;
         }
     }
+
+    @Override
+    public String toString(){
+        String s = "HTNPlanner of agent " +this.agent.toString();
+        s += " performing " + ((this.action!=null) ? this.action.toString() : "null!");
+        s += " with the next node \n" + this.initialNode.toString();
+        return s;
+    }
+
+    public HLAction getAction() {
+        switch (action.getType()) {
+            case SolveGoal:
+                SolveGoalAction sga = (SolveGoalAction) action;
+                return new SolveGoalAction(sga);
+
+            case Circumvent:
+                CircumventBoxAction cba = (CircumventBoxAction) action;
+                return new CircumventBoxAction(cba);
+
+            case RGotoAction:
+                RGotoAction gta = (RGotoAction) action;
+                return new RGotoAction(gta);
+
+            case MoveBoxAction:
+                RMoveBoxAction rmba = (RMoveBoxAction) action;
+                return new RMoveBoxAction(rmba);
+
+            case SolveGoalSuper:
+                SolveGoalSuperAction sgs = (SolveGoalSuperAction) action;
+                return new SolveGoalSuperAction(sgs);
+
+            case No:
+                NoAction na = (NoAction) action;
+                return new NoAction(na);
+
+            case MoveBoxAndReturn:
+                HMoveBoxAction hmba = (HMoveBoxAction) action;
+                return new HMoveBoxAction(hmba);
+
+            default:
+                return null;
+        }
+    }
+
 }
 

@@ -35,37 +35,37 @@ public class HTNNode {
     public HTNNode(HTNNode other){
         this.parent = other.parent;
         this.generation = other.getGeneration();
-
-        ConcreteAction action = other.getConcreteAction();
-        if (action==null) {
-            this.concreteAction = null;
-        } else {
-            switch (action.getType()) {
-
-                case MOVE:
-                    MoveConcreteAction move = (MoveConcreteAction) action;
-                    this.concreteAction = new MoveConcreteAction(move);
-                    break;
-
-                case PUSH:
-                    PushConcreteAction push = (PushConcreteAction) action;
-                    this.concreteAction = new PushConcreteAction(push);
-                    break;
-
-                case PULL:
-                    PullConcreteAction pull = (PullConcreteAction) action;
-                    this.concreteAction = new PullConcreteAction(pull);
-                    break;
-
-                case NONE:
-                    NoConcreteAction no = (NoConcreteAction) action;
-                    this.concreteAction = new NoConcreteAction(no);
-                    break;
-
-                default:
-                    this.concreteAction = null;
-            }
-        }
+        this.concreteAction = other.getConcreteAction();
+//        ConcreteAction action = other.getConcreteAction();
+//        if (action==null) {
+//            this.concreteAction = null;
+//        } else {
+//            switch (action.getType()) {
+//
+//                case MOVE:
+//                    MoveConcreteAction move = (MoveConcreteAction) action;
+//                    this.concreteAction = new MoveConcreteAction(move);
+//                    break;
+//
+//                case PUSH:
+//                    PushConcreteAction push = (PushConcreteAction) action;
+//                    this.concreteAction = new PushConcreteAction(push);
+//                    break;
+//
+//                case PULL:
+//                    PullConcreteAction pull = (PullConcreteAction) action;
+//                    this.concreteAction = new PullConcreteAction(pull);
+//                    break;
+//
+//                case NONE:
+//                    NoConcreteAction no = (NoConcreteAction) action;
+//                    this.concreteAction = new NoConcreteAction(no);
+//                    break;
+//
+//                default:
+//                    this.concreteAction = null;
+//            }
+//        }
         this.state = new HTNState(other.getState());
         this.remainingPlan = new MixedPlan(other.remainingPlan);
     }
@@ -123,7 +123,31 @@ public class HTNNode {
     }
 
     public ConcreteAction getConcreteAction() {
-        return concreteAction;
+        if (this.concreteAction==null) {
+             return null;
+        } else {
+            switch (this.concreteAction.getType()) {
+
+                case MOVE:
+                    MoveConcreteAction move = (MoveConcreteAction) concreteAction;
+                    return new MoveConcreteAction(move);
+
+                case PUSH:
+                    PushConcreteAction push = (PushConcreteAction) concreteAction;
+                    return new PushConcreteAction(push);
+
+                case PULL:
+                    PullConcreteAction pull = (PullConcreteAction) concreteAction;
+                    return new PullConcreteAction(pull);
+
+                case NONE:
+                    NoConcreteAction no = (NoConcreteAction) concreteAction;
+                    return new NoConcreteAction(no);
+
+                default:
+                    return null;
+            }
+        }
     }
 
     public HTNState getState() {

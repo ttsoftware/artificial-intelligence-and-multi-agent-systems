@@ -23,7 +23,6 @@ public class CircumventBoxAction extends HLAction implements Serializable {
     }
 
     public CircumventBoxAction(CircumventBoxAction other) {
-        super();
         this.box = new Box(other.getBox());
         this.agentDestination = new Position(other.getAgentDestination());
     }

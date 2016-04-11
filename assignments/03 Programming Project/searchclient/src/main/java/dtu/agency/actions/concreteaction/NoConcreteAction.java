@@ -5,11 +5,9 @@ import dtu.agency.actions.ConcreteAction;
 public class NoConcreteAction extends ConcreteAction {
 
     public NoConcreteAction() {
-
     }
 
     public NoConcreteAction(NoConcreteAction no) {
-        super();
     }
 
     @Override

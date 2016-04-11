@@ -21,7 +21,6 @@ public class NoAction extends HLAction implements Serializable {
     }
 
     public NoAction(NoAction other) {
-        super();
         this.agentDestination = new Position(other.getDestination());
     }
 

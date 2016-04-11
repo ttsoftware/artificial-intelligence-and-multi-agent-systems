@@ -20,7 +20,6 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
     }
 
     public SolveGoalSuperAction(SolveGoalSuperAction other) {
-        super();
         this.goal = new Goal(other.getGoal());
     }
 

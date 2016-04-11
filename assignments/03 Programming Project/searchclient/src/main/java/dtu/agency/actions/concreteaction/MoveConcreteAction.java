@@ -22,10 +22,9 @@ public class MoveConcreteAction extends ConcreteAction {
     }
 
     public MoveConcreteAction(MoveConcreteAction other) {
-        super();
-        this.agent = new Agent(other.getAgent());
+        this.agent = (other.getAgent()!=null) ? new Agent(other.getAgent()) : null;
         this.direction = other.getDirection();
-        this.agentPosition = new Position(other.getAgentPosition());
+        this.agentPosition = (other.getAgentPosition()!=null) ? new Position(other.getAgentPosition()) : null;
         this.heuristicValue = other.getHeuristicValue();
     }
 

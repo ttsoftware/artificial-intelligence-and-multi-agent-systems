@@ -5,7 +5,7 @@ public class Agent extends BoardObject {
         super(label);
     }
 
-    public Agent(Agent agent) {
-        super(agent.getLabel());
+    public Agent(Agent other) {
+        super(other.getLabel());
     }
 }

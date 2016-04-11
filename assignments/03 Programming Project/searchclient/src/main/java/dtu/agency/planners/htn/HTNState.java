@@ -421,12 +421,13 @@ public class HTNState {
 
         switch (action.getType()) {
             case SolveGoal:
-                SolveGoalAction sga = (SolveGoalAction) action;
+                SolveGoalAction sga = new SolveGoalAction((SolveGoalAction) action);
                 fulfilled = this.getBoxPosition().equals(sga.getGoal().getPosition());
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at goal location");
                 break;
 
             case Circumvent:
+                CircumventBoxAction cba = new CircumventBoxAction((CircumventBoxAction) action);
                 fulfilled  = this.getAgentPosition().equals( action.getDestination() );
                 fulfilled &= this.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(action.getBox()) ); // TODO: PlannerLevelService
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
@@ -443,7 +444,7 @@ public class HTNState {
                 break;
 
             case SolveGoalSuper:
-                SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
+                SolveGoalSuperAction sgsa = new SolveGoalSuperAction((SolveGoalSuperAction) action);
                 fulfilled = (this.getBoxPosition()!=null) ? this.getBoxPosition().equals(sgsa.getGoal().getPosition()): false;
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
@@ -453,7 +454,7 @@ public class HTNState {
                 break;
 
             case MoveBoxAndReturn:
-                HMoveBoxAction mbarAction = (HMoveBoxAction) action;
+                HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) action);
                 fulfilled  = this.getAgentPosition().equals( mbarAction.getAgentDestination() );
                 fulfilled &= this.getBoxPosition().equals( mbarAction.getBoxDestination() );
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
