@@ -3,7 +3,7 @@ package dtu.agency.actions.abstractaction;
 public enum AbstractActionType {
     SolveGoal,
     Circumvent,
-    GotoAction,
+    RGotoAction,
     MoveBoxAction,
     SolveGoalSuper, No, MoveBoxAndReturn
 }

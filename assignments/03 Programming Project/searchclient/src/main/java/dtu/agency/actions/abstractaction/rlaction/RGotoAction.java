@@ -12,9 +12,14 @@ public class RGotoAction extends RLAction {
         this.agentDestination = agentDestination;
     }
 
+    public RGotoAction(RGotoAction other) {
+        super();
+        agentDestination = new Position(other.getDestination());
+    }
+
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.GotoAction;
+        return AbstractActionType.RGotoAction;
     }
 
     @Override

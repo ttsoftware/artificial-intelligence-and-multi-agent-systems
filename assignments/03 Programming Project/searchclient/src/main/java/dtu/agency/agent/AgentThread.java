@@ -67,7 +67,7 @@ public class AgentThread implements Runnable {
             System.err.println(agent.getLabel()+": I won the bidding for: " + event.getGoal().getLabel());
 
             // Find the HTNPlanner used to bid for this goal
-            HTNPlanner htnPlanner = bdi.getBids().get(event.getGoal().getLabel());
+            HTNPlanner htnPlanner = new HTNPlanner(bdi.getBids().get(event.getGoal().getLabel()));
             // update the intention of this agent (by appending it)
             bdi.appendIntention(htnPlanner.getIntention());
 

@@ -222,7 +222,7 @@ public class HTNState {
                     refinements.add(circRefinement);
                     break;
 
-                case GotoAction:
+                case RGotoAction:
                     RGotoAction gta = (RGotoAction) action;
 
                     for (Direction dir : Direction.values()) {
@@ -432,7 +432,7 @@ public class HTNState {
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
 
-            case GotoAction:
+            case RGotoAction:
                 fulfilled = this.getAgentPosition().isAdjacentTo(action.getDestination()); // TODO: adjacent is enough?? only if box is null
                 debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
                 break;

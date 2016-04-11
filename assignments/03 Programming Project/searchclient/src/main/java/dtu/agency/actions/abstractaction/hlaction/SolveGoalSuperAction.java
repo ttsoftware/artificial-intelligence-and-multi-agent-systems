@@ -10,15 +10,18 @@ import java.io.Serializable;
 
 public class SolveGoalSuperAction extends HLAction implements Serializable {
 
-    private final Box box;
     private final Goal goal;
 
     public SolveGoalSuperAction(Goal goal) throws AssertionError {
-        this.box = null;
         this.goal = goal;
         if (this.goal == null) {
             throw new AssertionError("SolveGoalSuperAction: null values not accepted for goal");
         }
+    }
+
+    public SolveGoalSuperAction(SolveGoalSuperAction other) {
+        super();
+        this.goal = new Goal(other.getGoal());
     }
 
     public Goal getGoal() { return goal; }
@@ -35,7 +38,7 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
 
     @Override
     public Box getBox() {
-        return box;
+        return null;
     }
 
     @Override
