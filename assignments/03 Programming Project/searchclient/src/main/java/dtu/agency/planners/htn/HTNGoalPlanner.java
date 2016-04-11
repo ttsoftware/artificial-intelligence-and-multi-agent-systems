@@ -25,7 +25,12 @@ public class HTNGoalPlanner extends HTNPlanner {
         debug("HTNGoalPlanner initializing.",2);
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
         this.initialNode = allInitialNodes.peek();
+        this.action = initialNode.getIntention();
         debug("Nodes: " + allInitialNodes.toString(),-2);
+    }
+
+    public PriorityQueue<HTNNode> getAllInitialNodes() {
+        return new PriorityQueue<>(allInitialNodes);
     }
 
     /**
@@ -69,17 +74,20 @@ public class HTNGoalPlanner extends HTNPlanner {
     @Override
     public PrimitivePlan plan() {
         debug("HTNGoalPlanner.plan(): size of allinitialnodes:" + allInitialNodes.size(), 2);
+        PriorityQueue<HTNNode> allNodes = getAllInitialNodes();
         PrimitivePlan plan = null;
         do {
-            initialNode = allInitialNodes.poll();
+            initialNode = allNodes.peek();
             action = initialNode.getIntention();
             debug("HTNGoalPlanner.rePlan() on " +initialNode.toString());
             plan = rePlan(initialNode);
             if (!(plan == null)) {
                 debug("Plan found: " + plan.toString(), -2);
                 return plan;
+            } else {
+                allNodes.remove();
             }
-        } while (allInitialNodes.size() > 0);
+        } while (allNodes.size() > 0);
         debug("Failed to find a plan", -2);
         return null;
     }

@@ -18,7 +18,7 @@ public class HLPlanner {
 
     public HLPlanner( HTNPlanner htnPlanner ) {
         pls = new PlanningLevelService(htnPlanner.getIntention().getBox());
-        this.htnPlanner = htnPlanner;
+        this.htnPlanner = new HTNPlanner( htnPlanner );
         intentions = new PlanIntention( htnPlanner.getIntention() );
         intentions.setCurrentIntention( htnPlanner.getIntention() );
         desires = new PlanDesire();

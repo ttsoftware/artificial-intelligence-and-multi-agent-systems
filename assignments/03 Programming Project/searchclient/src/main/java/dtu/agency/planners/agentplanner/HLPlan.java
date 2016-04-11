@@ -29,7 +29,7 @@ public class HLPlan implements AbstractPlan {
     }
 
     public LinkedList<HLAction> getPlan() {
-        return plan;
+        return new LinkedList<>(plan);
     }
 
     public HLAction poll() {
@@ -50,7 +50,7 @@ public class HLPlan implements AbstractPlan {
 
     @Override
     public List<? extends AbstractAction> getActions() {
-        return plan;
+        return new LinkedList<>(plan);
     }
 
     @Override

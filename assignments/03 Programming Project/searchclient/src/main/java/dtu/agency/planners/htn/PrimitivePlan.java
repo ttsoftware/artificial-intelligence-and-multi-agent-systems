@@ -28,7 +28,7 @@ public class PrimitivePlan implements ConcretePlan {
     }
 
     public LinkedList<ConcreteAction> getActionList() {
-        return concreteActions;
+        return new LinkedList<>(concreteActions);
     }
 
     public void pushAction( ConcreteAction action) {

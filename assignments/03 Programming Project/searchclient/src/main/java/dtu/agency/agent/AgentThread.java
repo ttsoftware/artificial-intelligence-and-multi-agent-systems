@@ -71,12 +71,6 @@ public class AgentThread implements Runnable {
             // update the intention of this agent (by appending it)
             bdi.appendIntention(htnPlanner.getIntention());
 
-            HTNPlanner htn2 = new HTNPlanner(htnPlanner);
-
-            HTNNode inode = new HTNNode(htnPlanner.getInitialNode());
-            HTNState istate = inode.getState();
-            MixedPlan iremHlas = inode.getRemainingPlan();
-//            System.err.println(inode.toString() + "\n"+ istate.toString() + "\n" + iremHlas.toString());
             System.err.println("htn1" + htnPlanner.toString());
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
@@ -84,11 +78,6 @@ public class AgentThread implements Runnable {
             PrimitivePlan llPlan = htnPlanner.plan();
             System.err.println("Agent " +agent.getLabel()+ ": Found Concrete Plan: " + llPlan.toString());
 
-//            System.err.println(inode.toString() + "\n"+ istate.toString() + "\n" + iremHlas.toString());
-            System.err.println("htn1" + htnPlanner.toString());
-            System.err.println("htn2" + htn2.toString());
-            llPlan = htn2.plan();
-            System.err.println("htn2" + htn2.toString());
 
             // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires

@@ -4,8 +4,9 @@ import dtu.Main;
 import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
+import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
+import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
@@ -36,36 +37,6 @@ public class HTNNode {
         this.parent = other.parent;
         this.generation = other.getGeneration();
         this.concreteAction = other.getConcreteAction();
-//        ConcreteAction action = other.getConcreteAction();
-//        if (action==null) {
-//            this.concreteAction = null;
-//        } else {
-//            switch (action.getType()) {
-//
-//                case MOVE:
-//                    MoveConcreteAction move = (MoveConcreteAction) action;
-//                    this.concreteAction = new MoveConcreteAction(move);
-//                    break;
-//
-//                case PUSH:
-//                    PushConcreteAction push = (PushConcreteAction) action;
-//                    this.concreteAction = new PushConcreteAction(push);
-//                    break;
-//
-//                case PULL:
-//                    PullConcreteAction pull = (PullConcreteAction) action;
-//                    this.concreteAction = new PullConcreteAction(pull);
-//                    break;
-//
-//                case NONE:
-//                    NoConcreteAction no = (NoConcreteAction) action;
-//                    this.concreteAction = new NoConcreteAction(no);
-//                    break;
-//
-//                default:
-//                    this.concreteAction = null;
-//            }
-//        }
         this.state = new HTNState(other.getState());
         this.remainingPlan = new MixedPlan(other.remainingPlan);
     }
@@ -111,7 +82,7 @@ public class HTNNode {
     }
 
     public HTNNode getParent() {
-        return parent;
+        return new HTNNode(parent);
     }
 
     public HTNNode getParent(int generation) {
@@ -151,11 +122,11 @@ public class HTNNode {
     }
 
     public HTNState getState() {
-        return state;
+        return new HTNState(state);
     }
 
     public MixedPlan getRemainingPlan() {
-        return remainingPlan;
+        return new MixedPlan(remainingPlan);
     }
 
     /**
@@ -166,17 +137,19 @@ public class HTNNode {
         debug("HTNNode.getRefinements()",2);
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
-        if (this.remainingPlan.isEmpty()) {
+        if (getRemainingPlan().isEmpty()) {
             debug("No more remaining actions, returning empty list of refinement nodes", -2);
             return refinementNodes;
         }
 
-        Action nextAction = remainingPlan.removeFirst();
+        MixedPlan followingActions = getRemainingPlan();
+        Action nextAction = followingActions.removeFirst();
+
 
         if (nextAction instanceof ConcreteAction) { // case the concreteAction is primitive, add it as only node,
             debug("Next concreteAction is Primitive, thus a single ChildNode is created");
             ConcreteAction primitive = (ConcreteAction) nextAction;
-            HTNNode only = childNode( primitive, this.remainingPlan);
+            HTNNode only = childNode( primitive, followingActions);
             if (only != null) { refinementNodes.add(only);}
             debug("Refinement: " + refinementNodes.toString(), -2);
             return refinementNodes;
@@ -195,7 +168,7 @@ public class HTNNode {
                 if (refinement.getFirst() instanceof ConcreteAction) {
                     first = (ConcreteAction) refinement.removeFirst();
                 }
-                refinement.extend(remainingPlan);
+                refinement.extend(followingActions);
                 HTNNode nextNode = childNode(first, refinement);
 
                 if (nextNode != null) {
@@ -220,7 +193,7 @@ public class HTNNode {
         HTNState newState = (primitiveConcreteAction ==null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
         if (newState.getBoxPosition()==null) {
             HLAction nextHLA = (HLAction) remainingActions.getFirst();
-            if (nextHLA.getType()== AbstractActionType.SolveGoal) {
+            if (nextHLA.getType() == AbstractActionType.SolveGoal) {
                 SolveGoalAction sga = (SolveGoalAction) nextHLA;
                 newState = new HTNState(
                         newState.getAgentPosition(),
@@ -255,7 +228,7 @@ public class HTNNode {
      * @return intention in form of highLevelAction
      */
     public HLAction getIntention() {
-        HTNNode node = this;
+        HTNNode node = new HTNNode(this);
         debug(node.toString());
         debug(node.getRemainingPlan().getActions().toString());
         while (!node.isInitialNode()) {
@@ -273,58 +246,42 @@ public class HTNNode {
             return null;
         }
         if (action instanceof HLAction) {
-            HLAction hlAction = (HLAction) action;
-            return hlAction;
+            switch (((HLAction) action).getType()) {
+                case SolveGoal:
+                    SolveGoalAction sga = (SolveGoalAction) action;
+                    return new SolveGoalAction(sga);
+
+                case Circumvent:
+                    CircumventBoxAction cba = (CircumventBoxAction) action;
+                    return new CircumventBoxAction(cba);
+
+                case RGotoAction:
+                    RGotoAction gta = (RGotoAction) action;
+                    return new RGotoAction(gta);
+
+                case MoveBoxAction:
+                    RMoveBoxAction rmba = (RMoveBoxAction) action;
+                    return new RMoveBoxAction(rmba);
+
+                case SolveGoalSuper:
+                    SolveGoalSuperAction sgs = (SolveGoalSuperAction) action;
+                    return new SolveGoalSuperAction(sgs);
+
+                case No:
+                    NoAction na = (NoAction) action;
+                    return new NoAction(na);
+
+                case MoveBoxAndReturn:
+                    HMoveBoxAction hmba = (HMoveBoxAction) action;
+                    return new HMoveBoxAction(hmba);
+
+                default:
+                    return null;
+            }
         } else {
             return null;
         }
     }
-
-/*
-    */
-/**
-     * Used to compare and to enable for key usage in hashmaps
-     * @return
-     *//*
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + parent.hashCode();
-        result = prime * result + concreteAction.hashCode();
-        result = prime * result + state.hashCode();
-        result = prime * result + remainingPlan.hashCode();
-        return result;
-    }
-
-    */
-/**
-     * Comparing nodes to other nodes...
-     * used in strategic discarding of similar nodes
-     *//*
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        HTNNode other = (HTNNode) obj;
-        if (parent != other.parent)
-            return false;
-        if (concreteAction != other.concreteAction)
-            return false;
-        if (state != other.state)
-            return false;
-        if (!remainingPlan.equals(other.remainingPlan)) {
-            return false;
-        }
-        return true;
-    }
-*/
 
     @Override
     public String toString() {

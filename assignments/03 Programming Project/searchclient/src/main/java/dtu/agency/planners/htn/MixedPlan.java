@@ -28,7 +28,7 @@ public class MixedPlan implements Plan {
 
     @Override
     public LinkedList<Action> getActions() {
-        return actions;
+        return new LinkedList<>(actions);
     }
 
     public Action getFirst() { return actions.peekFirst(); }
