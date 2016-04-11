@@ -1,7 +1,7 @@
 package dtu.agency.planners.agentplanner;
 
 import dtu.agency.actions.AbstractAction;
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.planners.AbstractPlan;
 
 import java.util.LinkedList;

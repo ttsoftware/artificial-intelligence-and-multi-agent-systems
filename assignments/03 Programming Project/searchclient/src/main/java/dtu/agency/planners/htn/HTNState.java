@@ -1,8 +1,10 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
+import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
@@ -80,10 +82,10 @@ public class HTNState {
                     SolveGoalAction sga = (SolveGoalAction) action;
                     MixedPlan sgRefinement = new MixedPlan();
 
-                    sgRefinement.addAction(new GotoAction(
+                    sgRefinement.addAction(new RGotoAction(
                             GlobalLevelService.getInstance().getPosition(sga.getBox()) // TODO: PlannerLevelService !?
                     ));
-                    sgRefinement.addAction(new MoveBoxAction(
+                    sgRefinement.addAction(new RMoveBoxAction(
                             sga.getBox(),
                             GlobalLevelService.getInstance().getPosition(sga.getGoal()) // TODO: PlannerLevelService !?
                     ));
@@ -95,12 +97,12 @@ public class HTNState {
                     CircumventBoxAction circAction = (CircumventBoxAction) action;
                     MixedPlan circRefinement = new MixedPlan();
 
-                    circRefinement.addAction(new GotoAction(circAction.getAgentDestination())); // TODO: no relaxation!?
+                    circRefinement.addAction(new RGotoAction(circAction.getAgentDestination())); // TODO: no relaxation!?
                     refinements.add(circRefinement);
                     break;
 
                 case GotoAction:
-                    GotoAction gta = (GotoAction) action;
+                    RGotoAction gta = (RGotoAction) action;
 
                     for (Direction dir : Direction.values()) {
                         MixedPlan gotoRefinement = new MixedPlan();
@@ -116,7 +118,7 @@ public class HTNState {
                     break;
 
                     case MoveBoxAction:
-                        MoveBoxAction mba = (MoveBoxAction) action;
+                        RMoveBoxAction mba = (RMoveBoxAction) action;
                         if (!this.boxIsMovable()) {
                             debug("Box not movable");
                         } else {
@@ -168,14 +170,14 @@ public class HTNState {
                     break;
 
                 case MoveBoxAndReturn:
-                        MoveBoxAndReturnAction mbar = (MoveBoxAndReturnAction) action;
+                        HMoveBoxAction mbar = (HMoveBoxAction) action;
                         MixedPlan mbarRefinement = new MixedPlan();
 
-                        mbarRefinement.addAction(new GotoAction( // TODO: PlannerLevelService??
+                        mbarRefinement.addAction(new RGotoAction( // TODO: PlannerLevelService??
                                 GlobalLevelService.getInstance().getPosition(mbar.getBox())
                         ) );
-                        mbarRefinement.addAction(new MoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
-                        mbarRefinement.addAction(new GotoAction( mbar.getAgentDestination() ) );
+                        mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
+                        mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );
                         refinements.add(mbarRefinement);
                         break;
                 }
@@ -329,7 +331,7 @@ public class HTNState {
                 break;
 
             case MoveBoxAndReturn:
-                MoveBoxAndReturnAction mbarAction = (MoveBoxAndReturnAction) action;
+                HMoveBoxAction mbarAction = (HMoveBoxAction) action;
                 fulfilled  = this.getAgentPosition().equals( mbarAction.getAgentDestination() );
                 fulfilled &= this.getBoxPosition().equals( mbarAction.getBoxDestination() );
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");

@@ -7,26 +7,30 @@ import dtu.agency.board.Position;
 import java.io.Serializable;
 
 /**
-* This Action tries to circumvent a Box in an open environment using just concrete 'move' actions
+* This Action Moves a box and returns the agent to the box origin
 */
-public class CircumventBoxAction extends HLAction implements Serializable {
+public class HMoveBoxAction extends HLAction implements Serializable {
 
     private final Box box;
+    private final Position boxDestination;
     private final Position agentDestination;
 
-    public CircumventBoxAction(Box box, Position target) throws AssertionError {
+    public HMoveBoxAction(Box box, Position boxDestination, Position agentDestination) throws AssertionError {
         this.box = box;
-        this.agentDestination = target;
-        if (this.box == null || this.agentDestination == null) {
-            throw new AssertionError("CircumventBoxAction: null values not accepted for box or agentDestination");
+        this.boxDestination = boxDestination;
+        this.agentDestination = agentDestination;
+        if (box == null || boxDestination == null || agentDestination == null) {
+            throw new AssertionError("HMoveBoxAction: null values not accepted for box or agentDestination");
         }
     }
+
+    public Position getBoxDestination() { return boxDestination; }
 
     public Position getAgentDestination() { return agentDestination; }
 
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.Circumvent;
+        return AbstractActionType.MoveBoxAndReturn;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class CircumventBoxAction extends HLAction implements Serializable {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("CircumventBoxAction(");
+        s.append("HMoveBoxAction(");
         s.append(getBox().toString());
         s.append(",");
         s.append(getAgentDestination().toString());

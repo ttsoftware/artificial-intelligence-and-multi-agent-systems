@@ -1,10 +1,11 @@
 package dtu.agency.planners.htn;
 
 import dtu.Main;
-import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
+import dtu.agency.actions.abstractaction.hlaction.NoAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.*;
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
@@ -22,8 +23,7 @@ public class HTNPlanner {
 
     protected Agent agent;                  // agent to perform the actions
     protected HLAction action;              // original action
-    private HTNNode initialNode;          // list of all possible plans to solve the goal
-    protected HTNState initialState;        // list of all possible plans to solve the goal
+    protected HTNNode initialNode;            // list of all possible plans to solve the goal
     protected HeuristicComparator aStarHeuristicComparator;  // heuristic used to compare nodes
 
     /*
@@ -35,8 +35,12 @@ public class HTNPlanner {
         this.action = action;
         this.aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
         Position agentPosition = GlobalLevelService.getInstance().getPosition(agent);
-        Position boxPosition = (action.getBox()!=null) ? GlobalLevelService.getInstance().getPosition(action.getBox()) : null;
-        initialState = new HTNState( agentPosition, boxPosition );
+        Position boxPosition = agentPosition;
+        if (action.getBox()!=null) {
+            boxPosition = GlobalLevelService.getInstance().getPosition(action.getBox());
+        }
+
+        HTNState initialState = new HTNState( agentPosition, boxPosition );
         debug("initial" + initialState.toString());
         debug( ((action==null) ? "HLAction is null" : action.toString())  );
         this.initialNode = new HTNNode(initialState, action);

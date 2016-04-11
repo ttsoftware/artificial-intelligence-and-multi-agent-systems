@@ -1,6 +1,6 @@
 package dtu.agency.services;
 
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.agent.bdi.AgentBelief;
 import dtu.agency.agent.bdi.AgentDesire;
@@ -74,14 +74,14 @@ public class BDIService {
             case Circumvent:
                 CircumventBoxAction cba = (CircumventBoxAction) intent;
                 break;
-            case GotoAction:
-                GotoAction gta = (GotoAction) intent;
+            case RGotoAction:
+                RGotoAction gta = (RGotoAction) intent;
                 break;
-            case MoveBoxAction:
-                MoveBoxAction mba = (MoveBoxAction) intent;
+            case RMoveBoxAction:
+                RMoveBoxAction mba = (RMoveBoxAction) intent;
                 break;
             case MoveBoxAndReturn:
-                MoveBoxAndReturnAction mbar = (MoveBoxAndReturnAction) intent;
+                HMoveBoxAction mbar = (HMoveBoxAction) intent;
                 break;
         }
         return true;

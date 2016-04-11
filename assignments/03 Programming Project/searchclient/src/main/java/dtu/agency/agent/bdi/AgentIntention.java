@@ -1,10 +1,8 @@
 package dtu.agency.agent.bdi;
 
 
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.planners.agentplanner.HLPlan;
-
-import java.util.LinkedList;
 
 public class AgentIntention {
     // (top level) Intentions are really SolveGoalSuperActions()

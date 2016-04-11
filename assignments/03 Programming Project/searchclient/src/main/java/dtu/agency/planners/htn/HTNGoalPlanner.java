@@ -1,6 +1,6 @@
 package dtu.agency.planners.htn;
 
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
 import dtu.agency.board.Agent;
@@ -25,6 +25,7 @@ public class HTNGoalPlanner extends HTNPlanner {
         debug("HTN Planner initializing.",2);
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
         debug("Nodes: " + allInitialNodes.toString(),-2);
+        this.initialNode = allInitialNodes.peek();
     }
 
     /*
@@ -55,11 +56,11 @@ public class HTNGoalPlanner extends HTNPlanner {
     public PrimitivePlan plan() {
         debug("HTNGoalPlanner.plan(): size of allinitialnodes:" + allInitialNodes.size(), 2);
         PrimitivePlan plan = null;
-        HTNNode node;
         do {
-            node = allInitialNodes.poll();
-            debug("HTNGoalPlanner.rePlan() on " +node.toString());
-            plan = rePlan(node);
+            initialNode = allInitialNodes.poll();
+            action = initialNode.getIntention();
+            debug("HTNGoalPlanner.rePlan() on " +initialNode.toString());
+            plan = rePlan(initialNode);
             if (!(plan == null)) {
                 debug("Plan found: " + plan.toString(), -2);
                 return plan;
@@ -68,5 +69,11 @@ public class HTNGoalPlanner extends HTNPlanner {
         debug("Failed to find a plan", -2);
         return null;
     }
+
+    @Override
+    public HLAction getIntention() {
+        return initialNode.getIntention();
+    }
+
 }
 

@@ -4,7 +4,7 @@ import dtu.Main;
 import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
@@ -217,5 +217,32 @@ public class HTNNode {
         s.append(", State: " + this.state.toString() + ",\n");
         s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );
         return s.toString();
+    }
+
+    public HLAction getIntention() {
+        HTNNode node = this;
+        debug(node.toString());
+        debug(node.getRemainingPlan().getActions().toString());
+        while (!node.isInitialNode()) {
+            node = this.parent;
+        }
+        debug(node.toString());
+        debug(node.getRemainingPlan().getActions().toString());
+        // getting initial High level action
+        Action action;
+        if (node.getRemainingPlan().getActions().size()==1) {
+            action = node.getRemainingPlan().getActions().getFirst();
+        } else {
+            debug("initial action is not a single action?");
+            debug(node.getRemainingPlan().getActions().toString());
+            return null;
+        }
+        if (action instanceof HLAction) {
+            HLAction hlAction = (HLAction) action;
+            return hlAction;
+        } else {
+            return null;
+        }
+
     }
 }

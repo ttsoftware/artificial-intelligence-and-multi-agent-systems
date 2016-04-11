@@ -1,8 +1,9 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.planners.htn.HTNGoalPlanner;
 import dtu.agency.services.BDIService;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
@@ -14,6 +15,7 @@ import dtu.agency.planners.agentplanner.HLPlan;
 import dtu.agency.planners.agentplanner.HLPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.services.DebugService;
 import dtu.agency.services.EventBusService;
 
 import java.util.Objects;
@@ -45,7 +47,7 @@ public class AgentThread implements Runnable {
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
         Goal goal = event.getGoal();
 
-        HTNPlanner htnPlanner = new HTNPlanner(this.agent, new SolveGoalSuperAction(goal));
+        HTNGoalPlanner htnPlanner = new HTNGoalPlanner(this.agent, goal);
         int steps = htnPlanner.getBestPlanApproximation();
 
         bdi.getBids().put(goal.getLabel(), htnPlanner);
@@ -76,7 +78,9 @@ public class AgentThread implements Runnable {
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // NO RELAXATIONS!
+            boolean oldDebugMode = DebugService.setDebugMode(true);
             PrimitivePlan llPlan = htnPlanner.plan();
+            DebugService.setDebugMode(oldDebugMode);
 
             // Desire 2:  Find a high level plan, and add to desires
             HLPlan hlPlan = planner.plan();
@@ -96,7 +100,8 @@ public class AgentThread implements Runnable {
                 while (!hlPlan.isEmpty()) {
                     action = hlPlan.poll();
                     htnPlanner = new HTNPlanner(agent, action);
-                    llPlan.appendActions(htnPlanner.plan());
+                    PrimitivePlan plan = htnPlanner.plan();
+                    llPlan.appendActions(plan);
                 }
             }
             // else go with PrimitivePlan already discovered

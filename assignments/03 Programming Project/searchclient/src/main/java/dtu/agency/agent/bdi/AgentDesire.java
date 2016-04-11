@@ -1,6 +1,6 @@
 package dtu.agency.agent.bdi;
 
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.planners.htn.PrimitivePlan;
 
 import java.util.Comparator;
