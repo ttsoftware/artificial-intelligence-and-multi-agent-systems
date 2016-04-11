@@ -110,12 +110,12 @@ public class HTNState {
         // and we want to (automatically) exclude the agent we are planning for
         if (!gls.isFree(agentPosition)){
             String globalAtAgentPos = gls.getObjectLabels(agentPosition);
-            System.err.println("Agent position "+boxPosition.toString()+", has: " + globalAtAgentPos );
+//            System.err.println("Agent position "+boxPosition.toString()+", has: " + globalAtAgentPos );
             if (!(globalAtAgentPos.equals(myself)) || globalAtAgentPos.equals(myBox)) { // not myself !
                 conflict = true; // conflict !
                 debug("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
                 debug("My box: "+myBox+" | gls box: " + globalAtAgentPos );
-                System.err.println("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
+//                System.err.println("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
             }
             // TODO: THIS DISABLES THE AGENT DETECTION - BUT IT FAILS USING GLS
             conflict = false;

@@ -34,6 +34,21 @@ public class HLPlanner {
         // change this to return an ordered list of HLActions, which if  performed in this order
         // will solve the problem in topLevelIntention
         return new HLPlan( intentions.getTopLevelIntention() );
+
+
+        /*
+        1. plan for solving goal relaxed (pseudo plan)
+        1a. obtain path cells
+        2. identify occupied board cells (obstacles) in the pseudo plan
+        3. identify as many free neighbouring cells as obstacles,
+         - this is organized in levels/rings from path, so that one
+           can start by moving boxes to the outer 'rings'
+        4. try and move boxes one by one to outer rings,
+         - while storing the change in positions to pls
+        (5. if target box is only movable box remaining:
+          - move it out of the path, to a neighbor cell close
+          - replan on HLPlan, reusing pls! states)
+        */
     }
 
 }
