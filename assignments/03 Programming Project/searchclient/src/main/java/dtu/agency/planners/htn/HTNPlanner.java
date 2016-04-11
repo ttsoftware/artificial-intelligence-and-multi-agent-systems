@@ -71,6 +71,7 @@ public class HTNPlanner {
 
     /**
      * Finds the concrete plan (provided an (initial) node)
+     * This is the actual graph building phase in HTNPlanner
      */
     public PrimitivePlan rePlan(HTNNode node) {
         debug("HTNPlanner.rePlan():",2);
@@ -138,7 +139,5 @@ public class HTNPlanner {
             iterations++;
         }
     }
-
-
 }
 

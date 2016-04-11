@@ -6,6 +6,7 @@ import dtu.agency.agent.bdi.AgentBelief;
 import dtu.agency.agent.bdi.AgentDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
 import dtu.agency.planners.htn.HTNPlanner;
 
 import java.util.HashMap;
@@ -18,7 +19,8 @@ import java.util.LinkedList;
  */
 public class BDIService {
     // keeps track of Beliefs Desires and Intentions for an agent in 'real time'
-    private Agent agent;
+    // THREAD LOCAL INSTANCE??
+    private static Agent agent;
     private AgentBelief state;
     private AgentDesire primitivePlans;
     private LinkedList<AgentIntention> intentions;
@@ -32,7 +34,7 @@ public class BDIService {
         bids = new HashMap<>();
     }
 
-    public Agent getAgent() {
+    public static Agent getAgent() {
         return agent;
     }
 
@@ -59,35 +61,5 @@ public class BDIService {
     public void appendIntention(HLAction intention) {
         intentions.addLast(new AgentIntention(intention));
     }
-
-/*
-    public boolean planIsSound(HLPlan plan, AgentIntention intention, AgentBelief belief) {
-        HLAction intent;
-        if (plan.getIntention() != intention.getCurrentIntention()) {
-            return false;
-        } else {
-            intent = plan.getIntention();
-        }
-
-        switch (intention.getCurrentIntention().getType()) {
-            case SolveGoal:
-                SolveGoalAction sga = (SolveGoalAction) intent;
-                break;
-            case Circumvent:
-                CircumventBoxAction cba = (CircumventBoxAction) intent;
-                break;
-            case RGotoAction:
-                RGotoAction gta = (RGotoAction) intent;
-                break;
-            case RMoveBoxAction:
-                RMoveBoxAction mba = (RMoveBoxAction) intent;
-                break;
-            case MoveBoxAndReturn:
-                HMoveBoxAction mbar = (HMoveBoxAction) intent;
-                break;
-        }
-        return true;
-    }
-*/
 
 }

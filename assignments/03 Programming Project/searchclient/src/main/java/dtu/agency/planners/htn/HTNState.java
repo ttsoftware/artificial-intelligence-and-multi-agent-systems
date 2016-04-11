@@ -9,10 +9,13 @@ import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
+import dtu.agency.board.BoardObject;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
 
@@ -22,10 +25,13 @@ public class HTNState {
 
     private final Position agentPosition;
     private final Position boxPosition;
+    private RelaxationType relaxMode;
 
-    public HTNState(Position agentPosition, Position boxPosition) {
+    public HTNState(Position agentPosition, Position boxPosition) throws AssertionError {
         this.agentPosition = agentPosition;
         this.boxPosition = boxPosition;
+        this.relaxMode = RelaxationType.NoAgentsNoBoxes;
+        if (agentPosition == null) throw new AssertionError("MUST have an agent location");
     }
 
     public Position getAgentPosition() {
@@ -45,20 +51,107 @@ public class HTNState {
     }
 
     public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
-        debug("isLegal():", 2);
+        debug("isLegal(): ", 2);
+        debug("RelaxMode: " + relaxMode.toString());
+        boolean legal = !agentPosition.equals(boxPosition);
+        debug("box and agent position are not identical:" + Boolean.toString(legal) );
 
-        boolean valid = !agentPosition.equals(boxPosition);
-        debug("box and agent position are not identical:" + Boolean.toString(valid) );
+        legal &= (!wallConflict());
+        if (!legal) { // save the computations
+            debug("",-2);
+            return legal;
+        }
 
-        valid &= !GlobalLevelService.getInstance().isWall(agentPosition);
-        debug("agent is not at wall:" + Boolean.toString(valid) );
+        switch (relaxMode) {
+            // walls are considered already
+
+            case None:            // consider agents + boxes + walls
+                legal &= (!boxConflict());
+                legal &= (!agentConflict());
+                break;
+
+            case NoAgents:        // Boxes and Walls are considered
+                legal &= (!boxConflict());
+                break;
+
+            case NoAgentsNoBoxes: // Only Walls are considered
+                break;
+
+            default:
+                debug("relaxMode defaulted!");
+        }
+
+
+        debug("", -2);
+        return legal;
+    }
+
+    private boolean agentConflict() {
+        boolean value = false;
+        String myself = PlanningLevelService.getAgent().getLabel();
+        GlobalLevelService gls = GlobalLevelService.getInstance();
+
+        // TODO: use PlanningLevelService instead
+        // Global level service is fine, but we dont wanna take up the resource
+        // and we want to (automatically) exclude the agent we are planning for
+        if (!gls.isFree(agentPosition)){
+            String globalAtAgentPos = gls.getObjectLabels(agentPosition);
+            if (!globalAtAgentPos.equals(myself)) { // not myself !
+                value = true; // conflict !
+                debug("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(value) );
+            }
+        }
+
+        if (boxPosition!=null) {
+            if (!gls.isFree(boxPosition)) {
+                String globalAtBoxPos = gls.getObjectLabels(boxPosition);
+                if (!globalAtBoxPos.equals(myself)) { // not myself !
+                    value = true; // conflict !
+                    debug("Box position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(value) );
+                }
+            }
+        }
+
+        return value;
+    }
+
+    private boolean boxConflict() {
+        boolean value = false;
+        String myBox = PlanningLevelService.getTargetBox().getLabel();
+        GlobalLevelService gls = GlobalLevelService.getInstance();
+
+        // TODO: Global level service  -> planning level service
+        if (!gls.isFree(agentPosition)){
+            String globalAtAgentPos = gls.getObjectLabels(agentPosition);
+            if (!globalAtAgentPos.equals(myBox)) { // not myself !
+                value = true; // conflict !
+                debug("Agent position "+agentPosition.toString()+" is same as a box:" + Boolean.toString(value) );
+            }
+        }
+
+        if (boxPosition!=null) {
+            if (!gls.isFree(boxPosition)) {
+                String globalAtBoxPos = gls.getObjectLabels(boxPosition);
+                if (!globalAtBoxPos.equals(myBox)) { // not myself !
+                    value = true; // conflict !
+                    debug("Box position "+boxPosition.toString()+" is same as a box:" + Boolean.toString(value) );
+                }
+            }
+        }
+        return value;
+    }
+
+    private boolean wallConflict() {
+        // Global level service is fine
+        boolean conflict = GlobalLevelService.getInstance().isWall(agentPosition);
+        debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
+        if (conflict) return conflict;
 
         if (boxPosition != null) {
-            valid &= !GlobalLevelService.getInstance().isWall(boxPosition);
-            debug("box is not at wall:" + Boolean.toString(valid) );
+            conflict |= GlobalLevelService.getInstance().isWall(boxPosition);
+            debug("Box position "+boxPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
         }
-        debug("", -2);
-        return valid;
+        return conflict;
     }
 
     /*
