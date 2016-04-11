@@ -46,6 +46,14 @@ public class HTNPlanner {
         debug(initialNode.toString(),-2);
     }
 
+    public HTNNode getInitialNode() {
+        return initialNode;
+    }
+
+    public RelaxationMode getRelaxationMode() {
+        return initialNode.getState().getRelaxationMode();
+    }
+
     public void setRelaxationMode(RelaxationMode mode) {
         initialNode.getState().setRelaxationMode(mode);
     }

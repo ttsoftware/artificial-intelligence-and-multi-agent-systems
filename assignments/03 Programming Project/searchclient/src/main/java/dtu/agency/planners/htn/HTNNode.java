@@ -6,7 +6,7 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
-import dtu.agency.actions.concreteaction.NoConcreteAction;
+import dtu.agency.actions.concreteaction.*;
 import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.services.DebugService;
@@ -17,17 +17,58 @@ import java.util.Collections;
 import java.util.Random;
 
 public class HTNNode {
+
+
     private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
     private static void debug(String msg){ debug(msg, 0); }
 
     private static Random rnd = new Random(1);
 
-    private HTNNode parent;
-    private ConcreteAction concreteAction;   // primitive concreteAction represented by this node
-    private HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
-    private MixedPlan remainingPlan;         // list of successive (abstract) actions
-    private int generation;                  // generation - how many ancestors exist? -> how many moves have i performed
+    private final HTNNode parent;
+    private final ConcreteAction concreteAction;   // primitive concreteAction represented by this node
+    private final HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
+    private final MixedPlan remainingPlan;         // list of successive (abstract) actions
+    private final int generation;                  // generation - how many ancestors exist? -> how many moves have i performed
 //    private RelaxationMode r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
+
+    // Copy constructor
+    public HTNNode(HTNNode other){
+        this.parent = other.parent;
+        this.generation = other.getGeneration();
+
+        ConcreteAction action = other.getConcreteAction();
+        if (action==null) {
+            this.concreteAction = null;
+        } else {
+            switch (action.getType()) {
+
+                case MOVE:
+                    MoveConcreteAction move = (MoveConcreteAction) action;
+                    this.concreteAction = new MoveConcreteAction(move);
+                    break;
+
+                case PUSH:
+                    PushConcreteAction push = (PushConcreteAction) action;
+                    this.concreteAction = new PushConcreteAction(push);
+                    break;
+
+                case PULL:
+                    PullConcreteAction pull = (PullConcreteAction) action;
+                    this.concreteAction = new PullConcreteAction(pull);
+                    break;
+
+                case NONE:
+                    NoConcreteAction no = (NoConcreteAction) action;
+                    this.concreteAction = new NoConcreteAction(no);
+                    break;
+
+                default:
+                    this.concreteAction = null;
+            }
+        }
+        this.state = new HTNState(other.getState());
+        this.remainingPlan = new MixedPlan(other.remainingPlan);
+    }
 
     public HTNNode(HTNNode parent, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
         this.parent = parent;

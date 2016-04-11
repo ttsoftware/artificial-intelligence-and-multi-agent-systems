@@ -25,6 +25,12 @@ public class HTNState {
     private final Position boxPosition;
     private RelaxationMode relaxationMode;
 
+    public HTNState(HTNState other) {
+        this.agentPosition = new Position(other.getAgentPosition());
+        this.boxPosition = new Position(other.getBoxPosition());
+        this.relaxationMode = other.relaxationMode;
+    }
+
 /*    public HTNState(Position agentPosition, Position boxPosition) throws AssertionError {
         this.agentPosition = agentPosition;
         this.boxPosition = boxPosition;

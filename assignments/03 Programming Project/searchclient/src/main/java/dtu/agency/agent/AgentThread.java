@@ -2,8 +2,7 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.planners.htn.HTNGoalPlanner;
-import dtu.agency.planners.htn.RelaxationMode;
+import dtu.agency.planners.htn.*;
 import dtu.agency.services.BDIService;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
@@ -13,8 +12,6 @@ import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.agentplanner.HLPlan;
 import dtu.agency.planners.agentplanner.HLPlanner;
-import dtu.agency.planners.htn.PrimitivePlan;
-import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.EventBusService;
 
@@ -74,14 +71,17 @@ public class AgentThread implements Runnable {
             // update the intention of this agent (by appending it)
             bdi.appendIntention(htnPlanner.getIntention());
 
-            // tools for enable/disable debug printing mode
-//            boolean oldDebugMode = DebugService.setDebugMode(true); // DEBUGGING ON
-//            DebugService.setDebugMode(oldDebugMode);                // DEBUGGING OFF
+            HTNNode inode = new HTNNode(htnPlanner.getInitialNode());
+            HTNState istate = inode.getState();
+            MixedPlan iremHlas = inode.getRemainingPlan();
+            System.err.println(inode.toString() + "\n"+ istate.toString() + "\n" + iremHlas.toString());
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
             PrimitivePlan llPlan = htnPlanner.plan();
             System.err.println("Agent " +agent.getLabel()+ ": Found Concrete Plan: " + llPlan.toString());
+
+            System.err.println(inode.toString() + "\n"+ istate.toString() + "\n" + iremHlas.toString());
 
             // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires
@@ -106,6 +106,7 @@ public class AgentThread implements Runnable {
                     // TODO: NEED a correct implementation using PlanningLevelService
                     // TODO: replacing GlobalLevelService.
                     htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
+                    // tools for enable/disable debug printing mode
 //                    boolean oldDebugMode = DebugService.setDebugMode(true);
                     PrimitivePlan plan = htnPlanner.plan();
 //                    DebugService.setDebugMode(oldDebugMode);
