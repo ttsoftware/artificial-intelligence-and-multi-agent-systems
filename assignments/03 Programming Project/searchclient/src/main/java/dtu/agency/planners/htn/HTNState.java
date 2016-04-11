@@ -354,7 +354,7 @@ public class HTNState {
     /**
      * What does this do? As far as i can see it does not return anything meaningful
      * Mads: Well it is meaningfull to check whether states have been visited before in the planning loop
-     * and to check if 2 states are equal... this method comes in handy
+     * and to check if 2 states are equal... this method comes in handy :-)
      *
      * @param obj
      * @return

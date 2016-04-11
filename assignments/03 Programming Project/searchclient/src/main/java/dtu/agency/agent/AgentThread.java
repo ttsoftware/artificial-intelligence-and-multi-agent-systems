@@ -69,20 +69,23 @@ public class AgentThread implements Runnable {
 
             System.err.println(agent.getLabel()+": I won the bidding for: " + event.getGoal().getLabel());
 
-            // Find the HTNPlanner for this goal, and do the actual planning
+            // Find the HTNPlanner used to bid for this goal
             HTNPlanner htnPlanner = bdi.getBids().get(event.getGoal().getLabel());
-
+            // update the intention of this agent (by appending it)
             bdi.appendIntention(htnPlanner.getIntention());
 
-            HLPlanner planner = new HLPlanner(bdi.getState(), htnPlanner);
+            // tools for enable/disable debug printing mode
+            boolean oldDebugMode = DebugService.setDebugMode(true); // DEBUGGING ON
+            DebugService.setDebugMode(oldDebugMode);                // DEBUGGING OFF
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
-            // NO RELAXATIONS!
-            boolean oldDebugMode = DebugService.setDebugMode(true);
+            // TODO: Important to plan with NO relaxations here!!!!
             PrimitivePlan llPlan = htnPlanner.plan();
-            DebugService.setDebugMode(oldDebugMode);
+            System.err.println("Agent " +agent.getLabel()+ ": Found Concrete Plan: " + llPlan.toString());
 
+            // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires
+            HLPlanner planner = new HLPlanner(bdi.getState(), htnPlanner);
             HLPlan hlPlan = planner.plan();
             if (hlPlan!=null) {
                 System.err.println("Agent " +agent.getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
@@ -91,9 +94,9 @@ public class AgentThread implements Runnable {
 
             // Compare the length of the plans, and choose the shorter,
             // (and evolve) and return it
-
-            if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.getHeuristic() < llPlan.size()) ) {
+            if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.getHeuristic() <= llPlan.size()+5) ) {
                 // go with HLPlan
+                System.err.println("Deriving concrete plan from HL plan..");
                 // create total primitive plan from High level actions
                 HLAction action;
                 llPlan = new PrimitivePlan();
@@ -106,10 +109,12 @@ public class AgentThread implements Runnable {
             }
             // else go with PrimitivePlan already discovered
 
+            // store the resulting plans and states in bdiservice after planning..
+
 //            boolean oldDebugMode = DebugService.setDebugMode(true);
 //            DebugService.setDebugMode(oldDebugMode);
 
-            System.err.println("Agent " +agent.getLabel()+ ": Found Concrete Plan: " + llPlan.toString());
+            System.err.println("Agent " +agent.getLabel()+ ": Using Concrete Plan: " + llPlan.toString());
             // are we gonna submit the entire primitivePlan to the agency at once??
             // maybe it is better to divide the sending of plans into smaller packages,
             // e.g. solving separate intentions as GotoBox, MoveBox, etc.

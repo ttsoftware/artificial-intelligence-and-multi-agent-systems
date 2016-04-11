@@ -17,20 +17,22 @@ import java.util.PriorityQueue;
 public class HTNGoalPlanner extends HTNPlanner {
 
     PriorityQueue<HTNNode> allInitialNodes;        // list of all possible plans to solve the goal
-    /*
-    * Constructor: All a planner needs is the next goal and the agent solving it...
-    * */
+    /**
+     * Constructor: All a planner needs is the next goal and the agent solving it...
+     */
     public HTNGoalPlanner(Agent agent, Goal target) {
         super(agent, new SolveGoalSuperAction(target));
-        debug("HTN Planner initializing.",2);
+        debug("HTNGoalPlanner initializing.",2);
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
-        debug("Nodes: " + allInitialNodes.toString(),-2);
         this.initialNode = allInitialNodes.peek();
+        debug("Nodes: " + allInitialNodes.toString(),-2);
     }
 
-    /*
-    *  Fills the data structure containing information on ways to solve this particular target
-    */
+    /**
+     * Fills the data structure containing information on ways to solve this
+     * particular target goal, by one node per box that could potentially
+     * solve this goal
+     */
     private PriorityQueue<HTNNode> createAllNodes(Goal target, HeuristicComparator heuristicComparator) {
         debug("HTNGoalPlanner.createAllNodes(): ", 2);
         PriorityQueue<HTNNode> allNodes = new PriorityQueue<>(heuristicComparator);
@@ -38,7 +40,9 @@ public class HTNGoalPlanner extends HTNPlanner {
         for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
             if (box.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) {
                 HTNState initialState = new HTNState(
+                        // TODO: agent intentional destination!! :-)
                         GlobalLevelService.getInstance().getPosition(this.agent),
+                        // TODO: agents believed position of box :-)
                         GlobalLevelService.getInstance().getPosition(box)
                 );
                 HLAction initialAction = new SolveGoalAction(box, target);
@@ -49,9 +53,10 @@ public class HTNGoalPlanner extends HTNPlanner {
         return allNodes;
     }
 
-    /*
-    * is used to find the next plan (using the next box in line)
-    */
+    /**
+     * is used to find the plan, by in turn planning for the best node (by heuristic)
+     * until a plan (or none is found)
+     */
     @Override
     public PrimitivePlan plan() {
         debug("HTNGoalPlanner.plan(): size of allinitialnodes:" + allInitialNodes.size(), 2);
@@ -68,11 +73,6 @@ public class HTNGoalPlanner extends HTNPlanner {
         } while (allInitialNodes.size() > 0);
         debug("Failed to find a plan", -2);
         return null;
-    }
-
-    @Override
-    public HLAction getIntention() {
-        return initialNode.getIntention();
     }
 
 }

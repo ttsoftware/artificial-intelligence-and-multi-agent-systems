@@ -23,11 +23,11 @@ public class HTNPlanner {
 
     protected Agent agent;                  // agent to perform the actions
     protected HLAction action;              // original action
-    protected HTNNode initialNode;            // list of all possible plans to solve the goal
+    protected HTNNode initialNode;          // list of all possible plans to solve the goal
     protected HeuristicComparator aStarHeuristicComparator;  // heuristic used to compare nodes
 
-    /*
-    * Constructor: All a planner needs is the next goal and the agent solving it...
+    /**
+    * Constructor: All a planner needs is the the agent and the action to perform
     * */
     public HTNPlanner(Agent agent, HLAction action) {
         debug("HTN Planner initializing:",2);
@@ -47,22 +47,31 @@ public class HTNPlanner {
         debug(initialNode.toString(),-2);
     }
 
-    /*
+    /**
+     * Returns the intention to be solved by this planner
+     */
+    public HLAction getIntention() {
+        return action;
+    }
+
+    /**
     * Returns the best guess for the number of actions used to solve the goal
     */
     public int getBestPlanApproximation() {
         return aStarHeuristicComparator.h( initialNode );
     }
 
-    /*
-    * is used to find the next plan (using the next box in line)
+    /**
+    * Finds the concrete plan
     */
     public PrimitivePlan plan() {
-        debug("HTNPlanner.plan():",2);
-        debug(initialNode.toString(),-2);
+        debug("HTNPlanner.plan():");
         return rePlan(initialNode);
     }
 
+    /**
+     * Finds the concrete plan (provided an (initial) node)
+     */
     public PrimitivePlan rePlan(HTNNode node) {
         debug("HTNPlanner.rePlan():",2);
         debug("initial" + node.toString());
@@ -130,17 +139,6 @@ public class HTNPlanner {
         }
     }
 
-    public HLAction getIntention() {
-        return action;
-    }
 
-/*
-    public AgentBelief getBestBelief() {
-        SolveGoalAction sga = (SolveGoalAction) initialNode.getRemainingPlan().getFirst();
-        AgentBelief belief = new AgentBelief(agent);
-        belief.setCurrentTargetBox(sga.getBox().getLabel());
-        return belief;
-    }
-*/
 }
 

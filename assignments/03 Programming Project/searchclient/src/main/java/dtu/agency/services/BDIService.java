@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
- * Created by koeus on 4/10/16.
+ * Purpose of this BDIService is for the agent to be able to compare
+ * own state to global, to enable it to interact by re-planning/communicating
+ * in execution phase
  */
 public class BDIService {
     // keeps track of Beliefs Desires and Intentions for an agent in 'real time'
