@@ -45,7 +45,7 @@ public class AgentThread implements Runnable {
 
         bdi.getBids().put(goal.getLabel(), htnPlanner);
 
-        System.err.println("Agent "+ agent.getLabel() +": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
+        System.err.println("Agent " + agent.getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(agent.getLabel(), steps));
     }
@@ -60,7 +60,7 @@ public class AgentThread implements Runnable {
         if (event.getAgentLabel().equals(agent.getLabel())) {
             // We won the bid for this goal!
 
-            System.err.println(agent.getLabel()+": I won the bidding for: " + event.getGoal().getLabel());
+            System.err.println(agent.getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
             // Find the HTNPlanner used to bid for this goal
             HTNPlanner htnPlanner = bdi.getBids().get(event.getGoal().getLabel());
@@ -72,10 +72,9 @@ public class AgentThread implements Runnable {
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
             PrimitivePlan llPlan = htnPlanner.plan();
-            System.err.println("Agent " +agent.getLabel()+ ": Found Concrete Plan: " + llPlan.toString());
+            System.err.println("Agent " + agent.getLabel() + ": Found Concrete Plan: " + llPlan.toString());
 
             /*
-
             // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires
             HLPlanner planner = new HLPlanner(htnPlanner);
