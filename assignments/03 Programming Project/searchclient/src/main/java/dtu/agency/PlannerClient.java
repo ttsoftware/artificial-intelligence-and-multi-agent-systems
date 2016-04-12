@@ -81,8 +81,7 @@ public class PlannerClient {
             }
         });
 
-        Agency agency = new Agency(level);
-        agency.run();
+        new Thread(new Agency(level)).start();
     }
 
     /**
