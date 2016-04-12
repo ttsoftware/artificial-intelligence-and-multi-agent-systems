@@ -7,6 +7,8 @@ import dtu.agency.agent.bdi.AgentDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
+import dtu.agency.board.Level;
+import dtu.agency.planners.htn.HTNGoalPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
 
 import java.util.HashMap;
@@ -23,15 +25,22 @@ public class BDIService {
     private static Agent agent;
     private AgentBelief state;
     private AgentDesire primitivePlans;
-    private LinkedList<AgentIntention> intentions;
-    private HashMap<String, HTNPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
+    private static LinkedList<AgentIntention> intentions;
+    private HashMap<String, HTNGoalPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
 
-    public BDIService(Agent agent) {
-        this.agent = agent;
+    public BDIService(Agent bdiAgent) {
+        agent = bdiAgent;
+
         state = new AgentBelief(agent);
         primitivePlans = new AgentDesire(new NoAction(state.getAgentCurrentPosition()) );
         intentions = new LinkedList<>();
         bids = new HashMap<>();
+
+        Level levelClone = GlobalLevelService.getInstance().getLevel();
+
+        // TODO: Remove agent from levelClone
+
+        BDILevelService.getInstance().setLevel(levelClone);
     }
 
     public static Agent getAgent() {
@@ -46,7 +55,7 @@ public class BDIService {
         return primitivePlans;
     }
 
-    public HashMap<String, HTNPlanner> getBids() {
+    public HashMap<String, HTNGoalPlanner> getBids() {
         return bids;
     }
 
@@ -54,12 +63,15 @@ public class BDIService {
         return intentions;
     }
 
-    public AgentIntention getCurrentIntention() {
+    public static AgentIntention getCurrentIntention() {
         return intentions.getFirst();
+    }
+
+    public static Box getCurrentTargetBox() {
+        return getCurrentIntention().getHighLevelPlan().peek().getBox();
     }
 
     public void appendIntention(HLAction intention) {
         intentions.addLast(new AgentIntention(intention));
     }
-
 }

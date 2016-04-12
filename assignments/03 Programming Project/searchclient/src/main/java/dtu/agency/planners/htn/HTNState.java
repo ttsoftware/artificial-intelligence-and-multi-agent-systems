@@ -11,9 +11,10 @@ import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
+import dtu.agency.services.BDILevelService;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
-import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
 
@@ -107,11 +108,11 @@ public class HTNState {
 
     private boolean agentConflict() {
         boolean conflict = false;
-        String myself = PlanningLevelService.getAgent().getLabel();
-        String myBox = PlanningLevelService.getTargetBox().getLabel();
+        String myself = BDIService.getAgent().getLabel();
+        String myBox = BDIService.getCurrentTargetBox().getLabel();
         GlobalLevelService gls = GlobalLevelService.getInstance();
 
-        // TODO: use PlanningLevelService instead
+        // TODO: use BDILevelService instead
         // Global level service is fine, but we dont wanna take up the resource
         // and we want to (automatically) exclude the agent we are planning for
         if (!gls.isFree(agentPosition)){
@@ -143,7 +144,7 @@ public class HTNState {
 
     private boolean boxConflict() {
         boolean conflict = false;
-        String myBox = PlanningLevelService.getTargetBox().getLabel();
+        String myBox = BDIService.getCurrentTargetBox().getLabel();
         GlobalLevelService gls = GlobalLevelService.getInstance();
 
         // TODO: Global level service  -> planning level service

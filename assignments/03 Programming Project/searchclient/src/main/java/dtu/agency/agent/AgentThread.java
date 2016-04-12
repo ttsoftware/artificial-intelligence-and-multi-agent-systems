@@ -63,7 +63,7 @@ public class AgentThread implements Runnable {
             System.err.println(agent.getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
             // Find the HTNPlanner used to bid for this goal
-            HTNPlanner htnPlanner = bdi.getBids().get(event.getGoal().getLabel());
+            HTNGoalPlanner htnPlanner = bdi.getBids().get(event.getGoal().getLabel());
             // update the intention of this agent (by appending it)
             bdi.appendIntention(htnPlanner.getIntention());
 
@@ -95,7 +95,7 @@ public class AgentThread implements Runnable {
                 while (!hlPlan.isEmpty()) {
                     action = hlPlan.poll();
                     htnPlanner = new HTNPlanner(agent, action, RelaxationMode.NoAgentsNoBoxes);
-                    // TODO: NEED a correct implementation using PlanningLevelService
+                    // TODO: NEED a correct implementation using BDILevelService
                     // TODO: replacing GlobalLevelService.
                     htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
                     // tools for enable/disable debug printing mode
