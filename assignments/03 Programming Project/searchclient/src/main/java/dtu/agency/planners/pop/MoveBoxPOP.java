@@ -8,6 +8,7 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Position;
 import dtu.agency.planners.pop.preconditions.BoxAtPrecondition;
 
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
@@ -20,7 +21,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
     }
 
     public POPPlan plan(MoveBoxAbstractAction action) {
-        Stack<ConcreteAction> concreteActions = new Stack<>();
+        LinkedList<ConcreteAction> concreteActions = new LinkedList<>();
 
         /*
         Position goalPosition = GlobalLevelService.getInstance().getPosition(action.getAgentDestination().getLabel());

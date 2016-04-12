@@ -11,6 +11,7 @@ import dtu.agency.board.Position;
 import dtu.agency.actions.abstractaction.GotoAbstractAction;
 import dtu.agency.services.GlobalLevelService;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
@@ -23,7 +24,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
 
     public POPPlan plan(GotoAbstractAction action) {
 
-        Stack<ConcreteAction> concreteActions = new Stack<>();
+        LinkedList<ConcreteAction> concreteActions = new LinkedList<>();
         Precondition currentPrecondition = new AgentAtPrecondition(agent, action.getPosition());
 
         while (true) {
@@ -36,7 +37,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             );
 
             if (nextActionPosition.isAdjacentTo(agentStartPosition)) {
-                concreteActions.add(
+                concreteActions.addFirst(
                         new MoveConcreteAction(
                                 GlobalLevelService.getInstance().getRelativeDirection(
                                         nextActionPosition,
@@ -48,13 +49,13 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
                 break;
             }
 
-            concreteActions.add(nextAction);
+            concreteActions.addFirst(nextAction);
             currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
         }
 
         if (!GlobalLevelService.getInstance().isFree(action.getPosition())) {
             // If the cell we are moving to is not free, we remove the last MoveConcreteAction
-            concreteActions.remove(concreteActions.firstElement());
+            concreteActions.remove(concreteActions.getLast());
             return new POPPlan(concreteActions);
         }
 
