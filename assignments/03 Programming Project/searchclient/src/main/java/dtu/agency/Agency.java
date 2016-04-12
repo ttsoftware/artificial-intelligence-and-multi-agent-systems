@@ -5,7 +5,8 @@ import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.events.SendServerActionsEvent;
+import dtu.agency.events.client.DetectConflictsEvent;
+import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
@@ -84,5 +85,14 @@ public class Agency implements Runnable {
                 e.printStackTrace(System.err);
             }
         });
+    }
+
+    @Subscribe
+    public void detectConflictEventSubscriber(DetectConflictsEvent event) {
+
+        // TODO Detect conflict in the plans at given timestep
+
+        // Set to true if there is a conflict
+        event.setResponse(false);
     }
 }
