@@ -15,7 +15,6 @@ import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Agency implements Runnable {

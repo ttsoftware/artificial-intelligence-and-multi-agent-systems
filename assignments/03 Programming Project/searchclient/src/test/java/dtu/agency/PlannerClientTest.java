@@ -49,13 +49,13 @@ public class PlannerClientTest {
 
         HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
         // pop the next action from each plan
-        agentsPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.getActions().pop()));
+        agentsPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
         String toServer = PlannerClient.buildActionSet(agentsActions, numberOfAgents);
 
         assertEquals(toServer, "[Move(E),Move(W),Move(N),Move(S)]");
 
-        agentsPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.getActions().pop()));
+        agentsPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
         toServer = PlannerClient.buildActionSet(agentsActions, numberOfAgents);
 

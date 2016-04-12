@@ -1,24 +1,17 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.planners.htn.*;
-import dtu.agency.services.BDIService;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
+import dtu.agency.planners.htn.HTNGoalPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
-import dtu.agency.planners.agentplanner.HLPlan;
-import dtu.agency.planners.agentplanner.HLPlanner;
-import dtu.agency.services.DebugService;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
-
-import java.util.HashMap;
-import java.util.Objects;
 
 public class AgentThread implements Runnable {
 
@@ -81,6 +74,8 @@ public class AgentThread implements Runnable {
             PrimitivePlan llPlan = htnPlanner.plan();
             System.err.println("Agent " +agent.getLabel()+ ": Found Concrete Plan: " + llPlan.toString());
 
+            /*
+
             // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires
             HLPlanner planner = new HLPlanner(htnPlanner);
@@ -121,6 +116,8 @@ public class AgentThread implements Runnable {
             // e.g. solving separate intentions as GotoBox, MoveBox, etc.
             // this will give the agent the possibility of reacting to changes
             // in the environment.
+            */
+
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, llPlan)); // execute plan
         }
     }

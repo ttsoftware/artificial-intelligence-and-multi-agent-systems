@@ -8,6 +8,7 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.SendServerActionsEvent;
+import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 
@@ -38,6 +39,10 @@ public class PlannerClient {
         numberOfAgents = level.getAgents().size();
         sendServerActionsQueue = new ArrayBlockingQueue<>(numberOfAgents);
 
+        // Thread which actually communicates with the server
+        Thread t = new Thread(PlannerClient::sendActions);
+        t.start();
+
         // Register for actions event
         EventBusService.register(new EventSubscriber<SendServerActionsEvent>() {
 
@@ -53,20 +58,30 @@ public class PlannerClient {
                     // We are trying to add more Stacks than agents
                     e.printStackTrace(System.err);
                 }
-
-                // Pretend problem is solved
-                // EventBusService.post(new ProblemSolvedEvent());
             }
         });
 
-        Thread t = new Thread(PlannerClient::sendActions);
-        t.start();
+        EventBusService.register(new EventSubscriber<ProblemSolvedEvent>() {
+
+            @Override
+            public void changeSubscriber(ProblemSolvedEvent event) {
+
+                System.out.println("We solved the entire goal!");
+
+                // Join when problem has been solved
+                try {
+                    t.interrupt();
+                    t.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace(System.err);
+                }
+
+                assert !t.isAlive();
+            }
+        });
 
         Agency agency = new Agency(level);
         agency.run();
-
-        // Join when problem has been solved
-        t.join();
     }
 
     /**
@@ -95,19 +110,13 @@ public class PlannerClient {
         }
 
         // we should now have emptied the queue
-        assert sendServerActionsQueue.size() == 0;
-
-        int firstPlanActionCount = currentPlans.get(0).getActions().size();
 
         HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
         // pop the next action from each plan
-        currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.getActions().pop()));
+        currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
         // send actions to server
         send(buildActionSet(agentsActions));
-
-        // we should be missing an action in the plan
-        assert currentPlans.get(0).getActions().size() == firstPlanActionCount - 1;
 
         // add plans back into the stack - they are now missing an action each
         currentPlans.forEach((agentNumber, concretePlan) -> {
@@ -146,6 +155,10 @@ public class PlannerClient {
         if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
         }
+        if (response.equals("success")) {
+            // Pretend problem is solved
+            EventBusService.post(new ProblemSolvedEvent());
+        }
     }
 
     public static String buildActionSet(HashMap<Integer, ConcreteAction> agentsPlans) {
@@ -157,8 +170,8 @@ public class PlannerClient {
         StringJoiner toServerBuilder = new StringJoiner(",", "[", "]");
 
         // Java 8 is awesome
-        IntStream.range(0, numberOfAgents).forEach(i -> {
-            ConcreteAction agentAction = agentsActions.get(i);
+        IntStream.range(0, numberOfAgents).forEach(agentNumber -> {
+            ConcreteAction agentAction = agentsActions.get(agentNumber);
             if (agentAction != null) {
                 // append the action
                 toServerBuilder.add(agentAction.toString());

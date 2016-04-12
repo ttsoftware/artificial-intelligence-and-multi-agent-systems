@@ -17,4 +17,9 @@ public class POPPlan implements ConcretePlan {
     public Stack<ConcreteAction> getActions() {
         return concreteActions;
     }
+
+    @Override
+    public ConcreteAction popAction() {
+        return concreteActions.pop();
+    }
 }
