@@ -2,8 +2,9 @@ package dtu.agency.planners;
 
 import dtu.agency.actions.ConcreteAction;
 
-import java.util.Stack;
+import java.util.Collection;
 
 public interface ConcretePlan extends Plan<ConcreteAction> {
-    Stack<ConcreteAction> getActions();
+    Collection<ConcreteAction> getActions();
+    ConcreteAction popAction();
 }

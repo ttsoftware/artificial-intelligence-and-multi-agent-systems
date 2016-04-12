@@ -1,10 +1,11 @@
 package dtu.agency.planners.htn;
 
-import dtu.agency.ProblemMarshaller;
+import dtu.agency.ProblemMarshallerTest;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.DebugService;
+import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -17,14 +18,11 @@ public class HTNPlannerTest {
     private Agent agent;
     private Goal goal;
     private String s;
-    private static File resourcesDirectory;
     private static Level sad1Goto, sad1Move;
     private static Level lvl001, lvl002, lvl003, lvl004, lvl005, lvl006, lvl007, lvl008, lvl009;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        resourcesDirectory = new File("src/test/resources");
-
         sad1Goto = marshall("/SAD1_goto_box.lvl");
         sad1Move = marshall("/SAD1_move_box.lvl");
         lvl001 = marshall("/001.lvl"); // Fine plan - will solve the problem
@@ -39,42 +37,36 @@ public class HTNPlannerTest {
     }
 
     private static Level marshall(String path) throws IOException {
-        String levelPath = resourcesDirectory.getAbsolutePath() + path;
-        FileInputStream inputStream = new FileInputStream(levelPath);
-        BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
-        return ProblemMarshaller.marshall(fileReader);
+        return ProblemMarshallerTest.marshall(path);
     }
 
     public void levelTest(Level level, int maxSolutionLength) {
-        LevelService.getInstance().setLevel(level);
+        GlobalLevelService.getInstance().setLevel(level);
 
-        agent = LevelService.getInstance().getLevel().getAgents().get(0);
-        goal = LevelService.getInstance().getLevel().getGoals().get(0);
+        agent = GlobalLevelService.getInstance().getLevel().getAgents().get(0);
+        goal = GlobalLevelService.getInstance().getLevel().getGoals().get(0);
 
-        HTNPlanner htn = new HTNPlanner(agent, goal);
-        //System.err.println(htn.toString());
+        // Planner initialization
+        HTNPlanner htn = new HTNGoalPlanner(agent, goal);
+        System.err.println("HTNPlannerTest: " + htn.toString() + "\n");
 
-        //HTNPlan htnPlan = htn.getBestPlan(); // no longer needed??
-        //System.err.println(htnPlan.toString());
-
+        // Does heuristics calculation work
         int stepsApproximation = htn.getBestPlanApproximation();
+        assertTrue("HTNPlannerTest: Heuristic Approximation should be non-negative", stepsApproximation>=0);
+        System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
+
+        // does it find a plan? Maybe we would like to debug this area of the code
+        boolean oldDebugMode = DebugService.setDebugMode(true);
         PrimitivePlan plan = htn.plan();
-        //System.err.println(plan.toString());
+        DebugService.setDebugMode(oldDebugMode);
 
-        System.err.println("");
-        //if (htnPlan != null) System.err.println(htnPlan.toString());
+        assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
+        System.err.println("HTNPlannerTest: " + plan.toString() + "\n");
+        assertTrue("HTNPlannerTest: primitivePlan is empty", !plan.isEmpty());
 
-        //assertTrue("htnPlan does not exist", htnPlan != null);
-        //assertTrue("htnPlan is empty", !htnPlan.isEmpty());
-
-        assertTrue("Heuristic Approximation should be non-negative", stepsApproximation>=0);
-        assertTrue("primitivePlan is not found", plan != null);
-        assertTrue("primitivePlan is empty", !plan.isEmpty());
-        System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation));
-        System.err.println(plan.toString());
-
+        // is the plan within expected length?
         s = "primitivePlan is longer than " + Integer.toString(maxSolutionLength);
-        s += " steps, it is " + plan.getActions().size();
+        s += " steps, it is " + plan.getActions().size() + "\n";
         assertTrue(s, plan.getActions().size() <= maxSolutionLength);
     }
 

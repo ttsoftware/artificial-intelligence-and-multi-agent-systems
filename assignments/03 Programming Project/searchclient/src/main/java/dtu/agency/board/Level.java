@@ -10,7 +10,7 @@ public class Level implements Serializable {
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;
     private ConcurrentHashMap<String, Position> boardObjectPositions;
-    private PriorityBlockingQueue<Goal> goalQueue;
+    private List<PriorityBlockingQueue<Goal>> goalQueues;
     private ConcurrentHashMap<String, List<Goal>> boxesGoals;
     private ConcurrentHashMap<String, List<Box>> goalsBoxes;
     private List<Goal> goals;
@@ -21,7 +21,7 @@ public class Level implements Serializable {
     public Level(BoardCell[][] boardState,
                  BoardObject[][] boardObjects,
                  ConcurrentHashMap<String, Position> boardObjectPositions,
-                 PriorityBlockingQueue<Goal> goalQueue,
+                 List<PriorityBlockingQueue<Goal>> goalQueues,
                  ConcurrentHashMap<String, List<Goal>> boxesGoals,
                  ConcurrentHashMap<String, List<Box>> goalsBoxes,
                  List<Goal> goals,
@@ -31,7 +31,7 @@ public class Level implements Serializable {
         this.boardState = boardState;
         this.boardObjects = boardObjects;
         this.boardObjectPositions = boardObjectPositions;
-        this.goalQueue = goalQueue;
+        this.goalQueues = goalQueues;
         this.boxesGoals = boxesGoals;
         this.goalsBoxes = goalsBoxes;
         this.goals = goals;
@@ -64,8 +64,8 @@ public class Level implements Serializable {
         this.boardObjectPositions = boardObjectPositions;
     }
 
-    public PriorityBlockingQueue<Goal> getGoalQueue() {
-        return goalQueue;
+    public List<PriorityBlockingQueue<Goal>> getGoalQueues() {
+        return goalQueues;
     }
 
     public ConcurrentHashMap<String, List<Goal>> getBoxesGoals() {
