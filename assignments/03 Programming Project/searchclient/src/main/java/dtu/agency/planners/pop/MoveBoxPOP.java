@@ -15,41 +15,52 @@ import java.util.Stack;
 public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
     private Position boxStartPosition;
-    private Position currentBoxPosition = null;
-    private Position currentAgentPosition = null;
 
     public MoveBoxPOP(Agent agent) {
         super(agent);
     }
 
-    public Stack<Action> getPlan(Box box, Stack<MoveBoxAction> previousActions){
 
-        Stack<Action> actions = new Stack<Action>();
+    public POPPlan plan(MoveBoxAbstractAction action) {
+        Box box = action.getBox();
+        boxStartPosition = LevelService.getInstance().getPosition(box.getLabel());
+        Position currentBoxPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 
-        if(currentBoxPosition.isAdjacentTo(boxStartPosition))
+        return new POPPlan(getPlan(box, currentBoxPosition, null, new Stack<>()));
+    }
+
+
+    public Stack<Action> getPlan(Box box, Position currentBoxPosition, Position currentAgentPosition, Stack<MoveBoxAction> previousActions){
+
+        Stack<Action> actions = new Stack<>();
+
+        if(currentBoxPosition.isAdjacentTo(boxStartPosition)
+                && (currentAgentPosition.equals(boxStartPosition) && !currentBoxPosition.equals(currentAgentPosition)
+                || (currentBoxPosition.equals(agentStartPosition) && !agentStartPosition.equals(currentBoxPosition))))
         {
-            actions.add(getFirstAction(box));
+            actions.add(getFirstAction(box, currentBoxPosition, currentAgentPosition));
             return actions;
         }
 
         Precondition currentPrecondition = new BoxAtPrecondition(box, agent, currentBoxPosition);
-
         PriorityQueue<MoveBoxAction> stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
 
-        if(stepActions != null)
+        if(!stepActions.isEmpty())
         {
             MoveBoxAction nextAction = stepActions.poll();
 
-            for (MoveBoxAction previousAction : previousActions) {
-                if (nextAction.getBoxPosition().equals(previousAction.getBoxPosition())) {
-                    //&& nextAction.getAgentPosition().equals(previousAction.getAgentPosition())))
-                    if(stepActions.size() > 0)
-                    {
+            boolean foundCorrectAction = false;
+
+            while(!foundCorrectAction) {
+                if (introducesCycle(nextAction, previousActions)) {
+                    if (!stepActions.isEmpty()) {
                         nextAction = stepActions.poll();
-                    }
-                    else {
+                    } else {
                         return null;
                     }
+                }
+                else {
+                    foundCorrectAction = true;
                 }
             }
 
@@ -57,20 +68,34 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
             currentAgentPosition = nextAction.getAgentPosition();
             previousActions.add(nextAction);
 
-            if(getPlan(box, previousActions) != null)
+            actions = getPlan(box, currentBoxPosition, currentAgentPosition, previousActions);
+
+            if(actions != null)
             {
                 actions.add(nextAction);
             }
             else
             {
+                //TODO: backtrack
                 previousActions.remove(nextAction);
             }
         }
 
-        return null;
+        return actions;
     }
 
-    public MoveBoxAction getFirstAction(Box box) {
+    public boolean introducesCycle(MoveBoxAction nextAction, Stack<MoveBoxAction> previousActions)
+    {
+        for (MoveBoxAction previousAction : previousActions) {
+            if (nextAction.getBoxPosition().equals(previousAction.getBoxPosition())) {
+                //&& nextAction.getAgentPosition().equals(previousAction.getAgentPosition())))
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public MoveBoxAction getFirstAction(Box box, Position currentBoxPosition, Position currentAgentPosition) {
         if(!currentBoxPosition.equals(agentStartPosition))
         {
             return new PushAction(
@@ -110,84 +135,6 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                     Integer.MIN_VALUE
             );
         }
-    }
-
-    public POPPlan plan(MoveBoxAbstractAction action) {
-        //Stack<Action> actions = new Stack<>();
-
-        Position goalPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
-
-        Box box = action.getBox();
-        boxStartPosition = LevelService.getInstance().getPosition(box.getLabel());
-
-        //Precondition currentPrecondition = new BoxAtPrecondition(box, agent, goalPosition);
-        currentBoxPosition = goalPosition;
-
-        return new POPPlan(getPlan(box, new Stack<>()));
-        /*while (!currentBoxPosition.isAdjacentTo(boxStartPosition)) {
-
-            PriorityQueue<MoveBoxAction> stepActions = solvePrecondition((BoxAtPrecondition) currentPrecondition);
-            MoveBoxAction nextAction = stepActions.poll();
-
-            if(nextAction != null)
-            {
-                currentBoxPosition = nextAction.getBoxPosition();
-                currentAgentPosition = nextAction.getAgentPosition();
-
-                actions.add(nextAction);
-                currentPrecondition = new BoxAtPrecondition(box, agent, currentBoxPosition);
-            }
-            else
-            {
-                //TODO: backtrack
-            }
-
-        }*/
-
-        /*if(currentBoxPosition.isAdjacentTo(boxStartPosition))
-        {
-            if(!currentBoxPosition.equals(agentStartPosition))
-            {
-                actions.add(new PushAction(
-                        box,
-                        agent,
-                        boxStartPosition,
-                        agentStartPosition,
-                        LevelService.getInstance().getMovingDirection(
-                                boxStartPosition,
-                                currentBoxPosition
-                        ),
-                        LevelService.getInstance().getMovingDirection(
-                                agentStartPosition,
-                                boxStartPosition
-                        ),
-                        Integer.MIN_VALUE
-                ));
-            }
-            else {
-                if (currentAgentPosition == null) {
-                    currentAgentPosition = LevelService.getInstance().
-                            getFreeNeighbours(currentBoxPosition).get(0).getPosition();
-                }
-                actions.add(new PullAction(
-                        box,
-                        agent,
-                        boxStartPosition,
-                        agentStartPosition,
-                        LevelService.getInstance().getMovingDirection(
-                                boxStartPosition,
-                                currentBoxPosition
-                        ),
-                        LevelService.getInstance().getMovingDirection(
-                                currentBoxPosition,
-                                currentAgentPosition
-                        ),
-                        Integer.MIN_VALUE
-                ));
-            }
-        }*/
-
-        //return new POPPlan(actions);
     }
 
     /**

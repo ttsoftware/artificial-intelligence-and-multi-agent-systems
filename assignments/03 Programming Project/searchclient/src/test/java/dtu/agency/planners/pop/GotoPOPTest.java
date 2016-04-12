@@ -23,7 +23,7 @@ public class GotoPOPTest {
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_goto_box.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/GoToBacktrack.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));

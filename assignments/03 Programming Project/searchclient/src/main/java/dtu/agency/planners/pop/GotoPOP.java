@@ -3,13 +3,16 @@ package dtu.agency.planners.pop;
 import dtu.agency.agent.actions.Action;
 import dtu.agency.agent.actions.ActionComparator;
 import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.agent.actions.MoveBoxAction;
 import dtu.agency.agent.actions.preconditions.AgentAtPrecondition;
 import dtu.agency.agent.actions.preconditions.Precondition;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.planners.actions.GotoAbstractAction;
+import dtu.agency.planners.actions.MoveBoxAbstractAction;
 import dtu.agency.services.LevelService;
+import server.action.Move;
 
 import java.util.List;
 import java.util.PriorityQueue;
@@ -17,54 +20,78 @@ import java.util.Stack;
 
 public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
 
+    private Position agentStartPosition;
+
     public GotoPOP(Agent agent) {
         super(agent);
     }
 
-    public POPPlan plan(GotoAbstractAction action) {
+    public POPPlan plan(GotoAbstractAction gotoAbstractAction)
+    {
+        Position goalPosition = gotoAbstractAction.getPosition();
+        agentStartPosition = LevelService.getInstance().getPosition(agent.getLabel());
 
+        return new POPPlan(getPlan(goalPosition, new Stack<>()));
+    }
+
+    public Stack<Action> getPlan(Position currentAgentPosition, Stack<MoveAction> previousActions) {
         Stack<Action> actions = new Stack<>();
-        Precondition currentPrecondition = new AgentAtPrecondition(agent, action.getPosition());
 
-        while (true) {
-            PriorityQueue<Action> stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
+        Precondition currentPrecondition = new AgentAtPrecondition(agent, currentAgentPosition);
 
-            if(stepActions.size() > 0) {
-                MoveAction nextAction = (MoveAction) stepActions.poll();
+        if (currentAgentPosition.isAdjacentTo(agentStartPosition)) {
+            actions.add(new MoveAction(agent, currentAgentPosition, LevelService.getInstance()
+                    .getMovingDirection(agentStartPosition, currentAgentPosition), 0));
+            return actions;
+        }
 
-                Position nextActionPosition = LevelService.getInstance().getPositionInDirection(
-                        nextAction.getAgentPosition(),
-                        nextAction.getDirection()
-                );
+        PriorityQueue<Action> stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
 
-                if (nextActionPosition.isAdjacentTo(agentStartPosition)) {
-                    actions.add(
-                            new MoveAction(
-                                    LevelService.getInstance().getMovingDirection(
-                                            agentStartPosition,
-                                            nextActionPosition
-                                    )
-                            )
-                    );
-                    break;
+        if (!stepActions.isEmpty()) {
+            MoveAction nextAction = (MoveAction) stepActions.poll();
+
+            boolean foundCorrectAction = false;
+
+            while (!foundCorrectAction) {
+                if (introducesCycle(nextAction, previousActions)) {
+                    if (!stepActions.isEmpty()) {
+                        nextAction = (MoveAction) stepActions.poll();
+                    } else {
+                        return null;
+                    }
+                } else {
+                    foundCorrectAction = true;
                 }
-
-                actions.add(nextAction);
-                currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
             }
 
-            else {
-                //TODO: backtrack
+            previousActions.add(nextAction);
+
+            while ((actions = getPlan(nextAction.getAgentPosition(), previousActions)) == null) {
+                if (!stepActions.isEmpty()) {
+                    previousActions.remove(nextAction);
+                    nextAction = (MoveAction) stepActions.poll();
+                } else {
+                    return null;
+                }
+            }
+
+            if (actions.size() == 1) {
+                actions.addAll(0, previousActions);
             }
         }
 
-        if (!LevelService.getInstance().isFree(action.getPosition())) {
-            // If the cell we are moving to is not free, we remove the last MoveAction
-            actions.remove(actions.firstElement());
-            return new POPPlan(actions);
-        }
+        return actions;
+    }
 
-        return new POPPlan(actions);
+
+    public boolean introducesCycle(MoveAction nextAction, Stack<MoveAction> previousActions)
+    {
+        for (MoveAction previousAction : previousActions) {
+            if (nextAction.getAgentPosition().equals(previousAction.getAgentPosition())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
