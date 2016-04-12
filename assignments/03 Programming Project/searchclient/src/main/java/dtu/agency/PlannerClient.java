@@ -7,7 +7,8 @@ import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
-import dtu.agency.events.SendServerActionsEvent;
+import dtu.agency.events.client.DetectConflictsEvent;
+import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
@@ -114,6 +115,16 @@ public class PlannerClient {
         HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
         // pop the next action from each plan
         currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
+
+        // Hand conflicts to someone
+        DetectConflictsEvent detectConflictsEvent = new DetectConflictsEvent(currentPlans);
+        EventBusService.post(detectConflictsEvent);
+
+        boolean isConflict = detectConflictsEvent.getResponse(1000);
+
+        if (isConflict) {
+            // TODO Shit if conflict - probably resolve it...
+        }
 
         // send actions to server
         send(buildActionSet(agentsActions));
