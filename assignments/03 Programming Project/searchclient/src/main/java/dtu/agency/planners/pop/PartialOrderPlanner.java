@@ -19,7 +19,7 @@ public class PartialOrderPlanner {
         POPPlan plan = null;
 
         switch (action.getType()) {
-            case GotoAction:
+            case RGotoAction:
                 plan = new GotoPOP(agent).plan((GotoAbstractAction) action);
                 break;
             case MoveBoxAction:

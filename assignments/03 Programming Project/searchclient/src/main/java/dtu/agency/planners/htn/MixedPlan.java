@@ -18,13 +18,17 @@ public class MixedPlan implements Plan {
         this.actions = new LinkedList<>(actions);
     }
 
+    public MixedPlan(MixedPlan other) {
+        this.actions = new LinkedList<>(other.getActions());
+    }
+
     public void addAction(Action a) {
         this.actions.add(a);
     }
 
     @Override
     public LinkedList<Action> getActions() {
-        return actions;
+        return new LinkedList<>(actions);
     }
 
     public Action getFirst() { return actions.peekFirst(); }

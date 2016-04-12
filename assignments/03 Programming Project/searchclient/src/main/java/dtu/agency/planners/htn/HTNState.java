@@ -1,8 +1,10 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.abstractaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
+import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
@@ -11,6 +13,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
 
@@ -20,10 +23,26 @@ public class HTNState {
 
     private final Position agentPosition;
     private final Position boxPosition;
+    private RelaxationMode relaxationMode;
 
-    public HTNState(Position agentPosition, Position boxPosition) {
+    public HTNState(HTNState other) {
+        this.agentPosition = new Position(other.getAgentPosition());
+        this.boxPosition = new Position(other.getBoxPosition());
+        this.relaxationMode = other.relaxationMode;
+    }
+
+/*    public HTNState(Position agentPosition, Position boxPosition) throws AssertionError {
         this.agentPosition = agentPosition;
         this.boxPosition = boxPosition;
+        this.relaxationMode = RelaxationMode.NoAgentsNoBoxes;
+        if (agentPosition == null) throw new AssertionError("MUST have an agent location");
+    }*/
+
+    public HTNState(Position agentPosition, Position boxPosition, RelaxationMode mode) throws AssertionError {
+        this.agentPosition = agentPosition;
+        this.boxPosition = boxPosition;
+        this.relaxationMode = mode;
+        if (agentPosition == null) throw new AssertionError("MUST have an agent location");
     }
 
     public Position getAgentPosition() {
@@ -32,6 +51,14 @@ public class HTNState {
 
     public Position getBoxPosition() {
         return boxPosition;
+    }
+
+    public RelaxationMode getRelaxationMode() {
+        return relaxationMode;
+    }
+
+    public void setRelaxationMode(RelaxationMode relaxationMode) {
+        this.relaxationMode = relaxationMode;
     }
 
     public boolean boxIsMovable() {
@@ -43,20 +70,116 @@ public class HTNState {
     }
 
     public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
-        debug("isLegal():", 2);
+        debug("isLegal(): ", 2);
+        debug("RelaxMode: " + relaxationMode.toString());
+        boolean legal = !agentPosition.equals(boxPosition);
+        debug("box and agent position are not identical:" + Boolean.toString(legal) );
 
-        boolean valid = !agentPosition.equals(boxPosition);
-        debug("box and agent position are not identical:" + Boolean.toString(valid) );
+        legal &= (!wallConflict());
+        if (!legal) { // save the computations
+            debug("",-2);
+            return legal;
+        }
 
-        valid &= !GlobalLevelService.getInstance().isWall(agentPosition);
-        debug("agent is not at wall:" + Boolean.toString(valid) );
+        switch (relaxationMode) {
+            // walls are considered already
+
+            case None:            // consider agents + boxes + walls
+                legal &= (!boxConflict());
+                legal &= (!agentConflict());
+                break;
+
+            case NoAgents:        // Boxes and Walls are considered
+                legal &= (!boxConflict());
+                break;
+
+            case NoAgentsNoBoxes: // Only Walls are considered
+                break;
+
+            default:
+                debug("relaxationMode defaulted!");
+        }
+
+
+        debug("", -2);
+        return legal;
+    }
+
+    private boolean agentConflict() {
+        boolean conflict = false;
+        String myself = PlanningLevelService.getAgent().getLabel();
+        String myBox = PlanningLevelService.getTargetBox().getLabel();
+        GlobalLevelService gls = GlobalLevelService.getInstance();
+
+        // TODO: use PlanningLevelService instead
+        // Global level service is fine, but we dont wanna take up the resource
+        // and we want to (automatically) exclude the agent we are planning for
+        if (!gls.isFree(agentPosition)){
+            String globalAtAgentPos = gls.getObjectLabels(agentPosition);
+//            System.err.println("Agent position "+boxPosition.toString()+", has: " + globalAtAgentPos );
+            if (!(globalAtAgentPos.equals(myself)) || globalAtAgentPos.equals(myBox)) { // not myself !
+                conflict = true; // conflict !
+                debug("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
+                debug("My box: "+myBox+" | gls box: " + globalAtAgentPos );
+//                System.err.println("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
+            }
+            // TODO: THIS DISABLES THE AGENT DETECTION - BUT IT FAILS USING GLS
+            conflict = false;
+        }
+
+        if (boxPosition!=null) {
+            if (!gls.isFree(boxPosition)) {
+                // its the goal?
+                String globalAtBoxPos = gls.getObjectLabels(boxPosition);
+                if (globalAtBoxPos.matches("(^|\\s)([0-9])")) { // an agent!
+                    conflict = (globalAtBoxPos.charAt(0) == myself.charAt(0)) ? false : true;
+                    debug("Box position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
+                }
+            }
+        }
+
+        return conflict;
+    }
+
+    private boolean boxConflict() {
+        boolean conflict = false;
+        String myBox = PlanningLevelService.getTargetBox().getLabel();
+        GlobalLevelService gls = GlobalLevelService.getInstance();
+
+        // TODO: Global level service  -> planning level service
+        if (!gls.isFree(agentPosition)){
+            String globalAtAgentPos = gls.getObjectLabels(agentPosition);
+            if (!globalAtAgentPos.equals(myBox)) { // not myself !
+                conflict = true; // conflict !
+                debug("Agent position "+agentPosition.toString()+" is same as a box:" + Boolean.toString(conflict) );
+                debug("My box: "+myBox+" | gls box: " + globalAtAgentPos );
+
+            }
+        }
+
+        if (boxPosition!=null) {
+            if (!gls.isFree(boxPosition)) {
+                String globalAtBoxPos = gls.getObjectLabels(boxPosition);
+                if (!globalAtBoxPos.equals(myBox)) { // not myself !
+                    conflict = true; // conflict !
+                    debug("Box position "+boxPosition.toString()+" is same as a box:" + Boolean.toString(conflict) );
+                }
+            }
+        }
+        return conflict;
+    }
+
+    private boolean wallConflict() {
+        // Global level service is fine
+        boolean conflict = GlobalLevelService.getInstance().isWall(agentPosition);
+        debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
+        if (conflict) return conflict;
 
         if (boxPosition != null) {
-            valid &= !GlobalLevelService.getInstance().isWall(boxPosition);
-            debug("box is not at wall:" + Boolean.toString(valid) );
+            conflict |= GlobalLevelService.getInstance().isWall(boxPosition);
+            debug("Box position "+boxPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
         }
-        debug("", -2);
-        return valid;
+        return conflict;
     }
 
     /*
@@ -80,10 +203,10 @@ public class HTNState {
                     SolveGoalAction sga = (SolveGoalAction) action;
                     MixedPlan sgRefinement = new MixedPlan();
 
-                    sgRefinement.addAction(new GotoAction(
+                    sgRefinement.addAction(new RGotoAction(
                             GlobalLevelService.getInstance().getPosition(sga.getBox()) // TODO: PlannerLevelService !?
                     ));
-                    sgRefinement.addAction(new MoveBoxAction(
+                    sgRefinement.addAction(new RMoveBoxAction(
                             sga.getBox(),
                             GlobalLevelService.getInstance().getPosition(sga.getGoal()) // TODO: PlannerLevelService !?
                     ));
@@ -95,12 +218,12 @@ public class HTNState {
                     CircumventBoxAction circAction = (CircumventBoxAction) action;
                     MixedPlan circRefinement = new MixedPlan();
 
-                    circRefinement.addAction(new GotoAction(circAction.getAgentDestination())); // TODO: no relaxation!?
+                    circRefinement.addAction(new RGotoAction(circAction.getAgentDestination())); // TODO: no relaxation!?
                     refinements.add(circRefinement);
                     break;
 
-                case GotoAction:
-                    GotoAction gta = (GotoAction) action;
+                case RGotoAction:
+                    RGotoAction gta = (RGotoAction) action;
 
                     for (Direction dir : Direction.values()) {
                         MixedPlan gotoRefinement = new MixedPlan();
@@ -116,7 +239,7 @@ public class HTNState {
                     break;
 
                     case MoveBoxAction:
-                        MoveBoxAction mba = (MoveBoxAction) action;
+                        RMoveBoxAction mba = (RMoveBoxAction) action;
                         if (!this.boxIsMovable()) {
                             debug("Box not movable");
                         } else {
@@ -168,14 +291,14 @@ public class HTNState {
                     break;
 
                 case MoveBoxAndReturn:
-                        MoveBoxAndReturnAction mbar = (MoveBoxAndReturnAction) action;
+                        HMoveBoxAction mbar = (HMoveBoxAction) action;
                         MixedPlan mbarRefinement = new MixedPlan();
 
-                        mbarRefinement.addAction(new GotoAction( // TODO: PlannerLevelService??
+                        mbarRefinement.addAction(new RGotoAction( // TODO: PlannerLevelService??
                                 GlobalLevelService.getInstance().getPosition(mbar.getBox())
                         ) );
-                        mbarRefinement.addAction(new MoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
-                        mbarRefinement.addAction(new GotoAction( mbar.getAgentDestination() ) );
+                        mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
+                        mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );
                         refinements.add(mbarRefinement);
                         break;
                 }
@@ -196,6 +319,7 @@ public class HTNState {
         debug("applyConcreteActions():", 2);
         Position oldAgentPos = getAgentPosition();
         Position oldBoxPos   = getBoxPosition();
+        RelaxationMode mode  = getRelaxationMode();
         Position newAgentPos, newBoxPos;
         HTNState result;
 
@@ -208,7 +332,7 @@ public class HTNState {
                 MoveConcreteAction moveAction = (MoveConcreteAction) concreteAction;
                 newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
 
-                result = new HTNState(newAgentPos, oldBoxPos);
+                result = new HTNState(newAgentPos, oldBoxPos, mode);
                 debug(" + " + moveAction.toString() + " -> " + result.toString() );
 
                 if (result.isLegal()) {
@@ -225,7 +349,7 @@ public class HTNState {
 
                 newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
                 newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
-                result = new HTNState(newAgentPos, newBoxPos);
+                result = new HTNState(newAgentPos, newBoxPos, mode);
 
                 debug(" + " + pushAction.toString() + " -> " + result.toString());
                 // check preconditions !!! THIS IS PUSH
@@ -248,7 +372,7 @@ public class HTNState {
 
                 newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
                 newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
-                result = new HTNState(newAgentPos, newBoxPos);
+                result = new HTNState(newAgentPos, newBoxPos, mode);
 
                 debug(" + " + pullAction.toString() + " -> " + result.toString());
 
@@ -297,18 +421,19 @@ public class HTNState {
 
         switch (action.getType()) {
             case SolveGoal:
-                SolveGoalAction sga = (SolveGoalAction) action;
+                SolveGoalAction sga = new SolveGoalAction((SolveGoalAction) action);
                 fulfilled = this.getBoxPosition().equals(sga.getGoal().getPosition());
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at goal location");
                 break;
 
             case Circumvent:
+                CircumventBoxAction cba = new CircumventBoxAction((CircumventBoxAction) action);
                 fulfilled  = this.getAgentPosition().equals( action.getDestination() );
                 fulfilled &= this.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(action.getBox()) ); // TODO: PlannerLevelService
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
 
-            case GotoAction:
+            case RGotoAction:
                 fulfilled = this.getAgentPosition().isAdjacentTo(action.getDestination()); // TODO: adjacent is enough?? only if box is null
                 debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
                 break;
@@ -319,7 +444,7 @@ public class HTNState {
                 break;
 
             case SolveGoalSuper:
-                SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
+                SolveGoalSuperAction sgsa = new SolveGoalSuperAction((SolveGoalSuperAction) action);
                 fulfilled = (this.getBoxPosition()!=null) ? this.getBoxPosition().equals(sgsa.getGoal().getPosition()): false;
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
@@ -329,7 +454,7 @@ public class HTNState {
                 break;
 
             case MoveBoxAndReturn:
-                MoveBoxAndReturnAction mbarAction = (MoveBoxAndReturnAction) action;
+                HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) action);
                 fulfilled  = this.getAgentPosition().equals( mbarAction.getAgentDestination() );
                 fulfilled &= this.getBoxPosition().equals( mbarAction.getBoxDestination() );
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
@@ -352,7 +477,7 @@ public class HTNState {
     /**
      * What does this do? As far as i can see it does not return anything meaningful
      * Mads: Well it is meaningfull to check whether states have been visited before in the planning loop
-     * and to check if 2 states are equal... this method comes in handy
+     * and to check if 2 states are equal... this method comes in handy :-)
      *
      * @param obj
      * @return
@@ -381,7 +506,7 @@ public class HTNState {
         final int prime = 31;
         int result = 1;
         result = prime * result + agentPosition.hashCode();
-        result = prime * result + boxPosition.hashCode();
+        result = prime * result + ((boxPosition!=null) ? boxPosition.hashCode() : 0);
         return result;
     }
 

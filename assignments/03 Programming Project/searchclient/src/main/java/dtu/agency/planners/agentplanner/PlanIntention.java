@@ -1,9 +1,7 @@
 package dtu.agency.planners.agentplanner;
 
 
-import dtu.agency.actions.abstractaction.HLAction;
-
-import java.util.LinkedList;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 
 public class PlanIntention {
     // Intentions are really High Level SolveGoalActions()

@@ -347,7 +347,21 @@ public class GlobalLevelService implements Serializable {
         return level.getBoardState()[row][column] == BoardCell.WALL;
     }
 
-    public synchronized Position getPosition(BoardObject boardObject) {
+    public synchronized boolean isAgent(Position pos) {
+        return isAgent(pos.getRow(), pos.getColumn());
+    }
+
+    public synchronized boolean isAgent(int row, int column) {
+        boolean value = level.getBoardState()[row][column] == BoardCell.AGENT;
+        value |= level.getBoardState()[row][column] == BoardCell.AGENT_GOAL;
+        return value;
+    }
+
+    public synchronized String getObjectLabels(Position pos) {
+        return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
+    }
+
+        public synchronized Position getPosition(BoardObject boardObject) {
         return getPosition(boardObject.getLabel());
     }
 

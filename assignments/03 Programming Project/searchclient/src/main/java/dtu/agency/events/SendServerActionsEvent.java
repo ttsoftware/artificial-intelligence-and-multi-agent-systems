@@ -1,22 +1,27 @@
 package dtu.agency.events;
 
-import dtu.agency.actions.ConcreteAction;
-
-import java.util.Stack;
+import dtu.agency.board.Agent;
+import dtu.agency.planners.ConcretePlan;
 
 public class SendServerActionsEvent extends Event {
 
-    private final Stack<ConcreteAction> concreteActions;
+    private final Agent agent;
+    private final ConcretePlan concretePlan;
 
     /**
-     * The client listens for these events, and forwards them to the server
-     * @param concreteActions Must be a list equal to the number of agents
+     * The plannerclient listens for these events, and forwards them to the server
+     * @param concretePlan
      */
-    public SendServerActionsEvent(Stack<ConcreteAction> concreteActions) {
-        this.concreteActions = concreteActions;
+    public SendServerActionsEvent(Agent agent, ConcretePlan concretePlan) {
+        this.agent = agent;
+        this.concretePlan = concretePlan;
     }
 
-    public Stack<ConcreteAction> getConcreteActions() {
-        return concreteActions;
+    public ConcretePlan getConcretePlan() {
+        return concretePlan;
+    }
+
+    public Agent getAgent() {
+        return agent;
     }
 }

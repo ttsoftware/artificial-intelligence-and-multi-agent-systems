@@ -1,44 +1,29 @@
 package dtu.agency.agent.bdi;
 
 
-import dtu.agency.actions.abstractaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.NoAction;
-import dtu.agency.board.Agent;
-import dtu.agency.services.GlobalLevelService;
-
-import java.util.LinkedList;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.planners.agentplanner.HLPlan;
 
 public class AgentIntention {
-    // Intentions are really High Level SolveGoalActions()
-    LinkedList<HLAction> topLevelIntentions; // orders from the agency (or other agents)
-    HLAction currentIntention;
+    // (top level) Intentions are really SolveGoalSuperActions()
+    // but could also be other orders issued by TheAgency
+    private final HLAction intention;
+    private HLPlan highLevelPlan;  // consisting of 'pure' HLActions??
 
-    public AgentIntention(Agent agent) {
-        topLevelIntentions = new LinkedList<>();
-        currentIntention = new NoAction(GlobalLevelService.getInstance().getPosition(agent));
+    public AgentIntention(HLAction topIntention) {
+        highLevelPlan = new HLPlan();
+        intention = topIntention;
     }
 
-    public HLAction viewCurrentTopLevelIntention(){
-        return topLevelIntentions.peekFirst();
+    public HLAction getIntention() {
+        return intention;
     }
 
-    public HLAction removeCurrentTopLevelIntention() {
-        return topLevelIntentions.pollFirst();
+    public HLPlan getHighLevelPlan() {
+        return highLevelPlan;
     }
 
-    public void addTopLevelIntention(HLAction intention) {
-        this.topLevelIntentions.add(intention);
-    }
-
-    public void addPrioritizedTopLevelIntention(HLAction intention) {
-        this.topLevelIntentions.addFirst(intention);
-    }
-
-    public HLAction getCurrentIntention() {
-        return currentIntention;
-    }
-
-    public void setCurrentIntention(HLAction currentIntention) {
-        this.currentIntention = currentIntention;
+    public void setHighLevelPlan(HLPlan highLevelPlan) {
+        this.highLevelPlan = highLevelPlan;
     }
 }
