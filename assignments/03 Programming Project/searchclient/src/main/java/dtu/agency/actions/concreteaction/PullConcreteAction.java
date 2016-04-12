@@ -8,6 +8,10 @@ public class PullConcreteAction extends MoveBoxConcreteAction {
         super(box, agentDirection, boxDirection);
     }
 
+    public PullConcreteAction(PullConcreteAction pull) {
+        super((MoveBoxConcreteAction) pull);
+    }
+
     @Override
     public ConcreteActionType getType() {
         return ConcreteActionType.PULL;

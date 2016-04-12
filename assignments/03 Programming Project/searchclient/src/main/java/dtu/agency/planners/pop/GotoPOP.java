@@ -9,7 +9,7 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.actions.abstractaction.GotoAbstractAction;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.List;
 import java.util.PriorityQueue;
@@ -30,7 +30,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             PriorityQueue<ConcreteAction> stepConcreteActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
             MoveConcreteAction nextAction = (MoveConcreteAction) stepConcreteActions.poll();
 
-            Position nextActionPosition = LevelService.getInstance().getAdjacentPositionInDirection(
+            Position nextActionPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(
                     nextAction.getAgentPosition(),
                     nextAction.getDirection()
             );
@@ -38,7 +38,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             if (nextActionPosition.isAdjacentTo(agentStartPosition)) {
                 concreteActions.add(
                         new MoveConcreteAction(
-                                LevelService.getInstance().getRelativeDirection(
+                                GlobalLevelService.getInstance().getRelativeDirection(
                                         nextActionPosition,
                                         agentStartPosition,
                                         true
@@ -52,7 +52,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             currentPrecondition = new AgentAtPrecondition(agent, nextAction.getAgentPosition());
         }
 
-        if (!LevelService.getInstance().isFree(action.getPosition())) {
+        if (!GlobalLevelService.getInstance().isFree(action.getPosition())) {
             // If the cell we are moving to is not free, we remove the last MoveConcreteAction
             concreteActions.remove(concreteActions.firstElement());
             return new POPPlan(concreteActions);
@@ -69,7 +69,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
     public PriorityQueue<ConcreteAction> solvePrecondition(AgentAtPrecondition precondition) {
         PriorityQueue<ConcreteAction> concreteActions = new PriorityQueue<>(new ActionComparator());
 
-        List<Neighbour> neighbours = LevelService.getInstance().getFreeNeighbours(
+        List<Neighbour> neighbours = GlobalLevelService.getInstance().getFreeNeighbours(
                 precondition.getAgentPreconditionPosition()
         );
 
@@ -78,7 +78,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
                     agent,
                     neighbour.getPosition(),
                     neighbour.getDirection().getInverse(),
-                    LevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
+                    GlobalLevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             concreteActions.add(nextAction);
         }

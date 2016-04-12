@@ -12,15 +12,16 @@ import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.services.EventBusService;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Agency implements Runnable {
 
     public Agency(Level level) {
-        LevelService.getInstance().setLevel(level);
+        GlobalLevelService.getInstance().setLevel(level);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class Agency implements Runnable {
 
         List<String> agentLabels = new ArrayList<>();
 
-        LevelService.getInstance().getLevel().getAgents().forEach(agent -> {
+        GlobalLevelService.getInstance().getLevel().getAgents().forEach(agent -> {
             System.err.println("Starting agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
@@ -42,7 +43,7 @@ public class Agency implements Runnable {
 
         // Offer goals to agents
         // Each goalQueue is independent of one another so we can parallelStream
-        LevelService.getInstance().getLevel().getGoalQueues().parallelStream().forEach(goalQueue -> {
+        GlobalLevelService.getInstance().getLevel().getGoalQueues().parallelStream().forEach(goalQueue -> {
 
             Goal goal;
             // we can poll(), since we know all estimations have finished

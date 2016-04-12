@@ -11,6 +11,12 @@ public class Goal extends BoardObject implements Comparable<Goal> {
         this.weight = weight;
     }
 
+    public Goal(Goal other) {
+        super(other.getLabel());
+        this.position = new Position(other.getPosition());
+        this.weight = other.getWeight();
+    }
+
     public int getWeight() {
         return weight;
     }

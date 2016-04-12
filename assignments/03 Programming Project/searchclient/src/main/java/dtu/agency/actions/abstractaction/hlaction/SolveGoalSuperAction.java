@@ -4,24 +4,22 @@ import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
+import dtu.agency.services.GlobalLevelService;
 
 import java.io.Serializable;
 
-public class SolveGoalAction extends HLAction implements Serializable {
+public class SolveGoalSuperAction extends HLAction implements Serializable {
 
-    private final Box box;
     private final Goal goal;
 
-    public SolveGoalAction(Box box, Goal goal) throws AssertionError {
-        this.box = box;
+    public SolveGoalSuperAction(Goal goal) throws AssertionError {
         this.goal = goal;
-        if (this.box == null || this.goal == null) {
-            throw new AssertionError("SolveGoalAction: null values not accepted for box or goal");
+        if (this.goal == null) {
+            throw new AssertionError("SolveGoalSuperAction: null values not accepted for goal");
         }
     }
 
-    public SolveGoalAction(SolveGoalAction other) {
-        this.box = new Box(other.getBox());
+    public SolveGoalSuperAction(SolveGoalSuperAction other) {
         this.goal = new Goal(other.getGoal());
     }
 
@@ -29,27 +27,26 @@ public class SolveGoalAction extends HLAction implements Serializable {
 
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.SolveGoal;
+        return AbstractActionType.SolveGoalSuper;
     }
 
     @Override
     public Position getDestination() {
-        return this.goal.getPosition();
+        return GlobalLevelService.getInstance().getPosition(goal);
     }
 
     @Override
     public Box getBox() {
-        return box;
+        return null;
     }
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("SolveGoalAction(");
-        s.append(getBox().toString());
-        s.append(",");
+        s.append("SolveGoalSuperAction(");
         s.append(getGoal().toString());
         s.append(")");
         return s.toString();
     }
+
 }

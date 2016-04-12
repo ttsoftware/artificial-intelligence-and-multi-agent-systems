@@ -1,6 +1,9 @@
 package dtu.agency.actions.abstractaction;
 
 public enum AbstractActionType {
-    GotoAction,
-    MoveBoxAction
+    SolveGoal,
+    Circumvent,
+    RGotoAction,
+    MoveBoxAction,
+    SolveGoalSuper, No, MoveBoxAndReturn
 }

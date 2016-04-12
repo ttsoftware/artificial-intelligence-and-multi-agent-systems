@@ -7,6 +7,11 @@ public class Position implements Serializable {
     private final int row;
     private final int column;
 
+    public Position(Position other) {
+        this.row = other.getRow();
+        this.column = other.getColumn();
+    }
+
     public Position(int row, int column) {
         this.row = row;
         this.column = column;
@@ -29,6 +34,10 @@ public class Position implements Serializable {
 
     @Override
     public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (object == null)
+            return false;
         if (object.getClass() == this.getClass()) {
             Position foreignPosition = (Position) object;
             return (foreignPosition.getRow() == row

@@ -5,7 +5,9 @@ import dtu.agency.actions.ConcreteAction;
 public class NoConcreteAction extends ConcreteAction {
 
     public NoConcreteAction() {
-        // I do nothing at all
+    }
+
+    public NoConcreteAction(NoConcreteAction no) {
     }
 
     @Override
@@ -17,4 +19,5 @@ public class NoConcreteAction extends ConcreteAction {
     public String toString() {
         return "NoOp";
     }
+
 }

@@ -14,6 +14,7 @@ public class HTNStateTest {
     private static Position agentOne, agentTwo, agentThree;
     private static Position boxOne, boxTwo, boxThree;
     private static HTNState a, b, c;
+    private static RelaxationMode mode = RelaxationMode.None;
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -24,9 +25,9 @@ public class HTNStateTest {
         boxTwo = new Position(2, 2);
         boxThree = new Position(2, 2);
 
-        a = new HTNState(agentOne, boxOne);
-        b = new HTNState(agentTwo, boxTwo);     // b == c
-        c = new HTNState(agentThree, boxThree);
+        a = new HTNState(agentOne, boxOne, mode);
+        b = new HTNState(agentTwo, boxTwo, mode);     // b == c
+        c = new HTNState(agentThree, boxThree, mode);
     }
 
     @Test
@@ -68,6 +69,16 @@ public class HTNStateTest {
         assertTrue(1 == 2);
     }
 
+    @Test
+    public void concreteActionApplication() {
+        // to be written
+        assertTrue(1 == 2);
+    }
 
+    @Test
+    public void abstractActionGoalChecks() {
+        // to be written
+        assertTrue(1 == 2);
+    }
 
 }

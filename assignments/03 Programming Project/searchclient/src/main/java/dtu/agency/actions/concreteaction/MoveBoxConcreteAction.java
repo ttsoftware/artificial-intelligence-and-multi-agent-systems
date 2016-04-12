@@ -15,6 +15,12 @@ public abstract class MoveBoxConcreteAction extends ConcreteAction {
         this.boxDirection = boxDirection;
     }
 
+    public MoveBoxConcreteAction(MoveBoxConcreteAction other) {
+        this.box = new Box(other.getBox());
+        this.agentDirection = other.getAgentDirection();
+        this.boxDirection = other.getBoxDirection();
+    }
+
     public Box getBox() {
         return box;
     }

@@ -12,26 +12,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LevelService implements Serializable {
+public class GlobalLevelService implements Serializable {
 
-    private static LevelService instance = null;
+    private static GlobalLevelService instance = null;
     private Level level = null;
 
-    private LevelService() {
+    private GlobalLevelService() {
     }
 
     /**
-     * Gets the singleton LevelService
+     * Gets the singleton GlobalLevelService
      * We use this singleton to store the current level instance, and to make operations on this object.
      *
-     * @return LevelService
+     * @return GlobalLevelService
      */
-    public static LevelService getInstance() {
+    public static GlobalLevelService getInstance() {
         if (instance == null) {
             // Creating an instance must be synchronized
-            synchronized (LevelService.class) {
+            synchronized (GlobalLevelService.class) {
                 if (instance == null) {
-                    instance = new LevelService();
+                    instance = new GlobalLevelService();
                 }
             }
         }
@@ -157,25 +157,25 @@ public class LevelService implements Serializable {
     public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isMoveable(position.getRow(), position.getColumn() - 1)) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow(), position.getColumn() - 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() - 1),
                     Direction.WEST
             ));
         }
-        if (LevelService.getInstance().isMoveable(position.getRow(), position.getColumn() + 1)) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow(), position.getColumn() + 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() + 1),
                     Direction.EAST
             ));
         }
-        if (LevelService.getInstance().isMoveable(position.getRow() - 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow() - 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() - 1, position.getColumn()),
                     Direction.NORTH
             ));
         }
-        if (LevelService.getInstance().isMoveable(position.getRow() + 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isMoveable(position.getRow() + 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
@@ -192,25 +192,25 @@ public class LevelService implements Serializable {
     public synchronized List<Neighbour> getFreeNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1)) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() - 1),
                     Direction.WEST
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1)) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() + 1),
                     Direction.EAST
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow() - 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() - 1, position.getColumn()),
                     Direction.NORTH
             ));
         }
-        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn())) {
+        if (GlobalLevelService.getInstance().isFree(position.getRow() + 1, position.getColumn())) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
@@ -240,6 +240,24 @@ public class LevelService implements Serializable {
         }
     }
 
+
+    public Direction getDirectionToBox(Position agentPosition, Position boxPosition) { // returns the direction from agent to box
+        if (agentPosition.getRow() == boxPosition.getRow()) {
+            if (agentPosition.getColumn() < boxPosition.getColumn()) {
+                return Direction.EAST;
+            } else {
+                return Direction.WEST;
+            }
+        } else if (agentPosition.getColumn() == boxPosition.getColumn()) {
+            if (agentPosition.getRow() > boxPosition.getRow()) {
+                return Direction.NORTH;
+            } else {
+                return Direction.SOUTH;
+            }
+        }
+        throw new InvalidParameterException("Given positions are not adjacent.");
+    }
+
     /**
      * @param positionA
      * @param positionB
@@ -249,15 +267,15 @@ public class LevelService implements Serializable {
     public synchronized Direction getRelativeDirection(Position positionA, Position positionB, boolean reverse) {
         if (positionA.getRow() == positionB.getRow()) {
             if (positionA.getColumn() < positionB.getColumn()) {
-                return reverse ? Direction.EAST : Direction.WEST;
+                return !reverse ? Direction.EAST : Direction.WEST;
             } else {
-                return reverse ? Direction.WEST : Direction.EAST;
+                return !reverse ? Direction.WEST : Direction.EAST;
             }
         } else if (positionA.getColumn() == positionB.getColumn()) {
             if (positionA.getRow() > positionB.getRow()) {
-                return reverse ? Direction.SOUTH : Direction.NORTH;
+                return !reverse ? Direction.NORTH : Direction.SOUTH;
             } else {
-                return reverse ? Direction.NORTH : Direction.SOUTH;
+                return !reverse ? Direction.SOUTH : Direction.NORTH;
             }
         }
         throw new InvalidParameterException("Given positions are not adjacent.");
@@ -329,7 +347,21 @@ public class LevelService implements Serializable {
         return level.getBoardState()[row][column] == BoardCell.WALL;
     }
 
-    public synchronized Position getPosition(BoardObject boardObject) {
+    public synchronized boolean isAgent(Position pos) {
+        return isAgent(pos.getRow(), pos.getColumn());
+    }
+
+    public synchronized boolean isAgent(int row, int column) {
+        boolean value = level.getBoardState()[row][column] == BoardCell.AGENT;
+        value |= level.getBoardState()[row][column] == BoardCell.AGENT_GOAL;
+        return value;
+    }
+
+    public synchronized String getObjectLabels(Position pos) {
+        return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
+    }
+
+        public synchronized Position getPosition(BoardObject boardObject) {
         return getPosition(boardObject.getLabel());
     }
 
