@@ -7,6 +7,8 @@ import dtu.agency.agent.bdi.AgentDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
+import dtu.agency.board.Level;
+import dtu.agency.planners.htn.HTNGoalPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
 
 import java.util.HashMap;
@@ -18,23 +20,46 @@ import java.util.LinkedList;
  * in execution phase
  */
 public class BDIService {
-    // keeps track of Beliefs Desires and Intentions for an agent in 'real time'
-    // THREAD LOCAL INSTANCE??
-    private static Agent agent;
+
+    private Agent agent;
     private AgentBelief state;
     private AgentDesire primitivePlans;
     private LinkedList<AgentIntention> intentions;
-    private HashMap<String, HTNPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
+    private HashMap<String, HTNGoalPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
 
-    public BDIService(Agent agent) {
-        this.agent = agent;
+    private static class ThreadLocalBDIService extends ThreadLocal<BDIService> {
+
+        @Override
+        protected BDIService initialValue() {
+            return new BDIService();
+        }
+    }
+
+    private static ThreadLocal<BDIService> THREAD_LOCAL = new ThreadLocalBDIService();
+
+    public static void setInstance(final BDIService bdiService) {
+        THREAD_LOCAL.set(bdiService);
+    }
+
+    public static BDIService getInstance() {
+        return THREAD_LOCAL.get();
+    }
+
+    public void setAgent(Agent bdiAgent) {
+        agent = bdiAgent;
+
         state = new AgentBelief(agent);
         primitivePlans = new AgentDesire(new NoAction(state.getAgentCurrentPosition()) );
         intentions = new LinkedList<>();
         bids = new HashMap<>();
-    }
 
-    public static Agent getAgent() {
+        Level levelClone = GlobalLevelService.getInstance().getLevel();
+
+        // TODO: Remove agent from levelClone
+
+        BDILevelService.getInstance().setLevel(levelClone);
+    }
+    public Agent getAgent() {
         return agent;
     }
 
@@ -46,7 +71,7 @@ public class BDIService {
         return primitivePlans;
     }
 
-    public HashMap<String, HTNPlanner> getBids() {
+    public HashMap<String, HTNGoalPlanner> getBids() {
         return bids;
     }
 
@@ -58,8 +83,11 @@ public class BDIService {
         return intentions.getFirst();
     }
 
+    public Box getCurrentTargetBox() {
+        return getCurrentIntention().getHighLevelPlan().peek().getBox();
+    }
+
     public void appendIntention(HLAction intention) {
         intentions.addLast(new AgentIntention(intention));
     }
-
 }

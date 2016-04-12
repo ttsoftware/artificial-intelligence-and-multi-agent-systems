@@ -8,27 +8,26 @@ import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.htn.HTNGoalPlanner;
-import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
 
 public class AgentThread implements Runnable {
 
-    // the agent object which this agency corresponds to
     private final Agent agent;
-    private final BDIService bdi;
 
     public AgentThread(Agent agent) {
         this.agent = agent;
-        bdi = new BDIService(agent); // ThreadLocal!!!
     }
 
     @Override
     public void run() {
+        BDIService.setInstance(new BDIService());
+        BDIService.getInstance().setAgent(agent);
+
         // register all events handled by this class
         EventBusService.register(this);
-        System.err.println("Started agent: " + agent.getLabel());
+        System.err.println("Started agent: " + BDIService.getInstance().getAgent().getLabel());
     }
 
     /**
@@ -38,16 +37,17 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
+        System.err.println(Thread.currentThread().getName());
         Goal goal = event.getGoal();
 
-        HTNGoalPlanner htnPlanner = new HTNGoalPlanner(this.agent, goal);
+        HTNGoalPlanner htnPlanner = new HTNGoalPlanner(goal);
         int steps = htnPlanner.getBestPlanApproximation();
 
-        bdi.getBids().put(goal.getLabel(), htnPlanner);
+        BDIService.getInstance().getBids().put(goal.getLabel(), htnPlanner);
 
-        System.err.println("Agent " + agent.getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
+        System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
-        EventBusService.getEventBus().post(new GoalEstimationEvent(agent.getLabel(), steps));
+        EventBusService.getEventBus().post(new GoalEstimationEvent(BDIService.getInstance().getAgent().getLabel(), steps));
     }
 
     /**
@@ -57,22 +57,28 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
-        if (event.getAgentLabel().equals(agent.getLabel())) {
+
+        System.err.println(Thread.currentThread().getName());
+
+        System.err.println(BDIService.getInstance().getAgent());
+        System.err.println(BDIService.getInstance().getAgent().getLabel());
+
+        if (event.getAgentLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
             // We won the bid for this goal!
 
-            System.err.println(agent.getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
+            System.err.println(BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
             // Find the HTNPlanner used to bid for this goal
-            HTNPlanner htnPlanner = bdi.getBids().get(event.getGoal().getLabel());
+            HTNGoalPlanner htnPlanner = BDIService.getInstance().getBids().get(event.getGoal().getLabel());
             // update the intention of this agent (by appending it)
-            bdi.appendIntention(htnPlanner.getIntention());
+            BDIService.getInstance().appendIntention(htnPlanner.getIntention());
 
             System.err.println("htn1" + htnPlanner.toString());
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
             PrimitivePlan llPlan = htnPlanner.plan();
-            System.err.println("Agent " + agent.getLabel() + ": Found Concrete Plan: " + llPlan.toString());
+            System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + llPlan.toString());
 
             /*
             // start a new high level planning phase
@@ -95,7 +101,7 @@ public class AgentThread implements Runnable {
                 while (!hlPlan.isEmpty()) {
                     action = hlPlan.poll();
                     htnPlanner = new HTNPlanner(agent, action, RelaxationMode.NoAgentsNoBoxes);
-                    // TODO: NEED a correct implementation using PlanningLevelService
+                    // TODO: NEED a correct implementation using BDILevelService
                     // TODO: replacing GlobalLevelService.
                     htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
                     // tools for enable/disable debug printing mode
@@ -107,7 +113,7 @@ public class AgentThread implements Runnable {
             }
             // else go with PrimitivePlan already discovered
 
-            // store the resulting plans and states in bdiservice after planning..
+            // store the resulting plans and states in BDIService.getInstance() after planning..
 
             System.err.println("Agent " +agent.getLabel()+ ": Using Concrete Plan: " + llPlan.toString());
             // are we gonna submit the entire primitivePlan to the agency at once??
@@ -117,11 +123,7 @@ public class AgentThread implements Runnable {
             // in the environment.
             */
 
-            EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), agent, llPlan)); // execute plan
+            EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), llPlan)); // execute plan
         }
-    }
-
-    public Agent getAgent() {
-        return agent;
     }
 }
