@@ -10,6 +10,8 @@ import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
+import dtu.agency.services.BDILevelService;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
 
@@ -21,13 +23,11 @@ public class HTNPlanner {
     protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
     protected static void debug(String msg){ debug(msg, 0); }
 
-    protected Agent agent;                  // agent to perform the actions
     protected HLAction action;              // original action
     protected HTNNode initialNode;          // list of all possible plans to solve the goal
     protected HeuristicComparator aStarHeuristicComparator;  // heuristic used to compare nodes
 
     public HTNPlanner(HTNPlanner other) {
-        this.agent = new Agent(other.agent);
         this.initialNode = new HTNNode(other.getInitialNode());
         this.aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
         this.action = other.getAction();
@@ -35,12 +35,11 @@ public class HTNPlanner {
         /**
         * Constructor: All a planner needs is the the agent and the action to perform
         * */
-    public HTNPlanner(Agent agent, HLAction action, RelaxationMode mode) {
+    public HTNPlanner(HLAction action, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
-        this.agent = agent;
         this.action = action;
         this.aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
-        Position agentPosition = GlobalLevelService.getInstance().getPosition(agent);
+        Position agentPosition = GlobalLevelService.getInstance().getPosition(BDIService.getInstance().getAgent());
         Position boxPosition = agentPosition;
         if (action.getBox()!=null) {
             boxPosition = GlobalLevelService.getInstance().getPosition(action.getBox());
@@ -159,7 +158,7 @@ public class HTNPlanner {
 
     @Override
     public String toString(){
-        String s = "HTNPlanner of agent " +this.agent.toString();
+        String s = "HTNPlanner of agent " + BDIService.getInstance().getAgent().toString();
         s += " performing " + ((this.action!=null) ? this.action.toString() : "null!");
         s += " with the next node \n" + this.initialNode.toString();
         return s;

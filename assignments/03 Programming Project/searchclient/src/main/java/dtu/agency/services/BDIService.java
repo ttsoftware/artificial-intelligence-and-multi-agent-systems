@@ -20,15 +20,32 @@ import java.util.LinkedList;
  * in execution phase
  */
 public class BDIService {
-    // keeps track of Beliefs Desires and Intentions for an agent in 'real time'
-    // THREAD LOCAL INSTANCE??
-    private static Agent agent;
+
+    private Agent agent;
     private AgentBelief state;
     private AgentDesire primitivePlans;
-    private static LinkedList<AgentIntention> intentions;
+    private LinkedList<AgentIntention> intentions;
     private HashMap<String, HTNGoalPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
 
-    public BDIService(Agent bdiAgent) {
+    private static class ThreadLocalBDIService extends ThreadLocal<BDIService> {
+
+        @Override
+        protected BDIService initialValue() {
+            return new BDIService();
+        }
+    }
+
+    private static ThreadLocal<BDIService> THREAD_LOCAL = new ThreadLocalBDIService();
+
+    public static void setInstance(final BDIService bdiService) {
+        THREAD_LOCAL.set(bdiService);
+    }
+
+    public static BDIService getInstance() {
+        return THREAD_LOCAL.get();
+    }
+
+    public void setAgent(Agent bdiAgent) {
         agent = bdiAgent;
 
         state = new AgentBelief(agent);
@@ -42,8 +59,7 @@ public class BDIService {
 
         BDILevelService.getInstance().setLevel(levelClone);
     }
-
-    public static Agent getAgent() {
+    public Agent getAgent() {
         return agent;
     }
 
@@ -63,11 +79,11 @@ public class BDIService {
         return intentions;
     }
 
-    public static AgentIntention getCurrentIntention() {
+    public AgentIntention getCurrentIntention() {
         return intentions.getFirst();
     }
 
-    public static Box getCurrentTargetBox() {
+    public Box getCurrentTargetBox() {
         return getCurrentIntention().getHighLevelPlan().peek().getBox();
     }
 

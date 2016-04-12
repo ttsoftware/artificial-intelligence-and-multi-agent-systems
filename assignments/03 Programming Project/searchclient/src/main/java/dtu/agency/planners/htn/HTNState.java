@@ -108,8 +108,8 @@ public class HTNState {
 
     private boolean agentConflict() {
         boolean conflict = false;
-        String myself = BDIService.getAgent().getLabel();
-        String myBox = BDIService.getCurrentTargetBox().getLabel();
+        String myself = BDIService.getInstance().getAgent().getLabel();
+        String myBox = BDIService.getInstance().getCurrentTargetBox().getLabel();
         GlobalLevelService gls = GlobalLevelService.getInstance();
 
         // TODO: use BDILevelService instead
@@ -144,7 +144,7 @@ public class HTNState {
 
     private boolean boxConflict() {
         boolean conflict = false;
-        String myBox = BDIService.getCurrentTargetBox().getLabel();
+        String myBox = BDIService.getInstance().getCurrentTargetBox().getLabel();
         GlobalLevelService gls = GlobalLevelService.getInstance();
 
         // TODO: Global level service  -> planning level service

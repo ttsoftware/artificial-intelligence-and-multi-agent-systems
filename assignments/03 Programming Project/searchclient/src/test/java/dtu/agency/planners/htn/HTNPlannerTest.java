@@ -4,6 +4,7 @@ import dtu.agency.ProblemMarshallerTest;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
@@ -46,8 +47,10 @@ public class HTNPlannerTest {
         agent = GlobalLevelService.getInstance().getLevel().getAgents().get(0);
         goal = GlobalLevelService.getInstance().getLevel().getGoals().get(0);
 
+        BDIService.getInstance().setAgent(agent);
+
         // Planner initialization
-        HTNPlanner htn = new HTNGoalPlanner(agent, goal);
+        HTNPlanner htn = new HTNGoalPlanner(goal);
         System.err.println("HTNPlannerTest: " + htn.toString() + "\n");
 
         // Does heuristics calculation work

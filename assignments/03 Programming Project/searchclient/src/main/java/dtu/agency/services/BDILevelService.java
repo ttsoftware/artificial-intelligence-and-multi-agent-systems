@@ -4,14 +4,16 @@ import dtu.agency.board.Level;
 
 public class BDILevelService extends LevelService {
 
-    private static BDILevelService instance;
+    private static ThreadLocal<BDILevelService> THREAD_LOCAL = new ThreadLocal() {
+        @Override
+        protected BDILevelService initialValue() {
+            return new BDILevelService();
+        }
+    };
 
     public static BDILevelService getInstance() {
-        if (instance == null) {
-            instance = new BDILevelService();
-        }
         System.err.println("Getting BDILevelService from agent " + Thread.currentThread().getName());
-        return instance;
+        return THREAD_LOCAL.get();
     }
 
     public void setLevel(Level level) {
