@@ -1,70 +1,70 @@
 package dtu.agency.planners.htn;
 
-import dtu.agency.actions.abstractaction.hlaction.GotoAction;
-import dtu.agency.actions.abstractaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.MoveBoxAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class HTNPlan {
 
-    private GotoAction gotoAction;
-    private MoveBoxAction moveBoxAction;
+    private RGotoAction RGotoAction;
+    private RMoveBoxAction RMoveBoxAction;
 
-    public HTNPlan(GotoAction gta, MoveBoxAction mba) {
-        this.gotoAction = gta;
-        this.moveBoxAction = mba;
+    public HTNPlan(RGotoAction gta, RMoveBoxAction mba) {
+        this.RGotoAction = gta;
+        this.RMoveBoxAction = mba;
     }
 
     public HTNPlan(MixedPlan mpl) {
-        this.gotoAction = (GotoAction) mpl.removeFirst();
-        this.moveBoxAction = (MoveBoxAction) mpl.removeFirst();
+        this.RGotoAction = (RGotoAction) mpl.removeFirst();
+        this.RMoveBoxAction = (RMoveBoxAction) mpl.removeFirst();
     }
 
     public List<HLAction> getActions() {
         LinkedList<HLAction> actions = new LinkedList<>();
-        if (this.gotoAction!=null) {actions.add(this.gotoAction);}
-        if (this.moveBoxAction!=null) {actions.add(this.moveBoxAction);}
+        if (this.RGotoAction !=null) {actions.add(this.RGotoAction);}
+        if (this.RMoveBoxAction !=null) {actions.add(this.RMoveBoxAction);}
         return actions;
     }
 
 
-    public GotoAction getGotoAction() {
-        return gotoAction;
+    public RGotoAction getRGotoAction() {
+        return RGotoAction;
     }
 
-    public MoveBoxAction getMoveBoxAction() {
-        return moveBoxAction;
+    public RMoveBoxAction getRMoveBoxAction() {
+        return RMoveBoxAction;
     }
 
-    public void setGotoAction(GotoAction gotoAction) {
-        this.gotoAction = gotoAction;
+    public void setRGotoAction(RGotoAction RGotoAction) {
+        this.RGotoAction = RGotoAction;
     }
 
-    public void setMoveBoxAction(MoveBoxAction moveBoxAction) {
-        this.moveBoxAction = moveBoxAction;
+    public void setRMoveBoxAction(RMoveBoxAction RMoveBoxAction) {
+        this.RMoveBoxAction = RMoveBoxAction;
     }
 
     public void clearActions() {
-        this.gotoAction = null;
-        this.moveBoxAction = null;
+        this.RGotoAction = null;
+        this.RMoveBoxAction = null;
     }
 
-    public boolean isEmpty() { return (this.gotoAction==null && this.moveBoxAction==null); }
+    public boolean isEmpty() { return (this.RGotoAction ==null && this.RMoveBoxAction ==null); }
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("HTNPlan[");
-        if (getGotoAction()!=null) {
-            s.append(getGotoAction().toString());
+        if (getRGotoAction()!=null) {
+            s.append(getRGotoAction().toString());
         } else {
             s.append("null");
         }
         s.append(",");
-        if (getMoveBoxAction()!=null) {
-            s.append(getMoveBoxAction().toString());
+        if (getRMoveBoxAction()!=null) {
+            s.append(getRMoveBoxAction().toString());
         } else {
             s.append("null");
         }

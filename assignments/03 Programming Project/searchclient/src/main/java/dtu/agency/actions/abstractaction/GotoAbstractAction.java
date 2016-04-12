@@ -13,7 +13,7 @@ public class GotoAbstractAction extends AbstractAction {
 
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.GotoAction;
+        return AbstractActionType.RGotoAction;
     }
 
     public Position getPosition() {

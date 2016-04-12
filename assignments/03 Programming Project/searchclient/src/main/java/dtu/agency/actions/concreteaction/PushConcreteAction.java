@@ -8,6 +8,10 @@ public class PushConcreteAction extends MoveBoxConcreteAction {
         super(box, agentDirection, boxDirection);
     }
 
+    public PushConcreteAction(PushConcreteAction push) {
+        super((MoveBoxConcreteAction) push);
+    }
+
     @Override
     public ConcreteActionType getType() {
         return ConcreteActionType.PUSH;
