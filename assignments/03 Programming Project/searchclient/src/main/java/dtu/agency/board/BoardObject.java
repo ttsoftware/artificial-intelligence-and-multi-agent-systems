@@ -10,6 +10,8 @@ public abstract class BoardObject implements Serializable {
         this.label = label;
     }
 
+    public abstract BoardCell getType();
+
     public String getLabel() {
         return label;
     }

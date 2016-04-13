@@ -5,6 +5,11 @@ public class Box extends BoardObject {
         super(label);
     }
 
+    @Override
+    public BoardCell getType() {
+        return BoardCell.BOX;
+    }
+
     public Box(Box box) {
         super(box.getLabel());
     }

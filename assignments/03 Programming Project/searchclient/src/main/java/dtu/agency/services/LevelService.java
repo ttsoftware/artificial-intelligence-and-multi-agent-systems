@@ -16,7 +16,7 @@ public abstract class LevelService {
     protected Level level;
 
     public Level getLevel() {
-        return level;
+        return new Level(level);
     }
 
     /**
