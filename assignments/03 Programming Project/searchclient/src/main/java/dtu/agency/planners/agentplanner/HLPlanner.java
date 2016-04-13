@@ -1,8 +1,11 @@
 package dtu.agency.planners.agentplanner;
 
+import dtu.agency.board.Box;
+import dtu.agency.board.Level;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.planners.htn.RelaxationMode;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
 /**
@@ -11,13 +14,20 @@ import dtu.agency.services.PlanningLevelService;
  */
 public class HLPlanner {
 
-    private PlanningLevelService pls; // location of agent and boxes
+    private PlanningLevelService planningLevelService;
     private PlanDesire desires;               // what the agent would desire to do next in the planning phase
     PlanIntention intentions;         // the hierarchy of intentions build from the original SolveGoalAction.
     HTNPlanner htnPlanner;
 
     public HLPlanner( HTNPlanner htnPlanner ) {
-        pls = new PlanningLevelService(htnPlanner.getIntention().getBox());
+
+        Level planningLevel = BDIService.getInstance().getBDILevelService().getLevel();
+        Box box = htnPlanner.getIntention().getBox();
+
+        // TODO: Remove box from planningLevel
+
+        planningLevelService = new PlanningLevelService(planningLevel);
+
         this.htnPlanner = new HTNPlanner( htnPlanner );
         intentions = new PlanIntention( htnPlanner.getIntention() );
         intentions.setCurrentIntention( htnPlanner.getIntention() );
@@ -44,10 +54,10 @@ public class HLPlanner {
          - this is organized in levels/rings from path, so that one
            can start by moving boxes to the outer 'rings'
         4. try and move boxes one by one to outer rings,
-         - while storing the change in positions to pls
+         - while storing the change in positions to planningLevelService
         (5. if target box is only movable box remaining:
           - move it out of the path, to a neighbor cell close
-          - replan on HLPlan, reusing pls! states)
+          - replan on HLPlan, reusing planningLevelService! states)
         */
     }
 

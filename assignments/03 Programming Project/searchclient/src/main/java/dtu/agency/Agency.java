@@ -5,18 +5,17 @@ import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.events.client.DetectConflictsEvent;
-import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
+import dtu.agency.events.client.DetectConflictsEvent;
+import dtu.agency.events.client.SendServerActionsEvent;
+import dtu.agency.services.AgentService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
-
-import java.util.ArrayList;
-import java.util.List;
+import dtu.agency.services.ThreadService;
 
 public class Agency implements Runnable {
 
@@ -27,15 +26,17 @@ public class Agency implements Runnable {
     @Override
     public void run() {
 
-        List<String> agentLabels = new ArrayList<>();
+        int numberOfAgents = GlobalLevelService.getInstance().getLevel().getAgents().size();
+
+        AgentService.getInstance().addAgents(
+                GlobalLevelService.getInstance().getLevel().getAgents()
+        );
 
         GlobalLevelService.getInstance().getLevel().getAgents().forEach(agent -> {
-            System.err.println("Starting agent: " + agent.getLabel());
+            System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
-            EventBusService.execute(new AgentThread(agent));
-
-            agentLabels.add(agent.getLabel());
+            ThreadService.execute(new AgentThread());
         });
 
         // Register for self-handled events
@@ -50,7 +51,7 @@ public class Agency implements Runnable {
             while ((goal = goalQueue.poll()) != null) {
 
                 // Register for incoming goal estimations
-                GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels.size());
+                GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, numberOfAgents);
                 EventBusService.register(goalEstimationSubscriber);
 
                 // offer the goal
@@ -76,23 +77,17 @@ public class Agency implements Runnable {
     }
 
     @Subscribe
-    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
-        // wait for all threads to finish
-        EventBusService.getThreads().forEach(t -> {
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        });
-    }
-
-    @Subscribe
     public void detectConflictEventSubscriber(DetectConflictsEvent event) {
 
         // TODO Detect conflict in the plans at given timestep
 
         // Set to true if there is a conflict
         event.setResponse(false);
+    }
+
+    @Subscribe
+    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
+        // wait for all threads to finish
+        ThreadService.shutdown();
     }
 }

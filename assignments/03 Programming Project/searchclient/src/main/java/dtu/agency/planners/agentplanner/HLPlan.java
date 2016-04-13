@@ -62,4 +62,8 @@ public class HLPlan implements AbstractPlan {
         // real nasty heuristic :-) i might come up with something better
         return plan.size() * 10;
     }
+
+    public HLAction peek() {
+        return plan.peekFirst();
+    }
 }

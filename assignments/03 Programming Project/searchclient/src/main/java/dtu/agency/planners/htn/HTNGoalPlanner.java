@@ -3,10 +3,10 @@ package dtu.agency.planners.htn;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.GlobalLevelService;
 
 import java.util.PriorityQueue;
@@ -20,8 +20,8 @@ public class HTNGoalPlanner extends HTNPlanner {
     /**
      * Constructor: All a planner needs is the next goal and the agent solving it...
      */
-    public HTNGoalPlanner(Agent agent, Goal target) {
-        super(agent, new SolveGoalSuperAction(target), RelaxationMode.NoAgentsNoBoxes);
+    public HTNGoalPlanner(Goal target) {
+        super(new SolveGoalSuperAction(target), RelaxationMode.NoAgentsNoBoxes);
         debug("HTNGoalPlanner initializing.",2);
         this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
         this.initialNode = allInitialNodes.peek();
@@ -46,7 +46,7 @@ public class HTNGoalPlanner extends HTNPlanner {
             if (box.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) {
                 HTNState initialState = new HTNState(
                         // TODO: agent intentional destination!! :-)
-                        GlobalLevelService.getInstance().getPosition(this.agent),
+                        GlobalLevelService.getInstance().getPosition(BDIService.getInstance().getAgent()),
                         // TODO: agents believed position of box :-)
                         GlobalLevelService.getInstance().getPosition(box),
                         RelaxationMode.NoAgentsNoBoxes
