@@ -3,7 +3,6 @@ package dtu.agency.planners.htn;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;

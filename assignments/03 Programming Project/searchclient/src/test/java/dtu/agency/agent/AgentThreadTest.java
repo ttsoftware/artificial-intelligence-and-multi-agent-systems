@@ -29,8 +29,8 @@ public class AgentThreadTest {
         Agent agent1 = new Agent("0");
         Agent agent2 = new Agent("1");
 
-        Thread t1 = new Thread(new AgentThread(agent1));
-        Thread t2 = new Thread(new AgentThread(agent2));
+        Thread t1 = new Thread(new AgentThread());
+        Thread t2 = new Thread(new AgentThread());
         t1.start();
         t2.start();
 

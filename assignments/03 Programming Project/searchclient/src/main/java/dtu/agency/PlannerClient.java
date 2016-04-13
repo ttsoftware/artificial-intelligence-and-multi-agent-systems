@@ -12,6 +12,7 @@ import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
+import dtu.agency.services.ThreadService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,6 +40,8 @@ public class PlannerClient {
 
         numberOfAgents = level.getAgents().size();
         sendServerActionsQueue = new ArrayBlockingQueue<>(numberOfAgents);
+
+        ThreadService.setNumberOfAgents(numberOfAgents);
 
         // Thread which actually communicates with the server
         Thread t = new Thread(PlannerClient::sendActions);

@@ -10,7 +10,6 @@ import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
 import dtu.agency.planners.htn.heuristic.HeuristicComparator;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
-import dtu.agency.services.BDILevelService;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;

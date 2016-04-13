@@ -5,7 +5,7 @@ import dtu.agency.board.Level;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.PrimitivePlan;
 import dtu.agency.planners.htn.RelaxationMode;
-import dtu.agency.services.BDILevelService;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
 /**
@@ -21,7 +21,7 @@ public class HLPlanner {
 
     public HLPlanner( HTNPlanner htnPlanner ) {
 
-        Level planningLevel = BDILevelService.getInstance().getLevel();
+        Level planningLevel = BDIService.getInstance().getBDILevelService().getLevel();
         Box box = htnPlanner.getIntention().getBox();
 
         // TODO: Remove box from planningLevel
