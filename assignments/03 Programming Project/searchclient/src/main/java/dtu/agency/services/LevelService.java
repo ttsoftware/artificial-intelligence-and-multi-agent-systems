@@ -19,6 +19,13 @@ public abstract class LevelService {
         return level;
     }
 
+    /**
+     * @return A clone of the level object
+     */
+    public Level getLevelClone() {
+        return level.clone();
+    }
+
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
         // We must synchronize here to avoid collisions.
         // Do we want to handle conflicts in this step/class?
@@ -392,7 +399,6 @@ public abstract class LevelService {
             throw new AssertionError("Agent should not exist in level before adding it");
         agents.add(agent);
         level.setAgents(agents);
-
     }
 
     /**

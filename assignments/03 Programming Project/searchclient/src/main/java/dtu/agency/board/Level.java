@@ -1,11 +1,10 @@
 package dtu.agency.board;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
-public class Level implements Serializable {
+public class Level implements Cloneable {
 
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;
@@ -17,6 +16,19 @@ public class Level implements Serializable {
     private List<Agent> agents;
     private List<Box> boxes;
     private List<Wall> walls;
+
+    public Level(Level level) {
+        this.boardState = level.getBoardState();
+        this.boardObjects = level.getBoardObjects();
+        this.boardObjectPositions = level.getBoardObjectPositions();
+        this.goalQueues = level.getGoalQueues();
+        this.boxesGoals = level.getBoxesGoals();
+        this.goalsBoxes = level.getGoalsBoxes();
+        this.goals = level.getGoals();
+        this.agents = level.getAgents();
+        this.boxes = level.getBoxes();
+        this.walls = level.getWalls();
+    }
 
     public Level(BoardCell[][] boardState,
                  BoardObject[][] boardObjects,
@@ -94,5 +106,16 @@ public class Level implements Serializable {
 
     public List<Goal> getGoals() {
         return goals;
+    }
+
+    @Override
+    public Level clone() {
+        Level level = null;
+        try {
+            level = (Level) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace(System.err);
+        }
+        return level;
     }
 }
