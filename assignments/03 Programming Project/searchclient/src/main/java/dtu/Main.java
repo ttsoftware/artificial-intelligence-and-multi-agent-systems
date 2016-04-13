@@ -1,7 +1,7 @@
 package dtu;
 
-import dtu.agency.planners.htn.heuristic.Heuristic;
-import dtu.agency.planners.htn.heuristic.ManhattanHeuristic;
+import dtu.agency.planners.heuristics.Heuristic;
+import dtu.agency.planners.heuristics.ManhattanHeuristic;
 import server.Runner;
 
 public class Main {

@@ -1,27 +1,24 @@
 package dtu.agency.agent.bdi;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.planners.htn.PrimitivePlan;
+import dtu.agency.planners.plans.PrimitivePlan;
+import dtu.agency.planners.plans.comparators.PrimitivePlanComparator;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class AgentDesire { // everything the agent might want to achieve
-    class PPComparator implements Comparator<PrimitivePlan> {
-        @Override
-        public int compare(PrimitivePlan o1, PrimitivePlan o2) {
-            return o2.size() - o1.size();
-        }
-    }
+
     private HLAction intention;
+    // should one know the initial position of this plan??
     private PriorityQueue<PrimitivePlan> desires;
 
     public AgentDesire(HLAction intention) {
         this.intention = intention;
-        desires = new PriorityQueue<>(new PPComparator());
+        desires = new PriorityQueue<>(new PrimitivePlanComparator());
     }
 
-    public PrimitivePlan getNextDesire() {
+    public PrimitivePlan getBestDesire() {
         return desires.poll();
     }
 

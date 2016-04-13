@@ -3,7 +3,7 @@ package dtu.agency.planners.agentplanner;
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.board.Position;
-import dtu.agency.planners.AbstractPlan;
+import dtu.agency.planners.plans.AbstractPlan;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -60,11 +60,9 @@ public class HLPlan implements AbstractPlan {
     }
 
     public int approximateSteps(Position agentOrigin) {
-        // real nasty heuristic :-) i might come up with something better
-        // int approximateSteps = plan.size() * 10;
+        Position nextOrigin = agentOrigin;
         int approximateSteps = 0;
 
-        Position nextOrigin = agentOrigin;
         for (HLAction action : plan) {
             approximateSteps += action.approximateSteps(nextOrigin);
             nextOrigin = action.getAgentDestination();

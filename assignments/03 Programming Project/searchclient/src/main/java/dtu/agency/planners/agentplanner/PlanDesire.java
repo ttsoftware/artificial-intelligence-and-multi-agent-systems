@@ -1,7 +1,7 @@
 package dtu.agency.planners.agentplanner;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.planners.htn.PrimitivePlan;
+import dtu.agency.planners.plans.PrimitivePlan;
 import javafx.util.Pair;
 
 import java.util.Comparator;

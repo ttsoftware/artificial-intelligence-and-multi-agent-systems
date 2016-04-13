@@ -1,18 +1,18 @@
-package dtu.agency.planners.htn.heuristic;
+package dtu.agency.planners.heuristics;
 
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Position;
 import dtu.agency.services.GlobalLevelService;
 
-public class ManhattanHeuristic implements Heuristic {
+public class EuclideanHeuristic implements Heuristic {
 
     @Override
     public int distance(BoardObject boardObjectA, BoardObject boardObjectB) {
-        return GlobalLevelService.getInstance().manhattanDistance(boardObjectA, boardObjectB);
+        return GlobalLevelService.getInstance().euclideanDistance(boardObjectA, boardObjectB);
     }
 
     @Override
     public int distance(Position positionA, Position positionB) {
-        return GlobalLevelService.getInstance().manhattanDistance(positionA, positionB);
+        return GlobalLevelService.getInstance().euclideanDistance(positionA, positionB);
     }
 }

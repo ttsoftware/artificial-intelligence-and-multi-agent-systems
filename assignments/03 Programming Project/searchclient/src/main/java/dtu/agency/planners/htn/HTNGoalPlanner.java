@@ -5,7 +5,8 @@ import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.SolveGoalSuperAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
-import dtu.agency.planners.htn.heuristic.HeuristicComparator;
+import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
+import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.GlobalLevelService;
 
@@ -23,7 +24,7 @@ public class HTNGoalPlanner extends HTNPlanner {
     public HTNGoalPlanner(Goal target) {
         super(new SolveGoalSuperAction(target), RelaxationMode.NoAgentsNoBoxes);
         debug("HTNGoalPlanner initializing.",2);
-        this.allInitialNodes = createAllNodes(target, this.aStarHeuristicComparator);
+        this.allInitialNodes = createAllNodes(target, this.aStarHTNNodeComparator);
         this.initialNode = allInitialNodes.peek();
         this.action = initialNode.getIntention();
         debug("Nodes: " + allInitialNodes.toString(),-2);
@@ -38,9 +39,9 @@ public class HTNGoalPlanner extends HTNPlanner {
      * particular target goal, by one node per box that could potentially
      * solve this goal
      */
-    private PriorityQueue<HTNNode> createAllNodes(Goal target, HeuristicComparator heuristicComparator) {
+    private PriorityQueue<HTNNode> createAllNodes(Goal target, HTNNodeComparator HTNNodeComparator) {
         debug("HTNGoalPlanner.createAllNodes(): ", 2);
-        PriorityQueue<HTNNode> allNodes = new PriorityQueue<>(heuristicComparator);
+        PriorityQueue<HTNNode> allNodes = new PriorityQueue<>(HTNNodeComparator);
 
         for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
             if (box.getLabel().toLowerCase().equals(target.getLabel().toLowerCase())) {

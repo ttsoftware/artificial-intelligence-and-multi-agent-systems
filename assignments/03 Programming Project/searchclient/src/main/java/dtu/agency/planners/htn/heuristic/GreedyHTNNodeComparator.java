@@ -1,10 +1,11 @@
 package dtu.agency.planners.htn.heuristic;
 
+import dtu.agency.planners.heuristics.Heuristic;
 import dtu.agency.planners.htn.HTNNode;
 
-public class GreedyHeuristicComparator extends HeuristicComparator {
+public class GreedyHTNNodeComparator extends HTNNodeComparator {
 
-    public GreedyHeuristicComparator(Heuristic heuristic) {
+    public GreedyHTNNodeComparator(Heuristic heuristic) {
         super(heuristic);
     }
 

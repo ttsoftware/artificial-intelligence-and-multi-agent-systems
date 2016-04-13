@@ -10,7 +10,7 @@ import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.planners.ConcretePlan;
+import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.ThreadService;
 

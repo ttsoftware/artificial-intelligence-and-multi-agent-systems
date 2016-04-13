@@ -11,6 +11,7 @@ import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
+import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;

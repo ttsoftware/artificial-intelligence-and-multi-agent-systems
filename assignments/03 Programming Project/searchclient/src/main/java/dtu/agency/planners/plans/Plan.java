@@ -1,4 +1,4 @@
-package dtu.agency.planners;
+package dtu.agency.planners.plans;
 
 import dtu.agency.actions.Action;
 

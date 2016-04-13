@@ -8,8 +8,10 @@ import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.*;
-import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
-import dtu.agency.planners.htn.heuristic.HeuristicComparator;
+import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
+import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
+import dtu.agency.planners.plans.MixedPlan;
+import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
 
@@ -285,11 +287,11 @@ public class HTNNode {
 
     @Override
     public String toString() {
-        HeuristicComparator h = new AStarHeuristicComparator(Main.heuristicMeasure);
+        HTNNodeComparator h = new AStarHTNNodeComparator(Main.heuristicMeasure);
         StringBuilder s = new StringBuilder();
         s.append("HTNNode: {");
         s.append("Generation: " + Integer.toString(this.generation));
-        s.append(", HeuristicComparator: " + Integer.toString(h.h(this)));
+        s.append(", HTNNodeComparator: " + Integer.toString(h.h(this)));
         s.append(", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null") );
         s.append(", State: " + this.state.toString() + ",\n");
         s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );

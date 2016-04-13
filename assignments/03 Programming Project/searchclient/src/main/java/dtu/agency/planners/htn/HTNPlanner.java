@@ -6,10 +6,11 @@ import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.*;
-import dtu.agency.planners.htn.heuristic.AStarHeuristicComparator;
-import dtu.agency.planners.htn.heuristic.HeuristicComparator;
+import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
+import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
 import dtu.agency.planners.htn.strategy.BestFirstStrategy;
 import dtu.agency.planners.htn.strategy.Strategy;
+import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
@@ -24,11 +25,11 @@ public class HTNPlanner {
 
     protected HLAction action;              // original action
     protected HTNNode initialNode;          // list of all possible plans to solve the goal
-    protected HeuristicComparator aStarHeuristicComparator;  // heuristic used to compare nodes
+    protected HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
 
     public HTNPlanner(HTNPlanner other) {
         this.initialNode = new HTNNode(other.getInitialNode());
-        this.aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
+        this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
         this.action = other.getAction();
     }
         /**
@@ -37,7 +38,7 @@ public class HTNPlanner {
     public HTNPlanner(HLAction action, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
         this.action = action;
-        this.aStarHeuristicComparator = new AStarHeuristicComparator(Main.heuristicMeasure);
+        this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
         Position agentPosition = GlobalLevelService.getInstance().getPosition(BDIService.getInstance().getAgent());
         Position boxPosition = agentPosition;
         if (action.getBox()!=null) {
@@ -73,7 +74,7 @@ public class HTNPlanner {
     * Returns the best guess for the number of actions used to solve the goal
     */
     public int getBestPlanApproximation() {
-        return aStarHeuristicComparator.h( initialNode );
+        return aStarHTNNodeComparator.h( initialNode );
     }
 
     /**
@@ -92,7 +93,7 @@ public class HTNPlanner {
         debug("HTNPlanner.rePlan():",2);
         debug("initial" + node.toString());
 
-        Strategy strategy = new BestFirstStrategy(aStarHeuristicComparator);
+        Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
 
         debug("HTN plan starting with strategy " + strategy.toString() + "\n");
         strategy.addToFrontier(node);

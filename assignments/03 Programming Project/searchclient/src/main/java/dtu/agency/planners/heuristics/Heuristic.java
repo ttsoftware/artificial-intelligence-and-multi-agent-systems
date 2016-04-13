@@ -1,4 +1,4 @@
-package dtu.agency.planners.htn.heuristic;
+package dtu.agency.planners.heuristics;
 
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Position;

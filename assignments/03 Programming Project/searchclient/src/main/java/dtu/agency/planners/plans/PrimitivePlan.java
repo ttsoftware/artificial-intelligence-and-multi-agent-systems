@@ -1,8 +1,7 @@
-package dtu.agency.planners.htn;
+package dtu.agency.planners.plans;
 
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.board.Position;
-import dtu.agency.planners.ConcretePlan;
 
 import java.util.LinkedList;
 

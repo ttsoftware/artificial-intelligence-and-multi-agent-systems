@@ -5,17 +5,18 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.rlaction.RLAction;
 import dtu.agency.board.Position;
-import dtu.agency.planners.htn.MixedPlan;
+import dtu.agency.planners.heuristics.Heuristic;
+import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.planners.htn.HTNNode;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public abstract class HeuristicComparator implements Comparator<HTNNode> {
+public abstract class HTNNodeComparator implements Comparator<HTNNode> {
 
     public Heuristic heuristic;
-    public HeuristicComparator(Heuristic heuristic) {
+    public HTNNodeComparator(Heuristic heuristic) {
         this.heuristic = heuristic;
     }
 

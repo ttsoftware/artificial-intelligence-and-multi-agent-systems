@@ -8,7 +8,7 @@ public class AgentIntention {
     // (top level) Intentions are really SolveGoalSuperActions()
     // but could also be other orders issued by TheAgency
     private final HLAction intention;
-    private HLPlan highLevelPlan;  // consisting of 'pure' HLActions??
+    private HLPlan highLevelPlan;
 
     public AgentIntention(HLAction topIntention) {
         highLevelPlan = new HLPlan();

@@ -33,8 +33,6 @@ public class HMoveBoxAction extends HLAction implements Serializable {
 
     public Position getBoxDestination() { return boxDestination; }
 
-    public Position getAgentDestination() { return agentDestination; }
-
     @Override
     public AbstractActionType getType() {
         return AbstractActionType.MoveBoxAndReturn;
@@ -42,7 +40,7 @@ public class HMoveBoxAction extends HLAction implements Serializable {
 
     @Override
     public Position getAgentDestination() {
-        return getAgentDestination();
+        return agentDestination;
     }
 
     @Override
