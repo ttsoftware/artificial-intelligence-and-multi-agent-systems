@@ -19,6 +19,13 @@ public abstract class LevelService {
         return level;
     }
 
+    /**
+     * @return A clone of the level object
+     */
+    public Level getLevelClone() {
+        return level.clone();
+    }
+
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
         // We must synchronize here to avoid collisions.
         // Do we want to handle conflicts in this step/class?
@@ -347,6 +354,92 @@ public abstract class LevelService {
 
     public synchronized Position getPosition(String objectLabel) {
         return level.getBoardObjectPositions().get(objectLabel);
+    }
+
+    /**
+     * Insert an agent into the level at a given position
+     * Usage: when responsibility of agent is returned to level
+     * @param agent
+     * @param position
+     */
+    public synchronized void insertAgent(Agent agent, Position position) {
+        int row = position.getRow();
+        int column = position.getColumn();
+
+        BoardCell[][] boardState = level.getBoardState();
+
+        // update level.boardState
+        BoardCell cell = boardState[row][column];
+        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
+        switch (cell) {       // update the cell where the agent is now located
+            case FREE_CELL:
+                //level.getBoardState()[row][column] = BoardCell.AGENT;
+                boardState[row][column] = BoardCell.AGENT;
+                break;
+            case GOAL:
+                //level.getBoardState()[row][column] = BoardCell.AGENT_GOAL;
+                boardState[row][column] = BoardCell.AGENT_GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
+        }
+        // update the level objects
+        level.setBoardState(boardState);
+
+        // insert agent into level.boardObjectPositions
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(agent.getLabel()) != null)
+            throw new AssertionError("Expected the agent NOT to exist in the level");
+        objectPositions.put(agent.getLabel(), new Position(row, column));
+        level.setBoardObjectPositions(objectPositions);
+
+        // insert agent into level.agents
+        List<Agent> agents = level.getAgents();
+        if (agents.contains(agent))
+            throw new AssertionError("Agent should not exist in level before adding it");
+        agents.add(agent);
+        level.setAgents(agents);
+    }
+
+    /**
+     * Remove an agent from the level
+     * Usage: when assuming responsibility of agent from the level
+     * @param agent
+     */
+    public synchronized void removeAgent(Agent agent){
+        Position agentPos = getPosition(agent);
+        int row = agentPos.getRow();
+        int column = agentPos.getColumn();
+
+        // remove agent from level.boardstate
+        BoardCell cell = level.getBoardState()[row][column];
+        assert (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL);
+
+        switch (cell) {
+            case AGENT:
+                level.getBoardState()[row][column] = BoardCell.FREE_CELL;
+                break;
+            case AGENT_GOAL:
+                level.getBoardState()[row][column] = BoardCell.GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot remove agent if not present");
+        }
+
+        // remove agent from level.boardObjectPositions
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(agent.getLabel()) == null)
+            throw new AssertionError("Cannot remove non-existing agent");
+        objectPositions.remove(agent.getLabel());
+        level.setBoardObjectPositions(objectPositions);
+
+
+        // remove agent from level.agents
+        List<Agent> agents = level.getAgents();
+        if (!agents.contains(agent))
+            throw new AssertionError("Agent should exist in level before removing it");
+        agents.remove(agent);
+        level.setAgents(agents);
     }
 
     /**

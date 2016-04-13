@@ -36,12 +36,6 @@ public class AgentService {
     public void addAgents(List<Agent> agentList) {
         availableAgents = new ArrayBlockingQueue<>(agentList.size());
         availableAgents.addAll(agentList);
-        // Create BDIServices for each agent
-        agentList.forEach(agent -> {
-            BDIService bdiService = new BDIService(agent);
-            BDIService.setInstance(bdiService);
-            bdiServices.put(agent.getLabel(), BDIService.getInstance());
-        });
     }
 
     /**
@@ -50,7 +44,16 @@ public class AgentService {
      * @return
      */
     public Agent take() throws InterruptedException {
-        return availableAgents.take();
+        Agent agent = availableAgents.take();
+
+        if (!bdiServices.containsKey(agent.getLabel())) {
+            // Create BDIServices for this agent if it does not exist
+            BDIService bdiService = new BDIService(agent);
+            BDIService.setInstance(bdiService);
+            bdiServices.put(agent.getLabel(), BDIService.getInstance());
+        }
+
+        return agent;
     }
 
     /**

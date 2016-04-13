@@ -2,12 +2,12 @@ package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.NoAction;
-import dtu.agency.agent.bdi.AgentBelief;
 import dtu.agency.agent.bdi.AgentDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
+import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNGoalPlanner;
 
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import java.util.LinkedList;
 public class BDIService {
 
     private Agent agent;
-    private AgentBelief state;
+    private Position agentCurrentPosition;
     private AgentDesire primitivePlans;
     private LinkedList<AgentIntention> intentions;
     private HashMap<String, HTNGoalPlanner> bids; // everything the agent want to achieve (aka desires :-) )
@@ -31,6 +31,7 @@ public class BDIService {
 
     /**
      * We must call setInstance() before it becomes available
+     *
      * @param bdiService
      */
     public static void setInstance(BDIService bdiService) {
@@ -43,24 +44,23 @@ public class BDIService {
 
     public BDIService(Agent agent) {
         this.agent = agent;
-        state = new AgentBelief(agent);
-        primitivePlans = new AgentDesire(new NoAction(state.getAgentCurrentPosition()) );
+        Level levelClone = GlobalLevelService.getInstance().getLevelClone();
+        bdiLevelService = new BDILevelService(levelClone);
+
+        agentCurrentPosition = bdiLevelService.getPosition(this.agent);
+        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+        bdiLevelService.removeAgent(this.agent);
+        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+        bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
+        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+
+        primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition));
         intentions = new LinkedList<>();
         bids = new HashMap<>();
-
-        Level levelClone = GlobalLevelService.getInstance().getLevel();
-
-        // TODO: Remove agent from levelClone
-
-        bdiLevelService = new BDILevelService(levelClone);
     }
 
     public Agent getAgent() {
         return agent;
-    }
-
-    public AgentBelief getState() {
-        return state;
     }
 
     public AgentDesire getPrimitivePlans() {
