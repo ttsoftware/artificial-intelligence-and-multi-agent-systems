@@ -18,7 +18,7 @@ public class Main {
                 "-l",
                 "levels/SAD1_multi.lvl",
                 "-g",
-                "50",
+                "100",
                 "-t",
                 "60",
                 "-c",

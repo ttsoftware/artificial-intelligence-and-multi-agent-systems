@@ -1,4 +1,4 @@
-package dtu.agency.threads;
+package dtu.agency.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.services.AgentService;
@@ -36,8 +36,6 @@ public class AgentThreadPoolExecutor extends ThreadPoolExecutor {
             e.printStackTrace(System.err);
         }
 
-        System.err.println(t.getName() + ": Starting thread for agent " + agent.getLabel());
-
         BDIService bdiService = AgentService.getInstance().getBDIServiceInstance(agent);
 
         // Instantiate ThreadLocal inside BDIService
@@ -49,8 +47,6 @@ public class AgentThreadPoolExecutor extends ThreadPoolExecutor {
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
-
-        System.err.println("Finished executing task for agent " + BDIService.getInstance().getAgent().getLabel());
 
         // Add agent back into queue
         AgentService.getInstance().addAgent(

@@ -13,10 +13,6 @@ import dtu.agency.services.EventBusService;
 
 public class AgentThread implements Runnable {
 
-    public AgentThread() {
-        // System.err.println(Thread.currentThread().getName() + ": Setting agentThread agent to: " + agent.getLabel());
-    }
-
     @Override
     public void run() {
         // register all events handled by this class

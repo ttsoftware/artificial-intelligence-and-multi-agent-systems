@@ -56,6 +56,7 @@ public class Agency implements Runnable {
 
                 // offer the goal
                 System.err.println("Offering goal: " + goal.getLabel());
+
                 EventBusService.post(new GoalOfferEvent(goal));
 
                 // Get the goal estimations and assign goals (blocks)
