@@ -11,6 +11,12 @@ public class BoxAndGoal extends BoardObject {
         this.goal = goal;
     }
 
+    public BoxAndGoal(BoxAndGoal other) {
+        super(other.getLabel());
+        this.box = new Box(other.getBox());
+        this.goal = new Goal(other.getGoal());
+    }
+
     public Box getBox() {
         return box;
     }
@@ -25,5 +31,10 @@ public class BoxAndGoal extends BoardObject {
      */
     public boolean isSolved() {
         return box.getLabel().startsWith(goal.getLabel().toUpperCase().substring(0, 1));
+    }
+
+    @Override
+    public BoardCell getType() {
+        return BoardCell.BOX_GOAL;
     }
 }

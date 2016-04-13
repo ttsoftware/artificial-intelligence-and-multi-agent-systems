@@ -16,7 +16,7 @@ public abstract class LevelService {
     protected Level level;
 
     public Level getLevel() {
-        return level;
+        return new Level(level);
     }
 
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
