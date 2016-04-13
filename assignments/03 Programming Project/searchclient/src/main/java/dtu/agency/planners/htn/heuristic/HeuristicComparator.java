@@ -40,8 +40,8 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
 
             if (action instanceof RLAction) {
                 HLAction recursiveAction = (RLAction) action;
-                primitives += heuristic.distance(previous, recursiveAction.getDestination());
-                previous = recursiveAction.getDestination();
+                primitives += heuristic.distance(previous, recursiveAction.getAgentDestination());
+                previous = recursiveAction.getAgentDestination();
 
             } else { // (action instanceof HLAction)
 
@@ -61,13 +61,13 @@ public abstract class HeuristicComparator implements Comparator<HTNNode> {
                         }
                         if (action1 instanceof RLAction) {
                             RLAction rlAction1 = (RLAction) action1;
-                            planPrimitives += heuristic.distance(planPrevious, rlAction1.getDestination());
-                            planPrevious = hlAction.getDestination();
+                            planPrimitives += heuristic.distance(planPrevious, rlAction1.getAgentDestination());
+                            planPrevious = hlAction.getAgentDestination();
                         }
                         else {
                             HLAction hlAction1 = (HLAction) action1;
-                            planPrimitives += heuristic.distance(planPrevious, hlAction1.getDestination());
-                            planPrevious = hlAction.getDestination();
+                            planPrimitives += heuristic.distance(planPrevious, hlAction1.getAgentDestination());
+                            planPrevious = hlAction.getAgentDestination();
                         }
                     }
                     minPlanPrimitives = (minPlanPrimitives > planPrimitives) ? planPrimitives : minPlanPrimitives;

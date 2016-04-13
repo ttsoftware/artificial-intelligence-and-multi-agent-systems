@@ -2,7 +2,6 @@ package dtu.agency.planners.htn.strategy;
 
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.HTNNode;
-import dtu.agency.planners.htn.Memory;
 
 import java.util.HashSet;
 
@@ -32,7 +31,7 @@ public abstract class Strategy {
     }
 
     public String status() {
-        return String.format("#Explored: %4d, #Frontier: %3d, Time: %3.2f s \t%s", countExplored(), countFrontier(), timeSpent(), Memory.stringRep());
+        return String.format("#Explored: %4d, #Frontier: %3d, Time: %3.2f s", countExplored(), countFrontier(), timeSpent());
     }
 
     public float timeSpent() {

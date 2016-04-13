@@ -2,6 +2,7 @@ package dtu.agency.planners.agentplanner;
 
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.board.Position;
 import dtu.agency.planners.AbstractPlan;
 
 import java.util.LinkedList;
@@ -58,9 +59,18 @@ public class HLPlan implements AbstractPlan {
         return "HLPlan:" + getActions().toString();
     }
 
-    public int getHeuristic() {
+    public int approximateSteps(Position agentOrigin) {
         // real nasty heuristic :-) i might come up with something better
-        return plan.size() * 10;
+        // int approximateSteps = plan.size() * 10;
+        int approximateSteps = 0;
+
+        Position nextOrigin = agentOrigin;
+        for (HLAction action : plan) {
+            approximateSteps += action.approximateSteps(nextOrigin);
+            nextOrigin = action.getAgentDestination();
+        }
+
+        return approximateSteps;
     }
 
     public HLAction peek() {

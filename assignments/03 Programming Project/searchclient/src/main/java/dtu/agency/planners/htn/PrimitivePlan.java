@@ -1,6 +1,7 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.board.Position;
 import dtu.agency.planners.ConcretePlan;
 
 import java.util.LinkedList;
@@ -23,6 +24,11 @@ public class PrimitivePlan implements ConcretePlan {
 
     public ConcreteAction popAction() {
         return concreteActions.pollFirst();
+    }
+
+    @Override
+    public int approximateSteps(Position agentInitialPosition) {
+        return concreteActions.size();
     }
 
     public void pushAction( ConcreteAction action) {

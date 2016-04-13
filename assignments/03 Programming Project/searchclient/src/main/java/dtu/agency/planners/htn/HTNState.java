@@ -31,13 +31,6 @@ public class HTNState {
         this.relaxationMode = other.relaxationMode;
     }
 
-/*    public HTNState(Position agentPosition, Position boxPosition) throws AssertionError {
-        this.agentPosition = agentPosition;
-        this.boxPosition = boxPosition;
-        this.relaxationMode = RelaxationMode.NoAgentsNoBoxes;
-        if (agentPosition == null) throw new AssertionError("MUST have an agent location");
-    }*/
-
     public HTNState(Position agentPosition, Position boxPosition, RelaxationMode mode) throws AssertionError {
         this.agentPosition = agentPosition;
         this.boxPosition = boxPosition;
@@ -137,7 +130,6 @@ public class HTNState {
                 }
             }
         }
-
         return conflict;
     }
 
@@ -428,18 +420,18 @@ public class HTNState {
 
             case Circumvent:
                 CircumventBoxAction cba = new CircumventBoxAction((CircumventBoxAction) action);
-                fulfilled  = this.getAgentPosition().equals( action.getDestination() );
+                fulfilled  = this.getAgentPosition().equals( action.getAgentDestination() );
                 fulfilled &= this.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(action.getBox()) ); // TODO: PlannerLevelService
                 debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
 
             case RGotoAction:
-                fulfilled = this.getAgentPosition().isAdjacentTo(action.getDestination()); // TODO: adjacent is enough?? only if box is null
+                fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination()); // TODO: adjacent is enough?? only if box is null
                 debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
                 break;
 
             case MoveBoxAction:
-                fulfilled = (this.getBoxPosition().equals(action.getDestination()));
+                fulfilled = (this.getBoxPosition().equals(action.getAgentDestination()));
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destination");
                 break;
 

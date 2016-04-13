@@ -27,7 +27,7 @@ public class CircumventBoxAction extends HLAction implements Serializable {
         this.agentDestination = new Position(other.getAgentDestination());
     }
 
-    public Position getAgentDestination() { return agentDestination; }
+    public Position getAgentDestination() { return new Position(agentDestination); }
 
     @Override
     public AbstractActionType getType() {
@@ -35,13 +35,8 @@ public class CircumventBoxAction extends HLAction implements Serializable {
     }
 
     @Override
-    public Position getDestination() {
-        return getAgentDestination();
-    }
-
-    @Override
     public Box getBox() {
-        return box;
+        return new Box(box);
     }
 
     @Override
@@ -53,6 +48,11 @@ public class CircumventBoxAction extends HLAction implements Serializable {
         s.append(getAgentDestination().toString());
         s.append(")");
         return s.toString();
+    }
+
+    @Override
+    public int approximateSteps(Position agentOrigin) {
+        return agentOrigin.manhattanDist(agentDestination);
     }
 
 }

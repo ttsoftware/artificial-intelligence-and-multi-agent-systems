@@ -75,7 +75,7 @@ public class AgentThread implements Runnable {
 
             // Compare the length of the plans, and choose the shorter,
             // (and evolve) and return it
-            if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.getHeuristic() <= llPlan.size()+5) ) {
+            if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.approximateSteps() <= llPlan.size()+5) ) {
                 // go with HLPlan
                 System.err.println("Deriving concrete plan from HL plan..");
                 // create total primitive plan from High level actions

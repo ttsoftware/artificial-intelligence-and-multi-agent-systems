@@ -25,6 +25,14 @@ public class Position implements Serializable {
         return column;
     }
 
+    public static int manhattanDist(Position p1, Position p2) {
+        return Math.abs(p1.getRow() - p2.getRow()) + Math.abs(p1.getColumn() - p2.getColumn());
+    }
+
+    public int manhattanDist(Position position) {
+        return manhattanDist(this, position);
+    }
+
     public boolean isAdjacentTo(Position otherPosition) {
         return (Math.abs(otherPosition.getRow() - row) == 1
                 && Math.abs(otherPosition.getColumn() - column) == 0)

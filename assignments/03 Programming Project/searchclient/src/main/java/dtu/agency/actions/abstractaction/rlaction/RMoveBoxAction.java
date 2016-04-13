@@ -3,6 +3,7 @@ package dtu.agency.actions.abstractaction.rlaction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
+import dtu.agency.services.BDIService;
 
 public class RMoveBoxAction extends RLAction {
 
@@ -16,7 +17,7 @@ public class RMoveBoxAction extends RLAction {
 
     public RMoveBoxAction(RMoveBoxAction other) {
         this.box = new Box(other.getBox());
-        this.boxDestination = new Position(other.getDestination());
+        this.boxDestination = new Position(other.getAgentDestination());
     }
 
     @Override
@@ -25,7 +26,7 @@ public class RMoveBoxAction extends RLAction {
     }
 
     @Override
-    public Position getDestination() {
+    public Position getAgentDestination() {
         return boxDestination;
     }
 
@@ -43,5 +44,14 @@ public class RMoveBoxAction extends RLAction {
         s.append(boxDestination.toString());
         s.append(")");
         return s.toString();
+    }
+
+    @Override
+    public int approximateSteps(Position agentOrigin) {
+        int approximateSteps = 0;
+        // TODO PlanningLevelService??
+        Position boxOrigin = BDIService.getInstance().getBDILevelService().getPosition(box);
+        approximateSteps += boxOrigin.manhattanDist(boxDestination);
+        return approximateSteps;
     }
 }

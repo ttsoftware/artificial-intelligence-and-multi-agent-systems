@@ -21,11 +21,11 @@ public class NoAction extends HLAction implements Serializable {
     }
 
     public NoAction(NoAction other) {
-        this.agentDestination = new Position(other.getDestination());
+        this.agentDestination = new Position(other.getAgentDestination());
     }
 
     @Override
-    public Position getDestination() {
+    public Position getAgentDestination() {
         return agentDestination;
     }
 
@@ -40,6 +40,11 @@ public class NoAction extends HLAction implements Serializable {
     @Override
     public String toString() {
         return "NoAction()";
+    }
+
+    @Override
+    public int approximateSteps(Position agentOrigin) {
+        return Integer.MAX_VALUE;
     }
 
 }

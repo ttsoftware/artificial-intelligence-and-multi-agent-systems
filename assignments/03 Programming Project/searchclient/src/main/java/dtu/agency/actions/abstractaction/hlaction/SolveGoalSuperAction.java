@@ -8,6 +8,9 @@ import dtu.agency.services.GlobalLevelService;
 
 import java.io.Serializable;
 
+/**
+ * Intention are for this to perish
+ */
 public class SolveGoalSuperAction extends HLAction implements Serializable {
 
     private final Goal goal;
@@ -31,7 +34,7 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
     }
 
     @Override
-    public Position getDestination() {
+    public Position getAgentDestination() {
         return GlobalLevelService.getInstance().getPosition(goal);
     }
 
@@ -47,6 +50,11 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
         s.append(getGoal().toString());
         s.append(")");
         return s.toString();
+    }
+
+    @Override
+    public int approximateSteps(Position agentOrigin) {
+        return Integer.MAX_VALUE;
     }
 
 }

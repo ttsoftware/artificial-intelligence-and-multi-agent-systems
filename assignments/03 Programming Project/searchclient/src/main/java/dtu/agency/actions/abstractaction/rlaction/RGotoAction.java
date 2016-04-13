@@ -13,7 +13,7 @@ public class RGotoAction extends RLAction {
     }
 
     public RGotoAction(RGotoAction other) {
-        agentDestination = new Position(other.getDestination());
+        agentDestination = new Position(other.getAgentDestination());
     }
 
     @Override
@@ -22,7 +22,7 @@ public class RGotoAction extends RLAction {
     }
 
     @Override
-    public Position getDestination() {
+    public Position getAgentDestination() {
         return agentDestination;
     }
 
@@ -35,13 +35,18 @@ public class RGotoAction extends RLAction {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("RGotoAction(");
-        if (getDestination() != null) {
-            s.append(getDestination().toString());
+        if (getAgentDestination() != null) {
+            s.append(getAgentDestination().toString());
         } else {
-            s.append(getDestination().toString());
+            s.append(getAgentDestination().toString());
         }
         s.append(")");
         return s.toString();
+    }
+
+    @Override
+    public int approximateSteps(Position agentOrigin) {
+        return agentOrigin.manhattanDist(agentDestination);
     }
 
  }

@@ -3,6 +3,7 @@ package dtu.agency.actions.abstractaction.hlaction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
+import dtu.agency.services.BDIService;
 
 import java.io.Serializable;
 
@@ -26,7 +27,7 @@ public class HMoveBoxAction extends HLAction implements Serializable {
 
     public HMoveBoxAction(HMoveBoxAction other) {
         this.box = new Box(other.getBox());
-        this.boxDestination = new Position(other.getDestination());
+        this.boxDestination = new Position(other.getAgentDestination());
         this.agentDestination = new Position(other.getAgentDestination());
     }
 
@@ -40,7 +41,7 @@ public class HMoveBoxAction extends HLAction implements Serializable {
     }
 
     @Override
-    public Position getDestination() {
+    public Position getAgentDestination() {
         return getAgentDestination();
     }
 
@@ -58,6 +59,19 @@ public class HMoveBoxAction extends HLAction implements Serializable {
         s.append(getAgentDestination().toString());
         s.append(")");
         return s.toString();
+    }
+
+    @Override
+    public int approximateSteps(Position agentOrigin) {
+        // TODO: Planning level service instead??
+        Position boxCurrentPosition = BDIService.getInstance().getBDILevelService().getPosition(box);
+
+        int approximation = 0;
+        approximation += agentOrigin.manhattanDist(boxCurrentPosition) -1;
+        approximation += boxCurrentPosition.manhattanDist(boxDestination);
+        approximation += boxDestination.manhattanDist(agentDestination);
+
+        return approximation;
     }
 
 }

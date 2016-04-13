@@ -17,7 +17,7 @@ public abstract class HLAction extends AbstractAction {
     /**
      * This is where the agent is going to be after completing this action
      */
-    public abstract Position getDestination();
+    public abstract Position getAgentDestination();
 
     /**
      * This is the targeted box during this action(s)
@@ -26,6 +26,13 @@ public abstract class HLAction extends AbstractAction {
 
     @Override
     public abstract String toString();
+
+    /**
+     *
+     * @param agentOrigin
+     * @return the approximated number of steps this HLAction is going to take
+     */
+    public abstract int approximateSteps(Position agentOrigin);
 
     /**
      * Creates an empty refinement of known signature,
