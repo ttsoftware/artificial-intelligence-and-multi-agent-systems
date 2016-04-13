@@ -49,7 +49,12 @@ public class BDIService {
         bdiLevelService = new BDILevelService(levelClone);
 
         agentCurrentPosition = bdiLevelService.getPosition(agent);
-        bdiLevelService.removeAgent(agent);
+
+        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+//        bdiLevelService.removeAgent(agent);
+//        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+//        bdiLevelService.insertAgent(agent, agentCurrentPosition);
+//        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
 
         primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition) );
         intentions = new LinkedList<>();

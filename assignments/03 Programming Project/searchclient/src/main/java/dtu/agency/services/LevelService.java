@@ -432,7 +432,7 @@ public abstract class LevelService {
         List<Agent> agents = level.getAgents();
         if (!agents.contains(agent))
             throw new AssertionError("Agent should exist in level before removing it");
-        agents.add(agent);
+        agents.remove(agent);
         level.setAgents(agents);
     }
 
