@@ -1,18 +1,8 @@
 package dtu.agency.services;
 
-import dtu.agency.actions.concreteaction.Direction;
-import dtu.agency.actions.concreteaction.MoveConcreteAction;
-import dtu.agency.actions.concreteaction.PullConcreteAction;
-import dtu.agency.actions.concreteaction.PushConcreteAction;
-import dtu.agency.board.*;
+import dtu.agency.board.Level;
 
-import java.io.Serializable;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-public class GlobalLevelService extends LevelService implements Serializable {
+public class GlobalLevelService extends LevelService {
 
     private static GlobalLevelService instance = null;
 

@@ -1,7 +1,6 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
@@ -14,20 +13,15 @@ import dtu.agency.services.EventBusService;
 
 public class AgentThread implements Runnable {
 
-    private final Agent agent;
-
-    public AgentThread(Agent agent) {
-        this.agent = agent;
+    public AgentThread() {
+        // System.err.println(Thread.currentThread().getName() + ": Setting agentThread agent to: " + agent.getLabel());
     }
 
     @Override
     public void run() {
-        BDIService.setInstance(new BDIService());
-        BDIService.getInstance().setAgent(agent);
-
         // register all events handled by this class
         EventBusService.register(this);
-        System.err.println("Started agent: " + BDIService.getInstance().getAgent().getLabel());
+        System.err.println(Thread.currentThread().getName() + ": Started agent: " + BDIService.getInstance().getAgent().getLabel());
     }
 
     /**
@@ -37,7 +31,6 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
-        System.err.println(Thread.currentThread().getName());
         Goal goal = event.getGoal();
 
         HTNGoalPlanner htnPlanner = new HTNGoalPlanner(goal);
@@ -45,7 +38,7 @@ public class AgentThread implements Runnable {
 
         BDIService.getInstance().getBids().put(goal.getLabel(), htnPlanner);
 
-        System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
+        System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(BDIService.getInstance().getAgent().getLabel(), steps));
     }
@@ -57,16 +50,10 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
-
-        System.err.println(Thread.currentThread().getName());
-
-        System.err.println(BDIService.getInstance().getAgent());
-        System.err.println(BDIService.getInstance().getAgent().getLabel());
-
         if (event.getAgentLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
             // We won the bid for this goal!
 
-            System.err.println(BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
+            System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
             // Find the HTNPlanner used to bid for this goal
             HTNGoalPlanner htnPlanner = BDIService.getInstance().getBids().get(event.getGoal().getLabel());

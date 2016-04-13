@@ -1,7 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.actions.abstractaction.hlaction.NoAction;
 import dtu.agency.agent.bdi.AgentBelief;
 import dtu.agency.agent.bdi.AgentDesire;
 import dtu.agency.agent.bdi.AgentIntention;
@@ -9,7 +9,6 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.planners.htn.HTNGoalPlanner;
-import dtu.agency.planners.htn.HTNPlanner;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,29 +24,27 @@ public class BDIService {
     private AgentBelief state;
     private AgentDesire primitivePlans;
     private LinkedList<AgentIntention> intentions;
-    private HashMap<String, HTNGoalPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
+    private HashMap<String, HTNGoalPlanner> bids; // everything the agent want to achieve (aka desires :-) )
+    private BDILevelService bdiLevelService;
 
-    private static class ThreadLocalBDIService extends ThreadLocal<BDIService> {
+    private static ThreadLocal<BDIService> threadLocal = new ThreadLocal<>();
 
-        @Override
-        protected BDIService initialValue() {
-            return new BDIService();
-        }
-    }
-
-    private static ThreadLocal<BDIService> THREAD_LOCAL = new ThreadLocalBDIService();
-
-    public static void setInstance(final BDIService bdiService) {
-        THREAD_LOCAL.set(bdiService);
+    /**
+     * We must call setInstance() before it becomes available
+     * @param bdiService
+     */
+    public static void setInstance(BDIService bdiService) {
+        threadLocal.set(bdiService);
     }
 
     public static BDIService getInstance() {
-        return THREAD_LOCAL.get();
+        return threadLocal.get();
     }
 
-    public void setAgent(Agent bdiAgent) {
-        agent = bdiAgent;
+    public BDIService(Agent agent) {
+        System.err.println(Thread.currentThread().getName() + ": Creating BDIService for agent: " + agent.getLabel());
 
+        this.agent = agent;
         state = new AgentBelief(agent);
         primitivePlans = new AgentDesire(new NoAction(state.getAgentCurrentPosition()) );
         intentions = new LinkedList<>();
@@ -57,8 +54,9 @@ public class BDIService {
 
         // TODO: Remove agent from levelClone
 
-        BDILevelService.getInstance().setLevel(levelClone);
+        bdiLevelService = new BDILevelService(levelClone);
     }
+
     public Agent getAgent() {
         return agent;
     }
@@ -89,5 +87,9 @@ public class BDIService {
 
     public void appendIntention(HLAction intention) {
         intentions.addLast(new AgentIntention(intention));
+    }
+
+    public BDILevelService getBDILevelService() {
+        return bdiLevelService;
     }
 }

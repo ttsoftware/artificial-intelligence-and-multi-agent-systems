@@ -47,7 +47,7 @@ public class HTNPlannerTest {
         agent = GlobalLevelService.getInstance().getLevel().getAgents().get(0);
         goal = GlobalLevelService.getInstance().getLevel().getGoals().get(0);
 
-        BDIService.getInstance().setAgent(agent);
+        BDIService.setInstance(new BDIService(agent));
 
         // Planner initialization
         HTNPlanner htn = new HTNGoalPlanner(goal);
