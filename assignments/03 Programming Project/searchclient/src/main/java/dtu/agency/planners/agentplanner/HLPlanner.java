@@ -21,7 +21,7 @@ public class HLPlanner {
 
     public HLPlanner( HTNPlanner htnPlanner ) {
 
-        Level planningLevel = BDIService.getInstance().getBDILevelService().getLevel();
+        Level planningLevel = BDIService.getInstance().getBDILevelService().getLevelClone();
         Box box = htnPlanner.getIntention().getBox();
 
         // TODO: Remove box from planningLevel

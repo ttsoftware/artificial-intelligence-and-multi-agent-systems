@@ -31,6 +31,7 @@ public class BDIService {
 
     /**
      * We must call setInstance() before it becomes available
+     *
      * @param bdiService
      */
     public static void setInstance(BDIService bdiService) {
@@ -45,22 +46,19 @@ public class BDIService {
         System.err.println(Thread.currentThread().getName() + ": Creating BDIService for agent: " + agent.getLabel());
 
         this.agent = agent;
-        Level levelClone = GlobalLevelService.getInstance().getLevel();
+        Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
 
-        agentCurrentPosition = bdiLevelService.getPosition(agent);
-
+        agentCurrentPosition = bdiLevelService.getPosition(this.agent);
         System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-//        bdiLevelService.removeAgent(agent);
-//        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-//        bdiLevelService.insertAgent(agent, agentCurrentPosition);
-//        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+        bdiLevelService.removeAgent(this.agent);
+        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
+        bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
+        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
 
-        primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition) );
+        primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition));
         intentions = new LinkedList<>();
         bids = new HashMap<>();
-
-
     }
 
     public Agent getAgent() {
