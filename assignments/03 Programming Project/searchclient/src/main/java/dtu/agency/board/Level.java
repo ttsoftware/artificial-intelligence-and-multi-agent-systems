@@ -80,6 +80,10 @@ public class Level implements Serializable {
         return agents;
     }
 
+    public void setAgents(List<Agent> agents) {
+        this.agents = agents;
+    }
+
     public List<Box> getBoxes() {
         return boxes;
     }

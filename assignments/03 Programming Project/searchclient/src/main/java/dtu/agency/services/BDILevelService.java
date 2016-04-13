@@ -1,9 +1,10 @@
 package dtu.agency.services;
 
+import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
 
 public class BDILevelService extends LevelService {
-
+    Agent agent = BDIService.getAgent();
     private static BDILevelService instance;
 
     public static BDILevelService getInstance() {
