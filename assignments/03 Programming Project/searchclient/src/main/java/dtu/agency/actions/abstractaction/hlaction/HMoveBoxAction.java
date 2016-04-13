@@ -7,6 +7,8 @@ import dtu.agency.services.BDIService;
 
 import java.io.Serializable;
 
+
+// TODO: THIS HLAction cannot be solved by HTNPlanner, must be revised!!!
 /**
 * This Action Moves a box and returns the agent to the box origin
 */
@@ -53,6 +55,8 @@ public class HMoveBoxAction extends HLAction implements Serializable {
         StringBuilder s = new StringBuilder();
         s.append("HMoveBoxAction(");
         s.append(getBox().toString());
+        s.append("->");
+        s.append(getBoxDestination().toString());
         s.append(",");
         s.append(getAgentDestination().toString());
         s.append(")");

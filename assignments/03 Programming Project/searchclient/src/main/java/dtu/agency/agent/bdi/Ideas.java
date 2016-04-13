@@ -27,4 +27,9 @@ public class Ideas extends Desire<HLAction> { // everything the agent might want
             ideas.add(action);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Target: " + goal.getLabel() + ",Ideas: " + ideas.toString();
+    }
 }

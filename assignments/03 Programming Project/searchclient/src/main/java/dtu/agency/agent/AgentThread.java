@@ -45,9 +45,6 @@ public class AgentThread implements Runnable {
         int approximatedSteps = mind.getApproximateDistance();
         Ideas ideas  = mind.getAllAbstractIdeas();
 
-        HTNGoalPlanner htnPlanner = new HTNGoalPlanner(goal);
-        int steps = htnPlanner.getBestPlanApproximation();
-
         BDIService.getInstance().getIdeas().put(goal.getLabel(), ideas);
 
         // TODO: Find number of remaining steps to be executed at this moment
@@ -56,7 +53,7 @@ public class AgentThread implements Runnable {
 
         System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(totalSteps));
 
-        EventBusService.getEventBus().post(new GoalEstimationEvent(BDIService.getInstance().getAgent().getLabel(), steps));
+        EventBusService.getEventBus().post(new GoalEstimationEvent(BDIService.getInstance().getAgent().getLabel(), totalSteps));
     }
 
     /**
