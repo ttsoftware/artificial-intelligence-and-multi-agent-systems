@@ -1,8 +1,9 @@
-package dtu.agency.planners.agentplanner;
+package dtu.agency.planners.hlplanner;
 
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.BDIService;

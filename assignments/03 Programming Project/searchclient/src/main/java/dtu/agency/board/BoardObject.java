@@ -20,4 +20,5 @@ public abstract class BoardObject implements Serializable {
     public String toString() {
         return getLabel();
     }
+
 }

@@ -1,14 +1,10 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.NoAction;
-import dtu.agency.agent.bdi.AgentDesire;
+import dtu.agency.agent.bdi.Ideas;
+import dtu.agency.agent.bdi.PrimitiveDesire;
 import dtu.agency.agent.bdi.AgentIntention;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Level;
-import dtu.agency.board.Position;
-import dtu.agency.planners.htn.HTNGoalPlanner;
+import dtu.agency.board.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,9 +18,10 @@ public class BDIService {
 
     private Agent agent;
     private Position agentCurrentPosition;
-    private AgentDesire primitivePlans;
+    private PrimitiveDesire primitivePlans;
+    private LinkedList<Goal> meaningOfLife;
     private LinkedList<AgentIntention> intentions;
-    private HashMap<String, HTNGoalPlanner> bids; // everything the agent want to achieve (aka desires :-) )
+    private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
     private BDILevelService bdiLevelService;
 
     private static ThreadLocal<BDIService> threadLocal = new ThreadLocal<>();
@@ -63,21 +60,30 @@ public class BDIService {
             }
         }
 
-        primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition));
+        primitivePlans = new PrimitiveDesire(null);
+        meaningOfLife = new LinkedList<>();
         intentions = new LinkedList<>();
-        bids = new HashMap<>();
+        ideas = new HashMap<>();
     }
 
     public Agent getAgent() {
         return agent;
     }
 
-    public AgentDesire getPrimitivePlans() {
+    public PrimitiveDesire getPrimitivePlans() {
         return primitivePlans;
     }
 
-    public HashMap<String, HTNGoalPlanner> getBids() {
-        return bids;
+    public HashMap<String, Ideas> getIdeas() {
+        return ideas;
+    }
+
+    public void addMeaningOfLife(Goal target) {
+        meaningOfLife.addLast(target);
+    }
+
+    public LinkedList<Goal> getMeaningOfLife() {
+        return meaningOfLife;
     }
 
     public LinkedList<AgentIntention> getIntentions() {

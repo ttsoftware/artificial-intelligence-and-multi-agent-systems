@@ -1,4 +1,4 @@
-package dtu.agency.planners.agentplanner;
+package dtu.agency.planners.hlplanner;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.planners.plans.PrimitivePlan;

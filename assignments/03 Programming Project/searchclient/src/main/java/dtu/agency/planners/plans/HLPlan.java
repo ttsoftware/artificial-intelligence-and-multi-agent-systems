@@ -1,4 +1,4 @@
-package dtu.agency.planners.agentplanner;
+package dtu.agency.planners.plans;
 
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
@@ -14,34 +14,34 @@ import java.util.Queue;
  */
 public class HLPlan implements AbstractPlan {
 
-    private final LinkedList<HLAction> plan;
+    private final LinkedList<dtu.agency.actions.abstractaction.hlaction.HLAction> plan;
 
     public HLPlan() {
         this.plan = new LinkedList<>();
     }
 
-    public HLPlan(HLAction action) {
+    public HLPlan(dtu.agency.actions.abstractaction.hlaction.HLAction action) {
         this.plan = new LinkedList<>();
         this.plan.add(action);
     }
 
-    public HLPlan(Queue<HLAction> plan) {
+    public HLPlan(Queue<dtu.agency.actions.abstractaction.hlaction.HLAction> plan) {
         this.plan = new LinkedList<>(plan);
     }
 
-    public LinkedList<HLAction> getPlan() {
+    public LinkedList<dtu.agency.actions.abstractaction.hlaction.HLAction> getPlan() {
         return new LinkedList<>(plan);
     }
 
-    public HLAction poll() {
+    public dtu.agency.actions.abstractaction.hlaction.HLAction poll() {
         return plan.pollFirst();
     }
 
-    public void prepend(HLAction action) {
+    public void prepend(dtu.agency.actions.abstractaction.hlaction.HLAction action) {
         plan.addFirst(action);
     }
 
-    public void append(HLAction action) {
+    public void append(dtu.agency.actions.abstractaction.hlaction.HLAction action) {
         plan.addLast(action);
     }
 
@@ -63,7 +63,7 @@ public class HLPlan implements AbstractPlan {
         Position nextOrigin = agentOrigin;
         int approximateSteps = 0;
 
-        for (HLAction action : plan) {
+        for (dtu.agency.actions.abstractaction.hlaction.HLAction action : plan) {
             approximateSteps += action.approximateSteps(nextOrigin);
             nextOrigin = action.getAgentDestination();
         }
@@ -71,7 +71,7 @@ public class HLPlan implements AbstractPlan {
         return approximateSteps;
     }
 
-    public HLAction peek() {
+    public dtu.agency.actions.abstractaction.hlaction.HLAction peek() {
         return plan.peekFirst();
     }
 }

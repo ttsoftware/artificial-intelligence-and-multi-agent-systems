@@ -33,7 +33,7 @@ public abstract class HTNNodeComparator implements Comparator<HTNNode> {
 
         for (Action action : actions) {
             // count primitive actions, and refine all pure HLActions, getting a list of HLActions
-            // as no pure HLAction refines into other pure HLAction, this is not walked like a tree,
+            // as no pure HLPlan refines into other pure HLPlan, this is not walked like a tree,
             // this has to be corrected is such HLActions are introduced
             if (action instanceof ConcreteAction) {
                 primitives += 1;
@@ -44,7 +44,7 @@ public abstract class HTNNodeComparator implements Comparator<HTNNode> {
                 primitives += heuristic.distance(previous, recursiveAction.getAgentDestination());
                 previous = recursiveAction.getAgentDestination();
 
-            } else { // (action instanceof HLAction)
+            } else { // (action instanceof HLPlan)
 
                 HLAction hlAction = (HLAction) action;
                 ArrayList<MixedPlan> plans = n.getState().getRefinements(hlAction);
