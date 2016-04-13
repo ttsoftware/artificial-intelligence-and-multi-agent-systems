@@ -42,8 +42,6 @@ public class BDIService {
     }
 
     public BDIService(Agent agent) {
-        System.err.println(Thread.currentThread().getName() + ": Creating BDIService for agent: " + agent.getLabel());
-
         this.agent = agent;
         state = new AgentBelief(agent);
         primitivePlans = new AgentDesire(new NoAction(state.getAgentCurrentPosition()) );

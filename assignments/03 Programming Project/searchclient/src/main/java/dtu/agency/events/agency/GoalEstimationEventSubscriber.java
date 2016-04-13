@@ -29,6 +29,9 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
                 synchronized (goal) {
                     // Wait for all agents to finish
                     while (agentEstimations.size() != numberOfAgents) {
+                        System.err.println(
+                                "Waiting for " + (numberOfAgents - agentEstimations.size()) + " estimations"
+                        );
                         goal.wait();
                     }
                     lowestEstimation = agentEstimations.take();

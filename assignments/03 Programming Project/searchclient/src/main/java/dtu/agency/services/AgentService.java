@@ -9,14 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AgentService {
 
     private static ArrayBlockingQueue<Agent> availableAgents;
-    private static ConcurrentHashMap<String, BDIService> bdiServices;
+    private static final ConcurrentHashMap<String, BDIService> bdiServices = new ConcurrentHashMap<>();
 
     private static AgentService instance;
 
     public static AgentService getInstance() {
         if (instance == null) {
             instance = new AgentService();
-            bdiServices = new ConcurrentHashMap<>();
         }
         return instance;
     }
@@ -27,8 +26,8 @@ public class AgentService {
      * @param bdiService
      */
     public void addAgent(Agent agent, BDIService bdiService) {
-        availableAgents.add(agent);
         synchronized (bdiServices) {
+            availableAgents.add(agent);
             bdiServices.put(agent.getLabel(), bdiService);
             bdiServices.notify();
         }
@@ -64,7 +63,7 @@ public class AgentService {
 
         BDIService bdiService;
 
-        // TODO: This should be replaced with a real guarded blocking datastructure
+        // TODO: This could be replaced with a real guarded lock datastructure
         while ((bdiService = bdiServices.get(agent.getLabel())) == null) {
             try {
                 synchronized (bdiServices) {
