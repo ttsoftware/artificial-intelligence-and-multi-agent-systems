@@ -1,4 +1,4 @@
-package dtu.agency.threads;
+package dtu.agency.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.services.AgentService;

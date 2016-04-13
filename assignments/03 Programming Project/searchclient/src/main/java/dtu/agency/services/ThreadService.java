@@ -1,7 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.agent.AgentThread;
-import dtu.agency.threads.AgentThreadPoolExecutor;
+import dtu.agency.agent.AgentThreadPoolExecutor;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;

@@ -3,6 +3,7 @@ package dtu.agency;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -16,6 +17,8 @@ import dtu.agency.services.AgentService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
+
+import java.util.List;
 
 public class Agency implements Runnable {
 
@@ -32,7 +35,9 @@ public class Agency implements Runnable {
                 GlobalLevelService.getInstance().getLevel().getAgents()
         );
 
-        GlobalLevelService.getInstance().getLevel().getAgents().forEach(agent -> {
+        List<Agent> agents = GlobalLevelService.getInstance().getLevel().getAgents();
+
+        agents.forEach(agent -> {
             System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
@@ -56,6 +61,7 @@ public class Agency implements Runnable {
 
                 // offer the goal
                 System.err.println("Offering goal: " + goal.getLabel());
+
                 EventBusService.post(new GoalOfferEvent(goal));
 
                 // Get the goal estimations and assign goals (blocks)

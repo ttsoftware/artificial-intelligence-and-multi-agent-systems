@@ -23,7 +23,7 @@ public abstract class LevelService {
      * @return A clone of the level object
      */
     public Level getLevelClone() {
-        return level.clone();
+        return new Level(level);
     }
 
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
