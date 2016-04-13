@@ -54,6 +54,15 @@ public class BDIService {
         bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
         System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
 
+        if (bdiLevelService.getLevel().getBoardObjectPositions()
+                == GlobalLevelService.getInstance().getLevel().getBoardObjectPositions()) {
+            try {
+                throw new Exception("We must deepcopy");
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
+        }
+
         primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition));
         intentions = new LinkedList<>();
         bids = new HashMap<>();
