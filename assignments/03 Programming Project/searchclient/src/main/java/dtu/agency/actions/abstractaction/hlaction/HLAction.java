@@ -1,6 +1,8 @@
 package dtu.agency.actions.abstractaction.hlaction;
 
 import dtu.agency.actions.AbstractAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
+import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
@@ -48,6 +50,42 @@ public abstract class HLAction extends AbstractAction {
         refinement.addAction(new NoConcreteAction());
         refinements.add(refinement);
         return refinements;
+    }
+
+
+    public static HLAction getOriginalAction(HLAction originalAction) {
+        switch (originalAction.getType()) {
+            case SolveGoal:
+                SolveGoalAction sga = (SolveGoalAction) originalAction;
+                return new SolveGoalAction(sga);
+
+            case Circumvent:
+                CircumventBoxAction cba = (CircumventBoxAction) originalAction;
+                return new CircumventBoxAction(cba);
+
+            case RGotoAction:
+                RGotoAction gta = (RGotoAction) originalAction;
+                return new RGotoAction(gta);
+
+            case MoveBoxAction:
+                RMoveBoxAction rmba = (RMoveBoxAction) originalAction;
+                return new RMoveBoxAction(rmba);
+
+            case SolveGoalSuper:
+                SolveGoalSuperAction sgs = (SolveGoalSuperAction) originalAction;
+                return new SolveGoalSuperAction(sgs);
+
+            case No:
+                NoAction na = (NoAction) originalAction;
+                return new NoAction(na);
+
+            case MoveBoxAndReturn:
+                HMoveBoxAction hmba = (HMoveBoxAction) originalAction;
+                return new HMoveBoxAction(hmba);
+
+            default:
+                return null;
+        }
     }
 
 }

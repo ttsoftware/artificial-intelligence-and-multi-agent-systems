@@ -15,9 +15,16 @@ import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
 
+/**
+ * Data structure to keep track of state of the two chosen BoardObjects targeted
+ * in a specific HTNPlanner, an Agent and a Box
+ *  - Along with all the methods needed to manipulate the state
+ *    when encountering Concrete- as well as HL-Actions
+ */
 public class HTNState {
     private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
     private static void debug(String msg){ debug(msg, 0); }
@@ -25,18 +32,26 @@ public class HTNState {
     private final Position agentPosition;
     private final Position boxPosition;
     private RelaxationMode relaxationMode;
+    private final PlanningLevelService pls;
 
     public HTNState(HTNState other) {
         this.agentPosition = new Position(other.getAgentPosition());
         this.boxPosition = new Position(other.getBoxPosition());
-        this.relaxationMode = other.relaxationMode;
+        this.relaxationMode = other.getRelaxationMode();
+        this.pls = other.getPlanningLevelService();
     }
 
-    public HTNState(Position agentPosition, Position boxPosition, RelaxationMode mode) throws AssertionError {
+    public HTNState(Position agentPosition, Position boxPosition, PlanningLevelService pls, RelaxationMode mode) throws AssertionError {
         this.agentPosition = agentPosition;
         this.boxPosition = boxPosition;
         this.relaxationMode = mode;
+        this.pls = pls;
         if (agentPosition == null) throw new AssertionError("MUST have an agent location");
+        if (pls == null) throw new AssertionError("MUST have a PlanningLevelService available");
+    }
+
+    public PlanningLevelService getPlanningLevelService() {
+        return pls;
     }
 
     public Position getAgentPosition() {
@@ -325,7 +340,7 @@ public class HTNState {
                 MoveConcreteAction moveAction = (MoveConcreteAction) concreteAction;
                 newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
 
-                result = new HTNState(newAgentPos, oldBoxPos, mode);
+                result = new HTNState(newAgentPos, oldBoxPos, pls, mode);
                 debug(" + " + moveAction.toString() + " -> " + result.toString() );
 
                 if (result.isLegal()) {
@@ -342,7 +357,7 @@ public class HTNState {
 
                 newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
                 newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
-                result = new HTNState(newAgentPos, newBoxPos, mode);
+                result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
                 debug(" + " + pushAction.toString() + " -> " + result.toString());
                 // check preconditions !!! THIS IS PUSH
@@ -365,7 +380,7 @@ public class HTNState {
 
                 newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
                 newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
-                result = new HTNState(newAgentPos, newBoxPos, mode);
+                result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
                 debug(" + " + pullAction.toString() + " -> " + result.toString());
 

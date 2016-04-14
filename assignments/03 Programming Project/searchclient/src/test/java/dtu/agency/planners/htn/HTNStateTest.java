@@ -1,6 +1,9 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.ProblemMarshallerTest;
+import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.services.PlanningLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,10 +27,11 @@ public class HTNStateTest {
         boxOne = new Position(2, 1);
         boxTwo = new Position(2, 2);
         boxThree = new Position(2, 2);
-
-        a = new HTNState(agentOne, boxOne, mode);
-        b = new HTNState(agentTwo, boxTwo, mode);     // b == c
-        c = new HTNState(agentThree, boxThree, mode);
+        Level level = ProblemMarshallerTest.marshall("/action_test.lvl");
+        PlanningLevelService pls = new PlanningLevelService(level);
+        a = new HTNState(agentOne, boxOne, pls, mode);
+        b = new HTNState(agentTwo, boxTwo, pls, mode);     // b == c
+        c = new HTNState(agentThree, boxThree, pls, mode);
     }
 
     @Test

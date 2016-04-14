@@ -33,7 +33,7 @@ public class HTNPlanner {
         this.pls = new PlanningLevelService(other.pls);
         this.initialNode = new HTNNode(other.getInitialNode());
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
-        this.originalAction = other.getOriginalAction();
+        this.originalAction = other.getIntention();
     }
         /**
         * Constructor: All a planner needs is the the agent and the original action to perform
@@ -48,7 +48,7 @@ public class HTNPlanner {
         if (originalAction.getBox()!=null) {
             boxPosition = pls.getPosition(originalAction.getBox());
         }
-        HTNState initialState = new HTNState( agentPosition, boxPosition, mode );
+        HTNState initialState = new HTNState( agentPosition, boxPosition, pls, mode );
         debug("initial" + initialState.toString());
         debug( ((originalAction ==null) ? "HLAction is null" : originalAction.toString())  );
         this.initialNode = new HTNNode(initialState, originalAction);
@@ -71,7 +71,7 @@ public class HTNPlanner {
      * Returns the intention to be solved by this planner
      */
     public HLAction getIntention() {
-        return getOriginalAction();
+        return HLAction.getOriginalAction(originalAction);
     }
 
     /**
@@ -143,7 +143,7 @@ public class HTNPlanner {
                 debug("Effect already explored, but NoActions, so still interesting!");
             }
 
-            if (leafNode.getState().isPurposeFulfilled( getOriginalAction() )) {
+            if (leafNode.getState().isPurposeFulfilled( getIntention() )) {
                 debug(strategy.status(), -2);
                 if (originalAction.getBox()!=null) {
                     pls.insertBox(originalAction.getBox(), originalAction.getBoxDestination());
@@ -170,41 +170,6 @@ public class HTNPlanner {
         s += " performing " + ((this.originalAction !=null) ? this.originalAction.toString() : "null!");
         s += " with the next node \n" + this.initialNode.toString();
         return s;
-    }
-
-    public HLAction getOriginalAction() {
-        switch (originalAction.getType()) {
-            case SolveGoal:
-                SolveGoalAction sga = (SolveGoalAction) originalAction;
-                return new SolveGoalAction(sga);
-
-            case Circumvent:
-                CircumventBoxAction cba = (CircumventBoxAction) originalAction;
-                return new CircumventBoxAction(cba);
-
-            case RGotoAction:
-                RGotoAction gta = (RGotoAction) originalAction;
-                return new RGotoAction(gta);
-
-            case MoveBoxAction:
-                RMoveBoxAction rmba = (RMoveBoxAction) originalAction;
-                return new RMoveBoxAction(rmba);
-
-            case SolveGoalSuper:
-                SolveGoalSuperAction sgs = (SolveGoalSuperAction) originalAction;
-                return new SolveGoalSuperAction(sgs);
-
-            case No:
-                NoAction na = (NoAction) originalAction;
-                return new NoAction(na);
-
-            case MoveBoxAndReturn:
-                HMoveBoxAction hmba = (HMoveBoxAction) originalAction;
-                return new HMoveBoxAction(hmba);
-
-            default:
-                return null;
-        }
     }
 
 }

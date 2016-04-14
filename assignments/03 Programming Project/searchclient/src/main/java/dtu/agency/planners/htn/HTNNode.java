@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+/**
+ * Node for building a graph using the Hierarchical Task Network method
+ * Used by HTNPlanner
+ */
 public class HTNNode {
-
 
     private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
     private static void debug(String msg){ debug(msg, 0); }
@@ -32,7 +35,6 @@ public class HTNNode {
     private final HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
     private final MixedPlan remainingPlan;         // list of successive (abstract) actions
     private final int generation;                  // generation - how many ancestors exist? -> how many moves have i performed
-//    private RelaxationMode r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
 
     // Copy constructor
     public HTNNode(HTNNode other){
@@ -99,27 +101,7 @@ public class HTNNode {
         if (this.concreteAction==null) {
              return null;
         } else {
-            switch (this.concreteAction.getType()) {
-
-                case MOVE:
-                    MoveConcreteAction move = (MoveConcreteAction) concreteAction;
-                    return new MoveConcreteAction(move);
-
-                case PUSH:
-                    PushConcreteAction push = (PushConcreteAction) concreteAction;
-                    return new PushConcreteAction(push);
-
-                case PULL:
-                    PullConcreteAction pull = (PullConcreteAction) concreteAction;
-                    return new PullConcreteAction(pull);
-
-                case NONE:
-                    NoConcreteAction no = (NoConcreteAction) concreteAction;
-                    return new NoConcreteAction(no);
-
-                default:
-                    return null;
-            }
+            return ConcreteAction.getConcreteAction(this.concreteAction);
         }
     }
 
@@ -200,6 +182,7 @@ public class HTNNode {
                 newState = new HTNState(
                         newState.getAgentPosition(),
                         GlobalLevelService.getInstance().getPosition(sga.getBox()), // TODO: GlobalLevelService
+                        oldState.getPlanningLevelService(),
                         oldState.getRelaxationMode()
                 );
             }
@@ -231,7 +214,8 @@ public class HTNNode {
      */
     public HLAction getIntention() {
         HTNNode node = new HTNNode(this);
-        debug(node.toString());
+        debug(node.toString(//    private RelaxationMode r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
+));
         debug(node.getRemainingPlan().getActions().toString());
         while (!node.isInitialNode()) {
             node = this.parent;
@@ -248,38 +232,7 @@ public class HTNNode {
             return null;
         }
         if (action instanceof HLAction) {
-            switch (((HLAction) action).getType()) {
-                case SolveGoal:
-                    SolveGoalAction sga = (SolveGoalAction) action;
-                    return new SolveGoalAction(sga);
-
-                case Circumvent:
-                    CircumventBoxAction cba = (CircumventBoxAction) action;
-                    return new CircumventBoxAction(cba);
-
-                case RGotoAction:
-                    RGotoAction gta = (RGotoAction) action;
-                    return new RGotoAction(gta);
-
-                case MoveBoxAction:
-                    RMoveBoxAction rmba = (RMoveBoxAction) action;
-                    return new RMoveBoxAction(rmba);
-
-                case SolveGoalSuper:
-                    SolveGoalSuperAction sgs = (SolveGoalSuperAction) action;
-                    return new SolveGoalSuperAction(sgs);
-
-                case No:
-                    NoAction na = (NoAction) action;
-                    return new NoAction(na);
-
-                case MoveBoxAndReturn:
-                    HMoveBoxAction hmba = (HMoveBoxAction) action;
-                    return new HMoveBoxAction(hmba);
-
-                default:
-                    return null;
-            }
+            return HLAction.getOriginalAction((HLAction) action);
         } else {
             return null;
         }
