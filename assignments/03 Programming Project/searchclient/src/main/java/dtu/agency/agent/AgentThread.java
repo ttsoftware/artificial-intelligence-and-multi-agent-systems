@@ -77,7 +77,7 @@ public class AgentThread implements Runnable {
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
             PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
-            HTNPlanner htnPlanner = new HTNPlanner(pls, ideas.getBest(), RelaxationMode.None);
+            HTNPlanner htnPlanner = new HTNPlanner(pls, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
             PrimitivePlan plan = htnPlanner.plan();
             if (plan != null) {
                 System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + plan.toString());

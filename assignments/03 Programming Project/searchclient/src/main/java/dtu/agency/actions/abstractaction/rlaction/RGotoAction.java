@@ -40,8 +40,8 @@ public class RGotoAction extends RLAction {
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("RGotoAction(");
-        if (getAgentDestination() != null) {
-            s.append(getAgentDestination().toString());
+        if (getBoxDestination() != null) {
+            s.append(getBoxDestination().toString());
         } else {
             s.append(getAgentDestination().toString());
         }

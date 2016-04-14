@@ -9,6 +9,7 @@ import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
+import dtu.agency.board.BoardCell;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
@@ -92,8 +93,7 @@ public class HTNState {
         switch (relaxationMode) { // walls are considered already
 
             case None:            // consider agents + boxes + walls
-                legal &= (!boxConflict());
-                legal &= (!agentConflict());
+                legal &= (!agentOrBoxConflict());
                 break;
 
             case NoAgents:        // Boxes and Walls are considered
@@ -112,38 +112,73 @@ public class HTNState {
         return legal;
     }
 
-    private boolean agentConflict() {
+    /**
+     * Detects if this state will conflict with another box OR agent
+     * @return
+     */
+    private boolean agentOrBoxConflict() {
         boolean conflict = false;
+        String myBox = pls.getCurrentBox().getLabel();
         String myAgent = BDIService.getInstance().getAgent().getLabel();
-        String myBox   = pls.getCurrentBox().getLabel();
-        debug("Detecting if my box/agent conflicts with an agent",2);
+        Position a = agentPosition;
+        Position b = boxPosition;
+        int ar = a.getRow(); int ac = a.getColumn();
+        int br = b.getRow(); int bc = b.getColumn();
 
-        if (!pls.isFree(agentPosition)){
-            String objectAtAgentPos = pls.getObjectLabels(agentPosition);
-//            System.err.println("Agent position "+boxPosition.toString()+", has: " + globalAtAgentPos );
-            // TODO: (automatically) exclude the agent we are planning for, by removing it from pls
-            if (!(objectAtAgentPos.equals(myAgent)) || objectAtAgentPos.equals(myBox)) { // not myself !
-                conflict = true; // conflict !
-                debug("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
-                debug("My box: "+myBox+" | gls box: " + objectAtAgentPos );
-//                System.err.println("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
-            }
-        }
+        if (!pls.isFree(agentPosition)) {
+            BoardCell acell = pls.getLevel().getBoardState()[ar][ac];
+            BoardCell bcell = pls.getLevel().getBoardState()[br][bc];
 
-        if (boxPosition!=null) {
-            if (!pls.isFree(boxPosition)) {
-                // Could it be the goal?
-                String objectAtBoxPos = pls.getObjectLabels(boxPosition);
-                if (objectAtBoxPos.matches("(^|\\s)([0-9])")) { // an agent!
-                    conflict = (objectAtBoxPos.charAt(0) == myAgent.charAt(0)) ? false : true;
-                    debug("Box position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
+            String objectAtAgentPosition = pls.getObjectLabels(agentPosition);
+            debug("Agent position " + agentPosition.toString() + " is same as something else labelled: " + objectAtAgentPosition);
+
+            if (acell == BoardCell.AGENT || acell == BoardCell.BOX) { // potential conflict1
+                if (!(objectAtAgentPosition.equals(myBox)) || (objectAtAgentPosition.equals(myAgent))) { // not myself !
+                    conflict = true; // conflict !
                 }
             }
+
+            if (bcell == BoardCell.AGENT || acell == BoardCell.BOX) { // potential conflict1
+                if (!(objectAtAgentPosition.equals(myBox)) || (objectAtAgentPosition.equals(myAgent))) { // not myself !
+                    conflict = true; // conflict !
+                }
+            }
+
+            if (acell == BoardCell.AGENT_GOAL) { // potential conflict - compare only to agent
+                if (!objectAtAgentPosition.substring(0,1).equals(myAgent)) {
+                    conflict = true;
+                }
+            }
+
+            if (bcell == BoardCell.AGENT_GOAL) { // potential conflict - compare only to agent
+                if (!objectAtAgentPosition.substring(0,1).equals(myAgent)) {
+                    conflict = true;
+                }
+            }
+
+            if (acell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
+                // TODO : something better FAILS IF MORE THAN 10 BOXES WITH SAME LETTER EXIST IN LEVEL
+                if (!objectAtAgentPosition.substring(0,2).equals(myBox)){
+                    conflict = true;
+                }
+            }
+
+            if (bcell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
+                // TODO : something better FAILS IF MORE THAN 10 BOXES WITH SAME LETTER EXIST IN LEVEL
+                if (!objectAtAgentPosition.substring(0,2).equals(myBox)){
+                    conflict = true;
+                }
+            }
+
+            debug("Which is a conflict: " + Boolean.toString(conflict));
         }
-        debug("my box/agent conflicts with another agent: "+Boolean.toString(conflict),-2);
         return conflict;
     }
 
+    /**
+     * Detects if this state will conflict with another box
+     * @return
+     */
     private boolean boxConflict() {
         boolean conflict = false;
         String myBox = pls.getCurrentBox().getLabel();
@@ -154,7 +189,6 @@ public class HTNState {
                 conflict = true; // conflict !
                 debug("Agent position "+agentPosition.toString()+" is same as a other box:" + Boolean.toString(conflict) );
                 debug("My box: "+myBox+" | pls box: " + objectAtAgentPosition );
-
             }
         }
 
@@ -170,6 +204,10 @@ public class HTNState {
         return conflict;
     }
 
+    /**
+     * detects if this state will conflict with a wall
+     * @return
+     */
     private boolean wallConflict() {
         boolean conflict = pls.isWall(agentPosition);
         debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
@@ -182,7 +220,7 @@ public class HTNState {
         return conflict;
     }
 
-    /*
+    /**
      * Any High Level ConcreteAction can be refined, as per the Hierarchical Task Network (HTN) approach
      */
     public ArrayList<MixedPlan> getRefinements(HLAction action){
@@ -202,13 +240,12 @@ public class HTNState {
                 case SolveGoal:
                     SolveGoalAction sga = (SolveGoalAction) action;
                     MixedPlan sgRefinement = new MixedPlan();
-
                     sgRefinement.addAction(new RGotoAction(
-                            GlobalLevelService.getInstance().getPosition(sga.getBox()) // TODO: PlannerLevelService !?
+                            pls.getPosition(sga.getBox())
                     ));
                     sgRefinement.addAction(new RMoveBoxAction(
                             sga.getBox(),
-                            GlobalLevelService.getInstance().getPosition(sga.getGoal()) // TODO: PlannerLevelService !?
+                            pls.getPosition(sga.getGoal())
                     ));
                     refinements.add(sgRefinement);
 
@@ -276,7 +313,7 @@ public class HTNState {
                     case SolveGoalSuper:
                         SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
 
-                        for (Box box : GlobalLevelService.getInstance().getLevel().getBoxes()) {
+                        for (Box box : BDIService.getInstance().getBDILevelService().getLevel().getBoxes()) {
                             if (box.getLabel().toLowerCase().equals(sgsa.getGoal().getLabel().toLowerCase())) {
                                 MixedPlan sgsaRefinement = new MixedPlan();
                                 SolveGoalAction sgAction = new SolveGoalAction(box, sgsa.getGoal());
@@ -295,7 +332,7 @@ public class HTNState {
                         MixedPlan mbarRefinement = new MixedPlan();
 
                         mbarRefinement.addAction(new RGotoAction( // TODO: PlannerLevelService??
-                                GlobalLevelService.getInstance().getPosition(mbar.getBox())
+                                pls.getPosition(mbar.getBox())
                         ) );
                         mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
                         mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );

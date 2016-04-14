@@ -89,12 +89,12 @@ public class HTNPlanner {
         // update PlanningLevelService, assuming responsibility over agent and current box
         Position agentOrigin = pls.getAgentPosition();
         pls.removeAgent(BDIService.getInstance().getAgent());
-        Position boxOrigin = null;
         if (originalAction.getBox()!=null) {
             pls.setCurrentBox(originalAction.getBox());
-            boxOrigin = pls.getPosition(originalAction.getBox());
-            pls.removeBox(originalAction.getBox());
+//            boxOrigin = pls.getPosition(originalAction.getBox());
+//            pls.removeBox(originalAction.getBox());
         }
+//        System.err.println("htn planning: box:" +originalAction.getBox()+ " " + boxOrigin);
 
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
@@ -112,10 +112,11 @@ public class HTNPlanner {
                 debug("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 debug(strategy.status(), -2);
                 // Failing, return responsibility of agent and box to pls.
+                System.err.println("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 pls.insertAgent(BDIService.getInstance().getAgent(), agentOrigin);
-                if (originalAction.getBox()!=null) { // reinsert box at its original position
-                    pls.insertBox(originalAction.getBox(), boxOrigin);
-                }
+//                if (originalAction.getBox()!=null) { // reinsert box at its original position
+//                    pls.insertBox(originalAction.getBox(), boxOrigin);
+//                }
                 return null;
             }
 
@@ -149,11 +150,19 @@ public class HTNPlanner {
 
             if (leafNode.getState().isPurposeFulfilled( getIntention() )) {
                 debug(strategy.status(), -2);
+                Position pa = leafNode.getState().getAgentPosition();
+                Position pb = leafNode.getState().getBoxPosition();
+                String s = "sucess, inserting agent and box into pls\n";
+                s += "Agent:" + pa + " Box:" + pb;
+                s += "\nAt positions:" + pls.getLevel().getBoardObjects()[pa.getRow()][pa.getColumn()];
+                s += pls.getLevel().getBoardObjects()[pb.getRow()][pb.getColumn()];
+                System.err.println(s);
                 // Succeeding, return responsibility of agent and box to pls.
-                pls.insertAgent(BDIService.getInstance().getAgent(), leafNode.getState().getAgentPosition());
                 if (originalAction.getBox()!=null) {
+                    pls.removeBox(originalAction.getBox());
                     pls.insertBox(originalAction.getBox(), leafNode.getState().getBoxPosition());
                 }
+                pls.insertAgent(BDIService.getInstance().getAgent(), leafNode.getState().getAgentPosition());
                 return leafNode.extractPlan();
             }
 
