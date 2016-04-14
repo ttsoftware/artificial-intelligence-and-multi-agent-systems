@@ -31,21 +31,21 @@ public class HTNState {
 
     private final Position agentPosition;
     private final Position boxPosition;
-    private RelaxationMode relaxationMode;
     private final PlanningLevelService pls;
+    private RelaxationMode relaxationMode;
 
     public HTNState(HTNState other) {
         this.agentPosition = new Position(other.getAgentPosition());
         this.boxPosition = new Position(other.getBoxPosition());
-        this.relaxationMode = other.getRelaxationMode();
         this.pls = other.getPlanningLevelService();
+        this.relaxationMode = other.getRelaxationMode();
     }
 
     public HTNState(Position agentPosition, Position boxPosition, PlanningLevelService pls, RelaxationMode mode) throws AssertionError {
         this.agentPosition = agentPosition;
         this.boxPosition = boxPosition;
-        this.relaxationMode = mode;
         this.pls = pls;
+        this.relaxationMode = mode;
         if (agentPosition == null) throw new AssertionError("MUST have an agent location");
         if (pls == null) throw new AssertionError("MUST have a PlanningLevelService available");
     }
@@ -75,7 +75,7 @@ public class HTNState {
     }
 
     public Direction getDirectionToBox() { // returns the direction from agent to box
-        return GlobalLevelService.getInstance().getRelativeDirection(agentPosition, boxPosition, false);
+        return pls.getRelativeDirection(agentPosition, boxPosition, false);
     }
 
     public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
@@ -89,9 +89,7 @@ public class HTNState {
             debug("",-2);
             return legal;
         }
-
-        switch (relaxationMode) {
-            // walls are considered already
+        switch (relaxationMode) { // walls are considered already
 
             case None:            // consider agents + boxes + walls
                 legal &= (!boxConflict());
@@ -116,61 +114,56 @@ public class HTNState {
 
     private boolean agentConflict() {
         boolean conflict = false;
-        String myself = BDIService.getInstance().getAgent().getLabel();
-        String myBox = BDIService.getInstance().getCurrentTargetBox().getLabel();
-        GlobalLevelService gls = GlobalLevelService.getInstance();
+        String myAgent = BDIService.getInstance().getAgent().getLabel();
+        String myBox   = pls.getCurrentBox().getLabel();
+        debug("Detecting if my box/agent conflicts with an agent",2);
 
-        // TODO: use BDILevelService instead
-        // Global level service is fine, but we dont wanna take up the resource
-        // and we want to (automatically) exclude the agent we are planning for
-        if (!gls.isFree(agentPosition)){
-            String globalAtAgentPos = gls.getObjectLabels(agentPosition);
+        if (!pls.isFree(agentPosition)){
+            String objectAtAgentPos = pls.getObjectLabels(agentPosition);
 //            System.err.println("Agent position "+boxPosition.toString()+", has: " + globalAtAgentPos );
-            if (!(globalAtAgentPos.equals(myself)) || globalAtAgentPos.equals(myBox)) { // not myself !
+            // TODO: (automatically) exclude the agent we are planning for, by removing it from pls
+            if (!(objectAtAgentPos.equals(myAgent)) || objectAtAgentPos.equals(myBox)) { // not myself !
                 conflict = true; // conflict !
                 debug("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
-                debug("My box: "+myBox+" | gls box: " + globalAtAgentPos );
+                debug("My box: "+myBox+" | gls box: " + objectAtAgentPos );
 //                System.err.println("Agent position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
             }
-            // TODO: THIS DISABLES THE AGENT DETECTION - BUT IT FAILS USING GLS
-            conflict = false;
         }
 
         if (boxPosition!=null) {
-            if (!gls.isFree(boxPosition)) {
-                // its the goal?
-                String globalAtBoxPos = gls.getObjectLabels(boxPosition);
-                if (globalAtBoxPos.matches("(^|\\s)([0-9])")) { // an agent!
-                    conflict = (globalAtBoxPos.charAt(0) == myself.charAt(0)) ? false : true;
+            if (!pls.isFree(boxPosition)) {
+                // Could it be the goal?
+                String objectAtBoxPos = pls.getObjectLabels(boxPosition);
+                if (objectAtBoxPos.matches("(^|\\s)([0-9])")) { // an agent!
+                    conflict = (objectAtBoxPos.charAt(0) == myAgent.charAt(0)) ? false : true;
                     debug("Box position "+boxPosition.toString()+" is same as an agent:" + Boolean.toString(conflict) );
                 }
             }
         }
+        debug("my box/agent conflicts with another agent: "+Boolean.toString(conflict),-2);
         return conflict;
     }
 
     private boolean boxConflict() {
         boolean conflict = false;
-        String myBox = BDIService.getInstance().getCurrentTargetBox().getLabel();
-        GlobalLevelService gls = GlobalLevelService.getInstance();
+        String myBox = pls.getCurrentBox().getLabel();
 
-        // TODO: Global level service  -> planning level service
-        if (!gls.isFree(agentPosition)){
-            String globalAtAgentPos = gls.getObjectLabels(agentPosition);
-            if (!globalAtAgentPos.equals(myBox)) { // not myself !
+        if (!pls.isFree(agentPosition)){
+            String objectAtAgentPosition = pls.getObjectLabels(agentPosition);
+            if (!objectAtAgentPosition.equals(myBox)) { // not myself !
                 conflict = true; // conflict !
-                debug("Agent position "+agentPosition.toString()+" is same as a box:" + Boolean.toString(conflict) );
-                debug("My box: "+myBox+" | gls box: " + globalAtAgentPos );
+                debug("Agent position "+agentPosition.toString()+" is same as a other box:" + Boolean.toString(conflict) );
+                debug("My box: "+myBox+" | pls box: " + objectAtAgentPosition );
 
             }
         }
 
         if (boxPosition!=null) {
-            if (!gls.isFree(boxPosition)) {
-                String globalAtBoxPos = gls.getObjectLabels(boxPosition);
-                if (!globalAtBoxPos.equals(myBox)) { // not myself !
+            if (!pls.isFree(boxPosition)) {
+                String objectAtBoxPosition = pls.getObjectLabels(boxPosition);
+                if (!objectAtBoxPosition.equals(myBox)) { // not myself !
                     conflict = true; // conflict !
-                    debug("Box position "+boxPosition.toString()+" is same as a box:" + Boolean.toString(conflict) );
+                    debug("Box position "+boxPosition.toString()+" is same as a other box:" + Boolean.toString(conflict) );
                 }
             }
         }
@@ -178,13 +171,12 @@ public class HTNState {
     }
 
     private boolean wallConflict() {
-        // Global level service is fine
-        boolean conflict = GlobalLevelService.getInstance().isWall(agentPosition);
+        boolean conflict = pls.isWall(agentPosition);
         debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
         if (conflict) return conflict;
 
         if (boxPosition != null) {
-            conflict |= GlobalLevelService.getInstance().isWall(boxPosition);
+            conflict |= pls.isWall(boxPosition);
             debug("Box position "+boxPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
         }
         return conflict;

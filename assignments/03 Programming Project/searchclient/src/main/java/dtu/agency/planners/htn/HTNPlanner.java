@@ -2,8 +2,6 @@ package dtu.agency.planners.htn;
 
 import dtu.Main;
 import dtu.agency.actions.abstractaction.hlaction.*;
-import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
-import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.*;
 import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
@@ -13,7 +11,6 @@ import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
-import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.PlanningLevelService;
 
 
@@ -88,8 +85,13 @@ public class HTNPlanner {
     public PrimitivePlan plan() {
         debug("HTNPlanner.plan():",2);originalAction.getBoxDestination();
         debug("initial" + initialNode.toString());
+
+        // update PlanningLevelService, assuming responsibility over agent and current box
+        Position agentOrigin = pls.getAgentPosition();
+        pls.removeAgent(BDIService.getInstance().getAgent());
         Position boxOrigin = null;
         if (originalAction.getBox()!=null) {
+            pls.setCurrentBox(originalAction.getBox());
             boxOrigin = pls.getPosition(originalAction.getBox());
             pls.removeBox(originalAction.getBox());
         }
@@ -109,6 +111,8 @@ public class HTNPlanner {
             if (strategy.frontierIsEmpty()) {
                 debug("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 debug(strategy.status(), -2);
+                // Failing, return responsibility of agent and box to pls.
+                pls.insertAgent(BDIService.getInstance().getAgent(), agentOrigin);
                 if (originalAction.getBox()!=null) { // reinsert box at its original position
                     pls.insertBox(originalAction.getBox(), boxOrigin);
                 }
@@ -145,8 +149,10 @@ public class HTNPlanner {
 
             if (leafNode.getState().isPurposeFulfilled( getIntention() )) {
                 debug(strategy.status(), -2);
+                // Succeeding, return responsibility of agent and box to pls.
+                pls.insertAgent(BDIService.getInstance().getAgent(), leafNode.getState().getAgentPosition());
                 if (originalAction.getBox()!=null) {
-                    pls.insertBox(originalAction.getBox(), originalAction.getBoxDestination());
+                    pls.insertBox(originalAction.getBox(), leafNode.getState().getBoxPosition());
                 }
                 return leafNode.extractPlan();
             }

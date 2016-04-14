@@ -1,9 +1,12 @@
 package dtu.agency.services;
 
+import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 
 public class PlanningLevelService extends LevelService {
+
+    Box currentBox;
 
     public PlanningLevelService(PlanningLevelService other) {
         setLevel(new Level(other.getLevel()));
@@ -19,5 +22,13 @@ public class PlanningLevelService extends LevelService {
 
     public Position getAgentPosition() {
         return getPosition(BDIService.getInstance().getAgent());
+    }
+
+    public void setCurrentBox(Box currentBox) {
+        this.currentBox = currentBox;
+    }
+
+    public Box getCurrentBox() {
+        return currentBox;
     }
 }

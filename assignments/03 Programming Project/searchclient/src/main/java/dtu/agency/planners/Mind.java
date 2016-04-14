@@ -55,7 +55,7 @@ public class Mind {
         return thoughts;
     }
 
-    public int getApproximateDistance() {
+    public int getBestApproximateDistance() {
         return thoughts.getBest().approximateSteps(pls.getAgentPosition());
     }
 

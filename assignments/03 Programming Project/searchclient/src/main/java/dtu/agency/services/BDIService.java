@@ -17,6 +17,7 @@ import java.util.LinkedList;
 public class BDIService {
 
     private Agent agent;
+    private Box currentTargetBox; // used for saving box when planning!
     private Position agentCurrentPosition;
     private PrimitiveDesire primitivePlans;
     private LinkedList<Goal> meaningOfLife;
@@ -41,6 +42,7 @@ public class BDIService {
 
     public BDIService(Agent agent) {
         this.agent = agent;
+        this.currentTargetBox = null;
 
         Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
@@ -94,7 +96,7 @@ public class BDIService {
     }
 
     public Box getCurrentTargetBox() {
-        return getCurrentIntention().getHighLevelPlan().peek().getBox();
+        return currentTargetBox;
     }
 
     public void appendIntention(HLAction intention) {
@@ -103,5 +105,9 @@ public class BDIService {
 
     public BDILevelService getBDILevelService() {
         return bdiLevelService;
+    }
+
+    public void setCurrentTargetBox(Box currentTargetBox) {
+        this.currentTargetBox = currentTargetBox;
     }
 }
