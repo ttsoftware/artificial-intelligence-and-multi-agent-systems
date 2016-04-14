@@ -16,6 +16,8 @@ public abstract class ConcreteAction implements Action<ConcreteActionType> {
         return heuristicValue;
     }
 
+    public abstract Direction getAgentDirection();
+
     public static ConcreteAction getConcreteAction(ConcreteAction concreteAction) {
         switch (concreteAction.getType()) {
             case MOVE:

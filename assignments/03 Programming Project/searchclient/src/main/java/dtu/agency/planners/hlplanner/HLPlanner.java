@@ -10,15 +10,20 @@ import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.BDIService;
+import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * This Planner uses the Hierarchical Task Network heuristic to subdivide
  * high level tasks all the way into sequences of primitive actions
  */
-class HLPlanner {
+public class HLPlanner {
+    protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    protected static void debug(String msg){ debug(msg, 0); }
 
     private PlanningLevelService pls;
     private SolveGoalAction idea;
@@ -40,20 +45,26 @@ class HLPlanner {
 
 
     public HLPlan plan() {
+        debug("",2);
         if (ideaIsValid) {
 //            1. plan for solving goal relaxed (pseudo plan)
-//            1a. obtain agent destination
-//            Position agentDestination = pls.getAgentDestination(pseudoPlan);
-//            1b. obtain path cells
-//            LinkedList<Position> pseudoPath = pls.getOrderedPath(pseudoPlan);
+//            1a. obtain path cells
+            LinkedList<Position> pseudoPath = pls.getOrderedPath(pseudoPlan);
+//            1b. obtain agent destination
+            Position agentDestination = pseudoPath.peekLast();
 //        2. identify occupied board cells (obstacles) in the pseudo plan
-//            LinkedList<Position> obstaclePositions = pls.getOccupiedPositions(pseudoPath);
+            LinkedList<Position> obstaclePositions = pls.getObstaclePositions(pseudoPath);
 //        3. identify as many free neighbouring cells as obstacles,
 //         - this is organized in levels/rings from path, so that one
 //           can start by moving boxes to the outer 'rings'
-//            LinkedList<LinkedList<Position>> = pls.getFreeNeighbours(pseudoPath, obstaclePositions.size());
+            Set<Position> path = new HashSet<Position>(pseudoPath);
+            path.add(pls.getPosition(idea.getGoal()));
+            path.add(pls.getPosition(idea.getBox()));
+
+            LinkedList<HashSet<Position>> freeNeighbours = pls.getFreeNeighbours(path, obstaclePositions.size());
 
 //        4. try and move boxes one by one to outer rings,
+//         - will have to detect unavailable paths to free cells (HOW?)
 //         - while storing the change in positions to pls
 
 //        (5. if target box is only movable box remaining:
@@ -68,9 +79,10 @@ class HLPlanner {
                     idea.getBoxDestination(),
                     idea.getAgentDestination(pls)
             );
+            debug("",-2);
             return new HLPlan( translatedIdea );
         } else {
-            System.err.println("HLPlanner: Invalid idea, there does not exist any path between box and goal");
+            debug("HLPlanner: Invalid idea, there does not exist any path between box and goal",-2);
             return new HLPlan();
         }
 

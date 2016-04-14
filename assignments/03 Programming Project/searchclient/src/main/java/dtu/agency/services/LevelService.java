@@ -1,17 +1,20 @@
 package dtu.agency.services;
 
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.*;
+import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class LevelService {
+    protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    protected static void debug(String msg){ debug(msg, 0); }
 
     protected Level level;
 
@@ -406,6 +409,7 @@ public abstract class LevelService {
      * @param position
      */
     public synchronized void insertAgent(Agent agent, Position position) {
+        debug("Inserting Agent into (planning) level",2);
         int row = position.getRow();
         int column = position.getColumn();
 
@@ -428,6 +432,7 @@ public abstract class LevelService {
         }
         // update the level objects
         level.setBoardState(boardState);
+        debug("Agent inserted into level.boardState");
 
         // insert agent into level.boardObjectPositions
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
@@ -435,6 +440,7 @@ public abstract class LevelService {
             throw new AssertionError("Expected the agent NOT to exist in the level");
         objectPositions.put(agent.getLabel(), new Position(row, column));
         level.setBoardObjectPositions(objectPositions);
+        debug("Agent inserted into level.boardObjectPositions");
 
         // insert agent into level.agents
         List<Agent> agents = level.getAgents();
@@ -442,6 +448,7 @@ public abstract class LevelService {
             throw new AssertionError("Agent should not exist in level before adding it");
         agents.add(agent);
         level.setAgents(agents);
+        debug("Agent inserted into level.agents",-2);
     }
 
     /**
@@ -450,6 +457,7 @@ public abstract class LevelService {
      * @param box
      */
     public synchronized void removeBox(Box box) {
+        debug("Removing box from (planning) level",2);
         Position boxPos = getPosition(box);
         int row = boxPos.getRow();
         int column = boxPos.getColumn();
@@ -468,6 +476,7 @@ public abstract class LevelService {
             default:
                 throw new AssertionError("Cannot remove box if not present");
         }
+        debug("Box removed from level.BoardState");
 
         // remove box from level.boardObjectPositions
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
@@ -475,6 +484,7 @@ public abstract class LevelService {
             throw new AssertionError("Cannot remove non-existing box");
         objectPositions.remove(box.getLabel());
         level.setBoardObjectPositions(objectPositions);
+        debug("Box removed from level.boardObjectPositions");
 
         // remove box from level.boxes
         List<Box> boxes = level.getBoxes();
@@ -482,6 +492,7 @@ public abstract class LevelService {
             throw new AssertionError("Box should exist in level before removing it");
         boxes.remove(box);
         level.setBoxes(boxes);
+        debug("Box removed from (planning) level.boxes",-2);
     }
 
     /**
@@ -490,6 +501,8 @@ public abstract class LevelService {
      * @param agent
      */
     public synchronized void removeAgent(Agent agent){
+        debug("Removing agent from (planning) level",2);
+
         Position agentPos = getPosition(agent);
         int row = agentPos.getRow();
         int column = agentPos.getColumn();
@@ -497,7 +510,6 @@ public abstract class LevelService {
         // remove agent from level.boardstate
         BoardCell cell = level.getBoardState()[row][column];
         assert (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL);
-
         switch (cell) {
             case AGENT:
                 level.getBoardState()[row][column] = BoardCell.FREE_CELL;
@@ -508,6 +520,8 @@ public abstract class LevelService {
             default:
                 throw new AssertionError("Cannot remove agent if not present");
         }
+        debug("Agent removed from Level.BoardState");
+
 
         // remove agent from level.boardObjectPositions
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
@@ -515,6 +529,7 @@ public abstract class LevelService {
             throw new AssertionError("Cannot remove non-existing agent");
         objectPositions.remove(agent.getLabel());
         level.setBoardObjectPositions(objectPositions);
+        debug("Agent removed from Level.BoardObjectPositions");
 
         // remove agent from level.agents
         List<Agent> agents = level.getAgents();
@@ -522,6 +537,7 @@ public abstract class LevelService {
             throw new AssertionError("Agent should exist in level before removing it");
         agents.remove(agent);
         level.setAgents(agents);
+        debug("Agent removed from Level.Agents",-2);
     }
 
     /**
@@ -631,5 +647,92 @@ public abstract class LevelService {
                 && level.getBoardState()[0].length > column);
     }
 
+    /**
+     * Under influence of an agent BDIService, this takes a PrimitivePlan
+     * and turns it into an ordered list of positions, visited by that agent.
+     * @param pseudoPlan
+     * @return
+     */
+    public LinkedList<Position> getOrderedPath(PrimitivePlan pseudoPlan) {
+        debug("Getting ordered path from (pseudo)plan",2);
+        LinkedList<Position> path = new LinkedList<>();
+        Position previous = getPosition(BDIService.getInstance().getAgent());
+        path.add(new Position(previous));
 
+        for (ConcreteAction action : pseudoPlan.getActionList()) {
+            Position next = new Position(previous, action.getAgentDirection());
+            if (!path.contains(next)) {
+                path.addLast(new Position(next));
+            }
+            previous = next;
+        }
+        debug("Path discovered: " + path.toString(),-2);
+        return path;
+    }
+
+    /**
+     * Finds an ordered list of obstacles in a path
+     * @param pseudoPath
+     * @return
+     */
+    public LinkedList<Position> getObstaclePositions(LinkedList<Position> pseudoPath) {
+        debug("Getting positions of obstacles in path",2);
+        LinkedList<Position> obstacles = new LinkedList<>();
+
+        // TODO
+
+        debug("Obstacles found: " + obstacles.toString(),-2);
+        return obstacles;
+    }
+
+    /**
+     * Finding a list of sets of unique positions, by dilating the path given
+     * until enough free positions is found to absorb *size* obstacles.
+     * @param path is the set of positions the agent must travel
+     * @param size is the number of free neighboring locations we must discover
+     * @return
+     */
+    public LinkedList<HashSet<Position>> getFreeNeighbours(Set<Position> path, int size) {
+        debug("Getting positions of free positions to put obstacles at",2);
+        LinkedList<HashSet<Position>> all  = new LinkedList<>();
+        HashSet<Position> previous = new HashSet<>();
+        HashSet<Position> current = new HashSet<>(path);
+        int neighbours = 0;
+        do {
+            // initialize next to hold the new positions
+            HashSet<Position> next = new HashSet<>();
+
+            // morphological dilation
+            for (Position p : current) {
+                Position n = new Position(p, Direction.NORTH);
+                Position s = new Position(p, Direction.SOUTH);
+                Position e = new Position(p, Direction.EAST);
+                Position w = new Position(p, Direction.WEST);
+                if (isFree(n)) next.add(n);
+                if (isFree(s)) next.add(s);
+                if (isFree(e)) next.add(e);
+                if (isFree(w)) next.add(w);
+            }
+
+            // make sure only new positions are kept
+            next.removeAll(current);
+            next.removeAll(previous);
+
+            // add the new Positions to output list
+            all.addLast(new HashSet<>(next));
+            neighbours += next.size();
+
+            // update running variables
+            previous.addAll(current);
+            current = next;
+        } while ( neighbours < size );
+
+        String s = "{";
+        for (HashSet<Position> layer : all) {
+            s += layer.toString() + "\n";
+        }
+        debug("Free Positions ordered by layers:\n" + s +"}", -2);
+
+        return all;
+    }
 }

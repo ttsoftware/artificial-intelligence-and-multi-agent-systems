@@ -1,6 +1,8 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -8,8 +10,10 @@ import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.Mind;
+import dtu.agency.planners.hlplanner.HLPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.RelaxationMode;
+import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
@@ -43,7 +47,6 @@ public class AgentThread implements Runnable {
         Mind mind = new Mind(goal, pls);
         int approximatedSteps = mind.getBestApproximateDistance();
         Ideas ideas  = mind.getAllAbstractIdeas();
-//        System.err.println("Ideas conceived at bidding round: "+ideas.toString());
 
         BDIService.getInstance().getIdeas().put(goal.getLabel(), ideas);
 
@@ -71,6 +74,7 @@ public class AgentThread implements Runnable {
 
             // Find the Ideas produced at bidding round for this goal
             Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
+            SolveGoalAction bestIdea = ideas.getBest();
 
 //            System.err.println("Ideas retrieved at solution round: "+ideas.toString());
             // update the meaning of this agent's life
@@ -81,7 +85,7 @@ public class AgentThread implements Runnable {
             PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 
 //            boolean oldDebugMode = DebugService.setDebugMode(true);
-            HTNPlanner htnPlanner = new HTNPlanner(pls, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+            HTNPlanner htnPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgentsNoBoxes);
 //            DebugService.setDebugMode(oldDebugMode);
 
             PrimitivePlan plan = htnPlanner.plan();
@@ -91,16 +95,19 @@ public class AgentThread implements Runnable {
                 System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Did not find a Concrete Plan.");
             }
 
-            /*
             // start a new high level planning phase
             // Desire 2:  Find a high level plan, and add to desires
-            HLPlanner planner = new HLPlanner(htnPlanner);
-            HLAction hlPlan = planner.plan();
-            if (hlPlan!=null) {
-                System.err.println("Agent " +agent.getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
-                bdi.getCurrentIntention().setHighLevelPlan(hlPlan);
-            }
+//            PlanningLevelService pls1 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+//            HLPlanner planner = new HLPlanner(bestIdea, pls1);
+//            boolean oldDebugMode = DebugService.setDebugMode(true);
+//            HLPlan hlPlan = planner.plan();
+//            DebugService.setDebugMode(oldDebugMode);
+//            if (hlPlan!=null) {
+//                System.err.println("Agent " +BDIService.getInstance().getAgent().getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
+//                BDIService.getInstance().getCurrentIntention().setHighLevelPlan(hlPlan);
+//            }
 
+            /*
             // Compare the length of the plans, and choose the shorter,
             // (and evolve) and return it
             if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.approximateSteps() <= llPlan.size()+5) ) {

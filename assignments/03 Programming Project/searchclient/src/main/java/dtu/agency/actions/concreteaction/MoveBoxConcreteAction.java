@@ -25,6 +25,7 @@ public abstract class MoveBoxConcreteAction extends ConcreteAction {
         return box;
     }
 
+    @Override
     public Direction getAgentDirection() {
         return agentDirection;
     }

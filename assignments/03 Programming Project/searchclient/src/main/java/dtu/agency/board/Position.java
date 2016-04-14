@@ -1,5 +1,7 @@
 package dtu.agency.board;
 
+import dtu.agency.actions.concreteaction.Direction;
+
 import java.io.Serializable;
 
 public class Position implements Serializable {
@@ -15,6 +17,36 @@ public class Position implements Serializable {
     public Position(int row, int column) {
         this.row = row;
         this.column = column;
+    }
+
+    public Position(Position old, Direction dir) {
+        // Coordinates used to interpret direction
+        //  R
+        //C 0 1 2
+        //  1
+        //  2
+        switch (dir) { // (0,0) is NORTH-WEST corner
+            case NORTH:
+                this.row = old.getRow() - 1;
+                this.column = old.getColumn();
+                break;
+            case SOUTH:
+                this.row = old.getRow() + 1;
+                this.column = old.getColumn();
+                break;
+            case EAST:
+                this.row = old.getRow();
+                this.column = old.getColumn() + 1;
+                break;
+            case WEST:
+                this.row = old.getRow();
+                this.column = old.getColumn() - 1;
+                break;
+            default:
+                this.row = old.getRow();
+                this.column = old.getColumn();
+                break;
+        }
     }
 
     public int getRow() {
