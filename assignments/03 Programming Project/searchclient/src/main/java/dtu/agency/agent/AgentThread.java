@@ -12,6 +12,7 @@ import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
+import dtu.agency.services.DebugService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.PlanningLevelService;
 
@@ -42,6 +43,7 @@ public class AgentThread implements Runnable {
         Mind mind = new Mind(goal, pls);
         int approximatedSteps = mind.getBestApproximateDistance();
         Ideas ideas  = mind.getAllAbstractIdeas();
+//        System.err.println("Ideas conceived at bidding round: "+ideas.toString());
 
         BDIService.getInstance().getIdeas().put(goal.getLabel(), ideas);
 
@@ -70,14 +72,18 @@ public class AgentThread implements Runnable {
             // Find the Ideas produced at bidding round for this goal
             Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
 
-            System.err.println(ideas.toString());
+//            System.err.println("Ideas retrieved at solution round: "+ideas.toString());
             // update the meaning of this agent's life
             BDIService.getInstance().addMeaningOfLife(target);
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
             PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+
+//            boolean oldDebugMode = DebugService.setDebugMode(true);
             HTNPlanner htnPlanner = new HTNPlanner(pls, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+//            DebugService.setDebugMode(oldDebugMode);
+
             PrimitivePlan plan = htnPlanner.plan();
             if (plan != null) {
                 System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + plan.toString());
@@ -110,8 +116,8 @@ public class AgentThread implements Runnable {
                     // TODO: replacing GlobalLevelService.
                     htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
                     // tools for enable/disable debug printing mode
-//                    boolean oldDebugMode = DebugService.setDebugMode(true);
                     PrimitivePlan plan = htnPlanner.plan();
+//                    boolean oldDebugMode = DebugService.setDebugMode(true);
 //                    DebugService.setDebugMode(oldDebugMode);
                     llPlan.appendActions(plan);
                 }

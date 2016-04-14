@@ -175,15 +175,15 @@ public class HTNNode {
         HTNState newState = (primitiveConcreteAction ==null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
         if (newState.getBoxPosition()==null) {
             HLAction nextHLA = (HLAction) remainingActions.getFirst();
-            if (nextHLA.getType() == AbstractActionType.SolveGoal) {
-                SolveGoalAction sga = (SolveGoalAction) nextHLA;
-                newState = new HTNState(
-                        newState.getAgentPosition(),
-                        GlobalLevelService.getInstance().getPosition(sga.getBox()), // TODO: GlobalLevelService
-                        oldState.getPlanningLevelService(),
-                        oldState.getRelaxationMode()
-                );
-            }
+//            if (nextHLA.getType() == AbstractActionType.SolveGoal) {
+//                SolveGoalAction sga = (SolveGoalAction) nextHLA;
+//                newState = new HTNState(
+//                        newState.getAgentPosition(),
+//                        GlobalLevelService.getInstance().getPosition(sga.getBox()), // TODO: GlobalLevelService
+//                        oldState.getPlanningLevelService(),
+//                        oldState.getRelaxationMode()
+//                );
+//            }
         }
         primitiveConcreteAction = (primitiveConcreteAction ==null) ? new NoConcreteAction() : primitiveConcreteAction;
         return new HTNNode(this, primitiveConcreteAction, newState, remainingActions);

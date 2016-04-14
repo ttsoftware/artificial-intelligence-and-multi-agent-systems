@@ -1,5 +1,6 @@
-package dtu.agency.actions.abstractaction.hlaction;
+package dtu.agency.actions.abstractaction.actioncomparators;
 
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.board.Position;
 
 import java.util.Comparator;

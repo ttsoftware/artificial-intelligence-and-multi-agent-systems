@@ -40,11 +40,12 @@ public class Mind {
         Ideas ideas = new Ideas(goal, agentDestination);
 
         for (Box box : pls.getLevel().getBoxes()) {
-            if (box.getLabel().toLowerCase().equals(goal.getLabel().toLowerCase())) {
-                HLAction action = new HMoveBoxAction( box, boxDestination, agentDestination );
-                ideas.add(action);
-                HLAction superAction = new SolveGoalAction(box, goal);
-                ideas.add(superAction);
+//            System.err.println(box.getLabel().substring(0,1).toLowerCase());
+//            System.err.println(goal.getLabel().toLowerCase().substring(0,1));
+            if (box.getLabel().toLowerCase().substring(0,1).equals(goal.getLabel().toLowerCase().substring(0,1))) {
+                SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
+                ideas.add(solveGoalAction);
+//                System.err.println(solveGoalAction.toString());
             }
         }
 //        debug("Nodes created: \n" + String.join("\n", ideas.toString()) , -2);
@@ -56,7 +57,7 @@ public class Mind {
     }
 
     public int getBestApproximateDistance() {
-        return thoughts.getBest().approximateSteps(pls.getAgentPosition());
+        return thoughts.peekBest().approximateSteps(pls.getAgentPosition());
     }
 
 }

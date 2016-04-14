@@ -22,7 +22,7 @@ public class RMoveBoxAction extends RLAction {
 
     @Override
     public AbstractActionType getType() {
-    return AbstractActionType.MoveBoxAction;
+    return AbstractActionType.RMoveBoxAction;
     }
 
     @Override

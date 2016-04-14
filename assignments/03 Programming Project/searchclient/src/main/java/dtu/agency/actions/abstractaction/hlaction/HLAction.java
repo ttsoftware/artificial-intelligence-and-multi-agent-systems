@@ -55,15 +55,15 @@ public abstract class HLAction extends AbstractAction {
 
     public static HLAction getOriginalAction(HLAction originalAction) {
         switch (originalAction.getType()) {
-            case SolveGoal:
-                SolveGoalAction sga = (SolveGoalAction) originalAction;
-                return new SolveGoalAction(sga);
+//            case SolveGoal:
+//                SolveGoalAction sga = (SolveGoalAction) originalAction;
+//                return new SolveGoalAction(sga);
 
             case RGotoAction:
                 RGotoAction gta = (RGotoAction) originalAction;
                 return new RGotoAction(gta);
 
-            case MoveBoxAction:
+            case RMoveBoxAction:
                 RMoveBoxAction rmba = (RMoveBoxAction) originalAction;
                 return new RMoveBoxAction(rmba);
 
@@ -71,7 +71,7 @@ public abstract class HLAction extends AbstractAction {
                 NoAction na = (NoAction) originalAction;
                 return new NoAction(na);
 
-            case MoveBoxAndReturn:
+            case HMoveBoxAndReturn:
                 HMoveBoxAction hmba = (HMoveBoxAction) originalAction;
                 return new HMoveBoxAction(hmba);
 

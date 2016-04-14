@@ -32,9 +32,10 @@ public class HTNPlanner {
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
         this.originalAction = other.getIntention();
     }
-        /**
-        * Constructor: All a planner needs is the the agent and the original action to perform
-        * */
+
+    /**
+    * Constructor: All a planner needs is the the agent and the original action to perform
+    * */
     public HTNPlanner(PlanningLevelService pls, HLAction originalAction, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
         this.originalAction = originalAction;
@@ -51,6 +52,32 @@ public class HTNPlanner {
         this.initialNode = new HTNNode(initialState, originalAction);
         debug(initialNode.toString(),-2);
     }
+
+
+    public HTNPlanner(PlanningLevelService pls, SolveGoalAction originalAction, RelaxationMode mode) {
+        debug("HTN Planner initializing:",2);
+        System.err.println(originalAction);
+        System.err.println(originalAction.toString());
+        this.originalAction = new HMoveBoxAction(
+                originalAction.getBox(),
+                originalAction.getBoxDestination(),
+                originalAction.getAgentDestination(pls)
+        );
+        this.pls = pls;
+        this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
+        Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
+        Position boxPosition = agentPosition;
+        if (originalAction.getBox()!=null) {
+            boxPosition = pls.getPosition(originalAction.getBox());
+        }
+        HTNState initialState = new HTNState( agentPosition, boxPosition, pls, mode );
+        debug("initial" + initialState.toString());
+        debug( ((originalAction ==null) ? "HLAction is null" : originalAction.toString())  );
+        this.initialNode = new HTNNode(initialState, this.originalAction);
+        debug(initialNode.toString(),-2);
+    }
+
+
 
     private HTNNode getInitialNode() {
         return new HTNNode(initialNode);

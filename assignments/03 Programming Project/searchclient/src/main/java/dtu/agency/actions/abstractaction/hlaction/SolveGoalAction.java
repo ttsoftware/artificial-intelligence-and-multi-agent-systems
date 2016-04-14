@@ -1,14 +1,17 @@
 package dtu.agency.actions.abstractaction.hlaction;
 
+import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.services.BDIService;
+import dtu.agency.services.LevelService;
+import dtu.agency.services.PlanningLevelService;
 
 import java.io.Serializable;
 
-public class SolveGoalAction extends HLAction implements Serializable {
+public class SolveGoalAction extends AbstractAction implements Serializable {
 
     private final Box box;
     private final Goal goal;
@@ -33,17 +36,14 @@ public class SolveGoalAction extends HLAction implements Serializable {
         return AbstractActionType.SolveGoal;
     }
 
-    @Override
-    public Position getAgentDestination() {
-        return this.goal.getPosition();
+    public Position getAgentDestination(PlanningLevelService pls) {
+        return pls.getAgentPosition();
     }
 
-    @Override
     public Position getBoxDestination() {
         return BDIService.getInstance().getBDILevelService().getPosition(goal);
     }
 
-    @Override
     public int approximateSteps(Position agentOrigin) {
         // this is gonna be a rough estimation, on the relaxed path
         int approximateSteps = 0;
@@ -61,7 +61,6 @@ public class SolveGoalAction extends HLAction implements Serializable {
         return approximateSteps;
     }
 
-    @Override
     public Box getBox() {
         return box;
     }

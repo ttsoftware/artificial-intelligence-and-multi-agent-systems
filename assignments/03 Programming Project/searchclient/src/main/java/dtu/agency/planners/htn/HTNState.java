@@ -1,6 +1,8 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
@@ -234,19 +236,19 @@ public class HTNState {
 
             switch (action.getType()) {
 
-                case SolveGoal:
-                    SolveGoalAction sga = (SolveGoalAction) action;
-                    MixedPlan sgRefinement = new MixedPlan();
-                    sgRefinement.addAction(new RGotoAction(
-                            pls.getPosition(sga.getBox())
-                    ));
-                    sgRefinement.addAction(new RMoveBoxAction(
-                            sga.getBox(),
-                            pls.getPosition(sga.getGoal())
-                    ));
-                    refinements.add(sgRefinement);
-
-                    break;
+//                case SolveGoal:
+//                    SolveGoalAction sga = (SolveGoalAction) action;
+//                    MixedPlan sgRefinement = new MixedPlan();
+//                    sgRefinement.addAction(new RGotoAction(
+//                            pls.getPosition(sga.getBox())
+//                    ));
+//                    sgRefinement.addAction(new RMoveBoxAction(
+//                            sga.getBox(),
+//                            pls.getPosition(sga.getGoal())
+//                    ));
+//                    refinements.add(sgRefinement);
+//
+//                    break;
 
                 case RGotoAction:
                     RGotoAction gta = (RGotoAction) action;
@@ -264,45 +266,45 @@ public class HTNState {
                     }
                     break;
 
-                    case MoveBoxAction:
-                        RMoveBoxAction mba = (RMoveBoxAction) action;
-                        if (!this.boxIsMovable()) {
-                            debug("Box not movable");
-                        } else {
+                case RMoveBoxAction:
+                    RMoveBoxAction mba = (RMoveBoxAction) action;
+                    if (!this.boxIsMovable()) {
+                        debug("Box not movable");
+                    } else {
 
-                            Direction dirToBox = priorState.getDirectionToBox();
-                            debug("direction to box: " + dirToBox.toString());
+                        Direction dirToBox = priorState.getDirectionToBox();
+                        debug("direction to box: " + dirToBox.toString());
 
-                            // PUSH REFINEMENTS
-                            for (Direction dir : Direction.values()) {
-                                MixedPlan pushRefinement = new MixedPlan();
-                                ConcreteAction push = new PushConcreteAction(mba.getBox(), dirToBox, dir);
-                                HTNState result = priorState.applyConcreteAction(push);
-                                if (result == null) continue; // then the action was illegal !
-                                debug(push.toString() + " -> " + result.toString());
-                                pushRefinement.addAction(push);
-                                pushRefinement.addAction(mba);
-                                refinements.add(pushRefinement);
-                            }
-
-                            // PULL REFINEMENTS
-                            for (Direction dir : Direction.values()) {
-                                MixedPlan pullRefinement = new MixedPlan();
-                                ConcreteAction pull = new PullConcreteAction(mba.getBox(), dir, dirToBox);
-                                HTNState result = priorState.applyConcreteAction(pull);
-                                if (result == null) continue; // then the action was illegal !
-                                debug(pull.toString() + " -> " + result.toString());
-                                pullRefinement.addAction(pull);
-                                pullRefinement.addAction(mba);
-                                refinements.add(pullRefinement);
-                            }
+                        // PUSH REFINEMENTS
+                        for (Direction dir : Direction.values()) {
+                            MixedPlan pushRefinement = new MixedPlan();
+                            ConcreteAction push = new PushConcreteAction(mba.getBox(), dirToBox, dir);
+                            HTNState result = priorState.applyConcreteAction(push);
+                            if (result == null) continue; // then the action was illegal !
+                            debug(push.toString() + " -> " + result.toString());
+                            pushRefinement.addAction(push);
+                            pushRefinement.addAction(mba);
+                            refinements.add(pushRefinement);
                         }
-                        break;
+
+                        // PULL REFINEMENTS
+                        for (Direction dir : Direction.values()) {
+                            MixedPlan pullRefinement = new MixedPlan();
+                            ConcreteAction pull = new PullConcreteAction(mba.getBox(), dir, dirToBox);
+                            HTNState result = priorState.applyConcreteAction(pull);
+                            if (result == null) continue; // then the action was illegal !
+                            debug(pull.toString() + " -> " + result.toString());
+                            pullRefinement.addAction(pull);
+                            pullRefinement.addAction(mba);
+                            refinements.add(pullRefinement);
+                        }
+                    }
+                    break;
 
                 case No:
                     break;
 
-                case MoveBoxAndReturn:
+                case HMoveBoxAndReturn:
                         HMoveBoxAction mbar = (HMoveBoxAction) action;
                         MixedPlan mbarRefinement = new MixedPlan();
 
@@ -424,50 +426,56 @@ public class HTNState {
 
     /**
      * TODO: Checks if the purpose of the current high level action is fulfilled
-     * @param action
+     * @param abstractAction
      * @return boolean
      */
-    public boolean isPurposeFulfilled(HLAction action) {
-        debug("isPurposeFulfilled(" + action.toString() + "):", 2);
+    public boolean isPurposeFulfilled(AbstractAction abstractAction) {
+        debug("isPurposeFulfilled(" + abstractAction.toString() + "):", 2);
         boolean fulfilled = false;
 
-        switch (action.getType()) {
-            case SolveGoal:
-                SolveGoalAction sga = new SolveGoalAction((SolveGoalAction) action);
+        if (abstractAction instanceof HLAction) {
+            HLAction action = (HLAction) abstractAction;
+            switch (abstractAction.getType()) {
+
+                case RGotoAction:
+                    fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination()); // TODO: adjacent is enough?? only if box is null
+                    debug(abstractAction.toString() + " -> agent is" + ((fulfilled) ? " " : " not ") + "adjacent to destination");
+                    break;
+
+                case RMoveBoxAction:
+                    fulfilled = (this.getBoxPosition().equals(action.getAgentDestination()));
+                    debug(abstractAction.toString() + " -> box is" + ((fulfilled) ? " " : " not ") + "at destination");
+                    break;
+
+                case No:
+                    fulfilled = true;
+                    break;
+
+                case HMoveBoxAndReturn:
+                    HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) abstractAction);
+                    fulfilled = this.getBoxPosition().equals(mbarAction.getBoxDestination());
+//                     TODO: This does not work!
+//                    fulfilled &= this.getAgentPosition().equals(mbarAction.getAgentDestination());
+                    debug(abstractAction.toString() + " -> agent&box is" + ((fulfilled) ? " " : " not ") + "at destinations");
+                    break;
+
+                default:
+                    debug("", -2);
+                    throw new UnsupportedOperationException("Invalid HLAction type");
+            }
+        } else {
+            if (abstractAction.getType()== AbstractActionType.SolveGoal) {
+                SolveGoalAction sga = new SolveGoalAction((SolveGoalAction) abstractAction);
                 fulfilled = this.getBoxPosition().equals(sga.getGoal().getPosition());
-                debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at goal location");
-                break;
+                debug(abstractAction.toString() + " -> box is" + ((fulfilled) ? " " : " not ") + "at goal location");
+            }
 
-            case RGotoAction:
-                fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination()); // TODO: adjacent is enough?? only if box is null
-                debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
-                break;
-
-            case MoveBoxAction:
-                fulfilled = (this.getBoxPosition().equals(action.getAgentDestination()));
-                debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destination");
-                break;
-
-            case No:
-                fulfilled = true;
-                break;
-
-            case MoveBoxAndReturn:
-                HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) action);
-                fulfilled  = this.getAgentPosition().equals( mbarAction.getAgentDestination() );
-                fulfilled &= this.getBoxPosition().equals( mbarAction.getBoxDestination() );
-                debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
-                break;
-
-            default:
-                debug("", -2);
-                throw new UnsupportedOperationException("Invalid HLAction type");
         }
 
         if (fulfilled) {
-            debug("Purpose of HLAction is fulfilled: " + action.toString(), -2);
+            debug("Purpose of HLAction is fulfilled: " + abstractAction.toString(), -2);
         } else {
-            debug("Purpose of HLAction is not fulfilled: " + action.toString(), -2);
+            debug("Purpose of HLAction is not fulfilled: " + abstractAction.toString(), -2);
         }
         return fulfilled;
     }

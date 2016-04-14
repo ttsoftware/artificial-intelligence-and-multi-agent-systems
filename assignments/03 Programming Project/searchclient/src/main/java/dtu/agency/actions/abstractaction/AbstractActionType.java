@@ -5,7 +5,7 @@ public enum AbstractActionType {
     SolveGoal,
     Circumvent,
     RGotoAction,
-    MoveBoxAction,
+    RMoveBoxAction,
     SolveGoalSuper,
-    MoveBoxAndReturn
+    HMoveBoxAndReturn
 }
