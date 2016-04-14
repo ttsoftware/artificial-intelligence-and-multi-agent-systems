@@ -1,7 +1,6 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
@@ -10,7 +9,6 @@ import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.BoardCell;
-import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.services.BDIService;
@@ -70,7 +68,7 @@ public class HTNState {
         this.relaxationMode = relaxationMode;
     }
 
-    public boolean boxIsMovable() {
+    private boolean boxIsMovable() {
         return agentPosition.isAdjacentTo(boxPosition);
     }
 
@@ -78,7 +76,7 @@ public class HTNState {
         return pls.getRelativeDirection(agentPosition, boxPosition, false);
     }
 
-    public boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
+    private boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
         debug("isLegal(): ", 2);
         debug("RelaxMode: " + relaxationMode.toString());
         boolean legal = !agentPosition.equals(boxPosition);
@@ -497,9 +495,7 @@ public class HTNState {
         if ((boxPosition == null) || (other.getBoxPosition() == null)) {
             return boxPosition == other.getBoxPosition();
         }
-        if (!boxPosition.equals(other.getBoxPosition()))
-            return false;
-        return true;
+        return boxPosition.equals(other.getBoxPosition());
     }
 
     @Override

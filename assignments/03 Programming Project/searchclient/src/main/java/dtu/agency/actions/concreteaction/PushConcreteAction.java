@@ -9,7 +9,7 @@ public class PushConcreteAction extends MoveBoxConcreteAction {
     }
 
     public PushConcreteAction(PushConcreteAction push) {
-        super((MoveBoxConcreteAction) push);
+        super(push);
     }
 
     @Override

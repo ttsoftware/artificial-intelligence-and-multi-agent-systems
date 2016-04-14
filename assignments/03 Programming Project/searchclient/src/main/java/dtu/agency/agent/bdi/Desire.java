@@ -3,7 +3,7 @@ package dtu.agency.agent.bdi;
 import dtu.agency.board.Goal;
 
 /**
- * Created by koeus on 4/13/16.
+ * Represents an agents desires (plans of type T)
  */
 abstract class Desire<T> {
     Goal goal;

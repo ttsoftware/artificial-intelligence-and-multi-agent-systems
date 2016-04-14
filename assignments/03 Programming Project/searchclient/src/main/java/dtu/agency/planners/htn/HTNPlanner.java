@@ -18,13 +18,13 @@ import dtu.agency.services.PlanningLevelService;
  * This Planner uses the Hierarchical Task Network heuristic to subdivide high level tasks into primitive actions
  */
 public class HTNPlanner {
-    protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    protected static void debug(String msg){ debug(msg, 0); }
+    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    private static void debug(String msg){ debug(msg, 0); }
 
-    private HLAction originalAction;      // original Action
-    private PlanningLevelService pls;     // LevelService
-    private HTNNode initialNode;          // list of all possible plans to solve the goal
-    private HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
+    private final HLAction originalAction;      // original Action
+    private final PlanningLevelService pls;     // LevelService
+    private final HTNNode initialNode;          // list of all possible plans to solve the goal
+    private final HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
 
     public HTNPlanner(HTNPlanner other) {
         this.pls = new PlanningLevelService(other.pls);
@@ -52,7 +52,7 @@ public class HTNPlanner {
         debug(initialNode.toString(),-2);
     }
 
-    public HTNNode getInitialNode() {
+    private HTNNode getInitialNode() {
         return new HTNNode(initialNode);
     }
 

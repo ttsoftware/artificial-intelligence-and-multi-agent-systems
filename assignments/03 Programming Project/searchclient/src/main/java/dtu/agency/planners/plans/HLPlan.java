@@ -3,18 +3,16 @@ package dtu.agency.planners.plans;
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.board.Position;
-import dtu.agency.planners.plans.AbstractPlan;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 /**
- * Created by koeus on 4/9/16.
+ * High Level Plan stores a list of high level actions
  */
 public class HLPlan implements AbstractPlan {
 
-    private final LinkedList<dtu.agency.actions.abstractaction.hlaction.HLAction> plan;
+    private final LinkedList<HLAction> plan;
 
     public HLPlan() {
         this.plan = new LinkedList<>();

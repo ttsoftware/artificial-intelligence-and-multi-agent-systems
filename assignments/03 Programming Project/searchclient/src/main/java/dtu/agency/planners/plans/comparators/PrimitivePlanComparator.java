@@ -5,7 +5,7 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import java.util.Comparator;
 
 /**
- * Created by koeus on 4/13/16.
+ * Comparator to compare Primitive Plans
  */
 public class PrimitivePlanComparator implements Comparator<PrimitivePlan> {
     @Override

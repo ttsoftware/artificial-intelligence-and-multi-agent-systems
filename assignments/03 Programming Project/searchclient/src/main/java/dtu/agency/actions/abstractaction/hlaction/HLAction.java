@@ -35,7 +35,7 @@ public abstract class HLAction extends AbstractAction {
 
     /**
      *
-     * @param agentOrigin
+     * @param agentOrigin The initial position of the agent before performing this action
      * @return the approximated number of steps this HLAction is going to take
      */
     public abstract int approximateSteps(Position agentOrigin);

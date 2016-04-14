@@ -1,13 +1,12 @@
 package dtu.agency.actions;
 
 /**
- * Created by koeus on 4/1/16.
+ * Class to test concrete actions
  */
 
 import dtu.agency.ProblemMarshaller;
 import dtu.agency.ProblemMarshallerTest;
 import dtu.agency.actions.concreteaction.*;
-import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;

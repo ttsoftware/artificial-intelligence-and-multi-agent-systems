@@ -12,9 +12,9 @@ import dtu.agency.services.PlanningLevelService;
  */
 public class Mind {
 
-    Goal goal;
-    PlanningLevelService pls;
-    Ideas thoughts;        // list of all possible ideas of (pre-)plans to solve the goal
+    private final Goal goal;
+    private final PlanningLevelService pls;
+    private final Ideas thoughts;        // list of all possible ideas of (pre-)plans to solve the goal
 
     /**
      * Constructor: All the Mind needs is the next goal and the beliefs of the agent solving it...
@@ -32,7 +32,7 @@ public class Mind {
      * particular target goal, by one node per box that could potentially
      * solve this goal
      */
-    public Ideas think() {
+    private Ideas think() {
 //        debug("HTNGoalPlanner.createAllNodes(): ", 2);
         Position boxDestination  = pls.getPosition(goal);
         Position agentDestination = pls.getAgentPosition(); // return, where else to go?? :-) null may work

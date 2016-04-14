@@ -17,7 +17,7 @@ public class HTNStateTest {
     private static Position agentOne, agentTwo, agentThree;
     private static Position boxOne, boxTwo, boxThree;
     private static HTNState a, b, c;
-    private static RelaxationMode mode = RelaxationMode.None;
+    private static final RelaxationMode mode = RelaxationMode.None;
 
     @BeforeClass
     public static void setUp() throws IOException {

@@ -5,8 +5,6 @@ import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.hlaction.*;
-import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
-import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
 import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
@@ -81,11 +79,11 @@ public class HTNNode {
         return generation;
     }
 
-    public boolean isInitialNode() {
+    private boolean isInitialNode() {
         return this.parent == null;
     }
 
-    public HTNNode getParent() {
+    private HTNNode getParent() {
         return new HTNNode(parent);
     }
 
@@ -115,7 +113,7 @@ public class HTNNode {
 
     /**
      * branching of this node into nodes of possible actions from this state
-     * @return
+     * @return an ArryList of refinement HTNNodes
      */
     public ArrayList<HTNNode> getRefinementNodes() {
         debug("HTNNode.getRefinements()",2);
@@ -168,9 +166,9 @@ public class HTNNode {
 
     /**
      * creates a new child node of this node
-     * @param primitiveConcreteAction
-     * @param remainingActions
-     * @return
+     * @param primitiveConcreteAction push, pull, or move concrete action
+     * @param remainingActions List of remaining actions
+     * @return A HTNNode which is child of current node
      */
     private HTNNode childNode(ConcreteAction primitiveConcreteAction, MixedPlan remainingActions) {
         HTNState oldState = this.getState();
@@ -241,14 +239,11 @@ public class HTNNode {
     @Override
     public String toString() {
         HTNNodeComparator h = new AStarHTNNodeComparator(Main.heuristicMeasure);
-        StringBuilder s = new StringBuilder();
-        s.append("HTNNode: {");
-        s.append("Generation: " + Integer.toString(this.generation));
-        s.append(", HTNNodeComparator: " + Integer.toString(h.h(this)));
-        s.append(", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null") );
-        s.append(", State: " + this.state.toString() + ",\n");
-        s.append("          RemainingActions: " + this.remainingPlan.toString() + "}" );
-        return s.toString();
+        return "HTNNode: {Generation: " + Integer.toString(this.generation)
+                + ", HTNNodeComparator: " + Integer.toString(h.h(this))
+                + ", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null")
+                + ", State: " + this.state.toString() + ",\n"
+                + "          RemainingActions: " + this.remainingPlan.toString() + "}";
     }
 
 

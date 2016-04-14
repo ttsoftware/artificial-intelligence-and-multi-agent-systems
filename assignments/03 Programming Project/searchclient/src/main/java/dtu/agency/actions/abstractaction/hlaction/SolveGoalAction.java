@@ -68,12 +68,11 @@ public class SolveGoalAction extends HLAction implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("SolveGoalAction(");
-        s.append(getBox().toString());
-        s.append(",");
-        s.append(getGoal().toString());
-        s.append(")");
-        return s.toString();
+        String s = "SolveGoalAction(" +
+                getBox().toString() +
+                "," +
+                getGoal().toString() +
+                ")";
+        return s;
     }
 }

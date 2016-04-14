@@ -3,14 +3,14 @@ package dtu.agency.services;
 import java.util.Collections;
 
 public class DebugService {
-    public static boolean inDebugMode = false;
-    public static int currentIndentation = 0;
+    private static boolean inDebugMode = false;
+    private static int currentIndentation = 0;
 
-    public static String getIndent() {
+    private static String getIndent() {
         return String.join("", Collections.nCopies(currentIndentation, " "));
     }
 
-    public static void changeIndentation(int indentationChange) {
+    private static void changeIndentation(int indentationChange) {
         currentIndentation += indentationChange;
     }
 

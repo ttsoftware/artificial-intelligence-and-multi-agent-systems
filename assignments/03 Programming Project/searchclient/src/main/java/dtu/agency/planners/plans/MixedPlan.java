@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class MixedPlan implements Plan {
 
-    private LinkedList<Action> actions;
+    private final LinkedList<Action> actions;
 
     public MixedPlan() {
         this.actions = new LinkedList<>();

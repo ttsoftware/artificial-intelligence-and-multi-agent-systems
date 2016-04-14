@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
 public class Ideas extends Desire<HLAction> { // everything the agent might want to achieve
 
     // should one know the initial position of this plan??
-    private PriorityQueue<HLAction> ideas;
+    private final PriorityQueue<HLAction> ideas;
 
     public Ideas(Goal goal, Position agentOrigin) {
         super(goal);

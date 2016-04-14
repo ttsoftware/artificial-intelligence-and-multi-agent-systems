@@ -5,11 +5,11 @@ import dtu.agency.board.Position;
 import java.util.Comparator;
 
 /**
- * Created by koeus on 4/13/16.
+ * Comparator to compare HLActions
  */
 public class HLActionComparator implements Comparator<HLAction> {
 
-    Position agentOrigin;
+    private final Position agentOrigin;
 
     public HLActionComparator(Position agentOrigin){
         this.agentOrigin = agentOrigin;

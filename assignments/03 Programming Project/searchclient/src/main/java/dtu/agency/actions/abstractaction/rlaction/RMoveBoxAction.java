@@ -42,13 +42,12 @@ public class RMoveBoxAction extends RLAction {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("RMoveBoxAction(");
-        s.append(getBox().toString());
-        s.append("->");
-        s.append(boxDestination.toString());
-        s.append(")");
-        return s.toString();
+        String s = "RMoveBoxAction(" +
+                getBox().toString() +
+                "->" +
+                boxDestination.toString() +
+                ")";
+        return s;
     }
 
     @Override

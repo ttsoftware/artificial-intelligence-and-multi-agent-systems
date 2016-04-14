@@ -7,11 +7,11 @@ import java.util.HashSet;
 
 public abstract class Strategy {
 
-    public HashSet<HTNState> explored = new HashSet<>();
+    private HashSet<HTNState> explored = new HashSet<>();
 
-    public long startTime = System.currentTimeMillis();
+    private long startTime = System.currentTimeMillis();
 
-    public Strategy() {
+    Strategy() {
     }
 
     public void addToExplored(HTNState n) {
@@ -26,7 +26,7 @@ public abstract class Strategy {
         return explored.contains(n);
     }
 
-    public int countExplored() {
+    private int countExplored() {
         return explored.size();
     }
 
@@ -34,7 +34,7 @@ public abstract class Strategy {
         return String.format("#Explored: %4d, #Frontier: %3d, Time: %3.2f s", countExplored(), countFrontier(), timeSpent());
     }
 
-    public float timeSpent() {
+    private float timeSpent() {
         return (System.currentTimeMillis() - startTime) / 1000f;
     }
 
@@ -44,7 +44,7 @@ public abstract class Strategy {
 
     public abstract boolean inFrontier(HTNNode n);
 
-    public abstract int countFrontier();
+    protected abstract int countFrontier();
 
     public abstract boolean frontierIsEmpty();
 

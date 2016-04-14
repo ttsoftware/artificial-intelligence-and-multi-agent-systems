@@ -8,7 +8,6 @@ import dtu.agency.board.Level;
 import dtu.agency.planners.Mind;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
-import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.PlanningLevelService;
 import org.junit.BeforeClass;

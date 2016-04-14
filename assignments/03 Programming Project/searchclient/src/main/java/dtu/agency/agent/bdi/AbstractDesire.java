@@ -7,7 +7,7 @@ import dtu.agency.planners.plans.comparators.HLPlanComparator;
 
 import java.util.PriorityQueue;
 
-public class AbstractDesire extends Desire<HLPlan> { // everything the agent might want to achieve
+class AbstractDesire extends Desire<HLPlan> { // everything the agent might want to achieve
 
     // should one know the initial position of this plan??
     private PriorityQueue<HLPlan> plans;

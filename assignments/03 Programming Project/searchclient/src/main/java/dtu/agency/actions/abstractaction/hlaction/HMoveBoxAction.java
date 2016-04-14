@@ -53,15 +53,14 @@ public class HMoveBoxAction extends HLAction implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("HMoveBoxAction(");
-        s.append(getBox().toString());
-        s.append("->");
-        s.append(getBoxDestination().toString());
-        s.append(",");
-        s.append(getAgentDestination().toString());
-        s.append(")");
-        return s.toString();
+        String s = "HMoveBoxAction(" +
+                getBox().toString() +
+                "->" +
+                getBoxDestination().toString() +
+                "," +
+                getAgentDestination().toString() +
+                ")";
+        return s;
     }
 
     @Override

@@ -7,17 +7,14 @@ import javafx.util.Pair;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-public class PlanDesire { // everything the agent might want to achieve
+class PlanDesire { // everything the agent might want to achieve
 
-    PriorityQueue<Pair<HLAction, PrimitivePlan>> desires;
+    private PriorityQueue<Pair<HLAction, PrimitivePlan>> desires;
 
     public PlanDesire() {
-        desires = new PriorityQueue<>(new Comparator<Pair<HLAction, PrimitivePlan>>() {
-            @Override
-            public int compare(Pair<HLAction, PrimitivePlan> o1, Pair<HLAction, PrimitivePlan> o2) {
-                return o2.getValue().size() - o1.getValue().size();
-            }
-        });
+        desires = new PriorityQueue<>(
+                (Comparator<Pair<HLAction, PrimitivePlan>>) (o1, o2) ->
+                        o2.getValue().size() - o1.getValue().size());
     }
 
     public Pair<HLAction, PrimitivePlan> getBestDesire() {

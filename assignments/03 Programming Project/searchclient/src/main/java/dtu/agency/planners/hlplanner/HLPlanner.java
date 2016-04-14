@@ -13,12 +13,12 @@ import dtu.agency.services.PlanningLevelService;
  * This Planner uses the Hierarchical Task Network heuristic to subdivide
  * high level tasks all the way into sequences of primitive actions
  */
-public class HLPlanner {
+class HLPlanner {
 
     private PlanningLevelService planningLevelService;
     private PlanDesire desires;               // what the agent would desire to do next in the planning phase
-    PlanIntention intentions;         // the hierarchy of intentions build from the original SolveGoalAction.
-    HTNPlanner htnPlanner;
+    private PlanIntention intentions;         // the hierarchy of intentions build from the original SolveGoalAction.
+    private HTNPlanner htnPlanner;
 
     public HLPlanner( HTNPlanner htnPlanner ) {
 

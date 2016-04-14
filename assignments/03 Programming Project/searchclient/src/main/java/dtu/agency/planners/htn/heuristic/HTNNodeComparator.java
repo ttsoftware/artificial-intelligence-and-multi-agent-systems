@@ -15,8 +15,8 @@ import java.util.List;
 
 public abstract class HTNNodeComparator implements Comparator<HTNNode> {
 
-    public Heuristic heuristic;
-    public HTNNodeComparator(Heuristic heuristic) {
+    private final Heuristic heuristic;
+    HTNNodeComparator(Heuristic heuristic) {
         this.heuristic = heuristic;
     }
 
@@ -44,38 +44,39 @@ public abstract class HTNNodeComparator implements Comparator<HTNNode> {
                 primitives += heuristic.distance(previous, recursiveAction.getAgentDestination());
                 previous = recursiveAction.getAgentDestination();
 
-            } else { // (action instanceof HLPlan)
+            } else {
+                if (action instanceof HLAction) { // (action instanceof HLAction)
 
-                HLAction hlAction = (HLAction) action;
-                ArrayList<MixedPlan> plans = n.getState().getRefinements(hlAction);
+                    HLAction hlAction = (HLAction) action;
+                    ArrayList<MixedPlan> plans = n.getState().getRefinements(hlAction);
 
-                int minPlanPrimitives = Integer.MAX_VALUE;
-                Position minPlanPrevious = null;
+                    int minPlanPrimitives = Integer.MAX_VALUE;
+                    Position minPlanPrevious = null;
 
-                for (MixedPlan plan : plans) { // write recursive function to make this work
-                    int planPrimitives = 0;
-                    Position planPrevious = previous;
+                    for (MixedPlan plan : plans) { // write recursive function to make this work
+                        int planPrimitives = 0;
+                        Position planPrevious = previous;
 
-                    for (Action action1 : plan.getActions()) {
-                        if (action1 instanceof ConcreteAction) {
-                            planPrimitives += 1;
+                        for (Action action1 : plan.getActions()) {
+                            if (action1 instanceof ConcreteAction) {
+                                planPrimitives += 1;
+                            }
+                            if (action1 instanceof RLAction) {
+                                RLAction rlAction1 = (RLAction) action1;
+                                planPrimitives += heuristic.distance(planPrevious, rlAction1.getAgentDestination());
+                                planPrevious = hlAction.getAgentDestination();
+                            } else {
+                                HLAction hlAction1 = (HLAction) action1;
+                                planPrimitives += heuristic.distance(planPrevious, hlAction1.getAgentDestination());
+                                planPrevious = hlAction.getAgentDestination();
+                            }
                         }
-                        if (action1 instanceof RLAction) {
-                            RLAction rlAction1 = (RLAction) action1;
-                            planPrimitives += heuristic.distance(planPrevious, rlAction1.getAgentDestination());
-                            planPrevious = hlAction.getAgentDestination();
-                        }
-                        else {
-                            HLAction hlAction1 = (HLAction) action1;
-                            planPrimitives += heuristic.distance(planPrevious, hlAction1.getAgentDestination());
-                            planPrevious = hlAction.getAgentDestination();
-                        }
+                        minPlanPrimitives = (minPlanPrimitives > planPrimitives) ? planPrimitives : minPlanPrimitives;
+                        minPlanPrevious = (minPlanPrimitives > planPrimitives) ? planPrevious : minPlanPrevious;
                     }
-                    minPlanPrimitives = (minPlanPrimitives > planPrimitives) ? planPrimitives : minPlanPrimitives;
-                    minPlanPrevious = (minPlanPrimitives > planPrimitives) ? planPrevious : minPlanPrevious;
+                    previous = minPlanPrevious;
+                    primitives += minPlanPrimitives;
                 }
-                previous = minPlanPrevious;
-                primitives += minPlanPrimitives;
             }
         }
         return primitives;
@@ -91,5 +92,5 @@ public abstract class HTNNodeComparator implements Comparator<HTNNode> {
      * @param node
      * @return
      */
-    public abstract int f(HTNNode node);
+    protected abstract int f(HTNNode node);
 }

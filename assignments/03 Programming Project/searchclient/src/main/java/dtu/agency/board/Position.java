@@ -67,11 +67,6 @@ public class Position implements Serializable {
     }
 
     public String toString() {
-        String s = "(" +
-                Integer.toString(getRow()) +
-                "," +
-                Integer.toString(getColumn()) +
-                ")";
-        return s;
+        return "(" + Integer.toString(getRow()) + "," + Integer.toString(getColumn()) + ")";
     }
 }

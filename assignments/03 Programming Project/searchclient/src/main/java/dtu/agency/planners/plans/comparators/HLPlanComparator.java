@@ -6,11 +6,11 @@ import dtu.agency.planners.plans.HLPlan;
 import java.util.Comparator;
 
 /**
- * Created by koeus on 4/13/16.
+ * Comparator to compare High Level Plans
  */
 public class HLPlanComparator implements Comparator<HLPlan> {
 
-    Position agentOrigin;
+    private final Position agentOrigin;
 
     public HLPlanComparator(Position agentOrigin){
         this.agentOrigin = agentOrigin;
