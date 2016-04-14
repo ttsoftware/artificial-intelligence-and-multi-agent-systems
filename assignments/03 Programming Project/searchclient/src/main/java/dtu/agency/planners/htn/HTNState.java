@@ -15,7 +15,6 @@ import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
-import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -251,14 +250,6 @@ public class HTNState {
 
                     break;
 
-                case Circumvent:
-                    CircumventBoxAction circAction = (CircumventBoxAction) action;
-                    MixedPlan circRefinement = new MixedPlan();
-
-                    circRefinement.addAction(new RGotoAction(circAction.getAgentDestination())); // TODO: no relaxation!?
-                    refinements.add(circRefinement);
-                    break;
-
                 case RGotoAction:
                     RGotoAction gta = (RGotoAction) action;
 
@@ -310,20 +301,6 @@ public class HTNState {
                         }
                         break;
 
-                    case SolveGoalSuper:
-                        SolveGoalSuperAction sgsa = (SolveGoalSuperAction) action;
-
-                        for (Box box : BDIService.getInstance().getBDILevelService().getLevel().getBoxes()) {
-                            if (box.getLabel().toLowerCase().equals(sgsa.getGoal().getLabel().toLowerCase())) {
-                                MixedPlan sgsaRefinement = new MixedPlan();
-                                SolveGoalAction sgAction = new SolveGoalAction(box, sgsa.getGoal());
-                                debug(sgAction.toString());
-                                sgsaRefinement.addAction( sgAction );
-                                refinements.add(sgsaRefinement);
-                            }
-                        }
-                        break;
-
                 case No:
                     break;
 
@@ -367,7 +344,7 @@ public class HTNState {
         switch (concreteAction.getType()) {
             case MOVE: {
                 MoveConcreteAction moveAction = (MoveConcreteAction) concreteAction;
-                newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
+                newAgentPos = pls.getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
 
                 result = new HTNState(newAgentPos, oldBoxPos, pls, mode);
                 debug(" + " + moveAction.toString() + " -> " + result.toString() );
@@ -384,8 +361,8 @@ public class HTNState {
 
                 PushConcreteAction pushAction = (PushConcreteAction) concreteAction;
 
-                newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
-                newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
+                newAgentPos = pls.getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
+                newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
                 result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
                 debug(" + " + pushAction.toString() + " -> " + result.toString());
@@ -407,8 +384,8 @@ public class HTNState {
 
                 PullConcreteAction pullAction = (PullConcreteAction) concreteAction;
 
-                newAgentPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
-                newBoxPos = GlobalLevelService.getInstance().getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
+                newAgentPos = pls.getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
+                newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
                 result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
                 debug(" + " + pullAction.toString() + " -> " + result.toString());
@@ -463,13 +440,6 @@ public class HTNState {
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at goal location");
                 break;
 
-            case Circumvent:
-                CircumventBoxAction cba = new CircumventBoxAction((CircumventBoxAction) action);
-                fulfilled  = this.getAgentPosition().equals( action.getAgentDestination() );
-                fulfilled &= this.getBoxPosition().equals( GlobalLevelService.getInstance().getPosition(action.getBox()) ); // TODO: PlannerLevelService
-                debug(action.toString() + " -> agent&box is"+ ((fulfilled)?" ":" not ") +"at destinations");
-                break;
-
             case RGotoAction:
                 fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination()); // TODO: adjacent is enough?? only if box is null
                 debug(action.toString() + " -> agent is"+ ((fulfilled)?" ":" not ") +"adjacent to destination");
@@ -478,12 +448,6 @@ public class HTNState {
             case MoveBoxAction:
                 fulfilled = (this.getBoxPosition().equals(action.getAgentDestination()));
                 debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destination");
-                break;
-
-            case SolveGoalSuper:
-                SolveGoalSuperAction sgsa = new SolveGoalSuperAction((SolveGoalSuperAction) action);
-                fulfilled = (this.getBoxPosition()!=null) ? this.getBoxPosition().equals(sgsa.getGoal().getPosition()): false;
-                debug(action.toString() + " -> box is"+ ((fulfilled)?" ":" not ") +"at destinations");
                 break;
 
             case No:

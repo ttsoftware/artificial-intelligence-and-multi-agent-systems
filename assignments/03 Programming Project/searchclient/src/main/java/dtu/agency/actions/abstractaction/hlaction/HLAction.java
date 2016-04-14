@@ -59,10 +59,6 @@ public abstract class HLAction extends AbstractAction {
                 SolveGoalAction sga = (SolveGoalAction) originalAction;
                 return new SolveGoalAction(sga);
 
-            case Circumvent:
-                CircumventBoxAction cba = (CircumventBoxAction) originalAction;
-                return new CircumventBoxAction(cba);
-
             case RGotoAction:
                 RGotoAction gta = (RGotoAction) originalAction;
                 return new RGotoAction(gta);
@@ -70,10 +66,6 @@ public abstract class HLAction extends AbstractAction {
             case MoveBoxAction:
                 RMoveBoxAction rmba = (RMoveBoxAction) originalAction;
                 return new RMoveBoxAction(rmba);
-
-            case SolveGoalSuper:
-                SolveGoalSuperAction sgs = (SolveGoalSuperAction) originalAction;
-                return new SolveGoalSuperAction(sgs);
 
             case No:
                 NoAction na = (NoAction) originalAction;
