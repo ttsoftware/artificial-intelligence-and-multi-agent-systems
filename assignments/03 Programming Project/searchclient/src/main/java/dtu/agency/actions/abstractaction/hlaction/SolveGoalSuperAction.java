@@ -4,6 +4,7 @@ import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.GlobalLevelService;
 
 import java.io.Serializable;
@@ -36,6 +37,11 @@ public class SolveGoalSuperAction extends HLAction implements Serializable {
     @Override
     public Position getAgentDestination() {
         return GlobalLevelService.getInstance().getPosition(goal);
+    }
+
+    @Override
+    public Position getBoxDestination() {
+        return BDIService.getInstance().getBDILevelService().getPosition(goal);
     }
 
     @Override

@@ -8,7 +8,6 @@ import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.Mind;
-import dtu.agency.planners.htn.HTNGoalPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
@@ -37,9 +36,8 @@ public class AgentThread implements Runnable {
         // calculate positions of self + boxes, when current plans are executed
         // this as basis on bidding on the next
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
-
-        // important step - update the planning level service to
-        // pls.calculateStateAfterCurrentIntentions();
+        // TODO: important step - update the planning level service to
+        // pls.calculateStateAfterCurrentPlansHasBeenExecuted();
 
         Mind mind = new Mind(goal, pls);
         int approximatedSteps = mind.getApproximateDistance();
@@ -48,7 +46,7 @@ public class AgentThread implements Runnable {
         BDIService.getInstance().getIdeas().put(goal.getLabel(), ideas);
 
         // TODO: Find number of remaining steps to be executed at this moment
-        int remainingSteps = 0;
+        int remainingSteps = 0; // NOT 0, unless no plan awaits execution
         int totalSteps = approximatedSteps + remainingSteps;
 
         System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(totalSteps));
@@ -69,7 +67,7 @@ public class AgentThread implements Runnable {
 
             System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
-            // Find the HTNPlanner used to bid for this goal
+            // Find the Ideas produced at bidding round for this goal
             Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
 
             System.err.println(ideas.toString());
@@ -78,9 +76,14 @@ public class AgentThread implements Runnable {
 
             // Desire 1:  Find if possible a low level plan, and consider it a possible solution
             // TODO: Important to plan with NO relaxations here!!!!
-            HTNPlanner htnPlanner = new HTNPlanner(ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+            PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+            HTNPlanner htnPlanner = new HTNPlanner(pls, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
             PrimitivePlan plan = htnPlanner.plan();
-            System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + plan.toString());
+            if (plan != null) {
+                System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + plan.toString());
+            } else {
+                System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Did not find a Concrete Plan.");
+            }
 
             /*
             // start a new high level planning phase

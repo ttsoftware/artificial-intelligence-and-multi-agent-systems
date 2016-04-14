@@ -41,16 +41,11 @@ public class BDIService {
 
     public BDIService(Agent agent) {
         this.agent = agent;
+
         Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
 
-        agentCurrentPosition = bdiLevelService.getPosition(this.agent);
-        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-        bdiLevelService.removeAgent(this.agent);
-        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-        bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
-        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-
+        // TODO: make this a unit test instead!
         if (bdiLevelService.getLevel().getBoardObjectPositions()
                 == GlobalLevelService.getInstance().getLevel().getBoardObjectPositions()) {
             try {
@@ -68,6 +63,10 @@ public class BDIService {
 
     public Agent getAgent() {
         return agent;
+    }
+
+    public Position getAgentCurrentPosition() {
+        return bdiLevelService.getPosition(agent);
     }
 
     public PrimitiveDesire getPrimitivePlans() {

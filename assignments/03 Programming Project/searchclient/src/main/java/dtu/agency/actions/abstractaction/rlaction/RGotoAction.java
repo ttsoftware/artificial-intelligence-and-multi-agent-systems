@@ -27,6 +27,11 @@ public class RGotoAction extends RLAction {
     }
 
     @Override
+    public Position getBoxDestination() {
+        return null;
+    }
+
+    @Override
     public Box getBox() {
         return null;
     }

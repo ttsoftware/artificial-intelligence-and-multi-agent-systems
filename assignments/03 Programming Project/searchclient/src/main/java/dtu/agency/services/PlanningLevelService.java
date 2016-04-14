@@ -5,6 +5,10 @@ import dtu.agency.board.Position;
 
 public class PlanningLevelService extends LevelService {
 
+    public PlanningLevelService(PlanningLevelService other) {
+        setLevel(new Level(other.getLevel()));
+    }
+
     public PlanningLevelService(Level level) {
         setLevel(level);
     }

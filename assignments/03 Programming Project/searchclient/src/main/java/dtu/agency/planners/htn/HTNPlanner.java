@@ -14,6 +14,7 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 
 
 /**
@@ -23,31 +24,34 @@ public class HTNPlanner {
     protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
     protected static void debug(String msg){ debug(msg, 0); }
 
-    protected HLAction action;              // original action
-    protected HTNNode initialNode;          // list of all possible plans to solve the goal
-    protected HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
+    private HLAction originalAction;      // original Action
+    private PlanningLevelService pls;     // LevelService
+    private HTNNode initialNode;          // list of all possible plans to solve the goal
+    private HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
 
     public HTNPlanner(HTNPlanner other) {
+        this.pls = new PlanningLevelService(other.pls);
         this.initialNode = new HTNNode(other.getInitialNode());
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
-        this.action = other.getAction();
+        this.originalAction = other.getOriginalAction();
     }
         /**
-        * Constructor: All a planner needs is the the agent and the action to perform
+        * Constructor: All a planner needs is the the agent and the original action to perform
         * */
-    public HTNPlanner(HLAction action, RelaxationMode mode) {
+    public HTNPlanner(PlanningLevelService pls, HLAction originalAction, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
-        this.action = action;
+        this.originalAction = originalAction;
+        this.pls = pls;
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
-        Position agentPosition = GlobalLevelService.getInstance().getPosition(BDIService.getInstance().getAgent());
+        Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
         Position boxPosition = agentPosition;
-        if (action.getBox()!=null) {
-            boxPosition = GlobalLevelService.getInstance().getPosition(action.getBox());
+        if (originalAction.getBox()!=null) {
+            boxPosition = pls.getPosition(originalAction.getBox());
         }
         HTNState initialState = new HTNState( agentPosition, boxPosition, mode );
         debug("initial" + initialState.toString());
-        debug( ((action==null) ? "HLAction is null" : action.toString())  );
-        this.initialNode = new HTNNode(initialState, action);
+        debug( ((originalAction ==null) ? "HLAction is null" : originalAction.toString())  );
+        this.initialNode = new HTNNode(initialState, originalAction);
         debug(initialNode.toString(),-2);
     }
 
@@ -67,7 +71,7 @@ public class HTNPlanner {
      * Returns the intention to be solved by this planner
      */
     public HLAction getIntention() {
-        return getAction();
+        return getOriginalAction();
     }
 
     /**
@@ -78,25 +82,23 @@ public class HTNPlanner {
     }
 
     /**
-    * Finds the concrete plan
-    */
-    public PrimitivePlan plan() {
-        debug("HTNPlanner.plan():");
-        return rePlan(initialNode);
-    }
-
-    /**
      * Finds the concrete plan (provided an (initial) node)
      * This is the actual graph building phase in HTNPlanner
      */
-    public PrimitivePlan rePlan(HTNNode node) {
-        debug("HTNPlanner.rePlan():",2);
-        debug("initial" + node.toString());
+    public PrimitivePlan plan() {
+        debug("HTNPlanner.plan():",2);originalAction.getBoxDestination();
+        debug("initial" + initialNode.toString());
+        Position boxOrigin = null;
+        if (originalAction.getBox()!=null) {
+            boxOrigin = pls.getPosition(originalAction.getBox());
+            pls.removeBox(originalAction.getBox());
+        }
+
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
 
         debug("HTN plan starting with strategy " + strategy.toString() + "\n");
-        strategy.addToFrontier(node);
+        strategy.addToFrontier(initialNode);
 
         int iterations = 0;
         while (true) {
@@ -107,6 +109,9 @@ public class HTNPlanner {
             if (strategy.frontierIsEmpty()) {
                 debug("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 debug(strategy.status(), -2);
+                if (originalAction.getBox()!=null) { // reinsert box at its original position
+                    pls.insertBox(originalAction.getBox(), boxOrigin);
+                }
                 return null;
             }
 
@@ -138,8 +143,11 @@ public class HTNPlanner {
                 debug("Effect already explored, but NoActions, so still interesting!");
             }
 
-            if (leafNode.getState().isPurposeFulfilled( getAction() )) {
+            if (leafNode.getState().isPurposeFulfilled( getOriginalAction() )) {
                 debug(strategy.status(), -2);
+                if (originalAction.getBox()!=null) {
+                    pls.insertBox(originalAction.getBox(), originalAction.getBoxDestination());
+                }
                 return leafNode.extractPlan();
             }
 
@@ -159,39 +167,39 @@ public class HTNPlanner {
     @Override
     public String toString(){
         String s = "HTNPlanner of agent " + BDIService.getInstance().getAgent().toString();
-        s += " performing " + ((this.action!=null) ? this.action.toString() : "null!");
+        s += " performing " + ((this.originalAction !=null) ? this.originalAction.toString() : "null!");
         s += " with the next node \n" + this.initialNode.toString();
         return s;
     }
 
-    public HLAction getAction() {
-        switch (action.getType()) {
+    public HLAction getOriginalAction() {
+        switch (originalAction.getType()) {
             case SolveGoal:
-                SolveGoalAction sga = (SolveGoalAction) action;
+                SolveGoalAction sga = (SolveGoalAction) originalAction;
                 return new SolveGoalAction(sga);
 
             case Circumvent:
-                CircumventBoxAction cba = (CircumventBoxAction) action;
+                CircumventBoxAction cba = (CircumventBoxAction) originalAction;
                 return new CircumventBoxAction(cba);
 
             case RGotoAction:
-                RGotoAction gta = (RGotoAction) action;
+                RGotoAction gta = (RGotoAction) originalAction;
                 return new RGotoAction(gta);
 
             case MoveBoxAction:
-                RMoveBoxAction rmba = (RMoveBoxAction) action;
+                RMoveBoxAction rmba = (RMoveBoxAction) originalAction;
                 return new RMoveBoxAction(rmba);
 
             case SolveGoalSuper:
-                SolveGoalSuperAction sgs = (SolveGoalSuperAction) action;
+                SolveGoalSuperAction sgs = (SolveGoalSuperAction) originalAction;
                 return new SolveGoalSuperAction(sgs);
 
             case No:
-                NoAction na = (NoAction) action;
+                NoAction na = (NoAction) originalAction;
                 return new NoAction(na);
 
             case MoveBoxAndReturn:
-                HMoveBoxAction hmba = (HMoveBoxAction) action;
+                HMoveBoxAction hmba = (HMoveBoxAction) originalAction;
                 return new HMoveBoxAction(hmba);
 
             default:

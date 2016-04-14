@@ -59,8 +59,10 @@ public class HTNPlannerTest {
         Ideas ideas = mind.getAllAbstractIdeas();
         System.err.println("Ideas: " + ideas.toString() + "\n");
 
-        HTNPlanner htn1 = new HTNPlanner(ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
-        HTNPlanner htn2 = new HTNPlanner(ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+        PlanningLevelService pls1 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+        PlanningLevelService pls2 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+        HTNPlanner htn1 = new HTNPlanner(pls1, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+        HTNPlanner htn2 = new HTNPlanner(pls2, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
         System.err.println("HTNPlannerTest: " + htn1.toString() + "\n");
         System.err.println("HTNPlannerTest: " + htn2.toString() + "\n");
 

@@ -19,7 +19,12 @@ public abstract class HLAction extends AbstractAction {
     public abstract Position getAgentDestination();
 
     /**
-     * This is the targeted box during this action(s)
+     * This is where the box is going to be after completing this action
+     */
+    public abstract Position getBoxDestination();
+
+    /**
+     * This is the targeted box during this action
      */
     public abstract Box getBox();
 

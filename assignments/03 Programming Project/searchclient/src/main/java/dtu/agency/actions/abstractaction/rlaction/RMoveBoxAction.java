@@ -31,6 +31,11 @@ public class RMoveBoxAction extends RLAction {
     }
 
     @Override
+    public Position getBoxDestination() {
+        return boxDestination;
+    }
+
+    @Override
     public Box getBox() {
         return box;
     }

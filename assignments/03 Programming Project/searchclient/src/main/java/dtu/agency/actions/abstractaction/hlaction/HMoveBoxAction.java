@@ -33,6 +33,7 @@ public class HMoveBoxAction extends HLAction implements Serializable {
         this.agentDestination = new Position(other.getAgentDestination());
     }
 
+    @Override
     public Position getBoxDestination() { return boxDestination; }
 
     @Override

@@ -30,6 +30,11 @@ public class NoAction extends HLAction implements Serializable {
     }
 
     @Override
+    public Position getBoxDestination() {
+        return null;
+    }
+
+    @Override
     public Box getBox() { return null; }
 
     @Override

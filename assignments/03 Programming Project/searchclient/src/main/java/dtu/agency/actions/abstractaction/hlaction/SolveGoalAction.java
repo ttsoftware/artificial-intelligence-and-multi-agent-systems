@@ -39,6 +39,11 @@ public class SolveGoalAction extends HLAction implements Serializable {
     }
 
     @Override
+    public Position getBoxDestination() {
+        return BDIService.getInstance().getBDILevelService().getPosition(goal);
+    }
+
+    @Override
     public int approximateSteps(Position agentOrigin) {
         // this is gonna be a rough estimation, on the relaxed path
         int approximateSteps = 0;

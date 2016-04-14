@@ -30,6 +30,12 @@ public class CircumventBoxAction extends HLAction implements Serializable {
     public Position getAgentDestination() { return new Position(agentDestination); }
 
     @Override
+    public Position getBoxDestination() {
+        // TODO
+        return null;
+    }
+
+    @Override
     public AbstractActionType getType() {
         return AbstractActionType.Circumvent;
     }

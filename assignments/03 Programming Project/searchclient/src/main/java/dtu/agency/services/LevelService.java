@@ -357,6 +357,49 @@ public abstract class LevelService {
     }
 
     /**
+     * Insert a box into the level
+     * Usage: when returning responsibility of the box to this levelservice
+     * @param box
+     * @param position
+     */
+    public synchronized void insertBox(Box box, Position position) {
+        int row = position.getRow();
+        int column = position.getColumn();
+
+        BoardCell[][] boardState = level.getBoardState();
+
+        // update level.boardState
+        BoardCell cell = boardState[row][column];
+        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
+        switch (cell) {       // update the cell where the agent is now located
+            case FREE_CELL:
+                boardState[row][column] = BoardCell.BOX;
+                break;
+            case GOAL:
+                boardState[row][column] = BoardCell.BOX_GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
+        }
+        // update the level objects
+        level.setBoardState(boardState);
+
+        // insert agent into level.boardObjectPositions
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(box.getLabel()) != null)
+            throw new AssertionError("Expected the box NOT to exist in the level");
+        objectPositions.put(box.getLabel(), new Position(row, column));
+        level.setBoardObjectPositions(objectPositions);
+
+        // insert agent into level.agents
+        List<Box> boxes = level.getBoxes();
+        if (boxes.contains(box))
+            throw new AssertionError("Box should not exist in level before adding it");
+        boxes.add(box);
+        level.setBoxes(boxes);
+    }
+
+    /**
      * Insert an agent into the level at a given position
      * Usage: when responsibility of agent is returned to level
      * @param agent
@@ -402,6 +445,46 @@ public abstract class LevelService {
     }
 
     /**
+     * Removing a box from a level
+     * Usage: when assuming control and responsibility for that box in the level
+     * @param box
+     */
+    public synchronized void removeBox(Box box) {
+        Position boxPos = getPosition(box);
+        int row = boxPos.getRow();
+        int column = boxPos.getColumn();
+
+        // remove box from level.boardstate
+        BoardCell cell = level.getBoardState()[row][column];
+        assert (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL);
+
+        switch (cell) {
+            case BOX:
+                level.getBoardState()[row][column] = BoardCell.FREE_CELL;
+                break;
+            case BOX_GOAL:
+                level.getBoardState()[row][column] = BoardCell.GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot remove box if not present");
+        }
+
+        // remove box from level.boardObjectPositions
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(box.getLabel()) == null)
+            throw new AssertionError("Cannot remove non-existing box");
+        objectPositions.remove(box.getLabel());
+        level.setBoardObjectPositions(objectPositions);
+
+        // remove box from level.boxes
+        List<Box> boxes = level.getBoxes();
+        if (!boxes.contains(box))
+            throw new AssertionError("Box should exist in level before removing it");
+        boxes.remove(box);
+        level.setBoxes(boxes);
+    }
+
+    /**
      * Remove an agent from the level
      * Usage: when assuming responsibility of agent from the level
      * @param agent
@@ -432,7 +515,6 @@ public abstract class LevelService {
             throw new AssertionError("Cannot remove non-existing agent");
         objectPositions.remove(agent.getLabel());
         level.setBoardObjectPositions(objectPositions);
-
 
         // remove agent from level.agents
         List<Agent> agents = level.getAgents();
@@ -548,4 +630,6 @@ public abstract class LevelService {
                 && level.getBoardState().length > row
                 && level.getBoardState()[0].length > column);
     }
+
+
 }
