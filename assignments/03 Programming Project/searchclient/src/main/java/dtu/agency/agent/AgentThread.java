@@ -82,8 +82,8 @@ public class AgentThread implements Runnable {
             PrimitivePlan plan;
 
 //            plan = test1(event); // use SAD1 level as test environment
-//            plan = sandbox(event); // use SAD1 level as test environment
-            plan = solve(event); // solves all levels (ideally)
+            plan = sandbox(event); // use SAD1 level as test environment
+//            plan = solve(event); // solves all levels (ideally)
 
             System.err.println("Agent " +BDIService.getInstance().getAgent().getLabel()+ ": Using Concrete Plan: " + plan.toString());
 
@@ -130,15 +130,16 @@ public class AgentThread implements Runnable {
 
             HTNPlanner relaxedHTNPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgentsNoBoxes);
             HTNPlanner realHTNPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgents);
+
             /** START DEBUGGER **/
             DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
             boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
             /** START DEBUGGER **/
-
-            PrimitivePlan relaxedPlan = relaxedHTNPlanner.plan();
             /** END DEBUGGER **/
             DebugService.setDebugMode(oldDebugMode);                 // END DEBUGGER MESSAGES
             /** END DEBUGGER **/
+
+            PrimitivePlan relaxedPlan = relaxedHTNPlanner.plan();
             PrimitivePlan realPlan = realHTNPlanner.plan();
 
             PrimitivePlan currentPlan = null;
@@ -228,34 +229,43 @@ public class AgentThread implements Runnable {
         Goal targetGoal = event.getGoal();
         Box targetBox = new Box("A0");
 
-        System.err.println("Hell22o contains l2" + "Hell22o".contains("l2"));
-
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 
-        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,16));
+        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,1));
         HTNPlanner htn1 = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
         PrimitivePlan plan1 = htn1.plan();
-        System.err.println(plan1);
+        System.err.println("Plan 1:\n" + plan1);
         htn1.commit(); // update positions in PlanningLevelService pls
 
-        System.err.println("pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+        System.err.println("after plan 1 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
 
-        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(1,5), pls.getPosition(targetBox));
+        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), pls.getPosition(targetBox));
         HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
+        PrimitivePlan plan2 = htn2.plan();
+        System.err.println("Plan 2:\n" + plan2);
+        htn2.commit();
+
+        System.err.println("after plan 2 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+
+        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
+        HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
+        PrimitivePlan plan3 = htn3.plan();
+        System.err.println("Plan 3:\n" + plan3);
+        htn2.commit();
+
+        System.err.println("after plan 3 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+
+        plan1.appendActions(plan2);
+        plan1.appendActions(plan3);
+        System.err.println(plan1);
 
         /** START DEBUGGER **/
         DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
         boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
         /** START DEBUGGER **/
-        PrimitivePlan plan2 = htn2.plan();
-        System.err.println(plan2);
-        htn2.commit();
         /** END DEBUGGER **/
         DebugService.setDebugMode(oldDebugMode);                 // END DEBUGGER MESSAGES
         /** END DEBUGGER **/
-
-        plan1.appendActions(plan2);
-        System.err.println(plan1);
 
         return plan1;
     }

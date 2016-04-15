@@ -189,23 +189,20 @@ public class HTNState {
             }
 
             if (cell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
-                // TODO : something better - May FAIL IF MORE THAN 10 BOXES WITH SAME LETTER EXIST IN LEVEL
                 if (!objectAtPosition.contains(myBox)){
-                    conflict = true;
+                    if (objectAtPosition.substring(myBox.length(),myBox.length()+1).matches("([0-9])")) {
+                        conflict = true; // char after box label is a digit (should be a goal if it were my own box)
+                    }
                 }
             }
         }
         return conflict;
     }
 
-
-
-
-
-        /**
-         * detects if this state will conflict with a wall
-         * @return
-         */
+    /**
+     * detects if this state will conflict with a wall
+     * @return
+     */
     private boolean wallConflict() {
         boolean conflict = pls.isWall(agentPosition);
         debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
@@ -234,20 +231,6 @@ public class HTNState {
         } else {
 
             switch (action.getType()) {
-
-//                case SolveGoal:
-//                    SolveGoalAction sga = (SolveGoalAction) action;
-//                    MixedPlan sgRefinement = new MixedPlan();
-//                    sgRefinement.addAction(new RGotoAction(
-//                            pls.getPosition(sga.getBox())
-//                    ));
-//                    sgRefinement.addAction(new RMoveBoxAction(
-//                            sga.getBox(),
-//                            pls.getPosition(sga.getGoal())
-//                    ));
-//                    refinements.add(sgRefinement);
-//
-//                    break;
 
                 case RGotoAction:
                     RGotoAction gta = (RGotoAction) action;
@@ -307,7 +290,7 @@ public class HTNState {
                         HMoveBoxAction mbar = (HMoveBoxAction) action;
                         MixedPlan mbarRefinement = new MixedPlan();
 
-                        mbarRefinement.addAction(new RGotoAction( // TODO: PlannerLevelService??
+                        mbarRefinement.addAction(new RGotoAction(
                                 pls.getPosition(mbar.getBox())
                         ) );
                         mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
@@ -437,8 +420,12 @@ public class HTNState {
             switch (abstractAction.getType()) {
 
                 case RGotoAction:
-                    fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination()); // TODO: adjacent is enough?? only if box is null
-                    debug(abstractAction.toString() + " -> agent is" + ((fulfilled) ? " " : " not ") + "adjacent to destination");
+                    if (pls.isFree(action.getAgentDestination())) {
+                        fulfilled = this.getAgentPosition().equals(action.getAgentDestination());
+                    } else {
+                        fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
+                    }
+                    debug(abstractAction.toString() + " -> agent is" + ((fulfilled) ? " " : " not ") + "(adjacent) to destination");
                     break;
 
                 case RMoveBoxAction:
@@ -451,10 +438,11 @@ public class HTNState {
                     break;
 
                 case HMoveBoxAndReturn:
-                    HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) abstractAction);
-                    fulfilled = this.getBoxPosition().equals(mbarAction.getBoxDestination());
-//                     TODO: This does not work!
-//                    fulfilled &= this.getAgentPosition().equals(mbarAction.getAgentDestination());
+//                    HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) abstractAction);
+//                    fulfilled = this.getBoxPosition().equals(mbarAction.getBoxDestination());
+                    fulfilled = this.getBoxPosition().equals(action.getBoxDestination());
+//                     TODO: This does not work! WHY?? - We want the agent to move on (without box) to its destination
+//                    fulfilled &= this.getAgentPosition().equals(action.getAgentDestination());
                     debug(abstractAction.toString() + " -> agent&box is" + ((fulfilled) ? " " : " not ") + "at destinations");
                     break;
 
