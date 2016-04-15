@@ -1,12 +1,10 @@
-package dtu.agency.actions.abstractaction.hlaction;
+package dtu.agency.actions.abstractaction;
 
 import dtu.agency.actions.AbstractAction;
-import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.services.BDIService;
-import dtu.agency.services.LevelService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.io.Serializable;

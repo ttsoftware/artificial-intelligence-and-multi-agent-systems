@@ -1,6 +1,7 @@
 package dtu.agency.planners.htn;
 
 import dtu.Main;
+import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.*;
@@ -25,20 +26,34 @@ public class HTNPlanner {
     private final PlanningLevelService pls;     // LevelService
     private final HTNNode initialNode;          // list of all possible plans to solve the goal
     private final HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
+    private Box targetBox;
+    private Position boxDestination;
+    private Position agentDestination;
 
+    /**
+     * copy constructor
+     * @param other HTNPlanner to be copied
+     */
     public HTNPlanner(HTNPlanner other) {
         this.pls = new PlanningLevelService(other.pls);
         this.initialNode = new HTNNode(other.getInitialNode());
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
         this.originalAction = other.getIntention();
+        this.targetBox = originalAction.getBox();
+        this.boxDestination = originalAction.getBoxDestination();
+        this.agentDestination = other.getAgentDestination();
     }
 
     /**
-    * Constructor: All a planner needs is the the agent and the original action to perform
-    * */
+     * Constructor: All a planner needs is the the agent and the original action to perform
+     * @param pls The agents beliefs before planning
+     * @param originalAction The High Level Action to be planned for
+     * @param mode The Relaxation mode to plan in
+     */
     public HTNPlanner(PlanningLevelService pls, HLAction originalAction, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
         this.originalAction = originalAction;
+        this.targetBox = originalAction.getBox();
         this.pls = pls;
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
         Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
@@ -50,30 +65,36 @@ public class HTNPlanner {
         debug("initial" + initialState.toString());
         debug( ((originalAction ==null) ? "HLAction is null" : originalAction.toString())  );
         this.initialNode = new HTNNode(initialState, originalAction);
+        this.agentDestination = null;
         debug(initialNode.toString(),-2);
     }
 
-
-    public HTNPlanner(PlanningLevelService pls, SolveGoalAction originalAction, RelaxationMode mode) {
+    /**
+     * Constructor:
+     * @param pls The agents beliefs before planning
+     * @param solveGoalAction an overall solvegoal action
+     * @param mode the Relaxation mode to plan in
+     */
+    public HTNPlanner(PlanningLevelService pls, SolveGoalAction solveGoalAction, RelaxationMode mode) {
         debug("HTN Planner initializing:",2);
-        System.err.println(originalAction);
-        System.err.println(originalAction.toString());
         this.originalAction = new HMoveBoxAction(
-                originalAction.getBox(),
-                originalAction.getBoxDestination(),
-                originalAction.getAgentDestination(pls)
+                solveGoalAction.getBox(),
+                solveGoalAction.getBoxDestination(),
+                solveGoalAction.getAgentDestination(pls)
         );
+        this.targetBox = solveGoalAction.getBox();
         this.pls = pls;
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(Main.heuristicMeasure);
         Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
         Position boxPosition = agentPosition;
-        if (originalAction.getBox()!=null) {
-            boxPosition = pls.getPosition(originalAction.getBox());
+        if (solveGoalAction.getBox()!=null) {
+            boxPosition = pls.getPosition(solveGoalAction.getBox());
         }
         HTNState initialState = new HTNState( agentPosition, boxPosition, pls, mode );
         debug("initial" + initialState.toString());
-        debug( ((originalAction ==null) ? "HLAction is null" : originalAction.toString())  );
+        debug( ((solveGoalAction ==null) ? "HLAction is null" : solveGoalAction.toString())  );
         this.initialNode = new HTNNode(initialState, this.originalAction);
+        this.agentDestination = null;
         debug(initialNode.toString(),-2);
     }
 
@@ -105,23 +126,23 @@ public class HTNPlanner {
         return aStarHTNNodeComparator.h( initialNode );
     }
 
+
     /**
      * Finds the concrete plan (provided an (initial) node)
      * This is the actual graph building phase in HTNPlanner
      */
     public PrimitivePlan plan() {
-        debug("HTNPlanner.plan():",2);originalAction.getBoxDestination();
+        debug("HTNPlanner.plan():",2);
+
         debug("initial" + initialNode.toString());
 
         // update PlanningLevelService, assuming responsibility over agent and current box
         Position agentOrigin = pls.getAgentPosition();
         pls.removeAgent(BDIService.getInstance().getAgent());
+        Box oldPLSTargetBox = pls.getCurrentBox();
         if (originalAction.getBox()!=null) {
             pls.setCurrentBox(originalAction.getBox());
-//            boxOrigin = pls.getPosition(originalAction.getBox());
-//            pls.removeBox(originalAction.getBox());
         }
-//        System.err.println("htn planning: box:" +originalAction.getBox()+ " " + boxOrigin);
 
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
@@ -141,9 +162,7 @@ public class HTNPlanner {
                 // Failing, return responsibility of agent and box to pls.
                 System.err.println("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 pls.insertAgent(BDIService.getInstance().getAgent(), agentOrigin);
-//                if (originalAction.getBox()!=null) { // reinsert box at its original position
-//                    pls.insertBox(originalAction.getBox(), boxOrigin);
-//                }
+                pls.setCurrentBox(oldPLSTargetBox);
                 return null;
             }
 
@@ -177,19 +196,22 @@ public class HTNPlanner {
 
             if (leafNode.getState().isPurposeFulfilled( getIntention() )) {
                 debug(strategy.status(), -2);
-                Position pa = leafNode.getState().getAgentPosition();
-                Position pb = leafNode.getState().getBoxPosition();
-                String s = "sucess, inserting agent and box into pls\n";
-                s += "Agent:" + pa + " Box:" + pb;
-                s += "\nAt positions:" + pls.getLevel().getBoardObjects()[pa.getRow()][pa.getColumn()];
-                s += pls.getLevel().getBoardObjects()[pb.getRow()][pb.getColumn()];
-                System.err.println(s);
+                if (DebugService.inDebugMode()) { // all debugging information
+                    Position pa = leafNode.getState().getAgentPosition();
+                    Position pb = leafNode.getState().getBoxPosition();
+                    String s = "HTNPlanner.plan() sucess, inserting agent and box into pls\n";
+                    s += "Agent:" + pa + " Box:" + pb;
+                    s += "\nAt positions:" + pls.getLevel().getBoardObjects()[pa.getRow()][pa.getColumn()];
+                    s += pls.getLevel().getBoardObjects()[pb.getRow()][pb.getColumn()];
+                    debug(s);
+                }
                 // Succeeding, return responsibility of agent and box to pls.
                 if (originalAction.getBox()!=null) {
-                    pls.removeBox(originalAction.getBox());
-                    pls.insertBox(originalAction.getBox(), leafNode.getState().getBoxPosition());
+                    pls.setCurrentBox(oldPLSTargetBox);
+                    assert (boxDestination == leafNode.getState().getBoxPosition());
                 }
-                pls.insertAgent(BDIService.getInstance().getAgent(), leafNode.getState().getAgentPosition());
+                agentDestination = leafNode.getState().getAgentPosition();
+                pls.insertAgent(BDIService.getInstance().getAgent(), agentOrigin);
                 return leafNode.extractPlan();
             }
 
@@ -214,5 +236,31 @@ public class HTNPlanner {
         return s;
     }
 
+    public boolean hasPlanned() {
+        return (agentDestination != null);
+    }
+
+    /**
+     * commits the effect of this plan to the pls (PlanningLevelService) of this HTNPlanner
+     */
+    public void commit(){
+        debug("commit htnplan into pls:", 2);
+        Agent agent = BDIService.getInstance().getAgent();
+        Box targetBox = originalAction.getBox();
+        Position boxDestination = originalAction.getBoxDestination();
+
+        debug("inserting agent into position " + agentDestination.toString());
+        pls.removeAgent(agent);
+        if (targetBox!=null) {
+            pls.removeBox(targetBox);
+            pls.insertBox(targetBox, boxDestination);
+        }
+        pls.insertAgent(agent, agentDestination);
+        debug("committed", -2);
+    }
+
+    public Position getAgentDestination() {
+        return agentDestination;
+    }
 }
 

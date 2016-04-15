@@ -3,6 +3,7 @@ package dtu.agency.planners.htn;
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
+import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
@@ -443,7 +444,7 @@ public class HTNState {
                     break;
 
                 case RMoveBoxAction:
-                    fulfilled = (this.getBoxPosition().equals(action.getAgentDestination()));
+                    fulfilled = (this.getBoxPosition().equals(action.getBoxDestination()));
                     debug(abstractAction.toString() + " -> box is" + ((fulfilled) ? " " : " not ") + "at destination");
                     break;
 

@@ -1,7 +1,7 @@
 package dtu.agency.agent.bdi;
 
 import dtu.agency.actions.abstractaction.actioncomparators.SolveGoalActionComparator;
-import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
+import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 
@@ -22,6 +22,10 @@ public class Ideas extends Desire<SolveGoalAction> { // everything the agent mig
     public Ideas(Ideas ideas) {
         super(ideas.getGoal());
         this.ideas = new PriorityQueue<>( new SolveGoalActionComparator( ideas.getAgentOrigin() ) );
+    }
+
+    public PriorityQueue<SolveGoalAction> getIdeas() {
+        return ideas;
     }
 
     public Position getAgentOrigin() {

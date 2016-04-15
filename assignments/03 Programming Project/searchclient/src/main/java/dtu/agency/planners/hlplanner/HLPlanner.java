@@ -1,15 +1,12 @@
 package dtu.agency.planners.hlplanner;
 
 import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
-import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
-import dtu.agency.board.Box;
-import dtu.agency.board.Level;
+import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.planners.htn.RelaxationMode;
-import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 

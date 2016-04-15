@@ -1,19 +1,19 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.SolveGoalAction;
+import dtu.agency.actions.abstractaction.SolveGoalAction;
+import dtu.agency.actions.concreteaction.Direction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.agent.bdi.Ideas;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.Mind;
-import dtu.agency.planners.hlplanner.HLPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.RelaxationMode;
-import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
@@ -41,7 +41,7 @@ public class AgentThread implements Runnable {
         // calculate positions of self + boxes, when current plans are executed
         // this as basis on bidding on the next
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
-        // TODO: important step - update the planning level service to
+        // TODO: important step - update the planning level service to match state after current plans are executed
         // pls.calculateStateAfterCurrentPlansHasBeenExecuted();
 
         Mind mind = new Mind(goal, pls);
@@ -54,9 +54,15 @@ public class AgentThread implements Runnable {
         int remainingSteps = 0; // NOT 0, unless no plan awaits execution
         int totalSteps = approximatedSteps + remainingSteps;
 
-        System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(totalSteps));
+        System.err.println(Thread.currentThread().getName()
+                + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                + ": received a goaloffer " + goal.getLabel()
+                + " event and returned: " + Integer.toString(totalSteps));
 
-        EventBusService.getEventBus().post(new GoalEstimationEvent(BDIService.getInstance().getAgent().getLabel(), totalSteps));
+        EventBusService.getEventBus().post(new GoalEstimationEvent(
+                BDIService.getInstance().getAgent().getLabel(),
+                totalSteps)
+        );
     }
 
     /**
@@ -68,72 +74,17 @@ public class AgentThread implements Runnable {
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
         if (event.getAgentLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
             // We won the bid for this goal!
-            Goal target = event.getGoal();
-
             System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
-            // Find the Ideas produced at bidding round for this goal
-            Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
-            SolveGoalAction bestIdea = ideas.getBest();
+            PrimitivePlan plan;
 
-//            System.err.println("Ideas retrieved at solution round: "+ideas.toString());
-            // update the meaning of this agent's life
-            BDIService.getInstance().addMeaningOfLife(target);
+//            plan = test1(event); // use SAD1 level as test environment
+            plan = solve(event); // solves all levels (ideally)
 
-            // Desire 1:  Find if possible a low level plan, and consider it a possible solution
-            // TODO: Important to plan with NO relaxations here!!!!
-            PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
-
-//            boolean oldDebugMode = DebugService.setDebugMode(true);
-            HTNPlanner htnPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgentsNoBoxes);
-//            DebugService.setDebugMode(oldDebugMode);
-
-            PrimitivePlan plan = htnPlanner.plan();
-            if (plan != null) {
-                System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + plan.toString());
-            } else {
-                System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Did not find a Concrete Plan.");
-            }
-
-            // start a new high level planning phase
-            // Desire 2:  Find a high level plan, and add to desires
-//            PlanningLevelService pls1 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
-//            HLPlanner planner = new HLPlanner(bestIdea, pls1);
-//            boolean oldDebugMode = DebugService.setDebugMode(true);
-//            HLPlan hlPlan = planner.plan();
-//            DebugService.setDebugMode(oldDebugMode);
-//            if (hlPlan!=null) {
-//                System.err.println("Agent " +BDIService.getInstance().getAgent().getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
-//                BDIService.getInstance().getCurrentIntention().setHighLevelPlan(hlPlan);
-//            }
+            System.err.println("Agent " +BDIService.getInstance().getAgent().getLabel()+ ": Using Concrete Plan: " + plan.toString());
 
             /*
-            // Compare the length of the plans, and choose the shorter,
-            // (and evolve) and return it
-            if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.approximateSteps() <= llPlan.size()+5) ) {
-                // go with HLAction
-                System.err.println("Deriving concrete plan from HL plan..");
-                // create total primitive plan from High level actions
-                HLAction action;
-                llPlan = new PrimitivePlan();
-                while (!hlPlan.isEmpty()) {
-                    action = hlPlan.poll();
-                    htnPlanner = new HTNPlanner(agent, action, RelaxationMode.NoAgentsNoBoxes);
-                    // TODO: NEED a correct implementation using BDILevelService
-                    // TODO: replacing GlobalLevelService.
-                    htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
-                    // tools for enable/disable debug printing mode
-                    PrimitivePlan plan = htnPlanner.plan();
-//                    boolean oldDebugMode = DebugService.setDebugMode(true);
-//                    DebugService.setDebugMode(oldDebugMode);
-                    llPlan.appendActions(plan);
-                }
-            }
-            // else go with PrimitivePlan already discovered
-
-            // store the resulting plans and states in BDIService.getInstance() after planning..
-
-            System.err.println("Agent " +agent.getLabel()+ ": Using Concrete Plan: " + llPlan.toString());
+            // TODO going from BDI v.3 --> BDI v.4 (REACTIVE AGENT)
             // are we gonna submit the entire primitivePlan to the agency at once??
             // maybe it is better to divide the sending of plans into smaller packages,
             // e.g. solving separate intentions as GotoBox, MoveBox, etc.
@@ -143,5 +94,123 @@ public class AgentThread implements Runnable {
 
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), plan)); // execute plan
         }
+
     }
+
+    /**
+     * This method tries to solve the level as best as possible at current state
+     * @param event
+     * @return
+     */
+    private PrimitivePlan solve(GoalAssignmentEvent event) {
+        System.err.println("SOLVER is running - all levels should (ideally) be solved by this");
+        Goal target = event.getGoal();
+        Agent agent = BDIService.getInstance().getAgent();
+
+
+        // Find the Ideas produced at bidding round for this goal
+        Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
+        System.err.println("Ideas retrieved at solution round: "+ideas.toString());
+
+        // update the meaning of this agent's life
+        BDIService.getInstance().addMeaningOfLife(target);
+
+
+        // Desire:  Find if possible a low level plan, and consider it a possible solution
+        PrimitivePlan bestPlan = null;
+
+        while (ideas.peekBest() != null) {
+            SolveGoalAction bestIdea = ideas.getBest();
+
+            PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+
+            HTNPlanner relaxedHTNPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgentsNoBoxes);
+            HTNPlanner realHTNPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgents);
+            /** START DEBUGGER **/
+            DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
+            boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
+            /** START DEBUGGER **/
+
+            PrimitivePlan relaxedPlan = relaxedHTNPlanner.plan();
+            /** END DEBUGGER **/
+            DebugService.setDebugMode(oldDebugMode);                 // END DEBUGGER MESSAGES
+            /** END DEBUGGER **/
+            PrimitivePlan realPlan = realHTNPlanner.plan();
+
+            PrimitivePlan currentPlan = null;
+
+            if (realPlan!=null && relaxedPlan!=null){        // both plans are valid
+                currentPlan = realPlan;                      // set real plan but do hlplanning
+            } else if (relaxedPlan!=null) { // relaxed plan is usable and
+                if (currentPlan!=null && realPlan.size() <= relaxedPlan.size()) { // use the shorter one
+                    realHTNPlanner.commit();
+                } else {
+                    // TODO: Do high level planning (instead??)
+                    System.err.println("Implement HL Planning here");
+                    /*
+                    // create a HLPlan
+                    HLPlanner planner = new HLPlanner(bestIdea, pls1);
+                    HLPlan hlPlan = planner.plan();
+
+                    // checkout the resulting HLPlan
+                    if (hlPlan!=null) {
+                        System.err.println("Agent " + agent.getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
+                        BDIService.getInstance().getCurrentIntention().setHighLevelPlan(hlPlan);
+                    }
+
+                    // Compare the length of the plans, and choose the shorter, (and evolve) and return it
+
+                    if (realPlan != null && realPlan.size() < hlPlan.estimate()) {
+                        commit to realPlan
+                    } else {
+                        // evolve hlPlan to primitive plan
+                        // OR
+                        // store hlPlan along with its best estimate
+                    }
+                    */
+
+                }
+            } else { // the relaxed plan is null - the box /goal combination is unreachable
+                System.err.println("skip this idea - the box/goal combination is unreachable");
+            }
+
+            // update the best plan
+            if (bestPlan == null &&  currentPlan != null) {
+                bestPlan = currentPlan;
+            } else if (currentPlan != null && currentPlan.size() < bestPlan.size()) {
+                bestPlan = currentPlan;
+            }
+        }
+
+        // Check the result of this planning phase
+        if (bestPlan != null) {
+            System.err.println("Agent " + agent.getLabel() + ": Found Concrete Plan: " + bestPlan.toString());
+        } else {
+            System.err.println("Agent " + agent.getLabel() + ": Did not find a Concrete Plan.");
+            bestPlan = new PrimitivePlan();
+        }
+
+        // TODO: store the resulting plans and states in BDIService.getInstance() after planning..??
+
+        return bestPlan;
+    }
+
+    /**
+     * This method is more or less a training/test method
+     * For testing purposes, like what happens if i simply task the agent with going 3 steps north...
+     * @param event
+     * @return
+     */
+    private PrimitivePlan test1(GoalAssignmentEvent event) {
+        System.err.println("TEST 1 is running - make sure that the level is SAD1");
+        Goal target = event.getGoal();
+
+        PrimitivePlan plan = new PrimitivePlan();
+        plan.addAction(new MoveConcreteAction(Direction.EAST));
+        plan.addAction(new MoveConcreteAction(Direction.EAST));
+        plan.addAction(new MoveConcreteAction(Direction.EAST));
+        plan.addAction(new MoveConcreteAction(Direction.EAST));
+        return plan;
+    }
+
 }
