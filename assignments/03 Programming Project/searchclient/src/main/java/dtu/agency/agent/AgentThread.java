@@ -229,6 +229,11 @@ public class AgentThread implements Runnable {
         Goal targetGoal = event.getGoal();
         Box targetBox = new Box("A0");
 
+        /** START DEBUGGER **/
+        DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
+        boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
+        /** START DEBUGGER **/
+
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 
         HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,1));
@@ -239,30 +244,26 @@ public class AgentThread implements Runnable {
 
         System.err.println("after plan 1 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
 
-        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), pls.getPosition(targetBox));
-        HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
-        PrimitivePlan plan2 = htn2.plan();
-        System.err.println("Plan 2:\n" + plan2);
-        htn2.commit();
-
-        System.err.println("after plan 2 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
-
-        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
-        HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
-        PrimitivePlan plan3 = htn3.plan();
-        System.err.println("Plan 3:\n" + plan3);
-        htn2.commit();
-
-        System.err.println("after plan 3 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
-
-        plan1.appendActions(plan2);
-        plan1.appendActions(plan3);
+//        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), pls.getPosition(targetBox));
+//        HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
+//        PrimitivePlan plan2 = htn2.plan();
+//        System.err.println("Plan 2:\n" + plan2);
+//        htn2.commit();
+//
+//        System.err.println("after plan 2 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+//
+//        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
+//        HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
+//        PrimitivePlan plan3 = htn3.plan();
+//        System.err.println("Plan 3:\n" + plan3);
+//        htn2.commit();
+//
+//        System.err.println("after plan 3 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+//
+//        plan1.appendActions(plan2);
+//        plan1.appendActions(plan3);
         System.err.println(plan1);
 
-        /** START DEBUGGER **/
-        DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
-        boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
-        /** START DEBUGGER **/
         /** END DEBUGGER **/
         DebugService.setDebugMode(oldDebugMode);                 // END DEBUGGER MESSAGES
         /** END DEBUGGER **/

@@ -425,12 +425,24 @@ public class HTNState {
                     } else {
                         fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
                     }
+                    debug(action + " is checked @" + this + " cell is free: "+pls.isFree(action.getAgentDestination())+" and result is: " +fulfilled,20);
+                    debug("",-20);
                     debug(abstractAction.toString() + " -> agent is" + ((fulfilled) ? " " : " not ") + "(adjacent) to destination");
+                    if (fulfilled) {
+                        debug(action + " is Fulfilled @" + this,20);
+                        debug("",-20);
+                    }
                     break;
 
                 case RMoveBoxAction:
                     fulfilled = (this.getBoxPosition().equals(action.getBoxDestination()));
+                    debug(action + " is checked @" + this + " - result is: " +fulfilled,20);
+                    debug("",-20);
                     debug(abstractAction.toString() + " -> box is" + ((fulfilled) ? " " : " not ") + "at destination");
+                    if (fulfilled) {
+                        debug(action + " is Fulfilled @" + this,20);
+                        debug("",-20);
+                    }
                     break;
 
                 case No:
@@ -442,8 +454,12 @@ public class HTNState {
 //                    fulfilled = this.getBoxPosition().equals(mbarAction.getBoxDestination());
                     fulfilled = this.getBoxPosition().equals(action.getBoxDestination());
 //                     TODO: This does not work! WHY?? - We want the agent to move on (without box) to its destination
-//                    fulfilled &= this.getAgentPosition().equals(action.getAgentDestination());
+                    fulfilled &= this.getAgentPosition().equals(action.getAgentDestination());
                     debug(abstractAction.toString() + " -> agent&box is" + ((fulfilled) ? " " : " not ") + "at destinations");
+                    if (fulfilled) {
+                        debug(action + " is Fulfilled @" + this,20);
+                        debug("",-20);
+                    }
                     break;
 
                 default:
