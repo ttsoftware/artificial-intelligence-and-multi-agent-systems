@@ -18,6 +18,13 @@ public class HMoveBoxAction extends HLAction implements Serializable {
     private final Position boxDestination;
     private final Position agentDestination;
 
+    /**
+     *
+     * @param box The box to be moved
+     * @param boxDestination The destination of the box
+     * @param agentDestination The destination of the agent
+     * @throws AssertionError
+     */
     public HMoveBoxAction(Box box, Position boxDestination, Position agentDestination) throws AssertionError {
         this.box = box;
         this.boxDestination = boxDestination;
@@ -27,6 +34,10 @@ public class HMoveBoxAction extends HLAction implements Serializable {
         }
     }
 
+    /**
+     * copy constructor
+     * @param other The other HMoveBoxAction to be deep copied
+     */
     public HMoveBoxAction(HMoveBoxAction other) {
         this.box = new Box(other.getBox());
         this.boxDestination = new Position(other.getBoxDestination());

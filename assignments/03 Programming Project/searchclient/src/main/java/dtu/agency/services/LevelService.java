@@ -348,6 +348,7 @@ public abstract class LevelService {
     }
 
     public synchronized String getObjectLabels(Position pos) {
+        debug("getObject:");
         return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
     }
 
@@ -369,9 +370,8 @@ public abstract class LevelService {
         int row = position.getRow();
         int column = position.getColumn();
 
-        BoardCell[][] boardState = level.getBoardState();
-
         // update level.boardState
+        BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
         assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
         switch (cell) {       // update the cell where the agent is now located
@@ -384,22 +384,27 @@ public abstract class LevelService {
             default:
                 throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
         }
-        // update the level objects
         level.setBoardState(boardState);
 
-        // insert agent into level.boardObjectPositions
+        // insert box into level.boardObjectPositions
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
         if (objectPositions.get(box.getLabel()) != null)
             throw new AssertionError("Expected the box NOT to exist in the level");
         objectPositions.put(box.getLabel(), new Position(row, column));
         level.setBoardObjectPositions(objectPositions);
 
-        // insert agent into level.agents
+        // insert box into level.agents
         List<Box> boxes = level.getBoxes();
         if (boxes.contains(box))
             throw new AssertionError("Box should not exist in level before adding it");
         boxes.add(box);
         level.setBoxes(boxes);
+
+        // insert box into level.boardobjects
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = box;
+        level.setBoardObjects(boardObjects);
+
     }
 
     /**
@@ -449,6 +454,11 @@ public abstract class LevelService {
         agents.add(agent);
         level.setAgents(agents);
         debug("Agent inserted into level.agents",-2);
+
+        // insert agent into level.boardobjects
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = agent;
+        level.setBoardObjects(boardObjects);
     }
 
     /**
@@ -487,12 +497,23 @@ public abstract class LevelService {
         debug("Box removed from level.boardObjectPositions");
 
         // remove box from level.boxes
-        List<Box> boxes = level.getBoxes();
+        ArrayList<Box> boxes = new ArrayList<>(level.getBoxes());
+//        debug("Boxes in level: " + boxes.toString(),20);
+//        debug("Box to be removed: " + box);
+//        debug("Boxes contains box? " + boxes.contains(box));
+//        debug("Boxes[0] equals box? " + boxes.get(0).equals(box));
+//        debug("",-20);
         if (!boxes.contains(box))
             throw new AssertionError("Box should exist in level before removing it");
         boxes.remove(box);
         level.setBoxes(boxes);
-        debug("Box removed from (planning) level.boxes",-2);
+        debug("Box removed from (planning) level.boxes");
+
+        // remove box from level.boardobjects
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = null;
+        level.setBoardObjects(boardObjects);
+        debug("Box removed from level.boardobjects",-2);
     }
 
     /**
@@ -537,7 +558,14 @@ public abstract class LevelService {
             throw new AssertionError("Agent should exist in level before removing it");
         agents.remove(agent);
         level.setAgents(agents);
-        debug("Agent removed from Level.Agents",-2);
+        debug("Agent removed from Level.Agents");
+
+        // remove agent from level.boardobjects
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = null;
+        level.setBoardObjects(boardObjects);
+        debug("Agent removed from level.boardobjects",-2);
+
     }
 
     /**

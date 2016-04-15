@@ -86,14 +86,15 @@ public class HTNState {
         debug("box and agent position are not identical:" + Boolean.toString(legal) );
 
         legal &= (!wallConflict());
-        if (!legal) { // save the computations
+        if (!legal) { // spare the computations
             debug("",-2);
             return legal;
         }
         switch (relaxationMode) { // walls are considered already
 
             case None:            // consider agents + boxes + walls
-                legal &= (!agentOrBoxConflict());
+                legal &= (!boxConflict());
+                legal &= (!agentConflict());
                 break;
 
             case NoAgents:        // Boxes and Walls are considered
@@ -112,65 +113,44 @@ public class HTNState {
         return legal;
     }
 
+
     /**
-     * Detects if this state will conflict with another box OR agent
+     * Detects if this state will conflict with another agent
      * @return
      */
-    private boolean agentOrBoxConflict() {
+    private boolean agentConflict() {
         boolean conflict = false;
-        String myBox = pls.getCurrentBox().getLabel();
+        debug("agentConflict",2);
+        debug("AgentPosition: "+agentPosition);
+        conflict |= agentConflict(agentPosition);
+        debug("BoxPosition: "+boxPosition);
+        conflict |= agentConflict(boxPosition);
+        debug("",-2);
+        return conflict;
+    }
+
+    private boolean agentConflict(Position pos) {
+        boolean conflict = false;
         String myAgent = BDIService.getInstance().getAgent().getLabel();
-        Position a = agentPosition;
-        Position b = boxPosition;
-        int ar = a.getRow(); int ac = a.getColumn();
-        int br = b.getRow(); int bc = b.getColumn();
 
-        if (!pls.isFree(agentPosition)) {
-            BoardCell acell = pls.getLevel().getBoardState()[ar][ac];
-            BoardCell bcell = pls.getLevel().getBoardState()[br][bc];
+        if (!pls.isFree(pos)) {
+            BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
+            debug("status: " + cell);
 
-            String objectAtAgentPosition = pls.getObjectLabels(agentPosition);
-            debug("Agent position " + agentPosition.toString() + " is same as something else labelled: " + objectAtAgentPosition);
+            String objectAtPosition = pls.getObjectLabels(pos);
+            debug("agentConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
 
-            if (acell == BoardCell.AGENT || acell == BoardCell.BOX) { // potential conflict1
-                if (!(objectAtAgentPosition.equals(myBox)) || (objectAtAgentPosition.equals(myAgent))) { // not myself !
-                    conflict = true; // conflict !
-                }
-            }
-
-            if (bcell == BoardCell.AGENT || acell == BoardCell.BOX) { // potential conflict1
-                if (!(objectAtAgentPosition.equals(myBox)) || (objectAtAgentPosition.equals(myAgent))) { // not myself !
-                    conflict = true; // conflict !
-                }
-            }
-
-            if (acell == BoardCell.AGENT_GOAL) { // potential conflict - compare only to agent
-                if (!objectAtAgentPosition.substring(0,1).equals(myAgent)) {
+            if (cell == BoardCell.AGENT) {
+                if (!(objectAtPosition.equals(myAgent))) { // not myself !
                     conflict = true;
                 }
             }
 
-            if (bcell == BoardCell.AGENT_GOAL) { // potential conflict - compare only to agent
-                if (!objectAtAgentPosition.substring(0,1).equals(myAgent)) {
+            if (cell == BoardCell.AGENT_GOAL) {
+                if (!objectAtPosition.substring(0,1).equals(myAgent)){ // not myself !
                     conflict = true;
                 }
             }
-
-            if (acell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
-                // TODO : something better FAILS IF MORE THAN 10 BOXES WITH SAME LETTER EXIST IN LEVEL
-                if (!objectAtAgentPosition.substring(0,2).equals(myBox)){
-                    conflict = true;
-                }
-            }
-
-            if (bcell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
-                // TODO : something better FAILS IF MORE THAN 10 BOXES WITH SAME LETTER EXIST IN LEVEL
-                if (!objectAtAgentPosition.substring(0,2).equals(myBox)){
-                    conflict = true;
-                }
-            }
-
-            debug("Which is a conflict: " + Boolean.toString(conflict));
         }
         return conflict;
     }
@@ -181,33 +161,51 @@ public class HTNState {
      */
     private boolean boxConflict() {
         boolean conflict = false;
+        debug("boxConflict",2);
+        debug("AgentPosition: "+agentPosition);
+        conflict |= boxConflict(agentPosition);
+        debug("BoxPosition: "+boxPosition);
+        conflict |= boxConflict(boxPosition);
+        debug("",-2);
+        return conflict;
+    }
+
+    private boolean boxConflict(Position pos){
+        boolean conflict = false;
         String myBox = pls.getCurrentBox().getLabel();
+        int ar = pos.getRow(); int ac = pos.getColumn();
 
-        if (!pls.isFree(agentPosition)){
-            String objectAtAgentPosition = pls.getObjectLabels(agentPosition);
-            if (!objectAtAgentPosition.equals(myBox)) { // not myself !
-                conflict = true; // conflict !
-                debug("Agent position "+agentPosition.toString()+" is same as a other box:" + Boolean.toString(conflict) );
-                debug("My box: "+myBox+" | pls box: " + objectAtAgentPosition );
-            }
-        }
+        if (!pls.isFree(pos) ) {
+            BoardCell cell = pls.getLevel().getBoardState()[ar][ac];
+            debug("status: " + cell);
 
-        if (boxPosition!=null) {
-            if (!pls.isFree(boxPosition)) {
-                String objectAtBoxPosition = pls.getObjectLabels(boxPosition);
-                if (!objectAtBoxPosition.equals(myBox)) { // not myself !
+            String objectAtPosition = pls.getObjectLabels(pos);
+            debug("boxConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
+
+            if (cell == BoardCell.BOX ) { // potential conflict1
+                if (!(objectAtPosition.equals(myBox))) { // not my own box!
                     conflict = true; // conflict !
-                    debug("Box position "+boxPosition.toString()+" is same as a other box:" + Boolean.toString(conflict) );
+                }
+            }
+
+            if (cell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
+                // TODO : something better - May FAIL IF MORE THAN 10 BOXES WITH SAME LETTER EXIST IN LEVEL
+                if (!objectAtPosition.contains(myBox)){
+                    conflict = true;
                 }
             }
         }
         return conflict;
     }
 
-    /**
-     * detects if this state will conflict with a wall
-     * @return
-     */
+
+
+
+
+        /**
+         * detects if this state will conflict with a wall
+         * @return
+         */
     private boolean wallConflict() {
         boolean conflict = pls.isWall(agentPosition);
         debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );

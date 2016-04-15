@@ -2,11 +2,14 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
+import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Position;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
@@ -79,6 +82,7 @@ public class AgentThread implements Runnable {
             PrimitivePlan plan;
 
 //            plan = test1(event); // use SAD1 level as test environment
+//            plan = sandbox(event); // use SAD1 level as test environment
             plan = solve(event); // solves all levels (ideally)
 
             System.err.println("Agent " +BDIService.getInstance().getAgent().getLabel()+ ": Using Concrete Plan: " + plan.toString());
@@ -195,6 +199,7 @@ public class AgentThread implements Runnable {
         return bestPlan;
     }
 
+
     /**
      * This method is more or less a training/test method
      * For testing purposes, like what happens if i simply task the agent with going 3 steps north...
@@ -212,5 +217,49 @@ public class AgentThread implements Runnable {
         plan.addAction(new MoveConcreteAction(Direction.EAST));
         return plan;
     }
+
+    /**
+     * This method is more or less a training/test method
+     * @param event
+     * @return
+     */
+    private PrimitivePlan sandbox(GoalAssignmentEvent event) {
+        System.err.println("SANDBOX is running - make sure that the level is SAD1");
+        Goal targetGoal = event.getGoal();
+        Box targetBox = new Box("A0");
+
+        System.err.println("Hell22o contains l2" + "Hell22o".contains("l2"));
+
+        PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+
+        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,16));
+        HTNPlanner htn1 = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
+        PrimitivePlan plan1 = htn1.plan();
+        System.err.println(plan1);
+        htn1.commit(); // update positions in PlanningLevelService pls
+
+        System.err.println("pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+
+        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(1,5), pls.getPosition(targetBox));
+        HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
+
+        /** START DEBUGGER **/
+        DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
+        boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
+        /** START DEBUGGER **/
+        PrimitivePlan plan2 = htn2.plan();
+        System.err.println(plan2);
+        htn2.commit();
+        /** END DEBUGGER **/
+        DebugService.setDebugMode(oldDebugMode);                 // END DEBUGGER MESSAGES
+        /** END DEBUGGER **/
+
+        plan1.appendActions(plan2);
+        System.err.println(plan1);
+
+        return plan1;
+    }
+
+
 
 }
