@@ -7,6 +7,7 @@ import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
 
@@ -35,10 +36,10 @@ public abstract class HLAction extends AbstractAction {
 
     /**
      *
-     * @param agentOrigin The initial position of the agent before performing this action
+     * @param pls The PlanningLevelService supporting these operations
      * @return the approximated number of steps this HLAction is going to take
      */
-    public abstract int approximateSteps(Position agentOrigin);
+    public abstract int approximateSteps(PlanningLevelService pls);
 
     /**
      * Creates an empty refinement of known signature,

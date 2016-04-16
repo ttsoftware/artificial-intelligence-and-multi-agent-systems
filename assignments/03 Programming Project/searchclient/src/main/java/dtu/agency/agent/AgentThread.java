@@ -230,13 +230,13 @@ public class AgentThread implements Runnable {
         Box targetBox = new Box("A0");
 
         /** START DEBUGGER **/
-        DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // Decide amount of debugging statements printed
+        DebugService.setDebugLevel(DebugService.DebugLevel.HIGH); // Decide amount of debugging statements printed
         boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
         /** START DEBUGGER **/
 
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 
-        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,1));
+        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,14));
         HTNPlanner htn1 = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
         PrimitivePlan plan1 = htn1.plan();
         System.err.println("Plan 1:\n" + plan1);
@@ -244,11 +244,11 @@ public class AgentThread implements Runnable {
 
         System.err.println("after plan 1 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
 
-//        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), pls.getPosition(targetBox));
-//        HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
-//        PrimitivePlan plan2 = htn2.plan();
-//        System.err.println("Plan 2:\n" + plan2);
-//        htn2.commit();
+        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), new Position(1,16));
+        HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
+        PrimitivePlan plan2 = htn2.plan();
+        System.err.println("Plan 2:\n" + plan2);
+        htn2.commit();
 //
 //        System.err.println("after plan 2 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
 //
@@ -260,7 +260,7 @@ public class AgentThread implements Runnable {
 //
 //        System.err.println("after plan 3 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
 //
-//        plan1.appendActions(plan2);
+        plan1.appendActions(plan2);
 //        plan1.appendActions(plan3);
         System.err.println(plan1);
 

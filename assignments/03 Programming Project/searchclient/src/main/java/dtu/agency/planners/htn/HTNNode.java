@@ -9,9 +9,11 @@ import dtu.agency.actions.concreteaction.*;
 import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
 import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
 import dtu.agency.planners.plans.MixedPlan;
+import dtu.agency.planners.plans.Plan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,7 @@ public class HTNNode {
     private final HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
     private final MixedPlan remainingPlan;         // list of successive (abstract) actions
     private final int generation;                  // generation - how many ancestors exist? -> how many moves have i performed
+    private final HTNNodeComparator nodeComparator;
 
     // Copy constructor
     public HTNNode(HTNNode other){
@@ -41,35 +44,45 @@ public class HTNNode {
         this.concreteAction = other.getConcreteAction();
         this.state = new HTNState(other.getState());
         this.remainingPlan = new MixedPlan(other.remainingPlan);
+        this.nodeComparator = other.nodeComparator;
     }
 
     public HTNNode(HTNNode parent, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
+        assert (parent != null);
         this.parent = parent;
         this.concreteAction = concreteAction;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
-        if (parent == null) {
-            this.generation = 0;
-        } else {
-            this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
-        }
+        this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
+        this.nodeComparator = parent.nodeComparator;
     }
 
-    public HTNNode(HTNState initialEffects, MixedPlan highLevelPlan) {
+    public HTNNode(PlanningLevelService pls, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
+        this.parent = null;
+        this.concreteAction = concreteAction;
+        this.state = initialEffects;
+        this.remainingPlan = highLevelPlan;
+        this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? 0 : 1 ;
+        this.nodeComparator = parent.nodeComparator;
+    }
+
+    public HTNNode(HTNState initialEffects, MixedPlan highLevelPlan, PlanningLevelService pls) {
         this.parent = null;
         this.concreteAction = null;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
         this.generation = 0;
+        this.nodeComparator = new AStarHTNNodeComparator(pls);
     }
 
-    public HTNNode(HTNState initialEffects, HLAction highLevelAction) {
+    public HTNNode(HTNState initialEffects, HLAction highLevelAction, PlanningLevelService pls) {
         this.parent = null;
         this.concreteAction = null;
         this.state = initialEffects;
         this.remainingPlan = new MixedPlan();
         this.remainingPlan.addAction(highLevelAction);
         this.generation = 0;
+        this.nodeComparator = new AStarHTNNodeComparator(pls);
     }
 
     /**
@@ -175,15 +188,6 @@ public class HTNNode {
         HTNState newState = (primitiveConcreteAction ==null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
         if (newState.getBoxPosition()==null) {
             HLAction nextHLA = (HLAction) remainingActions.getFirst();
-//            if (nextHLA.getType() == AbstractActionType.SolveGoal) {
-//                SolveGoalAction sga = (SolveGoalAction) nextHLA;
-//                newState = new HTNState(
-//                        newState.getAgentPosition(),
-//                        GlobalLevelService.getInstance().getPosition(sga.getBox()), // TODO: GlobalLevelService
-//                        oldState.getPlanningLevelService(),
-//                        oldState.getRelaxationMode()
-//                );
-//            }
         }
         primitiveConcreteAction = (primitiveConcreteAction ==null) ? new NoConcreteAction() : primitiveConcreteAction;
         return new HTNNode(this, primitiveConcreteAction, newState, remainingActions);
@@ -212,8 +216,7 @@ public class HTNNode {
      */
     public HLAction getIntention() {
         HTNNode node = new HTNNode(this);
-        debug(node.toString(//    private RelaxationMode r =  {WALL | NOAGENTS | FULL} // could introduce relaxation levels here in htn node
-));
+        debug(node.toString());
         debug(node.getRemainingPlan().getActions().toString());
         while (!node.isInitialNode()) {
             node = this.parent;
@@ -238,12 +241,12 @@ public class HTNNode {
 
     @Override
     public String toString() {
-        HTNNodeComparator h = new AStarHTNNodeComparator(Main.heuristicMeasure);
-        return "HTNNode: {Generation: " + Integer.toString(this.generation)
-                + ", HTNNodeComparator: " + Integer.toString(h.h(this))
-                + ", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null")
-                + ", State: " + this.state.toString() + ",\n"
-                + "          RemainingActions: " + this.remainingPlan.toString() + "}";
+        String s = "HTNNode: {Generation: " + Integer.toString(this.generation);
+        s += ", HTNNodeComparator: " + Integer.toString(nodeComparator.h(this));
+        s +=  ", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null");
+        s +=  ", State: " + this.state.toString() + ",\n";
+        s +=  "          RemainingActions: " + this.remainingPlan.toString() + "}";
+        return s;
     }
 
 

@@ -39,7 +39,7 @@ public class Mind {
      */
     private Ideas think() {
         debug("think(): ", 2);
-        Ideas ideas = new Ideas(goal, pls.getAgentPosition()); // agent destination is used for heuristic purpose
+        Ideas ideas = new Ideas(goal, pls); // agent destination is used for heuristic purpose
 
         for (Box box : pls.getLevel().getBoxes()) {
             debug(box.getLabel().substring(0,1).toLowerCase() + "=?" + goal.getLabel().toLowerCase().substring(0,1),2);
@@ -67,7 +67,7 @@ public class Mind {
     }
 
     public int getBestApproximateDistance() {
-        return thoughts.peekBest().approximateSteps(pls.getAgentPosition());
+        return thoughts.peekBest().approximateSteps(pls);
     }
 
 }

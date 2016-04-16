@@ -60,11 +60,11 @@ public class HLPlan implements AbstractPlan {
     public int approximateSteps(Position agentOrigin) {
         Position nextOrigin = agentOrigin;
         int approximateSteps = 0;
-
-        for (dtu.agency.actions.abstractaction.hlaction.HLAction action : plan) {
-            approximateSteps += action.approximateSteps(nextOrigin);
-            nextOrigin = action.getAgentDestination();
-        }
+        // TODO: implement this using pls instead
+//        for (dtu.agency.actions.abstractaction.hlaction.HLAction action : plan) {
+//            approximateSteps += action.approximateSteps(nextOrigin);
+//            nextOrigin = action.getAgentDestination();
+//        }
 
         return approximateSteps;
     }

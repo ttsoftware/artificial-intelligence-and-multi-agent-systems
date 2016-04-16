@@ -4,6 +4,7 @@ import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.services.BDIService;
+import dtu.agency.services.PlanningLevelService;
 
 import java.io.Serializable;
 
@@ -75,12 +76,13 @@ public class HMoveBoxAction extends HLAction implements Serializable {
     }
 
     @Override
-    public int approximateSteps(Position agentOrigin) {
+    public int approximateSteps(PlanningLevelService pls) {
         // TODO: Planning level service instead??
-        Position boxCurrentPosition = BDIService.getInstance().getBDILevelService().getPosition(box);
+        Position boxCurrentPosition = pls.getCurrentBoxPosition();
+        Position agentCurrentPosition = pls.getAgentPosition();
 
         int approximation = 0;
-        approximation += agentOrigin.manhattanDist(boxCurrentPosition) -1;
+        approximation += agentCurrentPosition.manhattanDist(boxCurrentPosition) -1;
         approximation += boxCurrentPosition.manhattanDist(boxDestination);
         approximation += boxDestination.manhattanDist(agentDestination);
 

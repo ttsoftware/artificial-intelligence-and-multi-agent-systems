@@ -4,6 +4,7 @@ import dtu.agency.actions.abstractaction.actioncomparators.SolveGoalActionCompar
 import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.PriorityQueue;
 
@@ -11,25 +12,19 @@ public class Ideas extends Desire<SolveGoalAction> { // everything the agent mig
 
     // should one know the initial position of this plan??
     private PriorityQueue<SolveGoalAction> ideas;
-    private Position agentOrigin;
 
-    public Ideas(Goal goal, Position agentOrigin) {
+    public Ideas(Goal goal, PlanningLevelService pls) {
         super(goal);
-        this.agentOrigin = agentOrigin;
-        ideas = new PriorityQueue<>(new SolveGoalActionComparator(agentOrigin));
+        ideas = new PriorityQueue<>(new SolveGoalActionComparator(pls));
     }
 
-    public Ideas(Ideas ideas) {
-        super(ideas.getGoal());
-        this.ideas = new PriorityQueue<>( new SolveGoalActionComparator( ideas.getAgentOrigin() ) );
+    public Ideas(Ideas other) {
+        super(other.getGoal());
+        this.ideas = other.ideas; // TODO: does this even copy??
     }
 
     public PriorityQueue<SolveGoalAction> getIdeas() {
         return ideas;
-    }
-
-    public Position getAgentOrigin() {
-        return agentOrigin;
     }
 
     @Override

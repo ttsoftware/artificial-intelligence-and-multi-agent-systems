@@ -3,16 +3,27 @@ package dtu.agency.actions.abstractaction.rlaction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
+import dtu.agency.services.PlanningLevelService;
 
 public class RGotoAction extends RLAction {
 
     private final Position agentDestination;
+    private final Box boxAtDestination;
 
     public RGotoAction(Position agentDestination) {
+        this.boxAtDestination = null;
         this.agentDestination = agentDestination;
+        if (agentDestination == null) throw new AssertionError("Constructing RGotoAction without destination");
     }
 
+    public RGotoAction(Box box, Position agentDestination) {
+        this.boxAtDestination = box;
+        this.agentDestination = agentDestination;
+        if (agentDestination == null) throw new AssertionError("Constructing RGotoAction without destination");
+        if (box == null) throw new AssertionError("Constructing RGotoAction with null box");}
+
     public RGotoAction(RGotoAction other) {
+        this.boxAtDestination = new Box(other.getBox());
         agentDestination = new Position(other.getAgentDestination());
     }
 
@@ -33,7 +44,7 @@ public class RGotoAction extends RLAction {
 
     @Override
     public Box getBox() {
-        return null;
+        return boxAtDestination;
     }
 
     @Override
@@ -50,8 +61,8 @@ public class RGotoAction extends RLAction {
     }
 
     @Override
-    public int approximateSteps(Position agentOrigin) {
-        return agentOrigin.manhattanDist(agentDestination);
+    public int approximateSteps(PlanningLevelService pls) {
+        return pls.getAgentPosition().manhattanDist(agentDestination);
     }
 
  }

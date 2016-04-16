@@ -14,6 +14,7 @@ import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.BoardCell;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
+import dtu.agency.services.BDILevelService;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
@@ -287,19 +288,20 @@ public class HTNState {
                     break;
 
                 case HMoveBoxAndReturn:
-                        HMoveBoxAction mbar = (HMoveBoxAction) action;
-                        MixedPlan mbarRefinement = new MixedPlan();
+                    HMoveBoxAction mbar = (HMoveBoxAction) action;
+                    debug("mbar refinement mbar.getBox():"+mbar.getBox());
+                    debug("mbar refinement mbar.getAgentDestination():"+mbar.getAgentDestination());
+                    debug("mbar refinement pls.getCurrentBox():"+pls.getCurrentBox());
+                    debug("mbar refinement pls.getCurrentBoxPosition():"+pls.getCurrentBoxPosition());
+                    MixedPlan mbarRefinement = new MixedPlan();
 
-                        mbarRefinement.addAction(new RGotoAction(
-                                pls.getPosition(mbar.getBox())
-                        ) );
-                        mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
-                        mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );
-                        refinements.add(mbarRefinement);
-                        break;
+                    mbarRefinement.addAction(new RGotoAction( pls.getCurrentBox(), pls.getCurrentBoxPosition() ) );
+                    mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
+                    mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );
+                    refinements.add(mbarRefinement);
+                    break;
                 }
             }
-
         debug("refinements: " + refinements.toString(), -2);
         return refinements;
     }
@@ -407,9 +409,9 @@ public class HTNState {
     }
 
     /**
-     * TODO: Checks if the purpose of the current high level action is fulfilled
-     * @param abstractAction
-     * @return boolean
+     * Checks if the purpose of the current high level action is fulfilled
+     * @param abstractAction To be checked for fulfilled purpose
+     * @return boolean True if purpose is fulfilled
      */
     public boolean isPurposeFulfilled(AbstractAction abstractAction) {
         debug("isPurposeFulfilled(" + abstractAction.toString() + "):", 2);
@@ -420,11 +422,38 @@ public class HTNState {
             switch (abstractAction.getType()) {
 
                 case RGotoAction:
-                    if (pls.isFree(action.getAgentDestination())) {
+                    if (action.getBox()==null) {
                         fulfilled = this.getAgentPosition().equals(action.getAgentDestination());
                     } else {
                         fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
                     }
+//                    if (pls.isFree(action.getAgentDestination())) {
+//                        fulfilled = this.getAgentPosition().equals(action.getAgentDestination());
+//                    } else {
+//                        fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
+//                    }
+//                    } else {
+//                        String myAgent = BDIService.getInstance().getAgent().getLabel();
+//                        String myBox = pls.getCurrentBox().getLabel();
+//                        int ar = action.getAgentDestination().getRow();
+//                        int ac = action.getAgentDestination().getColumn();
+//                        BoardCell cell = pls.getLevel().getBoardState()[ar][ac];
+//                        String objectAtPosition = pls.getObjectLabels(action.getAgentDestination());
+//                        if (myAgent) {
+//
+//                        } else if (cell == BoardCell.BOX_GOAL) { // some other box in a goal
+//                            if (objectAtPosition.substring(myBox.length(),myBox.length()+1).matches("([0-9])")) {
+//                                fulfilled |= this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
+//                                // char after box label is a digit (should be a goal if it were my own box)
+//                            } else { // my own box
+//                                // TODO: Problems! Am i returning to a position where it was - decided either would be ok
+//                                fulfilled |= this.getAgentPosition().equals(action.getAgentDestination());
+//                                fulfilled |= this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
+//                            }
+//                        } else {
+//                            fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
+//                        }
+//                    }
                     debug(action + " is checked @" + this + " cell is free: "+pls.isFree(action.getAgentDestination())+" and result is: " +fulfilled,20);
                     debug("",-20);
                     debug(abstractAction.toString() + " -> agent is" + ((fulfilled) ? " " : " not ") + "(adjacent) to destination");

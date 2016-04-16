@@ -2,6 +2,7 @@ package dtu.agency.actions.abstractaction.actioncomparators;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.board.Position;
+import dtu.agency.services.PlanningLevelService;
 
 import java.util.Comparator;
 
@@ -10,15 +11,15 @@ import java.util.Comparator;
  */
 public class HLActionComparator implements Comparator<HLAction> {
 
-    private final Position agentOrigin;
+    private final PlanningLevelService pls;
 
-    public HLActionComparator(Position agentOrigin){
-        this.agentOrigin = agentOrigin;
+    public HLActionComparator(PlanningLevelService pls){
+        this.pls = pls;
     }
 
     @Override
     public int compare(HLAction o1, HLAction o2) {
 
-        return o2.approximateSteps(agentOrigin) - o1.approximateSteps(agentOrigin);
+        return o2.approximateSteps(pls) - o1.approximateSteps(pls);
     }
 }

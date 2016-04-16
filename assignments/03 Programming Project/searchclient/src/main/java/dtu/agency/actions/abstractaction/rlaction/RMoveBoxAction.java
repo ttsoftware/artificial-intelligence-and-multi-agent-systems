@@ -4,6 +4,7 @@ import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.services.BDIService;
+import dtu.agency.services.PlanningLevelService;
 
 public class RMoveBoxAction extends RLAction {
 
@@ -51,10 +52,9 @@ public class RMoveBoxAction extends RLAction {
     }
 
     @Override
-    public int approximateSteps(Position agentOrigin) {
+    public int approximateSteps(PlanningLevelService pls) {
         int approximateSteps = 0;
-        // TODO PlanningLevelService??
-        Position boxOrigin = BDIService.getInstance().getBDILevelService().getPosition(box);
+        Position boxOrigin = pls.getCurrentBoxPosition();
         approximateSteps += boxOrigin.manhattanDist(boxDestination);
         return approximateSteps;
     }

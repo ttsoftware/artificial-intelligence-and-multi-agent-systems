@@ -42,14 +42,14 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
         return BDIService.getInstance().getBDILevelService().getPosition(goal);
     }
 
-    public int approximateSteps(Position agentOrigin) {
+    public int approximateSteps(PlanningLevelService pls) {
         // this is gonna be a rough estimation, on the relaxed path
         int approximateSteps = 0;
-        // TODO PlanningLevelService??
-        Position boxOrigin = BDIService.getInstance().getBDILevelService().getPosition(box);
-        Position boxDestination = BDIService.getInstance().getBDILevelService().getPosition(goal);
-
-        approximateSteps += agentOrigin.manhattanDist(boxOrigin) -1;
+        Position boxOrigin = pls.getCurrentBoxPosition();
+        Position boxDestination = pls.getPosition(goal);
+        System.err.println("agent: " + pls.getAgentPosition());
+        System.err.println("box: " + boxOrigin);
+        approximateSteps += pls.getAgentPosition().manhattanDist(boxOrigin) -1;
         approximateSteps += boxOrigin.manhattanDist(boxDestination);
         if (boxOrigin.isAdjacentTo(boxDestination)) {
             // ensures that boxes next to the goal is preferred eg in SAD2
