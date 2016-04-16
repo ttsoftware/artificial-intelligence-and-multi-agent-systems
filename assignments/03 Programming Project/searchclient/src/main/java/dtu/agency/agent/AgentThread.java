@@ -231,8 +231,8 @@ public class AgentThread implements Runnable {
         Agent agent = BDIService.getInstance().getAgent();
 
         /** START DEBUGGER **/
-        DebugService.setDebugLevel(DebugService.DebugLevel.HIGH); // Decide amount of debugging statements printed
-        boolean oldDebugMode = DebugService.setDebugMode(true);  // START DEBUGGER MESSAGES
+        DebugService.setDebugLevel(DebugService.DebugLevel.LOW); // Decide amount of debugging statements printed
+        boolean oldDebugMode = DebugService.setDebugMode(false);  // START DEBUGGER MESSAGES
         /** START DEBUGGER **/
 
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());

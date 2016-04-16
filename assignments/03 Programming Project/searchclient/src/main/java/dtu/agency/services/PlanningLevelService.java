@@ -24,9 +24,10 @@ public class PlanningLevelService extends LevelService {
     }
 
     /**
-     * should enable pls to track a box and the agent
-     * if so, all levelservice methods should not see the agent and the box
-     * excluding getPosition(BoardObj)
+     * TODO: merge the tracking methods into one (publicly at least)
+     * should enable pls to 'track' a box and the agent
+     * meaning that it is removed from the level when tracking starts
+     * and reinserted when tracking stops
      */
     public void startTrackingBox(Box box){
         // remove box from level
@@ -77,28 +78,9 @@ public class PlanningLevelService extends LevelService {
         return ((currentBox != null) && (currentBoxPosition != null));
     }
 
-    /**
-     * THIS SHOULD REPLACE getAgentPosition, set/getcurrentboxposition()
-     */
-
-
-
     public void setLevel(Level level) {
         this.level = level;
     }
-
-//    public void setCurrentBox(Box currentBox, Position position) {
-//        this.currentBox = currentBox;
-//        this.currentBoxPosition = position;
-//    }
-//
-//    public Box getCurrentBox() {
-//        return currentBox;
-//    }
-//
-//    public Position getCurrentBoxPosition() {
-//        return currentBoxPosition;
-//    }
 
     @Override
     public Position getPosition(BoardObject obj){
@@ -112,15 +94,4 @@ public class PlanningLevelService extends LevelService {
 
     }
 
-//    public void setCurrentBoxPosition(Position currentBoxPosition) {
-//        this.currentBoxPosition = currentBoxPosition;
-//    }
-//
-//    public void setCurrentAgentPosition(Position currentAgentPosition) {
-//        this.currentAgentPosition = currentAgentPosition;
-//    }
-//
-//    public void setCurrentBox(Box currentBox) {
-//        this.currentBox = currentBox;
-//    }
 }

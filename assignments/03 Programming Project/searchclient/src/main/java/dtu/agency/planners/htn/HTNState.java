@@ -14,8 +14,6 @@ import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.BoardCell;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
-import dtu.agency.services.BDILevelService;
-import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
@@ -36,6 +34,10 @@ public class HTNState {
     private final PlanningLevelService pls;
     private RelaxationMode relaxationMode;
 
+    /**
+     * copy constructor
+     * @param other The HTNState to be copied
+     */
     public HTNState(HTNState other) {
         this.agentPosition = new Position(other.getAgentPosition());
         this.boxPosition = new Position(other.getBoxPosition());
@@ -80,35 +82,36 @@ public class HTNState {
         return pls.getRelativeDirection(agentPosition, boxPosition, false);
     }
 
-    private boolean isLegal() { // we could introduce different levels of relaxations to be enforced here
+    /**
+     * A check performed to see if the current state is legal
+     * or if it e.g. has an agent and a wall in same position (illegal)
+     * @return
+     */
+    private boolean isLegal() {
         debug("isLegal(): ", 2);
         debug("RelaxMode: " + relaxationMode.toString());
-        boolean legal = !agentPosition.equals(boxPosition);
-        debug("box and agent position are not identical:" + Boolean.toString(legal) );
+        boolean legal = true;
 
-        legal &= (!wallConflict());
-        if (!legal) { // spare the computations
-            debug("",-2);
-            return legal;
-        }
         switch (relaxationMode) { // walls are considered already
 
             case None:            // consider agents + boxes + walls
+                legal &= (!wallConflict());
                 legal &= (!boxConflict());
                 legal &= (!agentConflict());
                 break;
 
             case NoAgents:        // Boxes and Walls are considered
+                legal &= (!wallConflict());
                 legal &= (!boxConflict());
                 break;
 
             case NoAgentsNoBoxes: // Only Walls are considered
+                legal &= (!wallConflict());
                 break;
 
             default:
-                debug("relaxationMode defaulted!");
+                break;
         }
-
 
         debug("", -2);
         return legal;
@@ -132,27 +135,13 @@ public class HTNState {
 
     private boolean agentConflict(Position pos) {
         boolean conflict = false;
-        // TODO: myAgent should no longer be in level, and checks regarding it should be removable by now
-//        String myAgent = BDIService.getInstance().getAgent().getLabel();
-
         if (!pls.isFree(pos)) {
             BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
-            debug("status: " + cell);
-
-            String objectAtPosition = pls.getObjectLabels(pos);
-            debug("agentConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
-
-//            if (cell == BoardCell.AGENT) {
-//                if (!(objectAtPosition.equals(myAgent))) { // not myself !
-//                    conflict = true;
-//                }
-//            }
-//
-//            if (cell == BoardCell.AGENT_GOAL) {
-//                if (!objectAtPosition.substring(0,1).equals(myAgent)){ // not myself !
-//                    conflict = true;
-//                }
-//            }
+            if (DebugService.inDebugMode()) {
+                debug("status: " + cell);
+                String objectAtPosition = pls.getObjectLabels(pos);
+                debug("agentConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
+            }
             if (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL) { conflict = true; }
         }
         return conflict;
@@ -175,30 +164,13 @@ public class HTNState {
 
     private boolean boxConflict(Position pos){
         boolean conflict = false;
-        // TODO: mybox should no longer be in level, and checks regarding it should be removable by now
-//        String myBox = pls.getTrackingBox().getLabel();
-        int ar = pos.getRow(); int ac = pos.getColumn();
-
         if (!pls.isFree(pos) ) {
-            BoardCell cell = pls.getLevel().getBoardState()[ar][ac];
-            debug("status: " + cell);
-
-            String objectAtPosition = pls.getObjectLabels(pos);
-            debug("boxConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
-
-//            if (cell == BoardCell.BOX ) { // potential conflict1
-//                if (!(objectAtPosition.equals(myBox))) { // not my own box!
-//                    conflict = true; // conflict !
-//                }
-//            }
-
-//            if (cell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
-//                if (!objectAtPosition.contains(myBox)){
-//                    if (objectAtPosition.substring(myBox.length(),myBox.length()+1).matches("([0-9])")) {
-//                        conflict = true; // char after box label is a digit (should be a goal if it were my own box)
-//                    }
-//                }
-//            }
+            BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
+            if (DebugService.inDebugMode()) {
+                debug("status: " + cell);
+                String objectAtPosition = pls.getObjectLabels(pos);
+                debug("boxConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
+            }
             if (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL ) { conflict = true; }
         }
         return conflict;
@@ -313,8 +285,7 @@ public class HTNState {
     /**
      * Refactored this, such that the action does not apply a state, but a state applies an action.
      * The given instance is the "oldState", and the returned state is the "newState"
-     *
-     * @param concreteAction
+     * @param concreteAction The concrete action to be applied (move / push / pull)
      * @return a new HTNState instance with @concreteAction applied to it
      */
     public HTNState applyConcreteAction(ConcreteAction concreteAction) {
@@ -325,7 +296,6 @@ public class HTNState {
         Position newAgentPos, newBoxPos;
         HTNState result;
 
-        // keep track of validity of the action
         boolean valid =  true;
         debug(this.toString() );
 
@@ -431,51 +401,10 @@ public class HTNState {
                     } else {
                         fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
                     }
-//                    if (pls.isFree(action.getAgentDestination())) {
-//                        fulfilled = this.getAgentPosition().equals(action.getAgentDestination());
-//                    } else {
-//                        fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
-//                    }
-//                    } else {
-//                        String myAgent = BDIService.getInstance().getAgent().getLabel();
-//                        String myBox = pls.getCurrentBox().getLabel();
-//                        int ar = action.getAgentDestination().getRow();
-//                        int ac = action.getAgentDestination().getColumn();
-//                        BoardCell cell = pls.getLevel().getBoardState()[ar][ac];
-//                        String objectAtPosition = pls.getObjectLabels(action.getAgentDestination());
-//                        if (myAgent) {
-//
-//                        } else if (cell == BoardCell.BOX_GOAL) { // some other box in a goal
-//                            if (objectAtPosition.substring(myBox.length(),myBox.length()+1).matches("([0-9])")) {
-//                                fulfilled |= this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
-//                                // char after box label is a digit (should be a goal if it were my own box)
-//                            } else { // my own box
-//                                // TODO: Problems! Am i returning to a position where it was - decided either would be ok
-//                                fulfilled |= this.getAgentPosition().equals(action.getAgentDestination());
-//                                fulfilled |= this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
-//                            }
-//                        } else {
-//                            fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
-//                        }
-//                    }
-                    debug(action + " is checked @" + this + " cell is free: "+pls.isFree(action.getAgentDestination())+" and result is: " +fulfilled,20);
-                    debug("",-20);
-                    debug(abstractAction.toString() + " -> agent is" + ((fulfilled) ? " " : " not ") + "(adjacent) to destination");
-                    if (fulfilled) {
-                        debug(action + " is Fulfilled @" + this,20);
-                        debug("",-20);
-                    }
                     break;
 
                 case RMoveBoxAction:
                     fulfilled = (this.getBoxPosition().equals(action.getBoxDestination()));
-                    debug(action + " is checked @" + this + " - result is: " +fulfilled,20);
-                    debug("",-20);
-                    debug(abstractAction.toString() + " -> box is" + ((fulfilled) ? " " : " not ") + "at destination");
-                    if (fulfilled) {
-                        debug(action + " is Fulfilled @" + this,20);
-                        debug("",-20);
-                    }
                     break;
 
                 case No:
@@ -483,63 +412,40 @@ public class HTNState {
                     break;
 
                 case HMoveBoxAndReturn:
-//                    HMoveBoxAction mbarAction = new HMoveBoxAction((HMoveBoxAction) abstractAction);
-//                    fulfilled = this.getBoxPosition().equals(mbarAction.getBoxDestination());
                     fulfilled = this.getBoxPosition().equals(action.getBoxDestination());
-//                     TODO: This does not work! WHY?? - We want the agent to move on (without box) to its destination
                     fulfilled &= this.getAgentPosition().equals(action.getAgentDestination());
-                    debug(abstractAction.toString() + " -> agent&box is" + ((fulfilled) ? " " : " not ") + "at destinations");
-                    if (fulfilled) {
-                        debug(action + " is Fulfilled @" + this,20);
-                        debug("",-20);
-                    }
                     break;
 
                 default:
-                    debug("", -2);
                     throw new UnsupportedOperationException("Invalid HLAction type");
             }
-        } else {
-            if (abstractAction.getType()== AbstractActionType.SolveGoal) {
+        } else { // action is not instanceof HLAction
+            if (abstractAction.getType() == AbstractActionType.SolveGoal) {
                 SolveGoalAction sga = new SolveGoalAction((SolveGoalAction) abstractAction);
                 fulfilled = this.getBoxPosition().equals(sga.getGoal().getPosition());
-                debug(abstractAction.toString() + " -> box is" + ((fulfilled) ? " " : " not ") + "at goal location");
+            } else {
+                throw new UnsupportedOperationException("Invalid AbstractAction type");
             }
-
         }
-
-        if (fulfilled) {
-            debug("Purpose of HLAction is fulfilled: " + abstractAction.toString(), -2);
-        } else {
-            debug("Purpose of HLAction is not fulfilled: " + abstractAction.toString(), -2);
-        }
+        debug("Purpose of " + abstractAction +" is " + ((fulfilled) ? "" : "not ") + "fulfilled: ", -2);
         return fulfilled;
     }
 
-
-    /**
-     * What does this do? As far as i can see it does not return anything meaningful
-     * Mads: Well it is meaningfull to check whether states have been visited before in the planning loop
-     * and to check if 2 states are equal... this method comes in handy :-)
-     *
-     * @param obj
-     * @return
-     */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(Object other) {
+        if (this == other)
             return true;
-        if (obj == null)
+        if (other == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (getClass() != other.getClass())
             return false;
-        HTNState other = (HTNState) obj;
-        if (!agentPosition.equals(other.getAgentPosition()))
+        HTNState state = (HTNState) other;
+        if (!agentPosition.equals(state.getAgentPosition()))
             return false;
-        if ((boxPosition == null) || (other.getBoxPosition() == null)) {
-            return boxPosition == other.getBoxPosition();
+        if ((boxPosition == null) || (state.getBoxPosition() == null)) {
+            return boxPosition == state.getBoxPosition();
         }
-        return boxPosition.equals(other.getBoxPosition());
+        return boxPosition.equals(state.getBoxPosition());
     }
 
     @Override

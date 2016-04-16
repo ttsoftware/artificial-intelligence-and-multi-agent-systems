@@ -60,7 +60,7 @@ public class HLPlan implements AbstractPlan {
     public int approximateSteps(Position agentOrigin) {
         Position nextOrigin = agentOrigin;
         int approximateSteps = 0;
-        // TODO: implement this using pls instead
+        // TODO: implement this using pls instead ?? OR ?!? SEE TODO IN HTNNODECOMPARATOR
 //        for (dtu.agency.actions.abstractaction.hlaction.HLAction action : plan) {
 //            approximateSteps += action.approximateSteps(nextOrigin);
 //            nextOrigin = action.getAgentDestination();
