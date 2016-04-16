@@ -1,6 +1,7 @@
 package dtu.agency.actions.abstractaction;
 
 import dtu.agency.actions.AbstractAction;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
@@ -35,7 +36,7 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
     }
 
     public Position getAgentDestination(PlanningLevelService pls) {
-        return pls.getAgentPosition();
+        return pls.getPosition(BDIService.getInstance().getAgent());
     }
 
     public Position getBoxDestination() {
@@ -44,12 +45,13 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
 
     public int approximateSteps(PlanningLevelService pls) {
         // this is gonna be a rough estimation, on the relaxed path
+        Agent agent = BDIService.getInstance().getAgent();
         int approximateSteps = 0;
-        Position boxOrigin = pls.getCurrentBoxPosition();
+        Position boxOrigin = pls.getPosition(box);
         Position boxDestination = pls.getPosition(goal);
-        System.err.println("agent: " + pls.getAgentPosition());
+        System.err.println("agent: " + pls.getPosition(agent));
         System.err.println("box: " + boxOrigin);
-        approximateSteps += pls.getAgentPosition().manhattanDist(boxOrigin) -1;
+        approximateSteps += pls.getPosition(agent).manhattanDist(boxOrigin) -1;
         approximateSteps += boxOrigin.manhattanDist(boxDestination);
         if (boxOrigin.isAdjacentTo(boxDestination)) {
             // ensures that boxes next to the goal is preferred eg in SAD2

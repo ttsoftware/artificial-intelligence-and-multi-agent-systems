@@ -27,11 +27,9 @@ public abstract class BoardObject implements Serializable {
             return true;
         if (object == null)
             return false;
-        if (object.getClass() == this.getClass()) {
-            BoardObject other = (BoardObject) object;
-            return (other.getLabel().equals(label));
-        } else {
-            throw new RuntimeException("Invalid position object comparision.");
-        }
+        if (object.getClass() != this.getClass())
+            return false;
+        BoardObject other = (BoardObject) object;
+        return (other.getLabel().equals(label));
     }
 }

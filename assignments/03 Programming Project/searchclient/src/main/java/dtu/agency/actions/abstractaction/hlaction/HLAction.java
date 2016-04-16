@@ -4,9 +4,11 @@ import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
  * High Level Action
  */
 public abstract class HLAction extends AbstractAction {
-
+    protected Agent agent = BDIService.getInstance().getAgent();
     /**
      * This is where the agent is going to be after completing this action
      */
@@ -56,9 +58,6 @@ public abstract class HLAction extends AbstractAction {
 
     public static HLAction getOriginalAction(HLAction originalAction) {
         switch (originalAction.getType()) {
-//            case SolveGoal:
-//                SolveGoalAction sga = (SolveGoalAction) originalAction;
-//                return new SolveGoalAction(sga);
 
             case RGotoAction:
                 RGotoAction gta = (RGotoAction) originalAction;

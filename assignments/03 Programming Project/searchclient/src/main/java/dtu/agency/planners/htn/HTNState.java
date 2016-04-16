@@ -132,7 +132,8 @@ public class HTNState {
 
     private boolean agentConflict(Position pos) {
         boolean conflict = false;
-        String myAgent = BDIService.getInstance().getAgent().getLabel();
+        // TODO: myAgent should no longer be in level, and checks regarding it should be removable by now
+//        String myAgent = BDIService.getInstance().getAgent().getLabel();
 
         if (!pls.isFree(pos)) {
             BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
@@ -141,17 +142,18 @@ public class HTNState {
             String objectAtPosition = pls.getObjectLabels(pos);
             debug("agentConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
 
-            if (cell == BoardCell.AGENT) {
-                if (!(objectAtPosition.equals(myAgent))) { // not myself !
-                    conflict = true;
-                }
-            }
-
-            if (cell == BoardCell.AGENT_GOAL) {
-                if (!objectAtPosition.substring(0,1).equals(myAgent)){ // not myself !
-                    conflict = true;
-                }
-            }
+//            if (cell == BoardCell.AGENT) {
+//                if (!(objectAtPosition.equals(myAgent))) { // not myself !
+//                    conflict = true;
+//                }
+//            }
+//
+//            if (cell == BoardCell.AGENT_GOAL) {
+//                if (!objectAtPosition.substring(0,1).equals(myAgent)){ // not myself !
+//                    conflict = true;
+//                }
+//            }
+            if (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL) { conflict = true; }
         }
         return conflict;
     }
@@ -173,7 +175,8 @@ public class HTNState {
 
     private boolean boxConflict(Position pos){
         boolean conflict = false;
-        String myBox = pls.getCurrentBox().getLabel();
+        // TODO: mybox should no longer be in level, and checks regarding it should be removable by now
+//        String myBox = pls.getTrackingBox().getLabel();
         int ar = pos.getRow(); int ac = pos.getColumn();
 
         if (!pls.isFree(pos) ) {
@@ -183,19 +186,20 @@ public class HTNState {
             String objectAtPosition = pls.getObjectLabels(pos);
             debug("boxConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
 
-            if (cell == BoardCell.BOX ) { // potential conflict1
-                if (!(objectAtPosition.equals(myBox))) { // not my own box!
-                    conflict = true; // conflict !
-                }
-            }
+//            if (cell == BoardCell.BOX ) { // potential conflict1
+//                if (!(objectAtPosition.equals(myBox))) { // not my own box!
+//                    conflict = true; // conflict !
+//                }
+//            }
 
-            if (cell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
-                if (!objectAtPosition.contains(myBox)){
-                    if (objectAtPosition.substring(myBox.length(),myBox.length()+1).matches("([0-9])")) {
-                        conflict = true; // char after box label is a digit (should be a goal if it were my own box)
-                    }
-                }
-            }
+//            if (cell == BoardCell.BOX_GOAL) { // potential conflict - compare only to box
+//                if (!objectAtPosition.contains(myBox)){
+//                    if (objectAtPosition.substring(myBox.length(),myBox.length()+1).matches("([0-9])")) {
+//                        conflict = true; // char after box label is a digit (should be a goal if it were my own box)
+//                    }
+//                }
+//            }
+            if (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL ) { conflict = true; }
         }
         return conflict;
     }
@@ -291,11 +295,11 @@ public class HTNState {
                     HMoveBoxAction mbar = (HMoveBoxAction) action;
                     debug("mbar refinement mbar.getBox():"+mbar.getBox());
                     debug("mbar refinement mbar.getAgentDestination():"+mbar.getAgentDestination());
-                    debug("mbar refinement pls.getCurrentBox():"+pls.getCurrentBox());
-                    debug("mbar refinement pls.getCurrentBoxPosition():"+pls.getCurrentBoxPosition());
+                    debug("mbar refinement pls.getCurrentBox():"+pls.getTrackingBox());
+                    debug("mbar refinement pls.getCurrentBoxPosition():"+pls.getPosition(pls.getTrackingBox()));
                     MixedPlan mbarRefinement = new MixedPlan();
 
-                    mbarRefinement.addAction(new RGotoAction( pls.getCurrentBox(), pls.getCurrentBoxPosition() ) );
+                    mbarRefinement.addAction(new RGotoAction( pls.getTrackingBox(), pls.getPosition(pls.getTrackingBox()) ) );
                     mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
                     mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );
                     refinements.add(mbarRefinement);

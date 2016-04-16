@@ -148,7 +148,7 @@ public class AgentThread implements Runnable {
                 currentPlan = realPlan;                      // set real plan but do hlplanning
             } else if (relaxedPlan!=null) { // relaxed plan is usable and
                 if (currentPlan!=null && realPlan.size() <= relaxedPlan.size()) { // use the shorter one
-                    realHTNPlanner.commit();
+                    realHTNPlanner.commitPlan();
                 } else {
                     // TODO: Do high level planning (instead??)
                     System.err.println("Implement HL Planning here");
@@ -166,7 +166,7 @@ public class AgentThread implements Runnable {
                     // Compare the length of the plans, and choose the shorter, (and evolve) and return it
 
                     if (realPlan != null && realPlan.size() < hlPlan.estimate()) {
-                        commit to realPlan
+                        commitPlan to realPlan
                     } else {
                         // evolve hlPlan to primitive plan
                         // OR
@@ -228,6 +228,7 @@ public class AgentThread implements Runnable {
         System.err.println("SANDBOX is running - make sure that the level is SAD1");
         Goal targetGoal = event.getGoal();
         Box targetBox = new Box("A0");
+        Agent agent = BDIService.getInstance().getAgent();
 
         /** START DEBUGGER **/
         DebugService.setDebugLevel(DebugService.DebugLevel.HIGH); // Decide amount of debugging statements printed
@@ -240,28 +241,28 @@ public class AgentThread implements Runnable {
         HTNPlanner htn1 = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
         PrimitivePlan plan1 = htn1.plan();
         System.err.println("Plan 1:\n" + plan1);
-        htn1.commit(); // update positions in PlanningLevelService pls
+        htn1.commitPlan(); // update positions in PlanningLevelService pls
 
-        System.err.println("after plan 1 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
+        System.err.println("after plan 1 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
 
-        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), new Position(1,16));
+        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), new Position(1,17));
         HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
         PrimitivePlan plan2 = htn2.plan();
         System.err.println("Plan 2:\n" + plan2);
-        htn2.commit();
-//
-//        System.err.println("after plan 2 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
-//
-//        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
-//        HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
-//        PrimitivePlan plan3 = htn3.plan();
-//        System.err.println("Plan 3:\n" + plan3);
-//        htn2.commit();
-//
-//        System.err.println("after plan 3 - pls: agent:"+pls.getAgentPosition()+ " Box:" +pls.getPosition(targetBox) );
-//
+        htn2.commitPlan();
+
+        System.err.println("after plan 2 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+
+        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
+        HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
+        PrimitivePlan plan3 = htn3.plan();
+        System.err.println("Plan 3:\n" + plan3);
+        htn2.commitPlan();
+
+        System.err.println("after plan 3 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+
         plan1.appendActions(plan2);
-//        plan1.appendActions(plan3);
+        plan1.appendActions(plan3);
         System.err.println(plan1);
 
         /** END DEBUGGER **/

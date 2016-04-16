@@ -9,10 +9,9 @@ import dtu.agency.services.PlanningLevelService;
 import java.io.Serializable;
 
 
-// TODO: THIS HLAction cannot be solved by HTNPlanner, must be revised!!!
 /**
-* This Action Moves a box and returns the agent to the box origin
-*/
+ * This Action Moves a box and returns the agent to the box origin
+ */
 public class HMoveBoxAction extends HLAction implements Serializable {
 
     private final Box box;
@@ -77,13 +76,13 @@ public class HMoveBoxAction extends HLAction implements Serializable {
 
     @Override
     public int approximateSteps(PlanningLevelService pls) {
-        // TODO: Planning level service instead??
-        Position boxCurrentPosition = pls.getCurrentBoxPosition();
-        Position agentCurrentPosition = pls.getAgentPosition();
+        Position boxPosition = pls.getPosition(box);
+        debug("agent " + agent);
+        Position agentPosition = pls.getPosition(agent);
 
         int approximation = 0;
-        approximation += agentCurrentPosition.manhattanDist(boxCurrentPosition) -1;
-        approximation += boxCurrentPosition.manhattanDist(boxDestination);
+        approximation += agentPosition.manhattanDist(boxPosition) -1;
+        approximation += boxPosition.manhattanDist(boxDestination);
         approximation += boxDestination.manhattanDist(agentDestination);
 
         return approximation;

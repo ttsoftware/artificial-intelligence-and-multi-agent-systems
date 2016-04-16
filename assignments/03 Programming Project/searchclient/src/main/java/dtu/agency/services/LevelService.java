@@ -366,7 +366,7 @@ public abstract class LevelService {
      * @param box
      * @param position
      */
-    public synchronized void insertBox(Box box, Position position) {
+    protected synchronized void insertBox(Box box, Position position) {
         int row = position.getRow();
         int column = position.getColumn();
 
@@ -413,7 +413,7 @@ public abstract class LevelService {
      * @param agent
      * @param position
      */
-    public synchronized void insertAgent(Agent agent, Position position) {
+    protected synchronized void insertAgent(Agent agent, Position position) {
         debug("Inserting Agent into (planning) level",2);
         int row = position.getRow();
         int column = position.getColumn();
@@ -466,7 +466,7 @@ public abstract class LevelService {
      * Usage: when assuming control and responsibility for that box in the level
      * @param box
      */
-    public synchronized void removeBox(Box box) {
+    protected synchronized void removeBox(Box box) {
         debug("Removing box from (planning) level",2);
         Position boxPos = getPosition(box);
         int row = boxPos.getRow();
@@ -521,7 +521,7 @@ public abstract class LevelService {
      * Usage: when assuming responsibility of agent from the level
      * @param agent
      */
-    public synchronized void removeAgent(Agent agent){
+    protected synchronized void removeAgent(Agent agent){
         debug("Removing agent from (planning) level",2);
 
         Position agentPos = getPosition(agent);

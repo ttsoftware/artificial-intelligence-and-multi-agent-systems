@@ -14,6 +14,7 @@ public class RMoveBoxAction extends RLAction {
     public RMoveBoxAction(Box box, Position boxDestination) {
         this.box = box;
         this.boxDestination = boxDestination;
+        if (!(box != null && boxDestination != null)) throw new AssertionError("RMoveBoxAction box or destination null at init");
     }
 
     public RMoveBoxAction(RMoveBoxAction other) {
@@ -54,7 +55,7 @@ public class RMoveBoxAction extends RLAction {
     @Override
     public int approximateSteps(PlanningLevelService pls) {
         int approximateSteps = 0;
-        Position boxOrigin = pls.getCurrentBoxPosition();
+        Position boxOrigin = pls.getPosition(box);
         approximateSteps += boxOrigin.manhattanDist(boxDestination);
         return approximateSteps;
     }
