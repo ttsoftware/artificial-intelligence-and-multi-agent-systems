@@ -45,6 +45,7 @@ public class AgentThread implements Runnable {
         // this as basis on bidding on the next
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
         // TODO: important step - update the planning level service to match state after current plans are executed
+        // TODO dette er nu muligt hvis vi gemmer vores HLPlan i BDIService et sted... to be done
         // pls.calculateStateAfterCurrentPlansHasBeenExecuted();
 
         Mind mind = new Mind(goal, pls);
@@ -111,13 +112,13 @@ public class AgentThread implements Runnable {
         Goal target = event.getGoal();
         Agent agent = BDIService.getInstance().getAgent();
 
+        // update the meaning of this agent's life
+        BDIService.getInstance().addMeaningOfLife(target);
 
         // Find the Ideas produced at bidding round for this goal
         Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
         System.err.println("Ideas retrieved at solution round: "+ideas.toString());
 
-        // update the meaning of this agent's life
-        BDIService.getInstance().addMeaningOfLife(target);
 
         // TODO: Encapsulate the following in an AgentLevelPlanner...
 

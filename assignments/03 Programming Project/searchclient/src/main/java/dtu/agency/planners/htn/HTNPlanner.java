@@ -25,10 +25,10 @@ public class HTNPlanner {
     private static void debug(String msg){ debug(msg, 0); }
 
     private final Agent agent = BDIService.getInstance().getAgent();
-    private final HLAction originalAction;      // original Action
     private final PlanningLevelService pls;     // LevelService
-    private final HTNNode initialNode;          // list of all possible plans to solve the goal
     private final HTNNodeComparator aStarHTNNodeComparator;  // heuristic used to compare nodes
+    private HLAction originalAction;      // original Action
+    private HTNNode initialNode;          // list of all possible plans to solve the goal
     private Position agentDestination;
 
     /**
@@ -54,7 +54,7 @@ public class HTNPlanner {
         this.originalAction = originalAction;
         this.pls = pls;
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(pls);
-        Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
+        Position agentPosition = pls.getPosition(agent);
         Position boxPosition = agentPosition;
         if (originalAction.getBox()!=null) {
             boxPosition = pls.getPosition(originalAction.getBox());
@@ -80,10 +80,9 @@ public class HTNPlanner {
                 solveGoalAction.getBoxDestination(),
                 solveGoalAction.getAgentDestination(pls)
         );
-//        this.targetBox = solveGoalAction.getBox();
         this.pls = pls;
         this.aStarHTNNodeComparator = new AStarHTNNodeComparator(pls);
-        Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
+        Position agentPosition = pls.getPosition(agent);
         Position boxPosition = agentPosition;
         if (solveGoalAction.getBox()!=null) {
             boxPosition = pls.getPosition(solveGoalAction.getBox());
@@ -97,6 +96,24 @@ public class HTNPlanner {
     }
 
 
+    /**
+     * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
+     * @param action
+     * @param mode
+     */
+    public void reload(HLAction action, RelaxationMode mode){
+        agentDestination = null;
+        originalAction = action;
+        Position agentOrigin = pls.getPosition(agent);
+        Position boxOrigin = agentOrigin;
+        if (originalAction.getBox()!=null) {
+            boxOrigin = pls.getPosition(originalAction.getBox());
+        }
+        HTNState initialState = new HTNState( agentOrigin, boxOrigin, pls, mode );
+        debug("initial" + initialState.toString());
+        this.initialNode = new HTNNode(initialState, this.originalAction, pls);
+        debug("initial" + initialNode);
+    }
 
     private HTNNode getInitialNode() {
         return new HTNNode(initialNode);
