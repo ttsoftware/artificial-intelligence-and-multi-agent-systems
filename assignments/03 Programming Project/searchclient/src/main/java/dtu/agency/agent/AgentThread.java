@@ -82,8 +82,8 @@ public class AgentThread implements Runnable {
             PrimitivePlan plan;
 
 //            plan = test1(event); // use SAD1 level as test environment
-            plan = sandbox(event); // use SAD1 level as test environment
-//            plan = solve(event); // solves all levels (ideally)
+//            plan = sandbox(event); // use SAD1 level as test environment
+            plan = solve(event); // solves all levels (ideally)
 
             System.err.println("Agent " +BDIService.getInstance().getAgent().getLabel()+ ": Using Concrete Plan: " + plan.toString());
 

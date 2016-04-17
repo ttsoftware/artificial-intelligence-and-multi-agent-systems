@@ -1,8 +1,10 @@
 package dtu.agency.planners.htn;
 
 import dtu.Main;
+import dtu.agency.actions.Action;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.*;
 import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
@@ -231,12 +233,18 @@ public class HTNPlanner {
      * commits the effect of this plan to the pls (PlanningLevelService) of this HTNPlanner
      */
     public void commitPlan(){
-        debug("commit htnplan into pls:", 2);
+        debug("commit htnPlan into pls:", 2);
         Box targetBox = originalAction.getBox();
-        Position boxDestination = originalAction.getBoxDestination();
-        debug("Inserting Agent"+agent+" @" + agentDestination + " + Box" + targetBox+" @"+boxDestination);
-        pls.updateLevelService(agentDestination, targetBox, boxDestination);
-        debug("committed", -2);
+        Action action;
+        if (targetBox==null) {
+            action = new RGotoAction(agentDestination);
+        } else {
+            Position boxDestination = originalAction.getBoxDestination();
+            action = new HMoveBoxAction(targetBox, boxDestination, agentDestination);
+        }
+        pls.apply(action);
+        debug("htnPlan committed", -2);
+
     }
 
     public Position getAgentDestination() {

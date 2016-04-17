@@ -38,7 +38,7 @@ public abstract class LevelService {
 
     public synchronized boolean push(Agent agent, PushConcreteAction action) {
         // move the box to the new position
-        boolean moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
+        boolean moveSuccess = moveObject(action.getBox(), action.getBoxMovingDirection());
 
         if (moveSuccess) {
             // if we could move the box, we can also move the agency to the new position
@@ -53,7 +53,8 @@ public abstract class LevelService {
         boolean moveSuccess = moveObject(agent, action.getAgentDirection());
 
         if (moveSuccess) {
-            moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
+            moveSuccess = moveObject(action.getBox(), action.getBoxMovingDirection());
+            // TODO: check if this introduces errors, but i think i fixed a bug, else add getInverse() to getBoxMovingDirection()
 
             if (!moveSuccess) {
                 // if we could not move the box, we have to move the agency back
@@ -66,12 +67,11 @@ public abstract class LevelService {
 
     /**
      * Move a single BoardObject into a new position
-     *
      * @param boardObject
      * @param direction
      * @return
      */
-    private synchronized boolean moveObject(BoardObject boardObject, Direction direction) {
+    protected synchronized boolean moveObject(BoardObject boardObject, Direction direction) {
 
         BoardCell[][] boardState = level.getBoardState();
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();

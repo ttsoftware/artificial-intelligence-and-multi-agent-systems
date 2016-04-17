@@ -37,7 +37,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
             Position nextActionPosition = GlobalLevelService.getInstance().getPositionInDirection(
                     nextAction.getBoxPosition(),
-                    nextAction.getBoxDirection()
+                    nextAction.getBoxMovingDirection()
             );
 
             if (nextActionPosition.isAdjacentTo(boxStartPosition)) {

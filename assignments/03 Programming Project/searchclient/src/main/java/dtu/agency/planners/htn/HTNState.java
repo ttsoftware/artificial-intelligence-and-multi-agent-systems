@@ -320,13 +320,13 @@ public class HTNState {
                 PushConcreteAction pushAction = (PushConcreteAction) concreteAction;
 
                 newAgentPos = pls.getAdjacentPositionInDirection(oldAgentPos, pushAction.getAgentDirection());
-                newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxDirection());
+                newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxMovingDirection());
                 result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
                 debug(" + " + pushAction.toString() + " -> " + result.toString());
                 // check preconditions !!! THIS IS PUSH
 
-                valid &= !pushAction.getAgentDirection().getInverse().equals(pushAction.getBoxDirection()); // NOT opposite directions (would be pull!)
+                valid &= !pushAction.getAgentDirection().getInverse().equals(pushAction.getBoxMovingDirection()); // NOT opposite directions (would be pull!)
                 debug(" validation push not opposite directions:" + Boolean.toString(valid));
 
                 // post conditions
@@ -343,13 +343,13 @@ public class HTNState {
                 PullConcreteAction pullAction = (PullConcreteAction) concreteAction;
 
                 newAgentPos = pls.getAdjacentPositionInDirection(oldAgentPos, pullAction.getAgentDirection());
-                newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxDirection().getInverse());
+                newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxMovingDirection());
                 result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
                 debug(" + " + pullAction.toString() + " -> " + result.toString());
 
                 // check preconditions !!! THIS IS PULL
-                valid &= !pullAction.getAgentDirection().equals(pullAction.getBoxDirection()); // NOT same directions (would be push)
+                valid &= !pullAction.getAgentDirection().getInverse().equals(pullAction.getBoxMovingDirection()); // NOT same directions (would be push)
                 debug(" validation pull not same directions:" + Boolean.toString(valid));
 
                 // post conditions

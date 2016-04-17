@@ -1,11 +1,18 @@
 package dtu.agency.services;
 
+import dtu.agency.actions.Action;
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
+import dtu.agency.actions.concreteaction.PullConcreteAction;
+import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.*;
 import dtu.agency.planners.hlplanner.HLEffect;
+import dtu.agency.planners.plans.Plan;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 public class PlanningLevelService extends LevelService {
 
@@ -40,57 +47,127 @@ public class PlanningLevelService extends LevelService {
         this.level = level;
     }
 
-    /**
-     * Applies the effects of a HLAction!
-     * @param newAgentPosition
-     * @param targetBox
-     * @param newBoxPosition
-     */
-    public void updateLevelService(Position newAgentPosition, Box targetBox, Position newBoxPosition) {
-        removeAgent(agent);
-        removeBox(targetBox);
-        insertBox(targetBox, newBoxPosition);
-        insertAgent(agent, newAgentPosition);
-    }
-
-
-    /**
-     * TODO: applyAll(hlplan) + applyAll(PrimitivePlan)
-     * TODO: apply(PrimitiveAction)
-     * TODO: revertToState(State?) - ONLY IF NEEDED
-     */
+//    /**
+//     * Applies the effects of a HLAction!
+//     * @param newAgentPosition
+//     * @param targetBox
+//     * @param newBoxPosition
+//     */
+//    public void updateLevelService(Position newAgentPosition, Box targetBox, Position newBoxPosition) {
+//        removeAgent(agent);
+//        removeBox(targetBox);
+//        insertBox(targetBox, newBoxPosition);
+//        insertAgent(agent, newAgentPosition);
+//    }
 
     /**
-     * Applies a high level action
+     * Applies any applicable action - high level, recursive level and concrete actions
+     * SolveGoalActions are not applicable in order to get a consistent / precise state in the end
+     * (but might be applicable in order to guess on the sequence in which order to solve the goals!)
      */
-    public void apply(HLAction action){
-        debug("pls.apply HLAction");
-        HLEffect effect;
-        Box targetBox = action.getBox();
-        if (targetBox == null) {
-            effect = new HLEffect(
-                    getPosition(agent),
-                    action.getAgentDestination()
-            );
+    public void apply(Action action){
+        debug("pls.apply Action: " + action);
+        HLEffect effect = null;
+        Box box = null;
+
+        if (action instanceof HLAction) {
+            HLAction hlAction = (HLAction) action;
+            box = hlAction.getBox();
+
+            // record effect
+            if (box == null) {
+                effect = new HLEffect(
+                        getPosition(agent),
+                        hlAction.getAgentDestination()
+                );
+            } else {
+                effect = new HLEffect(
+                        getPosition(agent),
+                        hlAction.getAgentDestination(),
+                        box,
+                        getPosition(box),
+                        hlAction.getBoxDestination()
+                );
+            }
+
+            // update level
+            removeAgent(agent);
+            if (box != null) {
+                removeBox(box);
+                insertBox(box, effect.boxDestination);
+            }
+            insertAgent(agent, effect.agentDestination);
+
+        } else if (action instanceof ConcreteAction) {
+            ConcreteAction cAction = (ConcreteAction) action;
+            Position agentOrigin = getPosition(agent);
+
+            switch (cAction.getType()) {
+                case MOVE:
+                    MoveConcreteAction moveAction = (MoveConcreteAction) cAction;
+                    effect = new HLEffect(
+                            agentOrigin,
+                            getAdjacentPositionInDirection(agentOrigin, moveAction.getAgentDirection())
+                    );
+                    move(agent, moveAction);
+                    break;
+
+                case PUSH:
+                    PushConcreteAction pushAction = (PushConcreteAction) cAction;
+                    // record effect
+                    effect = new HLEffect(
+                            agentOrigin,
+                            getAdjacentPositionInDirection(agentOrigin, pushAction.getAgentDirection()),
+                            pushAction.getBox(),
+                            getPosition(pushAction.getBox()),
+                            getAdjacentPositionInDirection(getPosition(pushAction.getBox()), pushAction.getBoxMovingDirection())
+                    );
+
+                    // update level move objects - Important with the order of operations
+                    push(agent, pushAction);
+                    break;
+
+                case PULL:
+                    PullConcreteAction pullAction = (PullConcreteAction) cAction;
+                    // record effect
+                    effect = new HLEffect(
+                            agentOrigin,
+                            getAdjacentPositionInDirection(agentOrigin, pullAction.getAgentDirection()),
+                            pullAction.getBox(),
+                            getPosition(pullAction.getBox()),
+                            getAdjacentPositionInDirection(getPosition(pullAction.getBox()), pullAction.getBoxMovingDirection())
+                    );
+
+                    // update level move objects - Important with the order of operations
+                    pull(agent, pullAction);
+                    break;
+
+                case NONE:
+                    debug("None type action does not change state");
+                    return;
+            }
+
         } else {
-            effect = new HLEffect(
-                    getPosition(agent),
-                    action.getAgentDestination(),
-                    targetBox,
-                    getPosition(targetBox),
-                    action.getBoxDestination()
-            );
+            throw new AssertionError("Not an applicable action: " + action);
         }
 
-        removeAgent(agent);
-        if (targetBox != null) {
-            removeBox(targetBox);
-            insertBox(targetBox, effect.boxDestination);
-        }
-        insertAgent(agent, effect.agentDestination);
-
+        // update applied effects variable
         appliedEffects.add(effect);
         debug("This effect has been applied: " + effect);
+
+    }
+
+    /**
+     * Applies all actions in a plan
+     * @param plan any plan implementing the Plan interface
+     */
+    public void applyAll(Plan plan){
+        List<Action> allActions = plan.getActions();
+        Iterator actions = allActions.iterator();
+        while (actions.hasNext()) {
+            Action next = (Action) actions.next();
+            apply(next);
+        }
     }
 
     public void revertLast(){

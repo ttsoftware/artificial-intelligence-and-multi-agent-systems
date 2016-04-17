@@ -19,6 +19,6 @@ public class PushConcreteAction extends MoveBoxConcreteAction {
 
     @Override
     public String toString() {
-        return "Push(" + getAgentDirection() + "," + getBoxDirection() + ")";
+        return "Push(" + getAgentDirection() + "," + getBoxMovingDirection() + ")";
     }
 }
