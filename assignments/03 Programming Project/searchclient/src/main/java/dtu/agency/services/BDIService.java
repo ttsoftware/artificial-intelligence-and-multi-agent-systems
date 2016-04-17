@@ -48,20 +48,9 @@ public class BDIService {
         bdiLevelService = new BDILevelService(levelClone);
 
         agentCurrentPosition = bdiLevelService.getPosition(this.agent);
-        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-        bdiLevelService.removeAgent(this.agent);
-        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
-        bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
-        System.err.println("Agents" + bdiLevelService.getLevel().getAgents().toString());
 
-        if (bdiLevelService.getLevel().getBoardObjectPositions()
-                == GlobalLevelService.getInstance().getLevel().getBoardObjectPositions()) {
-            try {
-                throw new Exception("We must deepcopy");
-            } catch (Exception e) {
-                e.printStackTrace(System.err);
-            }
-        }
+        //bdiLevelService.removeAgent(this.agent);
+        //bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
 
         primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition));
         intentions = new LinkedList<>();
