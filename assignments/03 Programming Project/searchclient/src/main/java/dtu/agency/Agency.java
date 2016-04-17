@@ -72,13 +72,9 @@ public class Agency implements Runnable {
 
         // assign the goals
         bestAgents.entrySet().parallelStream().forEach(goalAgentEntry -> {
-
             Goal goal = goalAgentEntry.getKey();
-            String goalLabel = goal.getLabel();
-            String agentLabel = goalAgentEntry.getValue();
-
-            System.err.println("Assigning goal " + goalLabel + " to " + agentLabel);
-            EventBusService.post(new GoalAssignmentEvent(agentLabel, goal));
+            System.err.println("Assigning goal " + goal.getLabel() + " to " + goalAgentEntry.getValue());
+            EventBusService.post(new GoalAssignmentEvent(goalAgentEntry.getValue(), goal));
         });
     }
 
