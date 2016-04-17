@@ -63,49 +63,6 @@ public class AgentThread implements Runnable {
             PrimitivePlan llPlan = htnPlanner.plan();
             System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + llPlan.toString());
 
-            /*
-            // start a new high level planning phase
-            // Desire 2:  Find a high level plan, and add to desires
-            HLPlanner planner = new HLPlanner(htnPlanner);
-            HLPlan hlPlan = planner.plan();
-            if (hlPlan!=null) {
-                System.err.println("Agent " +agent.getLabel()+ ": Found High Level Plan: " + hlPlan.toString());
-                bdi.getCurrentIntention().setHighLevelPlan(hlPlan);
-            }
-
-            // Compare the length of the plans, and choose the shorter,
-            // (and evolve) and return it
-            if ( (llPlan==null) || (llPlan.size()==0) || (hlPlan.getHeuristic() <= llPlan.size()+5) ) {
-                // go with HLPlan
-                System.err.println("Deriving concrete plan from HL plan..");
-                // create total primitive plan from High level actions
-                HLAction action;
-                llPlan = new PrimitivePlan();
-                while (!hlPlan.isEmpty()) {
-                    action = hlPlan.poll();
-                    htnPlanner = new HTNPlanner(agent, action, RelaxationMode.NoAgentsNoBoxes);
-                    // TODO: NEED a correct implementation using BDILevelService
-                    // TODO: replacing GlobalLevelService.
-                    htnPlanner = new HTNPlanner(agent, action, RelaxationMode.None);
-                    // tools for enable/disable debug printing mode
-//                    boolean oldDebugMode = DebugService.setDebugMode(true);
-                    PrimitivePlan plan = htnPlanner.plan();
-//                    DebugService.setDebugMode(oldDebugMode);
-                    llPlan.appendActions(plan);
-                }
-            }
-            // else go with PrimitivePlan already discovered
-
-            // store the resulting plans and states in BDIService.getInstance() after planning..
-
-            System.err.println("Agent " +agent.getLabel()+ ": Using Concrete Plan: " + llPlan.toString());
-            // are we gonna submit the entire primitivePlan to the agency at once??
-            // maybe it is better to divide the sending of plans into smaller packages,
-            // e.g. solving separate intentions as GotoBox, MoveBox, etc.
-            // this will give the agent the possibility of reacting to changes
-            // in the environment.
-            */
-
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), llPlan)); // execute plan
         }
     }
