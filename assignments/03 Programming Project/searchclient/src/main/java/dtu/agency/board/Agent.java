@@ -13,4 +13,9 @@ public class Agent extends BoardObject {
     public Agent(Agent other) {
         super(other.getLabel());
     }
+
+    @Override
+    public int hashCode() {
+        return label.hashCode();
+    }
 }

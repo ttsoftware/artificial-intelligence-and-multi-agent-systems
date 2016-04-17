@@ -36,7 +36,7 @@ public class AgentThread implements Runnable {
 
         System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": received a goaloffer " + goal.getLabel() + " event and returned: " + Integer.toString(steps));
 
-        EventBusService.getEventBus().post(new GoalEstimationEvent(BDIService.getInstance().getAgent().getLabel(), steps));
+        EventBusService.post(new GoalEstimationEvent(BDIService.getInstance().getAgent(), steps));
     }
 
     /**
@@ -46,7 +46,7 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
-        if (event.getAgentLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
+        if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
             // We won the bid for this goal!
 
             System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
@@ -63,7 +63,9 @@ public class AgentThread implements Runnable {
             PrimitivePlan llPlan = htnPlanner.plan();
             System.err.println("Agent " + BDIService.getInstance().getAgent().getLabel() + ": Found Concrete Plan: " + llPlan.toString());
 
-            EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), llPlan)); // execute plan
+            // respond with plan
+            // event.setResponse(llPlan);
+            EventBusService.post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), llPlan)); // execute plan
         }
     }
 }

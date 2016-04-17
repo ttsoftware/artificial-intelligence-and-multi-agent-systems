@@ -23,6 +23,8 @@ import java.util.List;
 
 public class Agency implements Runnable {
 
+    private static final Object synchronizer = new Object();
+
     public Agency(Level level) {
         GlobalLevelService.getInstance().setLevel(level);
     }
@@ -46,7 +48,7 @@ public class Agency implements Runnable {
         EventBusService.register(this);
 
         // Map of goal -> bestAgent
-        HashMap<Goal, String> bestAgents = new HashMap<>();
+        HashMap<Goal, Agent> bestAgents = new HashMap<>();
 
         // Offer goals to agents
         // Each goalQueue is independent of one another so we can parallelStream
@@ -74,14 +76,38 @@ public class Agency implements Runnable {
         bestAgents.entrySet().parallelStream().forEach(goalAgentEntry -> {
             Goal goal = goalAgentEntry.getKey();
             System.err.println("Assigning goal " + goal.getLabel() + " to " + goalAgentEntry.getValue());
-            EventBusService.post(new GoalAssignmentEvent(goalAgentEntry.getValue(), goal));
+
+            GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(goalAgentEntry.getValue(), goal);
+
+            EventBusService.post(goalAssignmentEvent);
+
+            // get the plan response (blocks current thread)
+            // how long do we wish to wait for the agents to finish planning?
+             /*
+            ConcretePlan plan = goalAssignmentEvent.getResponse(2000);
+
+            System.err.println("Received offer for " + goal.getLabel() + " from " + goalAgentEntry.getValue());
+
+            EventBusService.post(new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan));
+            */
         });
+
+        try {
+            // wait indefinitely until problem is solved
+            synchronized (synchronizer) {
+                synchronizer.wait();
+            }
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace(System.err);
+        }
+
+        System.err.println("Agency is exiting.");
     }
 
     @Subscribe
     @AllowConcurrentEvents
     public void planOfferEventSubscriber(PlanOfferEvent event) {
-
         System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
         EventBusService.post(new SendServerActionsEvent(event.getAgent(), event.getPlan()));
@@ -100,5 +126,10 @@ public class Agency implements Runnable {
     public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
         // wait for all threads to finish
         ThreadService.shutdown();
+
+        // allow this thread to be joined
+        synchronized (synchronizer) {
+            synchronizer.notify();
+        }
     }
 }

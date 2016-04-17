@@ -70,7 +70,7 @@ public class PlannerClient {
             @Override
             public void changeSubscriber(ProblemSolvedEvent event) {
 
-                System.out.println("We solved the entire goal!");
+                System.err.println("We solved the entire goal!");
 
                 // Join when problem has been solved
                 try {
@@ -79,13 +79,14 @@ public class PlannerClient {
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.err);
                 }
-
-                assert !sendActionsThread.isAlive();
             }
         });
 
         Thread agencyThread = new Thread(new Agency(level));
         agencyThread.start();
+        agencyThread.join();
+
+        System.err.println("Agency was joined.");
         // new Agency(level).run();
     }
 
