@@ -119,6 +119,7 @@ public class AgentThread implements Runnable {
         // update the meaning of this agent's life
         BDIService.getInstance().addMeaningOfLife(target);
 
+        // TODO: Encapsulate the following in an AgentLevelPlanner...
 
         // Desire:  Find if possible a low level plan, and consider it a possible solution
         PrimitivePlan bestPlan = null;

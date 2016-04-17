@@ -132,14 +132,8 @@ public class HTNPlanner {
 
         debug("initial" + initialNode.toString());
 
-        // update PlanningLevelService, assuming responsibility over agent and current box
-        pls.startTrackingAgent();
-        if (originalAction.getBox()==null) {
-            throw new AssertionError("box null");
-        } else {
-            pls.startTrackingBox(originalAction.getBox());
-        }
-
+        // PlanningLevelService assuming responsibility over agent and current box
+        pls.startTracking(originalAction.getBox());
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
 
@@ -157,8 +151,7 @@ public class HTNPlanner {
                 debug(strategy.status(), -2);
                 // Failing, return responsibility of agent and box to pls.
                 System.err.println("Frontier is empty, HTNPlanner failed to create a plan!\n");
-                pls.stopTrackingBox();
-                pls.stopTrackingAgent();
+                pls.stopTracking();
                 return null;
             }
 
@@ -205,8 +198,7 @@ public class HTNPlanner {
                 debug("htnplan succeeding with");
                 debug("box: " + originalAction.getBox() + " @" + pls.getPosition(originalAction.getBox()));
                 agentDestination = leafNode.getState().getAgentPosition();
-                pls.stopTrackingBox();
-                pls.stopTrackingAgent();
+                pls.stopTracking();
                 return leafNode.extractPlan();
             }
 
