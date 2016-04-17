@@ -1,14 +1,9 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.Action;
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
+import dtu.agency.actions.AbstractAction;
+import dtu.agency.actions.abstractaction.GotoAbstractAction;
+import dtu.agency.actions.abstractaction.MoveBoxAbstractAction;
 import dtu.agency.board.Agent;
-import dtu.agency.planners.actions.AbstractAction;
-import dtu.agency.planners.actions.GotoAbstractAction;
-import dtu.agency.planners.actions.MoveBoxAbstractAction;
-
-import java.util.Stack;
 
 public class PartialOrderPlanner {
 
@@ -33,14 +28,5 @@ public class PartialOrderPlanner {
         }
 
         return plan;
-    }
-
-    public POPPlan plan1() {
-        Stack<Action> actions = new Stack<>();
-        actions.add(new MoveAction(Direction.EAST));
-        actions.add(new MoveAction(Direction.EAST));
-        actions.add(new MoveAction(Direction.EAST));
-        actions.add(new MoveAction(Direction.EAST));
-        return new POPPlan(actions);
     }
 }

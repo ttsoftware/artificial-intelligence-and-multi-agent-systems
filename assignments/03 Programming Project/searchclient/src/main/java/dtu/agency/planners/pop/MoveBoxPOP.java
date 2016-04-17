@@ -1,10 +1,12 @@
 package dtu.agency.planners.pop;
 
-import dtu.agency.agent.actions.*;
-import dtu.agency.agent.actions.preconditions.BoxAtPrecondition;
-import dtu.agency.agent.actions.preconditions.Precondition;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.MoveBoxAbstractAction;
+import dtu.agency.actions.abstractaction.hlaction.MoveBoxAction;
+import dtu.agency.actions.concreteaction.ActionComparator;
+import dtu.agency.actions.concreteaction.MoveBoxConcreteAction;
 import dtu.agency.board.*;
-import dtu.agency.planners.actions.MoveBoxAbstractAction;
+import dtu.agency.planners.pop.preconditions.BoxAtPrecondition;
 import dtu.agency.services.LevelService;
 
 import java.util.ArrayList;
@@ -26,11 +28,12 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
         boxStartPosition = LevelService.getInstance().getPosition(box.getLabel());
         Position currentBoxPosition = LevelService.getInstance().getPosition(action.getGoal().getLabel());
 
-        return new POPPlan(getPlan(box, currentBoxPosition, null, new Stack<>()));
+        //return new POPPlan(getPlan(box, currentBoxPosition, null, new Stack<>()));
+        return null;
     }
 
 
-    public Stack<Action> getPlan(Box box, Position currentBoxPosition, Position currentAgentPosition, Stack<MoveBoxAction> previousActions){
+    /*public Stack<ConcreteAction> getPlan(Box box, Position currentBoxPosition, Position currentAgentPosition, Stack<ConcreteMoveBoxAction> previousActions){
 
         Stack<Action> actions = new Stack<>();
 
@@ -135,16 +138,17 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
                     Integer.MIN_VALUE
             );
         }
-    }
+    }*/
 
     /**
-     *
      * @param boxPrecondition
      * @return A queue of MoveBoxActions which solves the given precondition
      */
-    public PriorityQueue<MoveBoxAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
+    /*public PriorityQueue<MoveBoxConcreteAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
 
-        PriorityQueue<MoveBoxAction> actions = new PriorityQueue<>(new ActionComparator());
+        PriorityQueue<MoveBoxConcreteAction> actions = new PriorityQueue<>(new ActionComparator());
+
+
 
         List<BoardObject> objectsToIgnore = new ArrayList<>();
         //objectsToIgnore.add(boxPrecondition.getBox());
@@ -160,16 +164,6 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
             List<Neighbour> moveableBoxNeighbours = LevelService.getInstance().getMoveableNeighbours(
                     boxPrecondition.getBoxPosition()
             );
-
-            /*for(Neighbour movableNeighbour: moveableBoxNeighbours)
-            {
-                if(movableNeighbour.getPosition().equals(LevelService.getInstance().
-                        getPosition(boxPrecondition.getBox().getLabel())))
-                {
-                    freeBoxNeighbours.add(movableNeighbour);
-                    break;
-                }
-            }*/
 
             // TODO do something with the other moveable neighbours (apart from the box itself)
         }
@@ -250,5 +244,5 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
         }
 
         return pullActions;
-    }
+    }*/
 }

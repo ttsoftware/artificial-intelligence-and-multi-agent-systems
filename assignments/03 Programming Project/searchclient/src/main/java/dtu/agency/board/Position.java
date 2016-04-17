@@ -37,4 +37,24 @@ public class Position implements Serializable {
             throw new RuntimeException("Invalid position object comparision.");
         }
     }
+
+    @Override
+    public int hashCode() {
+        int prime = 619;
+        //int rowprime = 89; // larger than 70 ;-)
+        int result = 1;
+        //result = prime * result + rowprime * row;
+        result = prime * result + row;
+        result = prime * result + column;
+        return result;
+    }
+
+    public String toString() {
+        String s = "(" +
+                Integer.toString(getRow()) +
+                "," +
+                Integer.toString(getColumn()) +
+                ")";
+        return s;
+    }
 }

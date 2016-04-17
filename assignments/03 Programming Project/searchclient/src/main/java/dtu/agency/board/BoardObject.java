@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public abstract class BoardObject implements Serializable {
 
-    protected String label;
+    protected final String label;
 
     public BoardObject(String label) {
         this.label = label;

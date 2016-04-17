@@ -2,7 +2,7 @@ package dtu.agency.planners.pop;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Position;
-import dtu.agency.planners.actions.AbstractAction;
+import dtu.agency.actions.AbstractAction;
 import dtu.agency.services.LevelService;
 
 public abstract class AbstractPOP<T extends AbstractAction> {

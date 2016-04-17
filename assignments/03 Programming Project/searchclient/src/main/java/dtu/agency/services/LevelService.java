@@ -1,9 +1,9 @@
 package dtu.agency.services;
 
-import dtu.agency.agent.actions.Direction;
-import dtu.agency.agent.actions.MoveAction;
-import dtu.agency.agent.actions.PullAction;
-import dtu.agency.agent.actions.PushAction;
+import dtu.agency.actions.concreteaction.Direction;
+import dtu.agency.actions.concreteaction.MoveConcreteAction;
+import dtu.agency.actions.concreteaction.PullConcreteAction;
+import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.*;
 
 import java.io.Serializable;
@@ -38,14 +38,14 @@ public class LevelService implements Serializable {
         return instance;
     }
 
-    public synchronized boolean move(Agent agent, MoveAction action) {
+    public synchronized boolean move(Agent agent, MoveConcreteAction action) {
         // We must synchronize here to avoid collisions.
         // Do we want to handle conflicts in this step/class?
 
         return moveObject(agent, action.getDirection());
     }
 
-    public synchronized boolean push(Agent agent, PushAction action) {
+    public synchronized boolean push(Agent agent, PushConcreteAction action) {
         // move the box to the new position
         boolean moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
 
@@ -57,7 +57,7 @@ public class LevelService implements Serializable {
         return moveSuccess;
     }
 
-    public synchronized boolean pull(Agent agent, PullAction action) {
+    public synchronized boolean pull(Agent agent, PullConcreteAction action) {
         // move the agency to the new position
         boolean moveSuccess = moveObject(agent, action.getAgentDirection());
 
@@ -151,7 +151,6 @@ public class LevelService implements Serializable {
     }
 
     /**
-     *
      * @param position
      * @return A list of adjacent cells containing a box or an agent
      */
@@ -187,7 +186,6 @@ public class LevelService implements Serializable {
     }
 
     /**
-     *
      * @param position
      * @return A list of free cells adjacent to @position
      */
@@ -262,12 +260,11 @@ public class LevelService implements Serializable {
     }
 
     /**
-     *
      * @param currentPosition
      * @param movingDirection
      * @return The position arrived at after moving from @currentPosition in @movingDirection
      */
-    public synchronized Position getPositionInDirection(Position currentPosition, Direction movingDirection) {
+    public synchronized Position getAdjacentPositionInDirection(Position currentPosition, Direction movingDirection) {
         switch (movingDirection) {
             case NORTH:
                 return new Position(currentPosition.getRow() - 1, currentPosition.getColumn());
@@ -283,7 +280,29 @@ public class LevelService implements Serializable {
     }
 
     /**
-     *
+     * @param positionA
+     * @param positionB
+     * @param reverse Whether to return the inverse direction
+     * @return The direction of positionB relative to positionA
+     */
+    public synchronized Direction getRelativeDirection(Position positionA, Position positionB, boolean reverse) {
+        if (positionA.getRow() == positionB.getRow()) {
+            if (positionA.getColumn() < positionB.getColumn()) {
+                return reverse ? Direction.EAST : Direction.WEST;
+            } else {
+                return reverse ? Direction.WEST : Direction.EAST;
+            }
+        } else if (positionA.getColumn() == positionB.getColumn()) {
+            if (positionA.getRow() > positionB.getRow()) {
+                return reverse ? Direction.SOUTH : Direction.NORTH;
+            } else {
+                return reverse ? Direction.NORTH : Direction.SOUTH;
+            }
+        }
+        throw new InvalidParameterException("Given positions are not adjacent.");
+    }
+
+    /**
      * @param position
      * @return True if object at given position can be moved
      */
@@ -292,12 +311,10 @@ public class LevelService implements Serializable {
        }
 
     /**
-     *
      * @param row
      * @param column
      * @return True if object at given position can be moved
      */
-
     public synchronized boolean isMoveable(int row, int column) {
         if (isInLevel(row, column)) {
             if (level.getBoardState()[row][column].equals(BoardCell.AGENT)
@@ -326,7 +343,6 @@ public class LevelService implements Serializable {
     }
 
     /**
-     *
      * @param position
      * @return True if the given position is free
      */
@@ -342,8 +358,9 @@ public class LevelService implements Serializable {
      */
     public synchronized boolean isFree(int row, int column, List<BoardObject> objectsToIgnore) {
         if (isInLevel(row, column)) {
-            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
-                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
+            BoardCell cell = level.getBoardState()[row][column];
+            if (cell.equals(BoardCell.FREE_CELL)
+                    || cell.equals(BoardCell.GOAL)) {
                 return true;
             }
             else {
@@ -382,6 +399,27 @@ public class LevelService implements Serializable {
         throw new InvalidParameterException("Given positions are not adjacent.");
     }
 
+    /**
+     * @param position
+     * @return True if a wall exists at given position
+     */
+    public synchronized boolean isWall(Position position) {
+        return isWall(position.getRow(), position.getColumn());
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if a wall exists at given position
+     */
+    public synchronized boolean isWall(int row, int column) {
+        return level.getBoardState()[row][column] == BoardCell.WALL;
+    }
+
+    public synchronized Position getPosition(BoardObject boardObject) {
+        return getPosition(boardObject.getLabel());
+    }
+
     public synchronized Position getPosition(String objectLabel) {
         return level.getBoardObjectPositions().get(objectLabel);
     }
@@ -413,6 +451,34 @@ public class LevelService implements Serializable {
     }
 
     /**
+     *
+     * @param boardObjectA
+     * @param boardObjectB
+     * @return The euclidean distance from @boardObjectA to @boardObjectB
+     */
+    public synchronized int euclideanDistance(BoardObject boardObjectA, BoardObject boardObjectB) {
+        return euclideanDistance(
+                getPosition(boardObjectA.getLabel()),
+                getPosition(boardObjectB.getLabel())
+        );
+    }
+
+    /**
+     *
+     * @param positionA
+     * @param positionB
+     * @return The euclidean distance from @positionA to @positionB
+     */
+    public synchronized int euclideanDistance(Position positionA, Position positionB) {
+        return (int) Math.round(
+                Math.sqrt(
+                        (positionA.getRow() - positionB.getRow()) ^ 2
+                                + (positionA.getColumn() - positionB.getColumn()) ^ 2
+                )
+        );
+    }
+
+    /**
      * Manhattan distance: <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">https://en.wikipedia.org/wiki/Taxicab_geometry</a>
      *
      * Should have Expected O(1) time complexity.
@@ -440,7 +506,7 @@ public class LevelService implements Serializable {
      * @param positionB
      * @return The manhattan distance between the two objects
      */
-    public int manhattanDistance(Position positionA, Position positionB) {
+    public synchronized int manhattanDistance(Position positionA, Position positionB) {
         // O(1) time operations
         return Math.abs(positionA.getRow() - positionB.getRow())
                 + Math.abs(positionA.getColumn() - positionB.getColumn());

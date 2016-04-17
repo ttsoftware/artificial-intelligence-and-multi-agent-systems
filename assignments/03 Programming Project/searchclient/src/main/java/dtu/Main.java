@@ -1,8 +1,14 @@
 package dtu;
 
+import dtu.agency.planners.htn.heuristic.Heuristic;
+import dtu.agency.planners.htn.heuristic.ManhattanHeuristic;
 import server.Runner;
 
 public class Main {
+
+    // Settings to replace magic numbers in code
+    public static int printIterations = 200;   // print status for every x nodes explored
+    public static Heuristic heuristicMeasure = new ManhattanHeuristic();
 
     public static void main(String[] args) {
 
