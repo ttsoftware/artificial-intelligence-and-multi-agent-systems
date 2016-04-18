@@ -13,10 +13,7 @@ import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This Planner uses the Hierarchical Task Network heuristic to subdivide
@@ -87,23 +84,47 @@ public class HLPlanner {
                 debug("obstacle not goal box", 20);
                 debug("", -20);
 
-                Iterator positions = freeNeighbours.getLast().iterator();
-                Position target = (Position) positions.next();
+                // TODO: copy freeNeighbours before removing them... or keep them in another ds until reestablishing
+                LinkedList<Position> neighboursAtLevel = new LinkedList<>(freeNeighbours.peekLast());
+                LinkedList<HashSet<Position>> triedNeighbours = new LinkedList<>();
+                triedNeighbours.addFirst(freeNeighbours.pollLast());
+
+                Position target = neighboursAtLevel.peek();
                 int currentDistance = obstacleOrigin.manhattanDist(target);
                 boolean validTarget = false;
 
                 HMoveBoxAction moveObstacle = null;
 
-                while (!validTarget) {
+                while (!validTarget) { // TODO: fix infinite loop
 
-                    while (positions.hasNext()) {
-                        Position next = (Position) positions.next();
+                    Iterator neighbourIterator = neighboursAtLevel.iterator();
+                    while (neighbourIterator.hasNext()) {
+                        Position next = (Position) neighbourIterator.next();
                         int nextDistance = obstacleOrigin.manhattanDist(next);
                         if (nextDistance < currentDistance) {
                             target = next;
                             currentDistance = nextDistance;
                         }
                     }
+                    debug("target: " + target, 20);
+                    debug("", -20);
+
+                    neighboursAtLevel.remove(target);
+                    currentDistance = Integer.MAX_VALUE;
+                    while (neighboursAtLevel.isEmpty()) {
+                        if (freeNeighbours.isEmpty()){
+                            // TODO if no more free neighbours - we are stuck! communication required
+                            // communicate with agency - let go of goal / call in assistance / commit suicide / whatever
+                            debug("no place to put box " + box + "@" + obstacleOrigin);
+                            break;
+                        }
+                        neighboursAtLevel = new LinkedList<>(freeNeighbours.peekLast());
+                        triedNeighbours.addFirst(freeNeighbours.pollLast());
+                    }
+                    debug("remaining free neighbours on this level: " + neighboursAtLevel, 20);
+                    debug("", -20);
+
+
                     HMoveBoxAction move = new HMoveBoxAction(box, target, obstacleOrigin);
                     htnPlanner.reload(move, RelaxationMode.NoAgents);
                     PrimitivePlan prim = htnPlanner.plan();
@@ -112,18 +133,19 @@ public class HLPlanner {
                         debug("found a primitive plan to "+target, 20);
                         debug("", -20);
                         // Remove this target position from the free neighbours
-                        freeNeighbours.getLast().remove(target);
+                        // re establish free neighbours without 'target'
+                        triedNeighbours.getFirst().remove(target);
+                        while (!triedNeighbours.isEmpty()){
+                            freeNeighbours.addLast(triedNeighbours.pollFirst());
+                        }
                         if (freeNeighbours.getLast().isEmpty()) freeNeighbours.removeLast();
                         moveObstacle = move;
                         validTarget = true;
-                    } // else loop
-
-                    if (freeNeighbours.isEmpty()) {
-                        // TODO if no more free neighbours - we are stuck! communication required
-                        // communicate with agency - let go of goal / call in assistance / commit suicide / whatever
-                        debug("No more free neighbours!!! ", 20);
-                        debug("", -20);
+                    } else {
+                        debug("target unreachable",20);
+                        debug("",-20);
                     }
+
                 }
 
                 debug("appending to plan and applying to pls: "+moveObstacle, 20);
