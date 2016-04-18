@@ -110,4 +110,20 @@ public class BDIService {
     public void setCurrentTargetBox(Box currentTargetBox) {
         this.currentTargetBox = currentTargetBox;
     }
+
+    /**
+     * TODO: This PLS should be changed to incluce the execution of the current intention
+     * @return This PLS includes the execution of the current intention
+     */
+    public PlanningLevelService getLevelServiceAfterPendingPlans() {
+        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+    }
+
+    /**
+     * TODO: this should return the length of the current intended plans
+     * @return the length of the current intended plans in number of steps
+     */
+    public int remainingConcreteActions(){
+        return 0;
+    }
 }
