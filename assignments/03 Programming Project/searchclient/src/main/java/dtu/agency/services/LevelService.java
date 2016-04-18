@@ -689,7 +689,15 @@ public abstract class LevelService {
         debug("Getting positions of obstacles in path",2);
         LinkedList<Position> obstacles = new LinkedList<>();
 
-        // TODO
+        Iterator positions = pseudoPath.iterator();
+        positions.next(); // the agent itself.. to be ignored as obstacle :-)
+
+        while (positions.hasNext()) {
+            Position next = (Position) positions.next();
+            if (!isFree(next)) { // TODO: this also finds agents...
+                obstacles.add(next);
+            }
+        }
 
         debug("Obstacles found: " + obstacles.toString(),-2);
         return obstacles;

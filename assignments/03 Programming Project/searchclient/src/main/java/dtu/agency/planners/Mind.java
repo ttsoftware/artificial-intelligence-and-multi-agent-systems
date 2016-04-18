@@ -80,8 +80,6 @@ public class Mind {
      * @return The primitive plan solving this goal
      */
     public PrimitivePlan solve(Goal target) {
-    DebugService.setDebugLevel(DebugService.DebugLevel.LOW); // ***     DEBUGGING LEVEL     ***
-    boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
 
         debug("SOLVER is running - all levels should (ideally) be solved by this",2);
 
@@ -112,11 +110,18 @@ public class Mind {
             htnPlanner.reload(bestIdea, RelaxationMode.NoAgentsNoBoxes);
             PrimitivePlan relaxedPlan = htnPlanner.plan();
 
+
             if (relaxedPlan!=null) { // relaxed plan is usable
                 debug("Implement HL Planning here");
+
+                DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // ***     DEBUGGING LEVEL     ***
+                boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
+
                 // create a HLPlan
-                HLPlanner planner = new HLPlanner(bestIdea, pls);
+                HLPlanner planner = new HLPlanner(bestIdea, relaxedPlan, pls);
                 HLPlan hlPlan = planner.plan();
+
+                DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
 
                 // checkout the resulting HLPlan
                 if (DebugService.inDebugMode()) {
@@ -146,6 +151,7 @@ public class Mind {
                 debug("skip this idea - the box/goal combination is unreachable");
             }
 
+
         }
 
         // Check the result of this planning phase
@@ -159,7 +165,6 @@ public class Mind {
         // TODO: store the resulting plans and states in BDIService.getInstance() after planning..??
 
         debug("",-2);
-        DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
         return bestPlan;
     }
 
