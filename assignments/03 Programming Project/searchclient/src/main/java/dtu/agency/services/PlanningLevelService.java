@@ -47,19 +47,6 @@ public class PlanningLevelService extends LevelService {
         this.level = level;
     }
 
-//    /**
-//     * Applies the effects of a HLAction!
-//     * @param newAgentPosition
-//     * @param targetBox
-//     * @param newBoxPosition
-//     */
-//    public void updateLevelService(Position newAgentPosition, Box targetBox, Position newBoxPosition) {
-//        removeAgent(agent);
-//        removeBox(targetBox);
-//        insertBox(targetBox, newBoxPosition);
-//        insertAgent(agent, newAgentPosition);
-//    }
-
     /**
      * Applies any applicable action - high level, recursive level and concrete actions
      * SolveGoalActions are not applicable in order to get a consistent / precise state in the end
@@ -68,11 +55,10 @@ public class PlanningLevelService extends LevelService {
     public void apply(Action action){
         debug("pls.apply Action: " + action);
         HLEffect effect = null;
-        Box box = null;
 
         if (action instanceof HLAction) {
             HLAction hlAction = (HLAction) action;
-            box = hlAction.getBox();
+            Box box = hlAction.getBox();
 
             // record effect
             if (box == null) {
@@ -170,9 +156,13 @@ public class PlanningLevelService extends LevelService {
         }
     }
 
-
-    public void revertLast(int numberOfActionsToRevert){
-        for (int i=0; i<numberOfActionsToRevert; i++) {
+    /**
+     * Reverts a number of actions
+     * @param actionCount number of actions to revert
+     */
+    public void revertLast(int actionCount){
+        actionCount = (actionCount <= appliedEffects.size()) ? actionCount : appliedEffects.size();
+        for (int i=0; i<actionCount; i++) {
             revertLast();
         }
     }
@@ -247,7 +237,6 @@ public class PlanningLevelService extends LevelService {
         }
     }
 
-
     private boolean trackingAgent() {
         return (currentAgentPosition != null);
     }
@@ -255,7 +244,6 @@ public class PlanningLevelService extends LevelService {
     private boolean trackingBox() {
         return ((currentBox != null) && (currentBoxPosition != null));
     }
-
 
     @Override
     public Position getPosition(BoardObject obj){
@@ -266,7 +254,5 @@ public class PlanningLevelService extends LevelService {
         } else {
             return super.getPosition(obj);
         }
-
     }
-
 }

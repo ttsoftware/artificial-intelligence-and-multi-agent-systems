@@ -367,6 +367,7 @@ public abstract class LevelService {
      * @param position Position to insert the box in the level
      */
     protected synchronized void insertBox(Box box, Position position) {
+        debug("Inserting box into level",2);
         int row = position.getRow();
         int column = position.getColumn();
 
@@ -404,7 +405,7 @@ public abstract class LevelService {
         BoardObject[][] boardObjects = level.getBoardObjects();
         boardObjects[row][column] = box;
         level.setBoardObjects(boardObjects);
-        debug("Box inserted into level.boardObjects");
+        debug("Box inserted into level.boardObjects",-2);
     }
 
     /**

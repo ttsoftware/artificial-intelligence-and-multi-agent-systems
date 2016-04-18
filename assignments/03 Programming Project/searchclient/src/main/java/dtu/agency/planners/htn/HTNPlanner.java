@@ -191,10 +191,9 @@ public class HTNPlanner {
 
             if (strategy.frontierIsEmpty()) {
                 debug("Frontier is empty, HTNPlanner failed to create a plan!\n");
-                debug(strategy.status(), -2);
                 // Failing, return responsibility of agent and box to pls.
-                System.err.println("Frontier is empty, HTNPlanner failed to create a plan!\n");
                 pls.stopTracking();
+                debug(strategy.status(), -2);
                 return null;
             }
 
@@ -226,7 +225,6 @@ public class HTNPlanner {
             }
 
             if (leafNode.getState().isPurposeFulfilled( getIntention() )) {
-                debug(strategy.status(), -2);
                 if (DebugService.inDebugMode()) { // all debugging information
                     Position pa = leafNode.getState().getAgentPosition();
                     Position pb = leafNode.getState().getBoxPosition();
@@ -237,10 +235,11 @@ public class HTNPlanner {
                     debug(s);
                 }
                 // Succeeding, return responsibility of agent and box to pls.
-                debug("htnplan succeeding with");
-                debug("box: " + originalAction.getBox() + " @" + pls.getPosition(originalAction.getBox()));
+                debug("htnplan succeeding with box: " + originalAction.getBox()
+                        + " @" + pls.getPosition(originalAction.getBox()));
                 agentDestination = leafNode.getState().getAgentPosition();
                 pls.stopTracking();
+                debug(strategy.status(), -2);
                 return leafNode.extractPlan();
             }
 

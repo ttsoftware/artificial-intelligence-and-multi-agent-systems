@@ -77,29 +77,23 @@ public class Mind {
     /**
      * This method tries to solve the level as best as possible at current state
      * @param target Goal to solve
-     * @return
+     * @return The primitive plan solving this goal
      */
     public PrimitivePlan solve(Goal target) {
-        System.err.println("SOLVER is running - all levels should (ideally) be solved by this");
-        Agent agent = BDIService.getInstance().getAgent();
+    DebugService.setDebugLevel(DebugService.DebugLevel.LOW); // ***     DEBUGGING LEVEL     ***
+    boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
 
-        // update the meaning of this agent's life
-        BDIService.getInstance().addMeaningOfLife(target);
+        debug("SOLVER is running - all levels should (ideally) be solved by this",2);
 
         // Find the Ideas produced at bidding round for this goal
         Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
-        System.err.println("Ideas retrieved at solution round: "+ideas.toString());
+        debug("Ideas retrieved at solution round: "+ideas);
 
-
-        // TODO: Encapsulate the following in an AgentLevelPlanner...
-
-        // Desire:  Find if possible a low level plan, and consider it a possible solution
         PrimitivePlan bestPlan = null;
         while (ideas.peekBest() != null) {
             SolveGoalAction bestIdea = ideas.getBest();
-            PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
-            // TODO: forward pls to state after currently executing plans
 
+            // Find if possible a non-relaxed low level plan, and consider it a possible solution
             HTNPlanner htnPlanner = new HTNPlanner(pls, bestIdea, RelaxationMode.NoAgents);
             PrimitivePlan realPlan = htnPlanner.plan();
 
@@ -114,70 +108,68 @@ public class Mind {
                 }
             }
 
+            // Find if possible a relaxed low level plan, and do high level planning based on that
             htnPlanner.reload(bestIdea, RelaxationMode.NoAgentsNoBoxes);
             PrimitivePlan relaxedPlan = htnPlanner.plan();
 
-            PrimitivePlan currentPlan = null;
-
-            if (relaxedPlan!=null) { // relaxed plan is usable and
-                // TODO: Do high level planning (instead??)
-                System.err.println("Implement HL Planning here");
+            if (relaxedPlan!=null) { // relaxed plan is usable
+                debug("Implement HL Planning here");
                 // create a HLPlan
                 HLPlanner planner = new HLPlanner(bestIdea, pls);
                 HLPlan hlPlan = planner.plan();
 
                 // checkout the resulting HLPlan
-                if (hlPlan!=null) {
-                    System.err.println("Idea: " + bestIdea + " Agent " + agent + ": Found High Level Plan: " + hlPlan );
-                } else {
-                    System.err.println("Idea: " + bestIdea + " Agent " + agent + ": Did not find any High Level Plan." );
-                }
-
-                // Compare the length of the plans, and choose the shorter, (and evolve) and return it
-                if ( bestPlan == null || hlPlan.approximateSteps(pls) < bestPlan.size() ) {
-                    // evolve hlPlan to primitive plan
-                    currentPlan = hlPlan.evolve(pls);
-
-                    if (currentPlan != null) {
-                        bestPlan = currentPlan;
-                        // TODO: store the hlPlan in order for agent to react to changes later on (BDI v.4)
-                        // BDIService.getInstance().getCurrentIntention().setHighLevelPlan(hlPlan);
+                if (DebugService.inDebugMode()) {
+                    if (hlPlan != null) {
+                        debug("Idea: " + bestIdea + " Agent " + agent + ": Found High Level Plan: " + hlPlan);
+                    } else {
+                        debug("Idea: " + bestIdea + " Agent " + agent + ": Did not find any High Level Plan.");
                     }
                 }
 
-            } else { // the relaxed plan is null - the box /goal combination is unreachable
-                System.err.println("skip this idea - the box/goal combination is unreachable");
+                // Compare the length of the plans, and choose the shorter, (and evolve) and return it
+                if (hlPlan != null) {
+                    // TODO: store the hlPlan in order for agent to react to changes later on (BDI v.4)
+                    // BDIService.getInstance().getCurrentIntention().setHighLevelPlan(hlPlan);
+                    if (bestPlan == null)  {
+                        // evolve hlPlan to primitive plan
+                        PrimitivePlan plan = hlPlan.evolve(pls);
+                        bestPlan = (plan != null) ? plan : null ;
+
+                    } else if ( hlPlan.approximateSteps(pls) < bestPlan.size()) {
+                        PrimitivePlan plan = hlPlan.evolve(pls);
+                        bestPlan = (plan.size() < bestPlan.size()) ? plan : bestPlan;
+                    }
+                }
+
+            } else { // even the relaxed plan is null -> the box/goal combination is unreachable!
+                debug("skip this idea - the box/goal combination is unreachable");
             }
 
-            // update the best plan
-            if (bestPlan == null &&  currentPlan != null) {
-                bestPlan = currentPlan;
-            } else if (currentPlan != null && currentPlan.size() < bestPlan.size()) {
-                bestPlan = currentPlan;
-            }
         }
 
         // Check the result of this planning phase
         if (bestPlan != null) {
-            System.err.println("Agent " + agent + ": Found Concrete Plan: " + bestPlan.toString());
+            debug("Agent " + agent + ": Found Concrete Plan: " + bestPlan.toString());
         } else {
-            System.err.println("Agent " + agent + ": Did not find a Concrete Plan.");
+            debug("Agent " + agent + ": Did not find a Concrete Plan.");
             bestPlan = new PrimitivePlan();
         }
 
         // TODO: store the resulting plans and states in BDIService.getInstance() after planning..??
 
+        debug("",-2);
+        DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
         return bestPlan;
     }
 
 
     /**
      * This method is more or less a training/test method
-     * @param target
-     * @return
+     * @return The primitive plan solving this goal
      */
-    public PrimitivePlan sandbox(Goal target) {
-        System.err.println("SANDBOX is running - make sure that the level is SAD1");
+    public PrimitivePlan sandbox() {
+        debug("SANDBOX is running - make sure that the level is SAD1");
         Box targetBox = new Box("A0");
         Agent agent = BDIService.getInstance().getAgent();
 
@@ -186,30 +178,30 @@ public class Mind {
         HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,14));
         HTNPlanner htn1 = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
         PrimitivePlan plan1 = htn1.plan();
-        System.err.println("Plan 1:\n" + plan1);
+        debug("Plan 1:\n" + plan1);
         htn1.commitPlan(); // update positions in PlanningLevelService pls
 
-        System.err.println("after plan 1 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+        debug("after plan 1 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
 
         HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), new Position(1,17));
         HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
         PrimitivePlan plan2 = htn2.plan();
-        System.err.println("Plan 2:\n" + plan2);
+        debug("Plan 2:\n" + plan2);
         htn2.commitPlan();
 
-        System.err.println("after plan 2 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+        debug("after plan 2 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
 
         HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
         HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
         PrimitivePlan plan3 = htn3.plan();
-        System.err.println("Plan 3:\n" + plan3);
+        debug("Plan 3:\n" + plan3);
         htn2.commitPlan();
 
-        System.err.println("after plan 3 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+        debug("after plan 3 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
 
         plan1.appendActions(plan2);
         plan1.appendActions(plan3);
-        System.err.println(plan1);
+        debug("" + plan1);
 
         return plan1;
     }
@@ -222,11 +214,11 @@ public class Mind {
     /**
      * This method is more or less a training/test method
      * For testing purposes, like what happens if i simply task the agent with going 3 steps north...
-     * @param target
-     * @return
+     * @param target Goal to solve
+     * @return The primitive plan solving this goal
      */
     public PrimitivePlan clearPath(Goal target) {
-        System.err.println("TEST 1 is running - make sure that the level is ClearPathTest.lvl");
+        debug("TEST 1 is running - make sure that the level is ClearPathTest.lvl");
 
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 

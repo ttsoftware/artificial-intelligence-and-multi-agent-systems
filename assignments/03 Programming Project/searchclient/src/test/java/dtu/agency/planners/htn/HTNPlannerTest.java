@@ -54,8 +54,8 @@ public class HTNPlannerTest {
 
         // Planner initialization
         PlanningLevelService pls = new PlanningLevelService(GlobalLevelService.getInstance().getLevel());
-        Mind mind = new Mind(goal, pls);
-        Ideas ideas = mind.thinkOfIdeas();
+        Mind mind = new Mind(pls);
+        Ideas ideas = mind.thinkOfIdeas(goal);
         System.err.println("Ideas: " + ideas.toString() + "\n");
 
         PlanningLevelService pls1 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());

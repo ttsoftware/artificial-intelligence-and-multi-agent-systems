@@ -1,8 +1,6 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.actions.abstractaction.SolveGoalAction;
-import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.*;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -10,13 +8,8 @@ import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.Mind;
-import dtu.agency.planners.hlplanner.HLPlanner;
-import dtu.agency.planners.htn.HTNPlanner;
-import dtu.agency.planners.htn.RelaxationMode;
-import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
-import dtu.agency.services.DebugService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.PlanningLevelService;
 
@@ -76,12 +69,14 @@ public class AgentThread implements Runnable {
             // We won the bid for this goal!
             System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
 
+            BDIService.getInstance().addMeaningOfLife(event.getGoal()); // update the meaning of this agent's life
+
             PlanningLevelService pls = BDIService.getInstance().getLevelServiceAfterPendingPlans();
 
             Mind mind = new Mind(pls);
 
 //            PrimitivePlan plan = mind.clearPath(event.getGoal()); // use ClearPathTest level as test environment
-//            PrimitivePlan plan = mind.sandbox(event.getGoal()); // use SAD1 level as test environment
+//            PrimitivePlan plan = mind.sandbox(); // use SAD1 level as test environment
             PrimitivePlan plan = mind.solve(event.getGoal()); // solves all levels (ideally)
 
 

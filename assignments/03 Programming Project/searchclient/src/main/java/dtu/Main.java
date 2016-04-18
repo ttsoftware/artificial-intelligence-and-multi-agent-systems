@@ -1,7 +1,5 @@
 package dtu;
 
-import dtu.agency.planners.heuristics.Heuristic;
-import dtu.agency.planners.heuristics.ManhattanHeuristic;
 import server.Runner;
 
 public class Main {
@@ -9,10 +7,10 @@ public class Main {
     public static void main(String[] args) {
 
         // Run the server.jar with the following arguments
-
         String[] serverArgs = {
                 "-l",
-                "levels/SAD1_multi.lvl",
+                "levels/SAhlplan.lvl",
+//                "levels/SAD1_multi.lvl",
 //                "levels/ClearPathTest.lvl",
 //                "levels/SAD1.lvl",
                 "-g",
