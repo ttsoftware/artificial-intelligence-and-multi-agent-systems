@@ -170,6 +170,13 @@ public class PlanningLevelService extends LevelService {
         }
     }
 
+
+    public void revertLast(int numberOfActionsToRevert){
+        for (int i=0; i<numberOfActionsToRevert; i++) {
+            revertLast();
+        }
+    }
+
     public void revertLast(){
         debug("pls.revertLast");
         HLEffect last = appliedEffects.removeLast();

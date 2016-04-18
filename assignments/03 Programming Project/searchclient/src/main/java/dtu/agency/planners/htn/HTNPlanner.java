@@ -98,6 +98,30 @@ public class HTNPlanner {
 
     /**
      * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
+     * @param solveGoalAction
+     * @param mode
+     */
+    public void reload(SolveGoalAction solveGoalAction, RelaxationMode mode){
+        agentDestination = null;
+        this.originalAction = new HMoveBoxAction(
+                solveGoalAction.getBox(),
+                solveGoalAction.getBoxDestination(),
+                solveGoalAction.getAgentDestination(pls)
+        );
+        Position agentOrigin = pls.getPosition(agent);
+        Position boxOrigin = agentOrigin;
+        if (originalAction.getBox()!=null) {
+            boxOrigin = pls.getPosition(originalAction.getBox());
+        }
+        HTNState initialState = new HTNState( agentOrigin, boxOrigin, pls, mode );
+        debug("initial" + initialState.toString());
+        this.initialNode = new HTNNode(initialState, this.originalAction, pls);
+        debug("initial" + initialNode);
+    }
+
+
+    /**
+     * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
      * @param action
      * @param mode
      */
@@ -114,6 +138,8 @@ public class HTNPlanner {
         this.initialNode = new HTNNode(initialState, this.originalAction, pls);
         debug("initial" + initialNode);
     }
+
+
 
     private HTNNode getInitialNode() {
         return new HTNNode(initialNode);
@@ -161,9 +187,7 @@ public class HTNPlanner {
 
         int iterations = 0;
         while (true) {
-            if (iterations % Main.printIterations == 0 ) {
-                debug( strategy.status() );
-            }
+            // if (iterations % 100 == 0 ) debug( strategy.status() );
 
             if (strategy.frontierIsEmpty()) {
                 debug("Frontier is empty, HTNPlanner failed to create a plan!\n");
@@ -175,8 +199,7 @@ public class HTNPlanner {
             }
 
             HTNNode leafNode = strategy.getAndRemoveLeaf();
-            debug(leafNode.toString());
-            debug(strategy.status());
+            debug("Picked " + leafNode.toString());
 
             if (strategy.isExplored(leafNode.getState())) {
                 // reject nodes resulting in states visited already
@@ -251,6 +274,7 @@ public class HTNPlanner {
      */
     public void commitPlan(){
         debug("commit htnPlan into pls:", 2);
+        if (agentDestination == null) throw new AssertionError("htn cannot commit as planning failed");
         Box targetBox = originalAction.getBox();
         Action action;
         if (targetBox==null) {
