@@ -71,17 +71,21 @@ public class HLPlanner {
 //        4. try and move boxes one by one to outer rings,
 //         - will have to detect unavailable paths to free cells (HOW?)
 //         - while storing the change in positions to pls
+        debug("obs pos size: " +obstaclePositions.size());
         debug("",-20);
 
         HTNPlanner htnPlanner = new HTNPlanner( pls, idea, RelaxationMode.NoAgents );
-
-        for (int i = 0; i < obstaclePositions.size() ; i++ ) {
+        while (0 < obstaclePositions.size()) {
 
             // identify the obstacle
             Position obstacleOrigin = obstaclePositions.pollFirst();
             Box box = new Box(pls.getObjectLabels(obstacleOrigin));
+            debug("obstacle: "+box+"@" + obstacleOrigin + " - goal box is " + idea.getBox(),20);
+            debug("",-20);
 
-            if (idea.getBox() != box) { // not the goal box
+            if (!idea.getBox().equals(box)) { // not the goal box
+                debug("obstacle not goal box", 20);
+                debug("", -20);
 
                 Iterator positions = freeNeighbours.getLast().iterator();
                 Position target = (Position) positions.next();
@@ -90,7 +94,7 @@ public class HLPlanner {
 
                 HMoveBoxAction moveObstacle = null;
 
-                while (!validTarget){
+                while (!validTarget) {
 
                     while (positions.hasNext()) {
                         Position next = (Position) positions.next();
@@ -105,6 +109,8 @@ public class HLPlanner {
                     PrimitivePlan prim = htnPlanner.plan();
 
                     if (prim != null) { // it is possible to move the box to this target choose it
+                        debug("found a primitive plan to "+target, 20);
+                        debug("", -20);
                         // Remove this target position from the free neighbours
                         freeNeighbours.getLast().remove(target);
                         if (freeNeighbours.getLast().isEmpty()) freeNeighbours.removeLast();
@@ -115,43 +121,88 @@ public class HLPlanner {
                     if (freeNeighbours.isEmpty()) {
                         // TODO if no more free neighbours - we are stuck! communication required
                         // communicate with agency - let go of goal / call in assistance / commit suicide / whatever
+                        debug("No more free neighbours!!! ", 20);
+                        debug("", -20);
                     }
                 }
 
+                debug("appending to plan and applying to pls: "+moveObstacle, 20);
+                debug("", -20);
                 plan.append(moveObstacle);
                 pls.apply(moveObstacle);
                 committedActions += 1;
 
-
             } else { // next obstacle IS the goal box
-                // count remaining obstacles, and if a path suficiently short exist around them take that
+                // TODO: count remaining obstacles, and if a path suficiently short exist around them take that
                 // else move goalbox out of the way and replan from this state :-) RECURSIVELY
-                debug("next obstacle is goal box");
+                obstaclePositions.addFirst(obstacleOrigin);
+                debug("obstacle is goal box - breaking of", 20);
+                debug("", -20);
+                break;
+            }
+        }
+
+        debug("plan before finding goal box: " + plan.toString(), 20);
+        debug("", -20);
+
+        Position goalBoxOrigin = obstaclePositions.pollFirst();
+
+        HMoveBoxAction moveToGoal = new HMoveBoxAction(
+                idea.getBox(),
+                pls.getPosition(idea.getGoal()),
+                agentDestination
+        );
 
 
+        // investigate if this is possible, if so do it
+        if ( obstaclePositions.size() > 0) { // still obstacles in the way
 //        (5. if target box is only movable box remaining:
 //          - move it out of the path, to a neighbor cell close
 //          - replan on HLPlan, reusing pls! states)
 
-                HMoveBoxAction move = new HMoveBoxAction(
-                        box,
+            // investigate WHERE to move this box before replanning and replan
+            HMoveBoxAction moveOutOfPath = null;
+            PrimitivePlan primitives = null;
+            Iterator neighbours = freeNeighbours.getLast().iterator();
+
+            while (primitives == null) {
+                if (!neighbours.hasNext()) {
+                    freeNeighbours.removeLast();
+                    if (freeNeighbours.isEmpty()) break;
+                }
+                Position boxIntermediateDestination = (Position) neighbours.next();
+                moveOutOfPath = new HMoveBoxAction(
+                        idea.getBox(),
                         pls.getPosition(idea.getGoal()),
-                        pls.getPosition(idea.getGoal())
+                        goalBoxOrigin
                 );
 
-                htnPlanner.reload(move, RelaxationMode.NoAgents);
-                if (htnPlanner.plan()!=null) {
-                    plan.append(move);
-                    pls.apply(move);
-                    committedActions += 1;
-                }
-                else{
-                    debug("HALLO!!!! programmer det nu rekursivt :-)");
-                    // TODO: move the box AND calculate new pseudo path -  before trying again.
-                    return plan();
-                }
+                htnPlanner.reload(moveOutOfPath, RelaxationMode.NoAgents);
+                primitives = htnPlanner.plan();
             }
+
+            if (primitives != null) {
+                plan.append(moveOutOfPath);
+                pls.apply(moveOutOfPath);
+                committedActions += 1;
+            } else {
+                // TODO: what then??
+                debug("we cannot find a place to move the goal box to, and it is in the way...");
+            }
+
+            // Calculate new pseudo path -  before trying again - recursively.
+            htnPlanner.reload(moveToGoal, RelaxationMode.NoAgentsNoBoxes);
+            pseudoPlan = htnPlanner.plan();
+            return plan();
+
+        } else { // path to goal is supposedly free
+
+            plan.append(moveToGoal);
+            pls.apply(moveToGoal);
+            committedActions += 1;
+
         }
+
 
         debug("",-2);
         // restore pls to the state before planning
