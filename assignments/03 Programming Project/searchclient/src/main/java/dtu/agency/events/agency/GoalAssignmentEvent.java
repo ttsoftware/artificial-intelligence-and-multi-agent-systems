@@ -3,7 +3,7 @@ package dtu.agency.events.agency;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.AsyncEvent;
-import dtu.agency.planners.ConcretePlan;
+import dtu.agency.planners.plans.ConcretePlan;
 
 public class GoalAssignmentEvent extends AsyncEvent<ConcretePlan> {
 

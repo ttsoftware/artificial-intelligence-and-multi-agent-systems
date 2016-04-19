@@ -38,13 +38,11 @@ public class AgentThread implements Runnable {
         // TODO: Find number of remaining steps to be executed at this moment
         int remainingSteps = BDIService.getInstance().remainingConcreteActions();
 
-
         Mind mind = new Mind(pls);
 
         Ideas ideas = mind.thinkOfIdeas(goal); // they are automatically stored in BDIService
 
         int totalSteps = remainingSteps + ideas.peekBest().approximateSteps(pls);
-
 
         // print status and communicate with agency
         System.err.println(Thread.currentThread().getName()
@@ -53,9 +51,9 @@ public class AgentThread implements Runnable {
                 + " event and returned: " + Integer.toString(totalSteps));
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(
-                BDIService.getInstance().getAgent(),
-                totalSteps
-        )
+                        BDIService.getInstance().getAgent(),
+                        totalSteps
+                )
         );
     }
 
@@ -80,14 +78,12 @@ public class AgentThread implements Runnable {
 //            PrimitivePlan plan = mind.sandbox(); // use SAD1 level as test environment
             PrimitivePlan plan = mind.solve(event.getGoal()); // solves all levels (ideally)
 
-
             // TODO going from BDI v.3 --> BDI v.4 (REACTIVE AGENT)
             // are we gonna submit the entire primitivePlan to the agency at once??
             // maybe it is better to divide the sending of plans into smaller packages,
             // e.g. solving separate intentions as GotoBox, MoveBox, etc.
             // this will give the agent the possibility of reacting to changes
             // in the environment.
-
 
             // print status and communicate with agency
             System.err.println(Thread.currentThread().getName()
@@ -98,14 +94,4 @@ public class AgentThread implements Runnable {
         }
 
     }
-
-
-
-
-
-
-
-
-
-
 }
