@@ -3,6 +3,7 @@ package dtu.agency;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
@@ -18,10 +19,7 @@ import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.events.client.DetectConflictsEvent;
-import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.services.AgentService;
-import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
@@ -129,54 +127,56 @@ public class Agency implements Runnable {
         List<Integer> conflictingAgents = new ArrayList<>();
 
         event.getCurrentPlans().forEach((agentNumber, concretePlan) -> {
-            ConcreteAction action = concretePlan.getActions().getFirst();
-            switch (action.getType()) {
-                case MOVE:
-                    MoveConcreteAction moveAction = (MoveConcreteAction) action;
-                    Position newMoveAgentPosition = levelService.getAdjacentPositionInDirection(moveAction.getAgentPosition(),
-                                                                                                moveAction.getAgentDirection());
-                    if (!seer.containsKey(newMoveAgentPosition)) {
-                        seer.put(moveAction.getAgentPosition(), agentNumber);
-                        seer.put(newMoveAgentPosition, agentNumber);
-                    }
-                    else {
-                        conflictingAgents.add(seer.get(newMoveAgentPosition));
-                        conflictingAgents.add(agentNumber);
-                    }
-                    break;
-                case PULL:
-                    PullConcreteAction pullAction = (PullConcreteAction) action;
-                    Position newPullBoxPosition = levelService.getPosition(agentNumber.toString());
-                    Position newPullAgentPosition = levelService.getAdjacentPositionInDirection(newPullBoxPosition,
-                                                                                                pullAction.getAgentDirection());
-                    if (!seer.containsKey(newPullAgentPosition)) {
-                        seer.put(levelService.getPosition(pullAction.getBox()), agentNumber);
-                        seer.put(newPullBoxPosition, agentNumber);
-                        seer.put(newPullAgentPosition, agentNumber);
-                    }
-                    else {
-                        conflictingAgents.add(seer.get(newPullAgentPosition));
-                        conflictingAgents.add(agentNumber);
-                    }
+            List<ConcreteAction> actions = concretePlan.getActions();
+            if (!actions.isEmpty()) {
+                ConcreteAction action = actions.get(0);
+                Position currentAgentPosition = levelService.getPosition(agentNumber.toString());
 
-                    break;
-                case PUSH:
-                    PushConcreteAction pushAction = (PushConcreteAction) action;
-                    Position newPushAgentPosition = levelService.getPosition(pushAction.getBox());
-                    Position newPushBoxPosition = levelService.getAdjacentPositionInDirection(newPushAgentPosition,
-                                                                                              pushAction.getBoxDirection());
-                    if (!seer.containsKey(newPushAgentPosition)) {
-                        seer.put(levelService.getPosition(agentNumber.toString()), agentNumber);
-                        seer.put(newPushBoxPosition, agentNumber);
-                        seer.put(newPushAgentPosition, agentNumber);
-                    }
-                    else {
-                        conflictingAgents.add(seer.get(newPushAgentPosition));
-                        conflictingAgents.add(agentNumber);
-                    }
+                switch (action.getType()) {
+                    case MOVE:
+                        MoveConcreteAction moveAction = (MoveConcreteAction) action;
+                        Position newMoveAgentPosition = levelService.getAdjacentPositionInDirection(currentAgentPosition,
+                                moveAction.getAgentDirection());
+                        if (!seer.containsKey(newMoveAgentPosition)) {
+                            seer.put(currentAgentPosition, agentNumber);
+                            seer.put(newMoveAgentPosition, agentNumber);
+                        } else {
+                            conflictingAgents.add(seer.get(newMoveAgentPosition));
+                            conflictingAgents.add(agentNumber);
+                        }
+                        break;
+                    case PULL:
+                        PullConcreteAction pullAction = (PullConcreteAction) action;
+                        Position newPullBoxPosition = levelService.getPosition(agentNumber.toString());
+                        Position newPullAgentPosition = levelService.getAdjacentPositionInDirection(newPullBoxPosition,
+                                pullAction.getAgentDirection());
+                        if (!seer.containsKey(newPullAgentPosition)) {
+                            seer.put(levelService.getPosition(pullAction.getBox()), agentNumber);
+                            seer.put(newPullBoxPosition, agentNumber);
+                            seer.put(newPullAgentPosition, agentNumber);
+                        } else {
+                            conflictingAgents.add(seer.get(newPullAgentPosition));
+                            conflictingAgents.add(agentNumber);
+                        }
 
-                    break;
-                default:
+                        break;
+                    case PUSH:
+                        PushConcreteAction pushAction = (PushConcreteAction) action;
+                        Position newPushAgentPosition = levelService.getPosition(pushAction.getBox());
+                        Position newPushBoxPosition = levelService.getAdjacentPositionInDirection(newPushAgentPosition,
+                                pushAction.getBoxMovingDirection());
+                        if (!seer.containsKey(newPushAgentPosition)) {
+                            seer.put(currentAgentPosition, agentNumber);
+                            seer.put(newPushBoxPosition, agentNumber);
+                            seer.put(newPushAgentPosition, agentNumber);
+                        } else {
+                            conflictingAgents.add(seer.get(newPushAgentPosition));
+                            conflictingAgents.add(agentNumber);
+                        }
+
+                        break;
+                    default:
+                }
             }
         });
 
