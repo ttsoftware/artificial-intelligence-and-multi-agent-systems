@@ -1,7 +1,7 @@
 package dtu.agency.events.client;
 
 import dtu.agency.events.AsyncEvent;
-import dtu.agency.planners.ConcretePlan;
+import dtu.agency.planners.plans.ConcretePlan;
 
 import java.util.HashMap;
 

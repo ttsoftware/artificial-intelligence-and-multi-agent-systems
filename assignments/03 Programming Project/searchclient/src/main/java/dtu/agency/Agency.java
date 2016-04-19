@@ -7,6 +7,7 @@ import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.agent.AgentThread;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
@@ -17,15 +18,21 @@ import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
+import dtu.agency.events.client.DetectConflictsEvent;
+import dtu.agency.events.client.SendServerActionsEvent;
+import dtu.agency.services.AgentService;
 import dtu.agency.planners.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.ThreadService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Agency implements Runnable {
+
+    private static final Object synchronizer = new Object();
 
     public Agency(Level level) {
         GlobalLevelService.getInstance().setLevel(level);
@@ -33,20 +40,24 @@ public class Agency implements Runnable {
 
     @Override
     public void run() {
+        List<Agent> agents = GlobalLevelService.getInstance().getLevel().getAgents();
 
-        List<String> agentLabels = new ArrayList<>();
+        int numberOfAgents = agents.size();
 
-        GlobalLevelService.getInstance().getLevel().getAgents().forEach(agent -> {
-            System.err.println("Starting agent: " + agent.getLabel());
+        AgentService.getInstance().addAgents(agents);
+
+        agents.forEach(agent -> {
+            System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
-            EventBusService.execute(new AgentThread(agent));
-
-            agentLabels.add(agent.getLabel());
+            ThreadService.execute(new AgentThread());
         });
 
         // Register for self-handled events
         EventBusService.register(this);
+
+        // Map of goal -> bestAgent
+        HashMap<Goal, Agent> bestAgents = new HashMap<>();
 
         // Offer goals to agents
         // Each goalQueue is independent of one another so we can parallelStream
@@ -57,41 +68,58 @@ public class Agency implements Runnable {
             while ((goal = goalQueue.poll()) != null) {
 
                 // Register for incoming goal estimations
-                GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, agentLabels.size());
+                GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, numberOfAgents);
                 EventBusService.register(goalEstimationSubscriber);
 
                 // offer the goal
                 System.err.println("Offering goal: " + goal.getLabel());
+
                 EventBusService.post(new GoalOfferEvent(goal));
 
-                // Get the goal estimations and assign goals (blocks)
-                String bestAgent = goalEstimationSubscriber.getBestAgent();
-
-                System.err.println("Assigning goal " + goalEstimationSubscriber.getGoal().getLabel() + " to " + bestAgent);
-                EventBusService.post(new GoalAssignmentEvent(bestAgent, goalEstimationSubscriber.getGoal()));
+                // Get the goal estimations (blocks current thread)
+                bestAgents.put(goal, goalEstimationSubscriber.getBestAgent());
             }
         });
+
+        // assign the goals
+        bestAgents.entrySet().parallelStream().forEach(goalAgentEntry -> {
+            Goal goal = goalAgentEntry.getKey();
+            System.err.println("Assigning goal " + goal.getLabel() + " to " + goalAgentEntry.getValue());
+
+            GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(goalAgentEntry.getValue(), goal);
+
+            EventBusService.post(goalAssignmentEvent);
+
+            // get the plan response (blocks current thread)
+            // how long do we wish to wait for the agents to finish planning?
+             /*
+            ConcretePlan plan = goalAssignmentEvent.getResponse(2000);
+
+            System.err.println("Received offer for " + goal.getLabel() + " from " + goalAgentEntry.getValue());
+
+            EventBusService.post(new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan));
+            */
+        });
+
+        try {
+            // wait indefinitely until problem is solved
+            synchronized (synchronizer) {
+                synchronizer.wait();
+            }
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace(System.err);
+        }
+
+        System.err.println("Agency is exiting.");
     }
 
     @Subscribe
     @AllowConcurrentEvents
     public void planOfferEventSubscriber(PlanOfferEvent event) {
-
         System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
         EventBusService.post(new SendServerActionsEvent(event.getAgent(), event.getPlan()));
-    }
-
-    @Subscribe
-    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
-        // wait for all threads to finish
-        EventBusService.getThreads().forEach(t -> {
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        });
     }
 
     @Subscribe
@@ -155,6 +183,17 @@ public class Agency implements Runnable {
         event.setResponse(false);
         if (conflictingAgents.size() > 0) {
             event.setResponse(true);
+        }
+    }
+
+    @Subscribe
+    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
+        // wait for all threads to finish
+        ThreadService.shutdown();
+
+        // allow this thread to be joined
+        synchronized (synchronizer) {
+            synchronizer.notify();
         }
     }
 }

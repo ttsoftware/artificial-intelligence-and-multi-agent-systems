@@ -10,6 +10,8 @@ public abstract class BoardObject implements Serializable {
         this.label = label;
     }
 
+    public abstract BoardCell getType();
+
     public String getLabel() {
         return label;
     }
@@ -17,5 +19,17 @@ public abstract class BoardObject implements Serializable {
     @Override
     public String toString() {
         return getLabel();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (object == null)
+            return false;
+        if (object.getClass() != this.getClass())
+            return false;
+        BoardObject other = (BoardObject) object;
+        return (other.getLabel().equals(label));
     }
 }

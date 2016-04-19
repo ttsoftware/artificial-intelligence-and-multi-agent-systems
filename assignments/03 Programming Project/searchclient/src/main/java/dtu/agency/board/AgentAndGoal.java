@@ -11,11 +11,22 @@ public class AgentAndGoal extends BoardObject {
         this.goal = goal;
     }
 
+    public AgentAndGoal(AgentAndGoal other) {
+        super(other.getLabel());
+        this.agent = new Agent (other.getAgent());
+        this.goal = new Goal (other.getGoal());
+    }
+
     public Agent getAgent() {
         return agent;
     }
 
     public Goal getGoal() {
         return goal;
+    }
+
+    @Override
+    public BoardCell getType() {
+        return BoardCell.AGENT_GOAL;
     }
 }

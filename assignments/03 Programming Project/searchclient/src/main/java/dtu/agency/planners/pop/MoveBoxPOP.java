@@ -2,7 +2,7 @@ package dtu.agency.planners.pop;
 
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.MoveBoxAbstractAction;
-import dtu.agency.actions.concreteaction.ActionComparator;
+import dtu.agency.actions.abstractaction.actioncomparators.ConcreteActionComparator;
 import dtu.agency.actions.concreteaction.MoveBoxConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Position;
@@ -38,7 +38,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
 
             Position nextActionPosition = GlobalLevelService.getInstance().getPositionInDirection(
                     nextAction.getBoxPosition(),
-                    nextAction.getBoxDirection()
+                    nextAction.getBoxMovingDirection()
             );
 
             if (nextActionPosition.isAdjacentTo(boxStartPosition)) {
@@ -98,7 +98,7 @@ public class MoveBoxPOP extends AbstractPOP<MoveBoxAbstractAction> {
      */
     public PriorityQueue<MoveBoxConcreteAction> solvePrecondition(BoxAtPrecondition boxPrecondition) {
 
-        PriorityQueue<MoveBoxConcreteAction> actions = new PriorityQueue<>(new ActionComparator());
+        PriorityQueue<MoveBoxConcreteAction> actions = new PriorityQueue<>(new ConcreteActionComparator());
 
         /*
 

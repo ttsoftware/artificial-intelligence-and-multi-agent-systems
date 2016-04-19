@@ -1,7 +1,7 @@
 package dtu.agency.planners.pop;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.concreteaction.ActionComparator;
+import dtu.agency.actions.abstractaction.actioncomparators.ConcreteActionComparator;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.planners.pop.preconditions.AgentAtPrecondition;
 import dtu.agency.planners.pop.preconditions.Precondition;
@@ -68,7 +68,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
      * @return A queue of MoveActions which solves the given precondition
      */
     public PriorityQueue<ConcreteAction> solvePrecondition(AgentAtPrecondition precondition) {
-        PriorityQueue<ConcreteAction> concreteActions = new PriorityQueue<>(new ActionComparator());
+        PriorityQueue<ConcreteAction> concreteActions = new PriorityQueue<>(new ConcreteActionComparator());
 
         List<Neighbour> neighbours = GlobalLevelService.getInstance().getFreeNeighbours(
                 precondition.getAgentPreconditionPosition()
