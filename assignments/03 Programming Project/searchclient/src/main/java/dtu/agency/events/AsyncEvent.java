@@ -14,11 +14,11 @@ public class AsyncEvent<T> extends Event {
     private CountDownLatch latch = new CountDownLatch(1);
 
     /**
-     * Default overloaded getResponse with 1 millisecond.
+     * Default overloaded getResponse with 2^32-1 millisecond.
      * @return
      */
     public T getResponse() {
-        return getResponse(1);
+        return getResponse(Integer.MAX_VALUE);
     }
 
     /**

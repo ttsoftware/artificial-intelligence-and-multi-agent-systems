@@ -1,13 +1,13 @@
 package dtu.agency.events.client;
 
 import dtu.agency.board.Agent;
-import dtu.agency.events.Event;
+import dtu.agency.events.AsyncEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 
-public class SendServerActionsEvent extends Event {
+public class SendServerActionsEvent extends AsyncEvent<Boolean> {
 
     private final Agent agent;
-    private final ConcretePlan concretePlan;
+    private ConcretePlan concretePlan;
 
     /**
      * The plannerclient listens for these events, and forwards them to the server
@@ -20,6 +20,10 @@ public class SendServerActionsEvent extends Event {
 
     public ConcretePlan getConcretePlan() {
         return concretePlan;
+    }
+
+    public void setConcretePlan(ConcretePlan concretePlan) {
+        this.concretePlan = concretePlan;
     }
 
     public Agent getAgent() {

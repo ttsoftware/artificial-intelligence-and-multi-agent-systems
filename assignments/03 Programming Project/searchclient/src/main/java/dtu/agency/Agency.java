@@ -13,12 +13,12 @@ import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
+import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.AgentService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class Agency implements Runnable {
@@ -47,9 +47,6 @@ public class Agency implements Runnable {
         // Register for self-handled events
         EventBusService.register(this);
 
-        // Map of goal -> bestAgent
-        HashMap<Goal, Agent> bestAgents = new HashMap<>();
-
         // Offer goals to agents
         // Each goalQueue is independent of one another so we can parallelStream
         GlobalLevelService.getInstance().getLevel().getGoalQueues().parallelStream().forEach(goalQueue -> {
@@ -68,28 +65,27 @@ public class Agency implements Runnable {
                 EventBusService.post(new GoalOfferEvent(goal));
 
                 // Get the goal estimations (blocks current thread)
-                bestAgents.put(goal, goalEstimationSubscriber.getBestAgent());
+                Agent bestAgent = goalEstimationSubscriber.getBestAgent();
+
+                // Assign this goal, and wait for response
+                System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
+
+                GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
+                EventBusService.post(goalAssignmentEvent);
+
+                // get the response containing the plan (blocks current thread)
+                // how long do we wish to wait for the agents to finish planning?
+                // right now we wait 2^32-1 milliseconds
+                ConcretePlan plan = goalAssignmentEvent.getResponse();
+
+                System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
+
+                SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
+                EventBusService.post(sendActionsEvent);
+
+                // wait for the plan to finish executing
+                boolean isFinished = sendActionsEvent.getResponse();
             }
-        });
-
-        // assign the goals
-        bestAgents.entrySet().parallelStream().forEach(goalAgentEntry -> {
-            Goal goal = goalAgentEntry.getKey();
-            System.err.println("Assigning goal " + goal.getLabel() + " to " + goalAgentEntry.getValue());
-
-            GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(goalAgentEntry.getValue(), goal);
-
-            EventBusService.post(goalAssignmentEvent);
-
-            // get the plan response (blocks current thread)
-            // how long do we wish to wait for the agents to finish planning?
-             /*
-            ConcretePlan plan = goalAssignmentEvent.getResponse(2000);
-
-            System.err.println("Received offer for " + goal.getLabel() + " from " + goalAgentEntry.getValue());
-
-            EventBusService.post(new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan));
-            */
         });
 
         try {
@@ -97,8 +93,7 @@ public class Agency implements Runnable {
             synchronized (synchronizer) {
                 synchronizer.wait();
             }
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace(System.err);
         }
 
