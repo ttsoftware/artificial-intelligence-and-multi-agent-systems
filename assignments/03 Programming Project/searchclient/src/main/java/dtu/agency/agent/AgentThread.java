@@ -92,6 +92,5 @@ public class AgentThread implements Runnable {
 
             EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), plan)); // execute plan
         }
-
     }
 }

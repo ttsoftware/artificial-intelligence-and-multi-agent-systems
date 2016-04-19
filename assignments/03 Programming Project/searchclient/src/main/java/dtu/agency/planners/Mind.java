@@ -115,7 +115,7 @@ public class Mind {
                 debug("Implement HL Planning here");
 
                 DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // ***     DEBUGGING LEVEL     ***
-                boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
+                boolean oldDebugMode = DebugService.setDebugMode(false);     // *** START DEBUGGER MESSAGES ***
 
                 // create a HLPlan
                 HLPlanner planner = new HLPlanner(bestIdea, relaxedPlan, pls);
