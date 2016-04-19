@@ -1,14 +1,16 @@
-package dtu.agency.planners.htn;
+package dtu.agency.planners.plans;
 
 import dtu.agency.actions.Action;
-import dtu.agency.planners.Plan;
 
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * MixedPlan Makes for Entries of both concrete and abstract actions
+ */
 public class MixedPlan implements Plan {
 
-    private LinkedList<Action> actions;
+    private final LinkedList<Action> actions;
 
     public MixedPlan() {
         this.actions = new LinkedList<>();

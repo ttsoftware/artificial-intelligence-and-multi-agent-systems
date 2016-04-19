@@ -6,8 +6,8 @@ import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Box;
-import dtu.agency.planners.ConcretePlan;
-import dtu.agency.planners.htn.PrimitivePlan;
+import dtu.agency.planners.plans.ConcretePlan;
+import dtu.agency.planners.plans.PrimitivePlan;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -108,4 +108,8 @@ public class Level {
     public List<Goal> getGoals() {
         return goals;
     }
+
+    public void setBoxes(List<Box> boxes) {
+        this.boxes = boxes;
+    }
 }

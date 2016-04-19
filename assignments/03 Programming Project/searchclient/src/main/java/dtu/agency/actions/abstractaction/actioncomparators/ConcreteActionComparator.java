@@ -1,10 +1,10 @@
-package dtu.agency.actions.concreteaction;
+package dtu.agency.actions.abstractaction.actioncomparators;
 
 import dtu.agency.actions.ConcreteAction;
 
 import java.util.Comparator;
 
-public class ActionComparator implements Comparator<ConcreteAction> {
+public class ConcreteActionComparator implements Comparator<ConcreteAction> {
 
     @Override
     public int compare(ConcreteAction concreteActionA, ConcreteAction concreteActionB) {

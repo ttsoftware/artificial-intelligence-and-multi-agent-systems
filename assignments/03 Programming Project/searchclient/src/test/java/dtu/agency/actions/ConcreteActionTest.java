@@ -1,18 +1,19 @@
 package dtu.agency.actions;
 
 /**
- * Created by koeus on 4/1/16.
+ * Class to test concrete actions
  */
 
 import dtu.agency.ProblemMarshaller;
+import dtu.agency.ProblemMarshallerTest;
 import dtu.agency.actions.concreteaction.*;
-import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNState;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,6 +37,8 @@ public class ConcreteActionTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
+        Level level = ProblemMarshallerTest.marshall("/action_test.lvl");
+        PlanningLevelService pls = new PlanningLevelService(level);
 
         //z  = new Position(0,0);
         z  = null;
@@ -65,43 +68,43 @@ public class ConcreteActionTest {
         psw = new Position(3,1);
 
         // states where no box is present
-        noc = new HTNState(pc,z, mode);
-        non = new HTNState(pn,z, mode);
-        nos = new HTNState(ps,z, mode);
-        noe = new HTNState(pe,z, mode);
-        now = new HTNState(pw,z, mode);
+        noc = new HTNState(pc,z, pls, mode);
+        non = new HTNState(pn,z, pls, mode);
+        nos = new HTNState(ps,z, pls, mode);
+        noe = new HTNState(pe,z, pls, mode);
+        now = new HTNState(pw,z, pls, mode);
 
         // states where box is neighbour to agent
-        acbn = new HTNState(pc, pn, mode);
-        acbs = new HTNState(pc, ps, mode);
-        acbe = new HTNState(pc, pe, mode);
-        acbw = new HTNState(pc, pw, mode);
-        anbc = new HTNState(pn, pc, mode);
-        asbc = new HTNState(ps, pc, mode);
-        aebc = new HTNState(pe, pc, mode);
-        awbc = new HTNState(pw, pc, mode);
+        acbn = new HTNState(pc, pn, pls, mode);
+        acbs = new HTNState(pc, ps, pls, mode);
+        acbe = new HTNState(pc, pe, pls, mode);
+        acbw = new HTNState(pc, pw, pls, mode);
+        anbc = new HTNState(pn, pc, pls, mode);
+        asbc = new HTNState(ps, pc, pls, mode);
+        aebc = new HTNState(pe, pc, pls, mode);
+        awbc = new HTNState(pw, pc, pls, mode);
 
         // states where box is NOT neighbour to agent
-        acbne = new HTNState(pc, pne, mode);
-        acbnw = new HTNState(pc, pnw, mode);
-        acbse = new HTNState(pc, pse, mode);
-        acbsw = new HTNState(pc, psw, mode);
+        acbne = new HTNState(pc, pne, pls, mode);
+        acbnw = new HTNState(pc, pnw, pls, mode);
+        acbse = new HTNState(pc, pse, pls, mode);
+        acbsw = new HTNState(pc, psw, pls, mode);
 
         // other states
-        anbne = new HTNState(pn, pne, mode);
-        anbnw = new HTNState(pn, pnw, mode);
-        aebne = new HTNState(pe, pne, mode);
-        aebse = new HTNState(pe, pse, mode);
-        asbse = new HTNState(ps, pse, mode);
-        asbsw = new HTNState(ps, psw, mode);
-        awbnw = new HTNState(pw, pnw, mode);
-        awbsw = new HTNState(pw, psw, mode);
+        anbne = new HTNState(pn, pne, pls, mode);
+        anbnw = new HTNState(pn, pnw, pls, mode);
+        aebne = new HTNState(pe, pne, pls, mode);
+        aebse = new HTNState(pe, pse, pls, mode);
+        asbse = new HTNState(ps, pse, pls, mode);
+        asbsw = new HTNState(ps, psw, pls, mode);
+        awbnw = new HTNState(pw, pnw, pls, mode);
+        awbsw = new HTNState(pw, psw, pls, mode);
 
 
-        aswbs = new HTNState(psw, ps, mode);
-        aswbw = new HTNState(psw, pw, mode);
-        anebn = new HTNState(pne, pn, mode);
-        anebe = new HTNState(pne, pe, mode);
+        aswbs = new HTNState(psw, ps, pls, mode);
+        aswbw = new HTNState(psw, pw, pls, mode);
+        anebn = new HTNState(pne, pn, pls, mode);
+        anebe = new HTNState(pne, pe, pls, mode);
 
         box = new Box("A");
 

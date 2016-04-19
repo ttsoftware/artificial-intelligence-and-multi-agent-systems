@@ -22,7 +22,7 @@ public class PartialOrderPlanner {
             case RGotoAction:
                 plan = new GotoPOP(agent).plan((GotoAbstractAction) action);
                 break;
-            case MoveBoxAction:
+            case RMoveBoxAction:
                 plan = new MoveBoxPOP(agent).plan((MoveBoxAbstractAction) action);
                 break;
         }

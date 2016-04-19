@@ -1,7 +1,8 @@
 package dtu.agency.planners.htn;
 
 /**
- * Created by koeus on 4/11/16.
+ * Different modes of relaxation,
+ * needed when it is necessary to discover a path through cells that are not free
  */
 public enum RelaxationMode {
     None,            // All board objects are considered

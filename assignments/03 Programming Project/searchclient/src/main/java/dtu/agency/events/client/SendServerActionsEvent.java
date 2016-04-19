@@ -2,7 +2,7 @@ package dtu.agency.events.client;
 
 import dtu.agency.board.Agent;
 import dtu.agency.events.Event;
-import dtu.agency.planners.ConcretePlan;
+import dtu.agency.planners.plans.ConcretePlan;
 
 public class SendServerActionsEvent extends Event {
 

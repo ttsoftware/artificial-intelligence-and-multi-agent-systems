@@ -1,14 +1,10 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.NoAction;
-import dtu.agency.agent.bdi.AgentDesire;
+import dtu.agency.agent.bdi.Ideas;
+import dtu.agency.agent.bdi.PrimitiveDesire;
 import dtu.agency.agent.bdi.AgentIntention;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Level;
-import dtu.agency.board.Position;
-import dtu.agency.planners.htn.HTNGoalPlanner;
+import dtu.agency.board.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,10 +17,12 @@ import java.util.LinkedList;
 public class BDIService {
 
     private Agent agent;
+    private Box currentTargetBox; // used for saving box when planning!
     private Position agentCurrentPosition;
-    private AgentDesire primitivePlans;
+    private PrimitiveDesire primitivePlans;
+    private LinkedList<Goal> meaningOfLife;
     private LinkedList<AgentIntention> intentions;
-    private HashMap<String, HTNGoalPlanner> bids; // everything the agent want to achieve (aka desires :-) )
+    private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
     private BDILevelService bdiLevelService;
 
     private static ThreadLocal<BDIService> threadLocal = new ThreadLocal<>();
@@ -44,29 +42,39 @@ public class BDIService {
 
     public BDIService(Agent agent) {
         this.agent = agent;
+        this.currentTargetBox = null;
+
         Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
 
-        agentCurrentPosition = bdiLevelService.getPosition(this.agent);
-
-        //bdiLevelService.removeAgent(this.agent);
-        //bdiLevelService.insertAgent(this.agent, agentCurrentPosition);
-
-        primitivePlans = new AgentDesire(new NoAction(agentCurrentPosition));
+        primitivePlans = new PrimitiveDesire(null);
+        meaningOfLife = new LinkedList<>();
         intentions = new LinkedList<>();
-        bids = new HashMap<>();
+        ideas = new HashMap<>();
     }
 
     public Agent getAgent() {
         return agent;
     }
 
-    public AgentDesire getPrimitivePlans() {
+    public Position getAgentCurrentPosition() {
+        return bdiLevelService.getPosition(agent);
+    }
+
+    public PrimitiveDesire getPrimitivePlans() {
         return primitivePlans;
     }
 
-    public HashMap<String, HTNGoalPlanner> getBids() {
-        return bids;
+    public HashMap<String, Ideas> getIdeas() {
+        return ideas;
+    }
+
+    public void addMeaningOfLife(Goal target) {
+        meaningOfLife.addLast(target);
+    }
+
+    public LinkedList<Goal> getMeaningOfLife() {
+        return meaningOfLife;
     }
 
     public LinkedList<AgentIntention> getIntentions() {
@@ -78,7 +86,7 @@ public class BDIService {
     }
 
     public Box getCurrentTargetBox() {
-        return getCurrentIntention().getHighLevelPlan().peek().getBox();
+        return currentTargetBox;
     }
 
     public void appendIntention(HLAction intention) {
@@ -87,5 +95,25 @@ public class BDIService {
 
     public BDILevelService getBDILevelService() {
         return bdiLevelService;
+    }
+
+    public void setCurrentTargetBox(Box currentTargetBox) {
+        this.currentTargetBox = currentTargetBox;
+    }
+
+    /**
+     * TODO: This PLS should be changed to incluce the execution of the current intention
+     * @return This PLS includes the execution of the current intention
+     */
+    public PlanningLevelService getLevelServiceAfterPendingPlans() {
+        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+    }
+
+    /**
+     * TODO: this should return the length of the current intended plans
+     * @return the length of the current intended plans in number of steps
+     */
+    public int remainingConcreteActions(){
+        return 0;
     }
 }

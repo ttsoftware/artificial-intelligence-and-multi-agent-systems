@@ -1,12 +1,15 @@
 package dtu.agency.planners.htn;
 
 import dtu.agency.ProblemMarshallerTest;
+import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
+import dtu.agency.planners.Mind;
+import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
-import dtu.agency.services.DebugService;
 import dtu.agency.services.GlobalLevelService;
+import dtu.agency.services.PlanningLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -50,18 +53,27 @@ public class HTNPlannerTest {
         BDIService.setInstance(new BDIService(agent));
 
         // Planner initialization
-        HTNPlanner htn = new HTNGoalPlanner(goal);
-        System.err.println("HTNPlannerTest: " + htn.toString() + "\n");
+        PlanningLevelService pls = new PlanningLevelService(GlobalLevelService.getInstance().getLevel());
+        Mind mind = new Mind(pls);
+        Ideas ideas = mind.thinkOfIdeas(goal);
+        System.err.println("Ideas: " + ideas.toString() + "\n");
+
+        PlanningLevelService pls1 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+        PlanningLevelService pls2 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+        HTNPlanner htn1 = new HTNPlanner(pls1, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+        HTNPlanner htn2 = new HTNPlanner(pls2, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
+        System.err.println("HTNPlannerTest: " + htn1.toString() + "\n");
+        System.err.println("HTNPlannerTest: " + htn2.toString() + "\n");
 
         // Does heuristics calculation work
-        int stepsApproximation = htn.getBestPlanApproximation();
+        int stepsApproximation = htn2.getBestPlanApproximation();
         assertTrue("HTNPlannerTest: Heuristic Approximation should be non-negative", stepsApproximation>=0);
         System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
 
         // does it find a plan? Maybe we would like to debug this area of the code
-        boolean oldDebugMode = DebugService.setDebugMode(true);
-        PrimitivePlan plan = htn.plan();
-        DebugService.setDebugMode(oldDebugMode);
+//        boolean oldDebugMode = DebugService.setDebugMode(true);
+        PrimitivePlan plan = htn2.plan();
+//        DebugService.setDebugMode(oldDebugMode);
 
         assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
         System.err.println("HTNPlannerTest: " + plan.toString() + "\n");

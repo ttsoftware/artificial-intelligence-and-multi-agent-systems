@@ -1,13 +1,14 @@
 package dtu.agency.planners.htn.heuristic;
 
 import dtu.agency.planners.htn.HTNNode;
+import dtu.agency.services.PlanningLevelService;
 
-public class WeightedAStarHeuristicComparator extends HeuristicComparator {
+public class WeightedAStarHTNNodeComparator extends HTNNodeComparator {
 
     private int weight;
 
-    public WeightedAStarHeuristicComparator(Heuristic heuristic, int weight) {
-        super(heuristic);
+    public WeightedAStarHTNNodeComparator(PlanningLevelService pls, int weight) {
+        super(pls);
         this.weight = weight;
     }
 

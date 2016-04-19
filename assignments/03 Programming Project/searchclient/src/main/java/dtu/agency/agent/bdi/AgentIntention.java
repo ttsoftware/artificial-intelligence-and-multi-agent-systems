@@ -1,21 +1,20 @@
 package dtu.agency.agent.bdi;
 
 
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.planners.agentplanner.HLPlan;
+import dtu.agency.planners.plans.HLPlan;
 
 public class AgentIntention {
     // (top level) Intentions are really SolveGoalSuperActions()
     // but could also be other orders issued by TheAgency
-    private final HLAction intention;
-    private HLPlan highLevelPlan;  // consisting of 'pure' HLActions??
+    private final dtu.agency.actions.abstractaction.hlaction.HLAction intention;
+    private HLPlan highLevelPlan;
 
-    public AgentIntention(HLAction topIntention) {
+    public AgentIntention(dtu.agency.actions.abstractaction.hlaction.HLAction topIntention) {
         highLevelPlan = new HLPlan();
         intention = topIntention;
     }
 
-    public HLAction getIntention() {
+    public dtu.agency.actions.abstractaction.hlaction.HLAction getIntention() {
         return intention;
     }
 

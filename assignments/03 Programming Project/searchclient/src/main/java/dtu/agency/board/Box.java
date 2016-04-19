@@ -13,4 +13,14 @@ public class Box extends BoardObject {
     public Box(Box box) {
         super(box.getLabel());
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Box) {
+            return super.equals(object);
+        }
+        return false;
+    }
+
 }
+

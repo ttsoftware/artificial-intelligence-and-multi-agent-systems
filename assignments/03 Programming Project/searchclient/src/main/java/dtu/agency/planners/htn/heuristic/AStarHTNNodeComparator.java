@@ -1,11 +1,12 @@
 package dtu.agency.planners.htn.heuristic;
 
 import dtu.agency.planners.htn.HTNNode;
+import dtu.agency.services.PlanningLevelService;
 
-public class AStarHeuristicComparator extends HeuristicComparator {
+public class AStarHTNNodeComparator extends HTNNodeComparator {
 
-    public AStarHeuristicComparator(Heuristic heuristic) {
-        super(heuristic);
+    public AStarHTNNodeComparator(PlanningLevelService pls) {
+        super(pls);
     }
 
     public int f(HTNNode node) {
