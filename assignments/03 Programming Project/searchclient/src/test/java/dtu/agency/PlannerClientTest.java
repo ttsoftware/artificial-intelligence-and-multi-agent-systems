@@ -11,12 +11,14 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.*;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
 public class PlannerClientTest {
 
+    private static File resourcesDirectory = new File("src/test/resources");
     private HashMap<Integer, ConcretePlan> agentsPlans = new HashMap<>();
 
     @Before
@@ -40,6 +42,17 @@ public class PlannerClientTest {
         agentsPlans.put(1, plan1);
         agentsPlans.put(2, plan2);
         agentsPlans.put(3, plan3);
+    }
+
+    @Test
+    public void testMain() throws Exception {
+
+        String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi.lvl";
+        FileInputStream inputStream = new FileInputStream(path);
+
+        System.setIn(inputStream);
+
+        PlannerClient.main(new String[]{});
     }
 
     @Test

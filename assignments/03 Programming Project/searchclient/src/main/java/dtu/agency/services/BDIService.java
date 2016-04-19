@@ -47,16 +47,6 @@ public class BDIService {
         Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
 
-        // TODO: make this a unit test instead!
-        if (bdiLevelService.getLevel().getBoardObjectPositions()
-                == GlobalLevelService.getInstance().getLevel().getBoardObjectPositions()) {
-            try {
-                throw new Exception("We must deepcopy");
-            } catch (Exception e) {
-                e.printStackTrace(System.err);
-            }
-        }
-
         primitivePlans = new PrimitiveDesire(null);
         meaningOfLife = new LinkedList<>();
         intentions = new LinkedList<>();

@@ -34,4 +34,9 @@ public class Goal extends BoardObject implements Comparable<Goal> {
     public BoardCell getType() {
         return BoardCell.GOAL;
     }
+
+    @Override
+    public int hashCode() {
+        return label.hashCode();
+    }
 }

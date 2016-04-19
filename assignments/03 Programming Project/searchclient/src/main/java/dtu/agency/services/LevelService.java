@@ -19,7 +19,7 @@ public abstract class LevelService {
     protected Level level;
 
     public Level getLevel() {
-        return new Level(level);
+        return level;
     }
 
     /**
