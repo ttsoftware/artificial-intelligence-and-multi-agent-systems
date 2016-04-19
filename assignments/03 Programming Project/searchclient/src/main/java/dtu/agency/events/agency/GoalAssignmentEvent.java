@@ -1,15 +1,17 @@
 package dtu.agency.events.agency;
 
+import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
-import dtu.agency.events.Event;
+import dtu.agency.events.AsyncEvent;
+import dtu.agency.planners.plans.ConcretePlan;
 
-public class GoalAssignmentEvent extends Event {
+public class GoalAssignmentEvent extends AsyncEvent<ConcretePlan> {
 
-    private final String agentLabel;
+    private final Agent agent;
     private final Goal goal;
 
-    public GoalAssignmentEvent(String label, Goal goal) {
-        this.agentLabel = label;
+    public GoalAssignmentEvent(Agent agent, Goal goal) {
+        this.agent = agent;
         this.goal = goal;
     }
 
@@ -17,7 +19,7 @@ public class GoalAssignmentEvent extends Event {
         return goal;
     }
 
-    public String getAgentLabel() {
-        return agentLabel;
+    public Agent getAgent() {
+        return agent;
     }
 }

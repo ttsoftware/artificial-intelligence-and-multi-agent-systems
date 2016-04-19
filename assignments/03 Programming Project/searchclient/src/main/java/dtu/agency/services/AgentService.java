@@ -9,14 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AgentService {
 
     private static ArrayBlockingQueue<Agent> availableAgents;
-    private static ConcurrentHashMap<String, BDIService> bdiServices;
+    private static final ConcurrentHashMap<String, BDIService> bdiServices = new ConcurrentHashMap<>();
 
     private static AgentService instance;
 
     public static AgentService getInstance() {
         if (instance == null) {
             instance = new AgentService();
-            bdiServices = new ConcurrentHashMap<>();
         }
         return instance;
     }
@@ -27,8 +26,8 @@ public class AgentService {
      * @param bdiService
      */
     public void addAgent(Agent agent, BDIService bdiService) {
-        availableAgents.add(agent);
         synchronized (bdiServices) {
+            availableAgents.add(agent);
             bdiServices.put(agent.getLabel(), bdiService);
             bdiServices.notify();
         }
@@ -37,12 +36,6 @@ public class AgentService {
     public void addAgents(List<Agent> agentList) {
         availableAgents = new ArrayBlockingQueue<>(agentList.size());
         availableAgents.addAll(agentList);
-        // Create BDIServices for each agent
-        agentList.forEach(agent -> {
-            BDIService bdiService = new BDIService(agent);
-            BDIService.setInstance(bdiService);
-            bdiServices.put(agent.getLabel(), BDIService.getInstance());
-        });
     }
 
     /**
@@ -51,7 +44,16 @@ public class AgentService {
      * @return
      */
     public Agent take() throws InterruptedException {
-        return availableAgents.take();
+        Agent agent = availableAgents.take();
+
+        if (!bdiServices.containsKey(agent.getLabel())) {
+            // Create BDIServices for this agent if it does not exist
+            BDIService bdiService = new BDIService(agent);
+            BDIService.setInstance(bdiService);
+            bdiServices.put(agent.getLabel(), BDIService.getInstance());
+        }
+
+        return agent;
     }
 
     /**
@@ -64,7 +66,7 @@ public class AgentService {
 
         BDIService bdiService;
 
-        // TODO: This should be replaced with a real guarded blocking datastructure
+        // TODO: This could be replaced with a real guarded lock datastructure
         while ((bdiService = bdiServices.get(agent.getLabel())) == null) {
             try {
                 synchronized (bdiServices) {

@@ -1,22 +1,32 @@
 package dtu.agency.services;
 
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.*;
+import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class LevelService {
+    protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
+    protected static void debug(String msg){ debug(msg, 0); }
 
     protected Level level;
 
     public Level getLevel() {
         return level;
+    }
+
+    /**
+     * @return A clone of the level object
+     */
+    public Level getLevelClone() {
+        return new Level(level);
     }
 
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
@@ -28,7 +38,7 @@ public abstract class LevelService {
 
     public synchronized boolean push(Agent agent, PushConcreteAction action) {
         // move the box to the new position
-        boolean moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
+        boolean moveSuccess = moveObject(action.getBox(), action.getBoxMovingDirection());
 
         if (moveSuccess) {
             // if we could move the box, we can also move the agency to the new position
@@ -43,7 +53,8 @@ public abstract class LevelService {
         boolean moveSuccess = moveObject(agent, action.getAgentDirection());
 
         if (moveSuccess) {
-            moveSuccess = moveObject(action.getBox(), action.getBoxDirection());
+            moveSuccess = moveObject(action.getBox(), action.getBoxMovingDirection());
+            // TODO: check if this introduces errors, but i think i fixed a bug, else add getInverse() to getBoxMovingDirection()
 
             if (!moveSuccess) {
                 // if we could not move the box, we have to move the agency back
@@ -56,12 +67,11 @@ public abstract class LevelService {
 
     /**
      * Move a single BoardObject into a new position
-     *
      * @param boardObject
      * @param direction
      * @return
      */
-    private synchronized boolean moveObject(BoardObject boardObject, Direction direction) {
+    protected synchronized boolean moveObject(BoardObject boardObject, Direction direction) {
 
         BoardCell[][] boardState = level.getBoardState();
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
@@ -338,6 +348,7 @@ public abstract class LevelService {
     }
 
     public synchronized String getObjectLabels(Position pos) {
+        debug("getObject:");
         return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
     }
 
@@ -347,6 +358,196 @@ public abstract class LevelService {
 
     public synchronized Position getPosition(String objectLabel) {
         return level.getBoardObjectPositions().get(objectLabel);
+    }
+
+    /**
+     * Insert a box into the level
+     * Usage: when returning responsibility of the box to this levelservice
+     * @param box Box to insert into level
+     * @param position Position to insert the box in the level
+     */
+    protected synchronized void insertBox(Box box, Position position) {
+        debug("Inserting box into level",2);
+        int row = position.getRow();
+        int column = position.getColumn();
+
+        BoardCell[][] boardState = level.getBoardState();
+        BoardCell cell = boardState[row][column];
+        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
+
+        switch (cell) {       // update the cell where the agent is now located
+            case FREE_CELL:
+                boardState[row][column] = BoardCell.BOX;
+                break;
+            case GOAL:
+                boardState[row][column] = BoardCell.BOX_GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
+        }
+        level.setBoardState(boardState);
+        debug("Box inserted into level.boardState");
+
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(box.getLabel()) != null)
+            throw new AssertionError("Expected the box NOT to exist in the level");
+        objectPositions.put(box.getLabel(), new Position(row, column));
+        level.setBoardObjectPositions(objectPositions);
+        debug("Box inserted into level.boardObjectPositions");
+
+        List<Box> boxes = level.getBoxes();
+        if (boxes.contains(box))
+            throw new AssertionError("Box should not exist in level before adding it");
+        boxes.add(box);
+        level.setBoxes(boxes);
+        debug("Box inserted into level.boxes");
+
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = box;
+        level.setBoardObjects(boardObjects);
+        debug("Box inserted into level.boardObjects",-2);
+    }
+
+    /**
+     * Insert an agent into the level at a given position
+     * Usage: when responsibility of agent is returned to level
+     * @param agent Agent to insert into level
+     * @param position Position to insert the agent
+     */
+    protected synchronized void insertAgent(Agent agent, Position position) {
+        debug("Inserting Agent into (planning) level",2);
+        int row = position.getRow();
+        int column = position.getColumn();
+
+        BoardCell[][] boardState = level.getBoardState();
+        BoardCell cell = boardState[row][column];
+        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
+
+        switch (cell) {       // update the cell where the agent is now located
+            case FREE_CELL:
+                //level.getBoardState()[row][column] = BoardCell.AGENT;
+                boardState[row][column] = BoardCell.AGENT;
+                break;
+            case GOAL:
+                //level.getBoardState()[row][column] = BoardCell.AGENT_GOAL;
+                boardState[row][column] = BoardCell.AGENT_GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
+        }
+        level.setBoardState(boardState);
+        debug("Agent inserted into level.boardState");
+
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(agent.getLabel()) != null)
+            throw new AssertionError("Expected the agent NOT to exist in the level");
+        objectPositions.put(agent.getLabel(), new Position(row, column));
+        level.setBoardObjectPositions(objectPositions);
+        debug("Agent inserted into level.boardObjectPositions");
+
+        List<Agent> agents = level.getAgents();
+        if (agents.contains(agent))
+            throw new AssertionError("Agent should not exist in level before adding it");
+        agents.add(agent);
+        level.setAgents(agents);
+        debug("Agent inserted into level.agents",-2);
+
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = agent;
+        level.setBoardObjects(boardObjects);
+    }
+
+    /**
+     * Removing a box from a level
+     * Usage: when assuming control and responsibility for that box in the level
+     * @param box Box to remove from the level
+     */
+    protected synchronized void removeBox(Box box) {
+        debug("Removing box from (planning) level",2);
+        Position boxPos = getPosition(box);
+        int row = boxPos.getRow();
+        int column = boxPos.getColumn();
+
+        BoardCell cell = level.getBoardState()[row][column];
+        assert (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL);
+
+        switch (cell) {
+            case BOX:
+                level.getBoardState()[row][column] = BoardCell.FREE_CELL;
+                break;
+            case BOX_GOAL:
+                level.getBoardState()[row][column] = BoardCell.GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot remove box if not present");
+        }
+        debug("Box removed from level.BoardState");
+
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(box.getLabel()) == null)
+            throw new AssertionError("Cannot remove non-existing box");
+        objectPositions.remove(box.getLabel());
+        level.setBoardObjectPositions(objectPositions);
+        debug("Box removed from level.boardObjectPositions");
+
+        ArrayList<Box> boxes = new ArrayList<>(level.getBoxes());
+        if (!boxes.contains(box))
+            throw new AssertionError("Box should exist in level before removing it");
+        boxes.remove(box);
+        level.setBoxes(boxes);
+        debug("Box removed from (planning) level.boxes");
+
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = null;
+        level.setBoardObjects(boardObjects);
+        debug("Box removed from level.boardobjects",-2);
+    }
+
+    /**
+     * Remove an agent from the level
+     * Usage: when assuming responsibility of agent from the level
+     * @param agent Agent to remove from level
+     */
+    protected synchronized void removeAgent(Agent agent){
+        debug("Removing agent from (planning) level",2);
+
+        Position agentPos = getPosition(agent);
+        int row = agentPos.getRow();
+        int column = agentPos.getColumn();
+
+        BoardCell cell = level.getBoardState()[row][column];
+        assert (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL);
+        switch (cell) {
+            case AGENT:
+                level.getBoardState()[row][column] = BoardCell.FREE_CELL;
+                break;
+            case AGENT_GOAL:
+                level.getBoardState()[row][column] = BoardCell.GOAL;
+                break;
+            default:
+                throw new AssertionError("Cannot remove agent if not present");
+        }
+        debug("Agent removed from Level.BoardState");
+
+        ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
+        if (objectPositions.get(agent.getLabel()) == null)
+            throw new AssertionError("Cannot remove non-existing agent");
+        objectPositions.remove(agent.getLabel());
+        level.setBoardObjectPositions(objectPositions);
+        debug("Agent removed from Level.BoardObjectPositions");
+
+        List<Agent> agents = level.getAgents();
+        if (!agents.contains(agent))
+            throw new AssertionError("Agent should exist in level before removing it");
+        agents.remove(agent);
+        level.setAgents(agents);
+        debug("Agent removed from Level.Agents");
+
+        BoardObject[][] boardObjects = level.getBoardObjects();
+        boardObjects[row][column] = null;
+        level.setBoardObjects(boardObjects);
+        debug("Agent removed from level.boardobjects",-2);
+
     }
 
     /**
@@ -454,5 +655,102 @@ public abstract class LevelService {
                 && column >= 0
                 && level.getBoardState().length > row
                 && level.getBoardState()[0].length > column);
+    }
+
+    /**
+     * Under influence of an agent BDIService, this takes a PrimitivePlan
+     * and turns it into an ordered list of positions, visited by that agent.
+     * @param pseudoPlan
+     * @return
+     */
+    public LinkedList<Position> getOrderedPath(PrimitivePlan pseudoPlan) {
+        debug("Getting ordered path from (pseudo)plan",2);
+        LinkedList<Position> path = new LinkedList<>();
+        Position previous = getPosition(BDIService.getInstance().getAgent());
+        path.add(new Position(previous));
+
+        for (ConcreteAction action : pseudoPlan.getActionList()) {
+            Position next = new Position(previous, action.getAgentDirection());
+            if (!path.contains(next)) {
+                path.addLast(new Position(next));
+            }
+            previous = next;
+        }
+        debug("Path discovered: " + path.toString(),-2);
+        return path;
+    }
+
+    /**
+     * Finds an ordered list of obstacles in a path
+     * @param pseudoPath
+     * @return
+     */
+    public LinkedList<Position> getObstaclePositions(LinkedList<Position> pseudoPath) {
+        debug("Getting positions of obstacles in path",2);
+        LinkedList<Position> obstacles = new LinkedList<>();
+
+        Iterator positions = pseudoPath.iterator();
+        positions.next(); // the agent itself.. to be ignored as obstacle :-)
+
+        while (positions.hasNext()) {
+            Position next = (Position) positions.next();
+            if (!isFree(next)) { // TODO: this also finds agents...
+                obstacles.add(next);
+            }
+        }
+
+        debug("Obstacles found: " + obstacles.toString(),-2);
+        return obstacles;
+    }
+
+    /**
+     * Finding a list of sets of unique positions, by dilating the path given
+     * until enough free positions is found to absorb *size* obstacles.
+     * @param path is the set of positions the agent must travel
+     * @param size is the number of free neighboring locations we must discover
+     * @return
+     */
+    public LinkedList<HashSet<Position>> getFreeNeighbours(Set<Position> path, int size) {
+        debug("Getting positions of free positions to put obstacles at",2);
+        LinkedList<HashSet<Position>> all  = new LinkedList<>();
+        HashSet<Position> previous = new HashSet<>();
+        HashSet<Position> current = new HashSet<>(path);
+        int neighbours = 0;
+        do {
+            // initialize next to hold the new positions
+            HashSet<Position> next = new HashSet<>();
+
+            // morphological dilation
+            for (Position p : current) {
+                Position n = new Position(p, Direction.NORTH);
+                Position s = new Position(p, Direction.SOUTH);
+                Position e = new Position(p, Direction.EAST);
+                Position w = new Position(p, Direction.WEST);
+                if (isFree(n)) next.add(n);
+                if (isFree(s)) next.add(s);
+                if (isFree(e)) next.add(e);
+                if (isFree(w)) next.add(w);
+            }
+
+            // make sure only new positions are kept
+            next.removeAll(current);
+            next.removeAll(previous);
+
+            // add the new Positions to output list
+            all.addLast(new HashSet<>(next));
+            neighbours += next.size();
+
+            // update running variables
+            previous.addAll(current);
+            current = next;
+        } while ( neighbours < size );
+
+        String s = "{";
+        for (HashSet<Position> layer : all) {
+            s += layer.toString() + "\n";
+        }
+        debug("Free Positions ordered by layers:\n" + s +"}", -2);
+
+        return all;
     }
 }

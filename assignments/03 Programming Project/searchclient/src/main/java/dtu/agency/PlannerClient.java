@@ -10,7 +10,7 @@ import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.planners.ConcretePlan;
+import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.ThreadService;
 
@@ -44,8 +44,8 @@ public class PlannerClient {
         ThreadService.setNumberOfAgents(numberOfAgents);
 
         // Thread which actually communicates with the server
-        Thread t = new Thread(PlannerClient::sendActions);
-        t.start();
+        Thread sendActionsThread = new Thread(PlannerClient::sendActions);
+        sendActionsThread.start();
 
         // Register for actions event
         EventBusService.register(new EventSubscriber<SendServerActionsEvent>() {
@@ -70,21 +70,24 @@ public class PlannerClient {
             @Override
             public void changeSubscriber(ProblemSolvedEvent event) {
 
-                System.out.println("We solved the entire goal!");
+                System.err.println("We solved the entire goal!");
 
                 // Join when problem has been solved
                 try {
-                    t.interrupt();
-                    t.join();
+                    sendActionsThread.interrupt();
+                    sendActionsThread.join();
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.err);
                 }
-
-                assert !t.isAlive();
             }
         });
 
-        new Thread(new Agency(level)).start();
+        Thread agencyThread = new Thread(new Agency(level));
+        agencyThread.start();
+        agencyThread.join();
+
+        System.err.println("Agency was joined.");
+        // new Agency(level).run();
     }
 
     /**

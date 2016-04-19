@@ -4,6 +4,9 @@ import dtu.agency.planners.htn.HTNNode;
 
 import java.util.Stack;
 
+/**
+ * Depth First Strategy
+ */
 public class StrategyDFS extends Strategy {
 
     private Stack<HTNNode> frontier;

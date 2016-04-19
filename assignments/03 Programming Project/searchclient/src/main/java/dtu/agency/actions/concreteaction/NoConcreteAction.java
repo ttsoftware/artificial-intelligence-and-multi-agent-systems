@@ -20,4 +20,9 @@ public class NoConcreteAction extends ConcreteAction {
         return "NoOp";
     }
 
+    @Override
+    public Direction getAgentDirection() {
+        return null;
+    }
+
 }

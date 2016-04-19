@@ -29,4 +29,14 @@ public class Goal extends BoardObject implements Comparable<Goal> {
     public int compareTo(Goal otherGoal) {
         return weight - otherGoal.getWeight();
     }
+
+    @Override
+    public BoardCell getType() {
+        return BoardCell.GOAL;
+    }
+
+    @Override
+    public int hashCode() {
+        return label.hashCode();
+    }
 }
