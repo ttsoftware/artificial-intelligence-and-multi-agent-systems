@@ -42,6 +42,7 @@ public class MoveConcreteAction extends ConcreteAction {
         return direction;
     }
 
+    @Override
     public Direction getAgentDirection() {
         return direction;
     }

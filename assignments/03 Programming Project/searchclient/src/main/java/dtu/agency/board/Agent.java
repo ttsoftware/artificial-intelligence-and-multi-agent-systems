@@ -5,7 +5,17 @@ public class Agent extends BoardObject {
         super(label);
     }
 
+    @Override
+    public BoardCell getType() {
+        return BoardCell.AGENT;
+    }
+
     public Agent(Agent other) {
         super(other.getLabel());
+    }
+
+    @Override
+    public int hashCode() {
+        return label.hashCode();
     }
 }

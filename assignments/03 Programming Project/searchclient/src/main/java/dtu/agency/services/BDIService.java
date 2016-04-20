@@ -1,13 +1,11 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.hlaction.HLAction;
-import dtu.agency.actions.abstractaction.hlaction.*;
-import dtu.agency.agent.bdi.AgentBelief;
-import dtu.agency.agent.bdi.AgentDesire;
+import dtu.agency.agent.bdi.Ideas;
+import dtu.agency.agent.bdi.PrimitiveDesire;
 import dtu.agency.agent.bdi.AgentIntention;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.board.*;
+import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -18,36 +16,75 @@ import java.util.LinkedList;
  * in execution phase
  */
 public class BDIService {
-    // keeps track of Beliefs Desires and Intentions for an agent in 'real time'
-    // THREAD LOCAL INSTANCE??
-    private static Agent agent;
-    private AgentBelief state;
-    private AgentDesire primitivePlans;
+
+    private Agent agent;
+    private Box currentTargetBox; // used for saving box when planning!
+    private Position agentCurrentPosition;
+    private PrimitivePlan currentlyExecutingPlan = null;
+    private PrimitiveDesire primitivePlans;
+    private LinkedList<Goal> goalsToSolve;
     private LinkedList<AgentIntention> intentions;
-    private HashMap<String, HTNPlanner> bids;          // everything the agent want to achieve (aka desires :-) )
+    private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
+    private BDILevelService bdiLevelService;
+
+    private static ThreadLocal<BDIService> threadLocal = new ThreadLocal<>();
+
+    /**
+     * We must call setInstance() before it becomes available
+     *
+     * @param bdiService
+     */
+    public static void setInstance(BDIService bdiService) {
+        threadLocal.set(bdiService);
+    }
+
+    public static BDIService getInstance() {
+        return threadLocal.get();
+    }
 
     public BDIService(Agent agent) {
         this.agent = agent;
-        state = new AgentBelief(agent);
-        primitivePlans = new AgentDesire(new NoAction(state.getAgentCurrentPosition()) );
+        this.currentTargetBox = null;
+
+        Level levelClone = GlobalLevelService.getInstance().getLevelClone();
+        bdiLevelService = new BDILevelService(levelClone);
+
+        primitivePlans = new PrimitiveDesire(null);
+        goalsToSolve = new LinkedList<>();
         intentions = new LinkedList<>();
-        bids = new HashMap<>();
+        ideas = new HashMap<>();
     }
 
-    public static Agent getAgent() {
+    public Agent getAgent() {
         return agent;
     }
 
-    public AgentBelief getState() {
-        return state;
+    public Position getAgentCurrentPosition() {
+        return bdiLevelService.getPosition(agent);
     }
 
-    public AgentDesire getPrimitivePlans() {
+    public PrimitivePlan getCurrentlyExecutingPlan() {
+        return currentlyExecutingPlan;
+    }
+
+    public void setCurrentlyExecutingPlan(PrimitivePlan currentlyExecutingPlan) {
+        this.currentlyExecutingPlan = currentlyExecutingPlan;
+    }
+
+    public PrimitiveDesire getPrimitivePlans() {
         return primitivePlans;
     }
 
-    public HashMap<String, HTNPlanner> getBids() {
-        return bids;
+    public HashMap<String, Ideas> getIdeas() {
+        return ideas;
+    }
+
+    public void addMeaningOfLife(Goal target) {
+        goalsToSolve.addLast(target);
+    }
+
+    public LinkedList<Goal> getGoalsToSolve() {
+        return goalsToSolve;
     }
 
     public LinkedList<AgentIntention> getIntentions() {
@@ -58,8 +95,37 @@ public class BDIService {
         return intentions.getFirst();
     }
 
+    public Box getCurrentTargetBox() {
+        return currentTargetBox;
+    }
+
     public void appendIntention(HLAction intention) {
         intentions.addLast(new AgentIntention(intention));
     }
 
+    public BDILevelService getBDILevelService() {
+        return bdiLevelService;
+    }
+
+    public void setCurrentTargetBox(Box currentTargetBox) {
+        this.currentTargetBox = currentTargetBox;
+    }
+
+    /**
+     * TODO: This PLS should be changed to incluce the execution of the current intention
+     * @return This PLS includes the execution of the current intention
+     */
+    public PlanningLevelService getLevelServiceAfterPendingPlans() {
+        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+    }
+
+    /**
+     * @return the length of the current intended plans in number of steps
+     */
+    public int remainingConcreteActions(){
+        if (currentlyExecutingPlan != null) {
+            return currentlyExecutingPlan.size();
+        }
+        return 0;
+    }
 }

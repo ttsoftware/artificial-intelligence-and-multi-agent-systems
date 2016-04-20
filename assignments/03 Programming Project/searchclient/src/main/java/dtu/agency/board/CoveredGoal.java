@@ -11,6 +11,12 @@ public class CoveredGoal extends BoardObject {
         this.coveringObjectLabel = coveringObjectLabel;
     }
 
+    public CoveredGoal( CoveredGoal other ) {
+        super(other.getLabel());
+        this.goalLabel = other.getGoalLabel();
+        this.coveringObjectLabel = other.getCoveringObjectLabel();
+    }
+
     public String getCoveringObjectLabel() {
         return coveringObjectLabel;
     }
@@ -25,5 +31,10 @@ public class CoveredGoal extends BoardObject {
 
     public void setGoalLabel(String goalLabel) {
         this.goalLabel = goalLabel;
+    }
+
+    @Override
+    public BoardCell getType() {
+        return BoardCell.BOX_GOAL;
     }
 }

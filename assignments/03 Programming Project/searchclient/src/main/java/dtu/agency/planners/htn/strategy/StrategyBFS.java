@@ -4,6 +4,9 @@ import dtu.agency.planners.htn.HTNNode;
 
 import java.util.ArrayDeque;
 
+/**
+ * Breadth First Strategy
+ */
 public class StrategyBFS extends Strategy {
 
     private ArrayDeque<HTNNode> frontier;

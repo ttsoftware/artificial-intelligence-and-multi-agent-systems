@@ -1,11 +1,11 @@
 package dtu.agency.board;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
-public class Level implements Serializable {
+public class Level {
 
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;
@@ -13,10 +13,31 @@ public class Level implements Serializable {
     private List<PriorityBlockingQueue<Goal>> goalQueues;
     private ConcurrentHashMap<String, List<Goal>> boxesGoals;
     private ConcurrentHashMap<String, List<Box>> goalsBoxes;
+
+    private ConcurrentHashMap<String, Agent> agentsMap;
+    private ConcurrentHashMap<String, Box> boxesMap;
+    private ConcurrentHashMap<String, Goal> goalsMap;
+
     private List<Goal> goals;
     private List<Agent> agents;
     private List<Box> boxes;
     private List<Wall> walls;
+
+    public Level(Level level) {
+        this.boardState = level.getBoardState().clone();
+        this.boardObjects = level.getBoardObjects().clone();
+        this.boardObjectPositions = new ConcurrentHashMap<>(level.getBoardObjectPositions());
+        this.goalQueues = new ArrayList<>(level.getGoalQueues());
+        this.boxesGoals = new ConcurrentHashMap<>(level.getBoxesGoals());
+        this.goalsBoxes = new ConcurrentHashMap<>(level.getGoalsBoxes());
+        this.agentsMap = new ConcurrentHashMap<>();
+        this.boxesMap = new ConcurrentHashMap<>();
+        this.goalsMap = new ConcurrentHashMap<>();
+        this.goals = new ArrayList<>(level.getGoals());
+        this.agents = new ArrayList<>(level.getAgents());
+        this.boxes = new ArrayList<>(level.getBoxes());
+        this.walls = new ArrayList<>(level.getWalls());
+    }
 
     public Level(BoardCell[][] boardState,
                  BoardObject[][] boardObjects,
@@ -24,6 +45,9 @@ public class Level implements Serializable {
                  List<PriorityBlockingQueue<Goal>> goalQueues,
                  ConcurrentHashMap<String, List<Goal>> boxesGoals,
                  ConcurrentHashMap<String, List<Box>> goalsBoxes,
+                 ConcurrentHashMap<String, Agent> agentsMap,
+                 ConcurrentHashMap<String, Box> boxesMap,
+                 ConcurrentHashMap<String, Goal> goalsMap,
                  List<Goal> goals,
                  List<Agent> agents,
                  List<Box> boxes,
@@ -34,6 +58,9 @@ public class Level implements Serializable {
         this.goalQueues = goalQueues;
         this.boxesGoals = boxesGoals;
         this.goalsBoxes = goalsBoxes;
+        this.agentsMap = agentsMap;
+        this.boxesMap = boxesMap;
+        this.goalsMap = goalsMap;
         this.goals = goals;
         this.agents = agents;
         this.boxes = boxes;
@@ -76,8 +103,24 @@ public class Level implements Serializable {
         return goalsBoxes;
     }
 
+    public ConcurrentHashMap<String, Agent> getAgentsMap() {
+        return agentsMap;
+    }
+
+    public ConcurrentHashMap<String, Box> getBoxesMap() {
+        return boxesMap;
+    }
+
+    public ConcurrentHashMap<String, Goal> getGoalsMap() {
+        return goalsMap;
+    }
+
     public List<Agent> getAgents() {
         return agents;
+    }
+
+    public void setAgents(List<Agent> agents) {
+        this.agents = agents;
     }
 
     public List<Box> getBoxes() {
@@ -90,5 +133,9 @@ public class Level implements Serializable {
 
     public List<Goal> getGoals() {
         return goals;
+    }
+
+    public void setBoxes(List<Box> boxes) {
+        this.boxes = boxes;
     }
 }
