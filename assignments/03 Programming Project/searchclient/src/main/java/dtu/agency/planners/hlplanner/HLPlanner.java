@@ -1,27 +1,33 @@
 package dtu.agency.planners.hlplanner;
 
-import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
-import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
-import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
+import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
-import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * This Planner uses the Hierarchical Task Network heuristic to subdivide
  * high level tasks all the way into sequences of primitive actions
  */
 public class HLPlanner {
-    protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    protected static void debug(String msg){ debug(msg, 0); }
+    protected static void debug(String msg, int indentationChange) {
+        DebugService.print(msg, indentationChange);
+    }
+
+    protected static void debug(String msg) {
+        debug(msg, 0);
+    }
 
     private PlanningLevelService pls;
     private SolveGoalAction idea;
@@ -30,12 +36,11 @@ public class HLPlanner {
     private int committedActions;
 
     /**
-     *
      * @param idea SolveGoalAction deciding which box and which goal to target
      * @param pls
      */
     public HLPlanner(SolveGoalAction idea, PrimitivePlan relaxedPlan, PlanningLevelService pls) {
-        this.pls  = pls;
+        this.pls = pls;
         this.idea = idea;
         this.pseudoPlan = relaxedPlan;
         this.plan = new HLPlan();
@@ -44,8 +49,8 @@ public class HLPlanner {
 
 
     public HLPlan plan() {
-        debug("hl planning",2);
-        debug("hl planning! ",20);
+        debug("hl planning", 2);
+        debug("hl planning! ", 20);
 //            1. plan for solving goal relaxed (pseudo plan)
 //            1a. obtain path cells
         LinkedList<Position> pseudoPath = pls.getOrderedPath(pseudoPlan);
@@ -68,17 +73,17 @@ public class HLPlanner {
 //        4. try and move boxes one by one to outer rings,
 //         - will have to detect unavailable paths to free cells (HOW?)
 //         - while storing the change in positions to pls
-        debug("obs pos size: " +obstaclePositions.size());
-        debug("",-20);
+        debug("obs pos size: " + obstaclePositions.size());
+        debug("", -20);
 
-        HTNPlanner htnPlanner = new HTNPlanner( pls, idea, RelaxationMode.NoAgents );
+        HTNPlanner htnPlanner = new HTNPlanner(pls, idea, RelaxationMode.NoAgents);
         while (0 < obstaclePositions.size()) {
 
             // identify the obstacle
             Position obstacleOrigin = obstaclePositions.pollFirst();
             Box box = new Box(pls.getObjectLabels(obstacleOrigin));
-            debug("obstacle: "+box+"@" + obstacleOrigin + " - goal box is " + idea.getBox(),20);
-            debug("",-20);
+            debug("obstacle: " + box + "@" + obstacleOrigin + " - goal box is " + idea.getBox(), 20);
+            debug("", -20);
 
             if (!idea.getBox().equals(box)) { // not the goal box
                 debug("obstacle not goal box", 20);
@@ -112,7 +117,7 @@ public class HLPlanner {
                     neighboursAtLevel.remove(target);
                     currentDistance = Integer.MAX_VALUE;
                     while (neighboursAtLevel.isEmpty()) {
-                        if (freeNeighbours.isEmpty()){
+                        if (freeNeighbours.isEmpty()) {
                             // TODO if no more free neighbours - we are stuck! communication required
                             // communicate with agency - let go of goal / call in assistance / commit suicide / whatever
                             debug("no place to put box " + box + "@" + obstacleOrigin);
@@ -130,25 +135,25 @@ public class HLPlanner {
                     PrimitivePlan prim = htnPlanner.plan();
 
                     if (prim != null) { // it is possible to move the box to this target choose it
-                        debug("found a primitive plan to "+target, 20);
+                        debug("found a primitive plan to " + target, 20);
                         debug("", -20);
                         // Remove this target position from the free neighbours
                         // re establish free neighbours without 'target'
                         triedNeighbours.getFirst().remove(target);
-                        while (!triedNeighbours.isEmpty()){
+                        while (!triedNeighbours.isEmpty()) {
                             freeNeighbours.addLast(triedNeighbours.pollFirst());
                         }
                         if (freeNeighbours.getLast().isEmpty()) freeNeighbours.removeLast();
                         moveObstacle = move;
                         validTarget = true;
                     } else {
-                        debug("target unreachable",20);
-                        debug("",-20);
+                        debug("target unreachable", 20);
+                        debug("", -20);
                     }
 
                 }
 
-                debug("appending to plan and applying to pls: "+moveObstacle, 20);
+                debug("appending to plan and applying to pls: " + moveObstacle, 20);
                 debug("", -20);
                 plan.append(moveObstacle);
                 pls.apply(moveObstacle);
@@ -177,7 +182,7 @@ public class HLPlanner {
 
 
         // investigate if this is possible, if so do it
-        if ( obstaclePositions.size() > 0) { // still obstacles in the way
+        if (obstaclePositions.size() > 0) { // still obstacles in the way
 //        (5. if target box is only movable box remaining:
 //          - move it out of the path, to a neighbor cell close
 //          - replan on HLPlan, reusing pls! states)
@@ -226,11 +231,9 @@ public class HLPlanner {
         }
 
 
-        debug("",-2);
+        debug("", -2);
         // restore pls to the state before planning
         pls.revertLast(committedActions);
         return plan;
-
     }
-
 }

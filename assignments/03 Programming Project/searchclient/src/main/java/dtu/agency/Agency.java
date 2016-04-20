@@ -85,6 +85,8 @@ public class Agency implements Runnable {
 
                 // wait for the plan to finish executing
                 boolean isFinished = sendActionsEvent.getResponse();
+
+                System.out.println("The plan for goal: " + goal + " finished.");
             }
         });
 
