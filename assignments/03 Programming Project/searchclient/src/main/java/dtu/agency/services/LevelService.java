@@ -373,7 +373,6 @@ public abstract class LevelService {
 
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
-        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
 
         switch (cell) {       // update the cell where the agent is now located
             case FREE_CELL:
@@ -421,7 +420,6 @@ public abstract class LevelService {
 
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
-        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
 
         switch (cell) {       // update the cell where the agent is now located
             case FREE_CELL:
@@ -469,7 +467,6 @@ public abstract class LevelService {
         int column = boxPos.getColumn();
 
         BoardCell cell = level.getBoardState()[row][column];
-        assert (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL);
 
         switch (cell) {
             case BOX:
@@ -516,7 +513,6 @@ public abstract class LevelService {
         int column = agentPos.getColumn();
 
         BoardCell cell = level.getBoardState()[row][column];
-        assert (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL);
         switch (cell) {
             case AGENT:
                 level.getBoardState()[row][column] = BoardCell.FREE_CELL;
