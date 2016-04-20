@@ -12,6 +12,8 @@ import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.PlanningLevelService;
 
+import java.util.List;
+
 public class AgentThread implements Runnable {
 
     @Override
@@ -30,31 +32,37 @@ public class AgentThread implements Runnable {
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
         Goal goal = event.getGoal();
 
-        // calculate positions of self + boxes, when current plans are executed
-        // this as basis on bidding on the next
-        // TODO: important step - update the planning level service to match state after current plans are executed
-        PlanningLevelService pls = BDIService.getInstance().getLevelServiceAfterPendingPlans();
-        // TODO: Find number of remaining steps to be executed at this moment
-        int remainingSteps = BDIService.getInstance().remainingConcreteActions();
+        List<Goal> goalsToSolve = BDIService.getInstance().getGoalsToSolve();
 
-        Mind mind = new Mind(pls);
+        // check if we have already won this goal
+        if (!goalsToSolve.contains(goal)) {
 
-        Ideas ideas = mind.thinkOfIdeas(goal); // they are automatically stored in BDIService
+            // calculate positions of self + boxes, when current plans are executed
+            // this as basis on bidding on the next
+            // TODO: important step - update the planning level service to match state after current plans are executed
+            PlanningLevelService pls = BDIService.getInstance().getLevelServiceAfterPendingPlans();
 
-        int totalSteps = remainingSteps + ideas.peekBest().approximateSteps(pls);
+            int remainingSteps = BDIService.getInstance().remainingConcreteActions();
 
-        // print status and communicate with agency
-        System.err.println(Thread.currentThread().getName()
-                + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                + ": received a goaloffer " + goal.getLabel()
-                + " event and returned: " + Integer.toString(totalSteps));
+            Mind mind = new Mind(pls);
 
-        EventBusService.getEventBus().post(new GoalEstimationEvent(
-                        BDIService.getInstance().getAgent(),
-                        goal,
-                        totalSteps
-                )
-        );
+            Ideas ideas = mind.thinkOfIdeas(goal); // they are automatically stored in BDIService
+
+            int totalSteps = remainingSteps + ideas.peekBest().approximateSteps(pls);
+
+            // print status and communicate with agency
+            System.err.println(Thread.currentThread().getName()
+                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                    + ": received a goaloffer " + goal.getLabel()
+                    + " event and returned: " + Integer.toString(totalSteps));
+
+            EventBusService.getEventBus().post(new GoalEstimationEvent(
+                            BDIService.getInstance().getAgent(),
+                            goal,
+                            totalSteps
+                    )
+            );
+        }
     }
 
     /**
@@ -90,7 +98,10 @@ public class AgentThread implements Runnable {
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": Using Concrete Plan: " + plan.toString());
 
-            // EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), plan)); // execute plan
+            // Add plan to map of goals and plans
+            BDIService.getInstance().setCurrentlyExecutingPlan(plan);
+            BDIService.getInstance().putGoalPlan(event.getGoal(), plan);
+
             // Send the response back
             event.setResponse(plan);
         }

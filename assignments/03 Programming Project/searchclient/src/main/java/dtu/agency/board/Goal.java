@@ -1,5 +1,7 @@
 package dtu.agency.board;
 
+import java.util.Objects;
+
 public class Goal extends BoardObject implements Comparable<Goal> {
 
     private int weight;
@@ -38,5 +40,10 @@ public class Goal extends BoardObject implements Comparable<Goal> {
     @Override
     public int hashCode() {
         return label.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof Goal && (Objects.equals(((Goal) other).getLabel(), label));
     }
 }

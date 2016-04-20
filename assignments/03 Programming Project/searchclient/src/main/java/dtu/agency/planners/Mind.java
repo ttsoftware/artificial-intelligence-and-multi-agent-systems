@@ -83,15 +83,15 @@ public class Mind {
     /**
      * This method tries to solve the level as best as possible at current state
      *
-     * @param target Goal to solve
+     * @param targetGoal Goal to solve
      * @return The primitive plan solving this goal
      */
-    public PrimitivePlan solve(Goal target) {
+    public PrimitivePlan solve(Goal targetGoal) {
 
         debug("SOLVER is running - all levels should (ideally) be solved by this", 2);
 
         // Find the Ideas produced at bidding round for this goal
-        Ideas ideas = BDIService.getInstance().getIdeas().get(target.getLabel());
+        Ideas ideas = BDIService.getInstance().getIdeas().get(targetGoal.getLabel());
         debug("Ideas retrieved at solution round: " + ideas);
 
         PrimitivePlan bestPlan = null;
@@ -153,12 +153,9 @@ public class Mind {
                         bestPlan = (plan.size() < bestPlan.size()) ? plan : bestPlan;
                     }
                 }
-
             } else { // even the relaxed plan is null -> the box/goal combination is unreachable!
                 debug("skip this idea - the box/goal combination is unreachable");
             }
-
-
         }
 
         // Check the result of this planning phase
@@ -169,9 +166,8 @@ public class Mind {
             bestPlan = new PrimitivePlan();
         }
 
-        // TODO: store the resulting plans and states in BDIService.getInstance() after planning..??
-
         debug("", -2);
+
         return bestPlan;
     }
 
