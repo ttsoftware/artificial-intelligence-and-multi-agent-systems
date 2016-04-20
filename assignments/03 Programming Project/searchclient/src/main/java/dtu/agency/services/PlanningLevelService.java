@@ -39,7 +39,7 @@ public class PlanningLevelService extends LevelService {
         appliedEffects = new LinkedList<>();
     }
 
-    public Box getTrackingBox(){
+    public Box getTrackingBox() {
         return currentBox;
     }
 
@@ -52,7 +52,7 @@ public class PlanningLevelService extends LevelService {
      * SolveGoalActions are not applicable in order to get a consistent / precise state in the end
      * (but might be applicable in order to guess on the sequence in which order to solve the goals!)
      */
-    public void apply(Action action){
+    public void apply(Action action) {
         debug("pls.apply Action: " + action);
         HLEffect effect = null;
 
@@ -145,9 +145,10 @@ public class PlanningLevelService extends LevelService {
 
     /**
      * Applies all actions in a plan
+     *
      * @param plan any plan implementing the Plan interface
      */
-    public void applyAll(Plan plan){
+    public void applyAll(Plan plan) {
         List<Action> allActions = plan.getActions();
         Iterator actions = allActions.iterator();
         while (actions.hasNext()) {
@@ -158,16 +159,17 @@ public class PlanningLevelService extends LevelService {
 
     /**
      * Reverts a number of actions
+     *
      * @param actionCount number of actions to revert
      */
-    public void revertLast(int actionCount){
+    public void revertLast(int actionCount) {
         actionCount = (actionCount <= appliedEffects.size()) ? actionCount : appliedEffects.size();
-        for (int i=0; i<actionCount; i++) {
+        for (int i = 0; i < actionCount; i++) {
             revertLast();
         }
     }
 
-    public void revertLast(){
+    public void revertLast() {
         debug("pls.revertLast");
         HLEffect last = appliedEffects.removeLast();
         removeAgent(agent);
@@ -179,7 +181,7 @@ public class PlanningLevelService extends LevelService {
         debug("This effect has been applied in reverse: " + last);
     }
 
-    public void revertAll(){
+    public void revertAll() {
         debug("pls.revertAll()");
         while (appliedEffects.size() > 0) {
             revertLast();
@@ -194,7 +196,7 @@ public class PlanningLevelService extends LevelService {
      */
     public void startTracking(Box box) {
         startTrackingAgent();
-        if (box != null){
+        if (box != null) {
             startTrackingBox(box);
         }
     }
@@ -206,19 +208,20 @@ public class PlanningLevelService extends LevelService {
         stopTrackingAgent();
     }
 
-    private void startTrackingBox(Box box){
+    private void startTrackingBox(Box box) {
         // remove box from level
         currentBox = box;
         currentBoxPosition = getPosition(box);
         removeBox(box);
     }
-    private void startTrackingAgent(){
+
+    private void startTrackingAgent() {
         // remove agent from level
         currentAgentPosition = getPosition(agent);
         removeAgent(agent);
     }
 
-    private void stopTrackingBox(){
+    private void stopTrackingBox() {
         // reinsert box into level
         if (trackingBox()) {
             insertBox(currentBox, currentBoxPosition);
@@ -227,7 +230,7 @@ public class PlanningLevelService extends LevelService {
         }
     }
 
-    private void stopTrackingAgent(){
+    private void stopTrackingAgent() {
         // reinsert agent into level
         if (trackingAgent()) {
             insertAgent(agent, currentAgentPosition);
@@ -244,10 +247,10 @@ public class PlanningLevelService extends LevelService {
     }
 
     @Override
-    public Position getPosition(BoardObject obj){
-        if ( trackingBox() && obj.equals(currentBox) ) {
+    public Position getPosition(BoardObject obj) {
+        if (trackingBox() && obj.equals(currentBox)) {
             return currentBoxPosition;
-        } else if ( trackingAgent() && obj.equals(BDIService.getInstance().getAgent())) {
+        } else if (trackingAgent() && obj.equals(BDIService.getInstance().getAgent())) {
             return currentAgentPosition;
         } else {
             return super.getPosition(obj);

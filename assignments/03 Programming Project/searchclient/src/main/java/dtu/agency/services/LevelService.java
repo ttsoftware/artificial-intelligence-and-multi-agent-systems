@@ -29,6 +29,19 @@ public abstract class LevelService {
         return new Level(level);
     }
 
+    public synchronized boolean applyAction(Agent agent, ConcreteAction action) {
+        switch (action.getType()) {
+            case MOVE:
+                return move(agent, (MoveConcreteAction) action);
+            case PUSH:
+                return push(agent, (PushConcreteAction) action);
+            case PULL:
+                return pull(agent, (PullConcreteAction) action);
+            default:
+                return false;
+        }
+    }
+
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
         // We must synchronize here to avoid collisions.
         // Do we want to handle conflicts in this step/class?
@@ -139,6 +152,14 @@ public abstract class LevelService {
         level.setBoardObjectPositions(objectPositions);
 
         return true;
+    }
+
+    /**
+     * @param label
+     * @return The agent associated with the given label
+     */
+    public Agent getAgent(String label) {
+        return level.getAgentsMap().get(label);
     }
 
     /**
@@ -373,7 +394,6 @@ public abstract class LevelService {
 
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
-        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
 
         switch (cell) {       // update the cell where the agent is now located
             case FREE_CELL:
@@ -421,7 +441,6 @@ public abstract class LevelService {
 
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
-        assert (cell == BoardCell.FREE_CELL || cell == BoardCell.GOAL);
 
         switch (cell) {       // update the cell where the agent is now located
             case FREE_CELL:
@@ -469,7 +488,6 @@ public abstract class LevelService {
         int column = boxPos.getColumn();
 
         BoardCell cell = level.getBoardState()[row][column];
-        assert (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL);
 
         switch (cell) {
             case BOX:
@@ -516,7 +534,6 @@ public abstract class LevelService {
         int column = agentPos.getColumn();
 
         BoardCell cell = level.getBoardState()[row][column];
-        assert (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL);
         switch (cell) {
             case AGENT:
                 level.getBoardState()[row][column] = BoardCell.FREE_CELL;
@@ -669,7 +686,7 @@ public abstract class LevelService {
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        for (ConcreteAction action : pseudoPlan.getActionList()) {
+        for (ConcreteAction action : pseudoPlan.getActionsClone()) {
             Position next = new Position(previous, action.getAgentDirection());
             if (!path.contains(next)) {
                 path.addLast(new Position(next));
@@ -752,5 +769,21 @@ public abstract class LevelService {
         debug("Free Positions ordered by layers:\n" + s +"}", -2);
 
         return all;
+    }
+
+    /**
+     * @return List of the next set of independent goals, 1 from each queue
+     */
+    public synchronized List<Goal> getIndependentGoals() {
+        List<Goal> goals = new ArrayList<>();
+
+        level.getGoalQueues().forEach(goalQueue -> {
+            Goal goal = goalQueue.poll();
+            if (goal != null) {
+                goals.add(goal);
+            }
+        });
+
+        return goals;
     }
 }
