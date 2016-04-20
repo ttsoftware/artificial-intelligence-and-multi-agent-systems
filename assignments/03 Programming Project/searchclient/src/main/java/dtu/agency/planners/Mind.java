@@ -23,8 +23,12 @@ import java.util.ArrayList;
  * This Planner creates the entire list of high level actions, that may get the job done.
  */
 public class Mind {
-    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    private static void debug(String msg){ debug(msg, 0); }
+    private static void debug(String msg, int indentationChange) {
+        // DebugService.print(msg, indentationChange);
+    }
+    private static void debug(String msg){
+        // debug(msg, 0);
+    }
 //    DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // ***     DEBUGGING LEVEL     ***
 //    boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
 //    DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
