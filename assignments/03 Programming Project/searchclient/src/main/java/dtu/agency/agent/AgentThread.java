@@ -1,6 +1,7 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
+import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.*;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -39,10 +40,9 @@ public class AgentThread implements Runnable {
         int remainingSteps = BDIService.getInstance().remainingConcreteActions();
 
         Mind mind = new Mind(pls);
-
         Ideas ideas = mind.thinkOfIdeas(goal); // they are automatically stored in BDIService
-
-        int totalSteps = remainingSteps + ideas.peekBest().approximateSteps(pls);
+        AgentIntention intention = mind.filter(ideas, goal);
+        int totalSteps = remainingSteps + intention.getApproximateSteps();
 
         // print status and communicate with agency
         System.err.println(Thread.currentThread().getName()

@@ -21,7 +21,7 @@ public class BDIService {
     private Position agentCurrentPosition;
     private PrimitiveDesire primitivePlans;
     private LinkedList<Goal> meaningOfLife;
-    private LinkedList<AgentIntention> intentions;
+    private HashMap<String, AgentIntention> intentions;
     private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
     private BDILevelService bdiLevelService;
 
@@ -49,7 +49,7 @@ public class BDIService {
 
         primitivePlans = new PrimitiveDesire(null);
         meaningOfLife = new LinkedList<>();
-        intentions = new LinkedList<>();
+        intentions = new HashMap<>();
         ideas = new HashMap<>();
     }
 
@@ -77,20 +77,12 @@ public class BDIService {
         return meaningOfLife;
     }
 
-    public LinkedList<AgentIntention> getIntentions() {
+    public HashMap<String, AgentIntention> getIntentions() {
         return intentions;
-    }
-
-    public AgentIntention getCurrentIntention() {
-        return intentions.getFirst();
     }
 
     public Box getCurrentTargetBox() {
         return currentTargetBox;
-    }
-
-    public void appendIntention(HLAction intention) {
-        intentions.addLast(new AgentIntention(intention));
     }
 
     public BDILevelService getBDILevelService() {

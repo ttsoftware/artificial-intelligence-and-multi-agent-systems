@@ -13,6 +13,10 @@ public class PrimitivePlan implements ConcretePlan {
         concreteActions = new LinkedList<>();
     }
 
+    public PrimitivePlan(PrimitivePlan other) {
+        this.concreteActions = new LinkedList<>(other.concreteActions);
+    }
+
     public LinkedList<ConcreteAction> getActions() {
         return concreteActions;
     }
