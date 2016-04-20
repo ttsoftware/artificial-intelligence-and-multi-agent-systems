@@ -172,10 +172,8 @@ public class PlanningLevelService extends LevelService {
     public void revertLast() {
         debug("pls.revertLast");
         HLEffect last = appliedEffects.removeLast();
-        assert (getPosition(agent) == last.agentDestination);
         removeAgent(agent);
         if (last.box != null) {
-            assert (getPosition(last.box) == last.boxDestination);
             removeBox(last.box);
             insertBox(last.box, last.boxOrigin);
         }

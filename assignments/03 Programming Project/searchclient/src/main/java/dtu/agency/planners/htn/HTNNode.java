@@ -52,7 +52,6 @@ public class HTNNode {
      * @param highLevelPlan
      */
     public HTNNode(HTNNode parent, ConcreteAction concreteAction, HTNState initialEffects, MixedPlan highLevelPlan) {
-        assert (parent != null);
         this.parent = parent;
         this.concreteAction = concreteAction;
         this.state = initialEffects;
