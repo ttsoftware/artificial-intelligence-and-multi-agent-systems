@@ -10,9 +10,9 @@ public class Main {
         String[] serverArgs = {
                 "-l",
                 // "levels/SAhlplan.lvl",
-                // "levels/MA_out_of_my_way_Henning.lvl",
+                "levels/MA_out_of_my_way_Henning.lvl",
                 // "levels/ClearPathTest.lvl",
-                "levels/SAD1_multi.lvl",
+                // "levels/SAD1_multi.lvl",
                 "-g",
                 "100",
                 "-t",

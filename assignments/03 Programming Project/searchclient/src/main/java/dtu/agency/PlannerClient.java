@@ -11,6 +11,7 @@ import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.EventBusService;
+import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
 import java.io.BufferedReader;
@@ -36,6 +37,9 @@ public class PlannerClient {
 
         // Parse the level
         Level level = ProblemMarshaller.marshall(serverMessages);
+
+        // Create the level service
+        GlobalLevelService.getInstance().setLevel(level);
 
         numberOfAgents = level.getAgents().size();
         sendServerActionsQueue = new ArrayBlockingQueue<>(numberOfAgents);
@@ -81,7 +85,7 @@ public class PlannerClient {
             }
         });
 
-        Thread agencyThread = new Thread(new Agency(level));
+        Thread agencyThread = new Thread(new Agency());
         agencyThread.start();
         agencyThread.join();
 

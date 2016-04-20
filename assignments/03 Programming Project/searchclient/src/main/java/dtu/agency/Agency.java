@@ -5,7 +5,6 @@ import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
-import dtu.agency.board.Level;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
@@ -24,10 +23,6 @@ import java.util.List;
 public class Agency implements Runnable {
 
     private static final Object synchronizer = new Object();
-
-    public Agency(Level level) {
-        GlobalLevelService.getInstance().setLevel(level);
-    }
 
     @Override
     public void run() {
@@ -86,7 +81,7 @@ public class Agency implements Runnable {
                 // wait for the plan to finish executing
                 boolean isFinished = sendActionsEvent.getResponse();
 
-                System.out.println("The plan for goal: " + goal + " finished.");
+                System.err.println("The plan for goal: " + goal + " finished.");
             }
         });
 

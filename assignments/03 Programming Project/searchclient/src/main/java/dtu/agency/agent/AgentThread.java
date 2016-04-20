@@ -51,6 +51,7 @@ public class AgentThread implements Runnable {
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(
                         BDIService.getInstance().getAgent(),
+                        goal,
                         totalSteps
                 )
         );
