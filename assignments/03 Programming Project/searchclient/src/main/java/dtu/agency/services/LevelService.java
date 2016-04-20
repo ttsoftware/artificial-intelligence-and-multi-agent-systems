@@ -29,6 +29,19 @@ public abstract class LevelService {
         return new Level(level);
     }
 
+    public synchronized boolean applyAction(Agent agent, ConcreteAction action) {
+        switch (action.getType()) {
+            case MOVE:
+                return move(agent, (MoveConcreteAction) action);
+            case PUSH:
+                return push(agent, (PushConcreteAction) action);
+            case PULL:
+                return pull(agent, (PullConcreteAction) action);
+            default:
+                return false;
+        }
+    }
+
     public synchronized boolean move(Agent agent, MoveConcreteAction action) {
         // We must synchronize here to avoid collisions.
         // Do we want to handle conflicts in this step/class?
@@ -139,6 +152,14 @@ public abstract class LevelService {
         level.setBoardObjectPositions(objectPositions);
 
         return true;
+    }
+
+    /**
+     * @param label
+     * @return The agent associated with the given label
+     */
+    public Agent getAgent(String label) {
+        return level.getAgentsMap().get(label);
     }
 
     /**

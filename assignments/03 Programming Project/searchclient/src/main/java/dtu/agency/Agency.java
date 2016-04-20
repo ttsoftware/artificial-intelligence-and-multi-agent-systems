@@ -20,6 +20,8 @@ import dtu.agency.services.ThreadService;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Agency implements Runnable {
 
@@ -46,6 +48,13 @@ public class Agency implements Runnable {
 
         List<Goal> nextIndependentGoals;
 
+        // Map for agent -> is done executing a plan
+        HashMap<String, Boolean> agentIsFinished = new HashMap<>();
+        agents.forEach(agent -> agentIsFinished.put(agent.getLabel(), true));
+
+        HashMap<String, Lock> agentLocks = new HashMap<>();
+        agents.forEach(agent -> agentLocks.put(agent.getLabel(), new ReentrantLock()));
+
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
             // Assign goals to the best agents and wait for plans to finish
@@ -54,26 +63,37 @@ public class Agency implements Runnable {
                 Goal goal = goalAgentEntry.getKey();
                 Agent bestAgent = goalAgentEntry.getValue();
 
-                // Assign this goal, and wait for response
-                System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
+                // Lock this agent
+                agentLocks.get(bestAgent.getLabel()).lock();
 
-                GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
-                EventBusService.post(goalAssignmentEvent);
+                try {
+                    agentIsFinished.put(bestAgent.getLabel(), false);
 
-                // get the response containing the plan (blocks current thread)
-                // how long do we wish to wait for the agents to finish planning?
-                // right now we wait 2^32-1 milliseconds
-                ConcretePlan plan = goalAssignmentEvent.getResponse();
+                    // Assign this goal, and wait for response
+                    System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
 
-                System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
+                    GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
+                    EventBusService.post(goalAssignmentEvent);
 
-                SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
-                EventBusService.post(sendActionsEvent);
+                    // get the response containing the plan (blocks current thread)
+                    // how long do we wish to wait for the agents to finish planning?
+                    // right now we wait 2^32-1 milliseconds
+                    ConcretePlan plan = goalAssignmentEvent.getResponse();
 
-                // wait for the plan to finish executing
-                boolean isFinished = sendActionsEvent.getResponse();
+                    System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
 
-                System.err.println("The plan for goal: " + goal + " finished.");
+                    SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
+                    EventBusService.post(sendActionsEvent);
+
+                    // wait for the plan to finish executing
+                    boolean isFinished = sendActionsEvent.getResponse();
+
+                    System.err.println("The plan for goal: " + goal + " finished.");
+                }
+                finally {
+                    // unlock this agent
+                    agentLocks.get(bestAgent.getLabel()).unlock();
+                }
             });
         }
 

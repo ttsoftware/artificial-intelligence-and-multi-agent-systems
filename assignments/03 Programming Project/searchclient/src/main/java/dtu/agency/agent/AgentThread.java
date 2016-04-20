@@ -92,11 +92,6 @@ public class AgentThread implements Runnable {
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": Using Concrete Plan: " + plan.toString());
 
-            if (BDIService.getInstance().getCurrentlyExecutingPlan() != null) {
-                // Append all actions from currently executing plan to this plan
-                BDIService.getInstance().getCurrentlyExecutingPlan().getActions().forEach(plan::addAction);
-            }
-
             // Add plan to map of goals and plans
             BDIService.getInstance().setCurrentlyExecutingPlan(plan);
 
