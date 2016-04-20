@@ -151,12 +151,9 @@ public class PlannerClient {
                 sendServerActionsEvent.setConcretePlan(concretePlan);
                 sendServerActionsQueue.add(sendServerActionsEvent);
             } else {
-                // TODO: Somehow notify Agency that an agent has finished it's plan
                 sendServerActionsEvent.setResponse(true);
             }
         });
-
-        // TODO At some point we should stop this recursion. How do we know that the whole level is solved?
 
         // Send the next set of actions
         sendActions();
