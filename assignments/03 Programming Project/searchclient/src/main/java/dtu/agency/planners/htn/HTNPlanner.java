@@ -178,6 +178,7 @@ public class HTNPlanner {
         debug("initial" + initialNode.toString());
 
         // PlanningLevelService assuming responsibility over agent and current box
+        System.err.println("" + originalAction.getBox());
         pls.startTracking(originalAction.getBox());
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
