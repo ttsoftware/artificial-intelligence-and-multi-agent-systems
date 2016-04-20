@@ -19,7 +19,6 @@ import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -27,8 +26,13 @@ import java.util.ListIterator;
  * This Planner creates the entire list of high level actions, that may get the job done.
  */
 public class Mind {
-    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    private static void debug(String msg){ debug(msg, 0); }
+    private static void debug(String msg, int indentationChange) {
+        DebugService.print(msg, indentationChange);
+    }
+
+    private static void debug(String msg) {
+        debug(msg, 0);
+    }
 //    DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // ***     DEBUGGING LEVEL     ***
 //    boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
 //    DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
@@ -48,6 +52,7 @@ public class Mind {
      * Fills the data structure containing information on ways to solve this
      * particular target goal, by one node per box that could potentially
      * solve this goal
+     *
      * @param goal The goal targeted
      * @return The ideas (list of SolveGoalActions) that could potentially solve this goal.
      */
@@ -57,13 +62,13 @@ public class Mind {
 
         for (Box box : pls.getLevel().getBoxes()) {
             // TODO: check for colors
-            debug(box.getLabel().substring(0,1).toLowerCase() + "=?" + goal.getLabel().toLowerCase().substring(0,1),2);
-            if (box.getLabel().toLowerCase().substring(0,1).equals(goal.getLabel().toLowerCase().substring(0,1))) {
+            debug(box.getLabel().substring(0, 1).toLowerCase() + "=?" + goal.getLabel().toLowerCase().substring(0, 1), 2);
+            if (box.getLabel().toLowerCase().substring(0, 1).equals(goal.getLabel().toLowerCase().substring(0, 1))) {
                 SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
                 ideas.add(solveGoalAction);
-                debug("yes! -> adding" + solveGoalAction.toString(),-2);
+                debug("yes! -> adding" + solveGoalAction.toString(), -2);
             } else {
-                debug("no!",-2);
+                debug("no!", -2);
             }
         }
         if (DebugService.inDebugMode()) {
@@ -130,12 +135,13 @@ public class Mind {
 
     /**
      * This method tries to solve the level as best as possible at current state
+     *
      * @param target Goal to solve
      * @return The primitive plan solving this goal
      */
     public PrimitivePlan solve(Goal target) {
 
-        debug("SOLVER is running - all levels should (ideally) be solved by this",2);
+        debug("SOLVER is running - all levels should (ideally) be solved by this", 2);
 
         // Find the Ideas produced at bidding round for this goal
         AgentIntention intention = BDIService.getInstance().getIntentions().get(target.getLabel());
@@ -160,13 +166,14 @@ public class Mind {
             debug("Agent " + agent + ": Did not find a Concrete Plan.");
         }
 
-        debug("",-2);
+        debug("", -2);
         return plan;
     }
 
 
     /**
      * This method is more or less a training/test method
+     *
      * @return The primitive plan solving this goal
      */
     public PrimitivePlan sandbox() {
@@ -176,29 +183,29 @@ public class Mind {
 
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 
-        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1,17), new Position(1,14));
+        HMoveBoxAction mba1 = new HMoveBoxAction(targetBox, new Position(1, 17), new Position(1, 14));
         HTNPlanner htn1 = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
         PrimitivePlan plan1 = htn1.plan();
         debug("Plan 1:\n" + plan1);
         htn1.commitPlan(); // update positions in PlanningLevelService pls
 
-        debug("after plan 1 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+        debug("after plan 1 - pls: agent:" + pls.getPosition(agent) + " Box:" + pls.getPosition(targetBox));
 
-        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2,7), new Position(1,17));
+        HMoveBoxAction mba2 = new HMoveBoxAction(targetBox, new Position(2, 7), new Position(1, 17));
         HTNPlanner htn2 = new HTNPlanner(pls, mba2, RelaxationMode.NoAgents);
         PrimitivePlan plan2 = htn2.plan();
         debug("Plan 2:\n" + plan2);
         htn2.commitPlan();
 
-        debug("after plan 2 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+        debug("after plan 2 - pls: agent:" + pls.getPosition(agent) + " Box:" + pls.getPosition(targetBox));
 
-        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5,17), pls.getPosition(targetBox));
+        HMoveBoxAction mba3 = new HMoveBoxAction(targetBox, new Position(5, 17), pls.getPosition(targetBox));
         HTNPlanner htn3 = new HTNPlanner(pls, mba3, RelaxationMode.NoAgents);
         PrimitivePlan plan3 = htn3.plan();
         debug("Plan 3:\n" + plan3);
         htn2.commitPlan();
 
-        debug("after plan 3 - pls: agent:"+pls.getPosition(agent)+ " Box:" +pls.getPosition(targetBox) );
+        debug("after plan 3 - pls: agent:" + pls.getPosition(agent) + " Box:" + pls.getPosition(targetBox));
 
         plan1.appendActions(plan2);
         plan1.appendActions(plan3);
@@ -208,13 +215,10 @@ public class Mind {
     }
 
 
-
-
-
-
     /**
      * This method is more or less a training/test method
      * For testing purposes, like what happens if i simply task the agent with going 3 steps north...
+     *
      * @param target Goal to solve
      * @return The primitive plan solving this goal
      */
@@ -223,8 +227,8 @@ public class Mind {
 
         PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
 
-        HMoveBoxAction mba1 = new HMoveBoxAction(new Box("B1"), new Position(3,3), new Position(1,3));
-        HMoveBoxAction mba2 = new HMoveBoxAction(new Box("A0"), new Position(1,5), new Position(1,4));
+        HMoveBoxAction mba1 = new HMoveBoxAction(new Box("B1"), new Position(3, 3), new Position(1, 3));
+        HMoveBoxAction mba2 = new HMoveBoxAction(new Box("A0"), new Position(1, 5), new Position(1, 4));
 
         HTNPlanner htn = new HTNPlanner(pls, mba1, RelaxationMode.NoAgents);
         PrimitivePlan plan1 = htn.plan();
@@ -240,7 +244,5 @@ public class Mind {
 
         return plan;
     }
-
-
 }
 

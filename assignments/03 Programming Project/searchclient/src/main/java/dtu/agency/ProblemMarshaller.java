@@ -45,7 +45,6 @@ public class ProblemMarshaller {
         BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
         ConcurrentHashMap<String, Position> boardObjectPositions = new ConcurrentHashMap<>();
         List<PriorityBlockingQueue<Goal>> goalQueues = new ArrayList<>();
-        PriorityBlockingQueue<Goal> goalQueue = new PriorityBlockingQueue<>();
         ConcurrentHashMap<String, List<Goal>> boxesGoals = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, List<Box>> goalsBoxes = new ConcurrentHashMap<>();
         List<Agent> agents = new ArrayList<>();
@@ -111,7 +110,10 @@ public class ProblemMarshaller {
                     boardObjects[row][column] = goal;
                     goals.add(goal);
                     // add goal to queue
+                    PriorityBlockingQueue<Goal> goalQueue = new PriorityBlockingQueue<>();
                     goalQueue.offer(goal);
+                    goalQueues.add(goalQueue);
+
                     goalCount++;
                 }
                 else {
@@ -119,8 +121,6 @@ public class ProblemMarshaller {
                 }
             }
         }
-
-        goalQueues.add(goalQueue);
 
         // Assign box goals
         for (Box box : boxes) {
