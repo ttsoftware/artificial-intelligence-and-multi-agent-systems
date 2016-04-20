@@ -135,11 +135,11 @@ public class PlannerClient {
         DetectConflictsEvent detectConflictsEvent = new DetectConflictsEvent(currentPlans);
         EventBusService.post(detectConflictsEvent);
 
-        boolean isConflict = detectConflictsEvent.getResponse(1000);
+        //boolean isConflict = detectConflictsEvent.getResponse(1000);
 
-        if (isConflict) {
-            // TODO Shit if conflict - probably resolve it...
-        }
+//        if (isConflict) {
+//            // TODO Shit if conflict - probably resolve it...
+//        }
 
         // send actions to server
         send(buildActionSet(agentsActions));
