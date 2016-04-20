@@ -23,7 +23,6 @@ public class BDIService {
     private PrimitivePlan currentlyExecutingPlan = null;
     private PrimitiveDesire primitivePlans;
     private LinkedList<Goal> goalsToSolve;
-    private HashMap<Goal, PrimitivePlan> goalPlans;
     private LinkedList<AgentIntention> intentions;
     private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
     private BDILevelService bdiLevelService;
@@ -52,7 +51,6 @@ public class BDIService {
 
         primitivePlans = new PrimitiveDesire(null);
         goalsToSolve = new LinkedList<>();
-        goalPlans = new HashMap<>();
         intentions = new LinkedList<>();
         ideas = new HashMap<>();
     }
@@ -87,14 +85,6 @@ public class BDIService {
 
     public LinkedList<Goal> getGoalsToSolve() {
         return goalsToSolve;
-    }
-
-    public void putGoalPlan(Goal goal, PrimitivePlan plan) {
-        goalPlans.put(goal, plan);
-    }
-
-    public PrimitivePlan getGoalPlan(Goal goal) {
-        return goalPlans.get(goal);
     }
 
     public LinkedList<AgentIntention> getIntentions() {

@@ -665,7 +665,7 @@ public abstract class LevelService {
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        for (ConcreteAction action : pseudoPlan.getActionList()) {
+        for (ConcreteAction action : pseudoPlan.getActionsClone()) {
             Position next = new Position(previous, action.getAgentDirection());
             if (!path.contains(next)) {
                 path.addLast(new Position(next));
@@ -748,5 +748,21 @@ public abstract class LevelService {
         debug("Free Positions ordered by layers:\n" + s +"}", -2);
 
         return all;
+    }
+
+    /**
+     * @return List of the next set of independent goals, 1 from each queue
+     */
+    public synchronized List<Goal> getIndependentGoals() {
+        List<Goal> goals = new ArrayList<>();
+
+        level.getGoalQueues().forEach(goalQueue -> {
+            Goal goal = goalQueue.poll();
+            if (goal != null) {
+                goals.add(goal);
+            }
+        });
+
+        return goals;
     }
 }
