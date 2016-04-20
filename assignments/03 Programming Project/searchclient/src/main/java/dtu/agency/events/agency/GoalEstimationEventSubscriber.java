@@ -44,10 +44,13 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
     @Subscribe
     @AllowConcurrentEvents
     public void changeSubscriber(GoalEstimationEvent event) {
-        agentEstimations.offer(event);
-        // notify estimationsThread to see if all agents have estimated
-        synchronized (goal) {
-            goal.notify();
+        if (event.getGoal().getLabel().equals(goal.getLabel())) {
+            // The estimation is for this given goal
+            agentEstimations.offer(event);
+            // notify estimationsThread to see if all agents have estimated
+            synchronized (goal) {
+                goal.notify();
+            }
         }
     }
 

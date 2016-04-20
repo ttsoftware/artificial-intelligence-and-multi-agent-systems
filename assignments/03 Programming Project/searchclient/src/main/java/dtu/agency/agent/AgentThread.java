@@ -2,11 +2,10 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.bdi.Ideas;
-import dtu.agency.board.*;
+import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
-import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.planners.Mind;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
@@ -52,6 +51,7 @@ public class AgentThread implements Runnable {
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(
                         BDIService.getInstance().getAgent(),
+                        goal,
                         totalSteps
                 )
         );
@@ -90,8 +90,9 @@ public class AgentThread implements Runnable {
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": Using Concrete Plan: " + plan.toString());
 
-            EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), plan)); // execute plan
+            // EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), plan)); // execute plan
+            // Send the response back
+            event.setResponse(plan);
         }
-
     }
 }

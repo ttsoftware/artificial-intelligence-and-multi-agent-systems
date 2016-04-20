@@ -4,14 +4,14 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
 import dtu.agency.events.EventSubscriber;
+import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
-import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.EventBusService;
+import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
 import java.io.BufferedReader;
@@ -37,6 +37,9 @@ public class PlannerClient {
 
         // Parse the level
         Level level = ProblemMarshaller.marshall(serverMessages);
+
+        // Create the level service
+        GlobalLevelService.getInstance().setLevel(level);
 
         numberOfAgents = level.getAgents().size();
         sendServerActionsQueue = new ArrayBlockingQueue<>(numberOfAgents);
@@ -82,7 +85,7 @@ public class PlannerClient {
             }
         });
 
-        Thread agencyThread = new Thread(new Agency(level));
+        Thread agencyThread = new Thread(new Agency());
         agencyThread.start();
         agencyThread.join();
 
@@ -96,6 +99,7 @@ public class PlannerClient {
     public static void sendActions() {
 
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
+        HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
         SendServerActionsEvent sendActionsEvent = null;
 
         try {
@@ -110,6 +114,11 @@ public class PlannerClient {
             currentPlans.put(
                     Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
                     sendActionsEvent.getConcretePlan()
+            );
+            // Add the event to the HashMap, such that we can add it back to the queue later
+            currentSendServerActionsEvents.put(
+                    Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
+                    sendActionsEvent
             );
             // poll next element, without waiting
             sendActionsEvent = sendServerActionsQueue.poll();
@@ -136,19 +145,15 @@ public class PlannerClient {
 
         // add plans back into the stack - they are now missing an action each
         currentPlans.forEach((agentNumber, concretePlan) -> {
+            SendServerActionsEvent sendServerActionsEvent = currentSendServerActionsEvents.get(agentNumber);
             if (concretePlan.getActions().size() != 0) {
                 // Add plan if it has at least 1 move left
-                sendServerActionsQueue.add(new SendServerActionsEvent(
-                        new Agent(Integer.toString(agentNumber)),
-                        concretePlan
-                ));
-            }
-            else {
-                // TODO: Somehow notify Agency that an agent has finished it's plan
+                sendServerActionsEvent.setConcretePlan(concretePlan);
+                sendServerActionsQueue.add(sendServerActionsEvent);
+            } else {
+                sendServerActionsEvent.setResponse(true);
             }
         });
-
-        // TODO At some point we should stop this recursion. How do we know that the whole level is solved?
 
         // Send the next set of actions
         sendActions();
