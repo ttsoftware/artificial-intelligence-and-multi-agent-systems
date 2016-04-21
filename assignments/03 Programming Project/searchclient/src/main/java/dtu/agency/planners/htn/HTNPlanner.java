@@ -1,6 +1,5 @@
 package dtu.agency.planners.htn;
 
-import dtu.Main;
 import dtu.agency.actions.Action;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.*;

@@ -94,7 +94,6 @@ public abstract class LevelService {
 
         // find the object type
         BoardCell boardCell = boardState[row][column];
-        System.err.println("updating position in gls: " + boardObject + " " + direction + " Iam: " + boardCell);
         int nextRow = -1;
         int nextColumn = -1;
 
@@ -140,14 +139,11 @@ public abstract class LevelService {
 
         // update next board cell
         BoardCell atCell = boardState[nextRow][nextColumn];
-        System.err.println("atDest ("+nextRow+","+nextColumn+"): " + atCell );
-
         if (atCell==BoardCell.GOAL) { // handles cases where objects enters a goal cell
             if ((boardCell == BoardCell.AGENT) || (boardCell == BoardCell.AGENT_GOAL)) {
                 boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
             } else if ((boardCell == BoardCell.BOX) || (boardCell == BoardCell.BOX_GOAL)) {
                 boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
-                System.err.println("moved a box into a goal");
             }
         } else { // Handles cases of objects entering a free cell
             if (boardCell == BoardCell.AGENT_GOAL) {
