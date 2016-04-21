@@ -5,6 +5,7 @@ import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.PrimitiveDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.*;
+import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,8 +20,9 @@ public class BDIService {
     private Agent agent;
     private Box currentTargetBox; // used for saving box when planning!
     private Position agentCurrentPosition;
+    private PrimitivePlan currentlyExecutingPlan = null;
     private PrimitiveDesire primitivePlans;
-    private LinkedList<Goal> meaningOfLife;
+    private LinkedList<Goal> goalsToSolve;
     private HashMap<String, AgentIntention> intentions;
     private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
     private BDILevelService bdiLevelService;
@@ -48,7 +50,7 @@ public class BDIService {
         bdiLevelService = new BDILevelService(levelClone);
 
         primitivePlans = new PrimitiveDesire(null);
-        meaningOfLife = new LinkedList<>();
+        goalsToSolve = new LinkedList<>();
         intentions = new HashMap<>();
         ideas = new HashMap<>();
     }
@@ -61,6 +63,14 @@ public class BDIService {
         return bdiLevelService.getPosition(agent);
     }
 
+    public PrimitivePlan getCurrentlyExecutingPlan() {
+        return currentlyExecutingPlan;
+    }
+
+    public void setCurrentlyExecutingPlan(PrimitivePlan currentlyExecutingPlan) {
+        this.currentlyExecutingPlan = currentlyExecutingPlan;
+    }
+
     public PrimitiveDesire getPrimitivePlans() {
         return primitivePlans;
     }
@@ -70,11 +80,11 @@ public class BDIService {
     }
 
     public void addMeaningOfLife(Goal target) {
-        meaningOfLife.addLast(target);
+        goalsToSolve.addLast(target);
     }
 
-    public LinkedList<Goal> getMeaningOfLife() {
-        return meaningOfLife;
+    public LinkedList<Goal> getGoalsToSolve() {
+        return goalsToSolve;
     }
 
     public HashMap<String, AgentIntention> getIntentions() {
@@ -102,10 +112,12 @@ public class BDIService {
     }
 
     /**
-     * TODO: this should return the length of the current intended plans
      * @return the length of the current intended plans in number of steps
      */
     public int remainingConcreteActions(){
+        if (currentlyExecutingPlan != null) {
+            return currentlyExecutingPlan.size();
+        }
         return 0;
     }
 }

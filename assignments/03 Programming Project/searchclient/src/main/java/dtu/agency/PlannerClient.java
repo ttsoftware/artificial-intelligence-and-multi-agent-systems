@@ -143,6 +143,15 @@ public class PlannerClient {
         // send actions to server
         send(buildActionSet(agentsActions));
 
+        // update the GlobalLevelService with this action
+        agentsActions.forEach((agentNumber, concreteAction) -> {
+            String agentLabel = agentNumber.toString();
+            GlobalLevelService.getInstance().applyAction(
+                    GlobalLevelService.getInstance().getAgent(agentLabel),
+                    concreteAction
+            );
+        });
+
         // add plans back into the stack - they are now missing an action each
         currentPlans.forEach((agentNumber, concretePlan) -> {
             SendServerActionsEvent sendServerActionsEvent = currentSendServerActionsEvents.get(agentNumber);

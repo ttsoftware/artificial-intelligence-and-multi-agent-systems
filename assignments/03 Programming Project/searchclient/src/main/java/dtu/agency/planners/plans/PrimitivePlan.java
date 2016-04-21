@@ -21,7 +21,7 @@ public class PrimitivePlan implements ConcretePlan {
         return concreteActions;
     }
 
-    public LinkedList<ConcreteAction> getActionList() {
+    public LinkedList<ConcreteAction> getActionsClone() {
         return new LinkedList<>(concreteActions);
     }
 
@@ -52,6 +52,6 @@ public class PrimitivePlan implements ConcretePlan {
     }
 
     public void appendActions(PrimitivePlan other) {
-        concreteActions.addAll(other.getActionList());
+        concreteActions.addAll(other.getActionsClone());
     }
 }

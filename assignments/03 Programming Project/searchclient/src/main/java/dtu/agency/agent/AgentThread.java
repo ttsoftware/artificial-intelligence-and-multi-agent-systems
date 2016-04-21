@@ -1,5 +1,6 @@
 package dtu.agency.agent;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.agent.bdi.Ideas;
@@ -35,7 +36,7 @@ public class AgentThread implements Runnable {
         // this as basis on bidding on the next
         // TODO: important step - update the planning level service to match state after current plans are executed
         PlanningLevelService pls = BDIService.getInstance().getLevelServiceAfterPendingPlans();
-        // TODO: Find number of remaining steps to be executed at this moment
+
         int remainingSteps = BDIService.getInstance().remainingConcreteActions();
 
         Mind mind = new Mind(pls);
@@ -63,6 +64,7 @@ public class AgentThread implements Runnable {
      * @param event
      */
     @Subscribe
+    @AllowConcurrentEvents
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
         if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
             // We won the bid for this goal!
@@ -90,7 +92,9 @@ public class AgentThread implements Runnable {
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": Using Concrete Plan: " + plan.toString());
 
-            // EventBusService.getEventBus().post(new PlanOfferEvent(event.getGoal(), BDIService.getInstance().getAgent(), plan)); // execute plan
+            // Add plan to map of goals and plans
+            BDIService.getInstance().setCurrentlyExecutingPlan(plan);
+
             // Send the response back
             event.setResponse(plan);
         }
