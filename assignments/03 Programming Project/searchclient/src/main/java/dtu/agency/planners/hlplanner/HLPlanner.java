@@ -2,9 +2,11 @@ package dtu.agency.planners.hlplanner;
 
 import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.agent.bdi.AgentIntention;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.HLPlan;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
@@ -38,9 +40,6 @@ public class HLPlanner {
     public HLPlan plan() {
         debug("hl planning", 2);
         debug("hl planning! ", 20);
-        // calculate the agent final destination
-        // TODO: this is only in case of no unreachable obstacles!
-        Position agentDestination = intention.getPseudoPath().peekLast();
 
         debug("obstacle count: " + intention.getObstacleCount());
         debug("", -20);
@@ -53,26 +52,28 @@ public class HLPlanner {
             Position obstacleOrigin = (Position) obstacles.next();
             Box box = new Box(pls.getObjectLabels(obstacleOrigin));
             debug("obstacle: " + box + "@" + obstacleOrigin + " - goal box is " + intention.targetBox, 20);
+
             if (box.equals(intention.targetBox) && obstacles.hasNext()) {
-                // TODO move goalbox to free position and try again (recurse)
+                // move goal box to free position and try re-planning from there (recurse once)
                 Position neighbour = pls.getValidNeighbour(intention.getPseudoPath(), obstacleOrigin, remainingObstacles);
-                moveBoxInPlanner(box, neighbour, obstacleOrigin); // add hlaction to plan, committedactions+1, update pls
+                moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
                 intention.obstaclePositions.removeAll(removedObstacles);
                 debug("obstacles left: " + intention.obstaclePositions);
                 System.err.println("RECURSION");
                 return plan(); // Recursive behavior max depth is 1 :-)
-            } else if (box.equals(intention.targetBox)) {
-                // TODO: move goal box into goal
-                moveBoxInPlanner(box, pls.getPosition(intention.goal), agentDestination); // add hlaction to plan, committedactions+1, update pls
-                // TODO: update BDI hlplan ?? NO this happens in the Mind.
+            }
+            else if (box.equals(intention.targetBox)) {
+                // only 'obstacle' left in path is goal box - move it into goal position
+                moveBoxInPlanner(box, pls.getPosition(intention.goal), intention.getPseudoPath().peekLast());
                 pls.revertLast(committedActions);
                 removedObstacles.add(obstacleOrigin);
                 return plan;
-            } else {
-                // TODO: move obstacle box to free position
+            }
+            else {
+                // next obstacle is in the path - move box to free position
                 Position neighbour = pls.getValidNeighbour(intention.getPseudoPath(), obstacleOrigin, remainingObstacles);
-                moveBoxInPlanner(box, neighbour, obstacleOrigin); // add hlaction to plan, committedactions+1, update pls
+                moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
             }
             remainingObstacles--;
@@ -81,12 +82,17 @@ public class HLPlanner {
         // no more obstacles - and the goal box was not among the obstacles
         // move it to the goal position
 
-        moveBoxInPlanner(intention.targetBox, pls.getPosition(intention.goal), agentDestination); // add hlaction to plan, committedactions+1, update pls
+        moveBoxInPlanner(intention.targetBox, pls.getPosition(intention.goal), intention.getPseudoPath().peekLast()); // add hlaction to plan, committedactions+1, update pls
         pls.revertLast(committedActions);
+        debug(""+plan,-2);
         return plan;
     }
 
     private void moveBoxInPlanner(Box box, Position boxDestination, Position agentDestination) {
+        Agent agent = BDIService.getInstance().getAgent();
+        debug("Move box in HLPlanner:",2);
+        debug(" Agent " + agent + " " +pls.getPosition(agent)+ " -> " + agentDestination);
+        debug(", Box " + box + " " +pls.getPosition(box)+ " -> " + boxDestination);
         HMoveBoxAction moveBoxAction = new HMoveBoxAction(
                 box,
                 boxDestination,
@@ -95,5 +101,6 @@ public class HLPlanner {
         plan.append(moveBoxAction);
         pls.apply(moveBoxAction);
         committedActions++;
+        debug("", -2);
     }
 }

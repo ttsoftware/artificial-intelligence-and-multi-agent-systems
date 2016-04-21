@@ -91,7 +91,8 @@ public class Mind {
         int bestApproximation = Integer.MAX_VALUE;
         int counter = (ideas.getIdeas().size() < 5) ? ideas.getIdeas().size() : 5 ;
 
-        while ( counter > 0 ) {
+        // plan only 5 best initial heuristics, but if none of those are valid -> keep planning.
+        while ( counter > 0 || bestIntention == null) {
             counter--;
             SolveGoalAction idea = ideas.getBest();
             Box targetBox = idea.getBox();
@@ -128,6 +129,7 @@ public class Mind {
             }
 
         }
+
 
         BDIService.getInstance().getIntentions().put(goal.getLabel(), bestIntention);
         return bestIntention;
