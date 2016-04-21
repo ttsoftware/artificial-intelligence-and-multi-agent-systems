@@ -116,7 +116,7 @@ public class BDIService {
      * @return This PLS includes the execution of the current intention
      */
     public PlanningLevelService getLevelServiceAfterPendingPlans() {
-        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
+        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevelClone());
     }
 
     /**

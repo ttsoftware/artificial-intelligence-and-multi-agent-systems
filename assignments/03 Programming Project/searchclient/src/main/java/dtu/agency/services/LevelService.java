@@ -67,7 +67,6 @@ public abstract class LevelService {
 
         if (moveSuccess) {
             moveSuccess = moveObject(action.getBox(), action.getBoxMovingDirection());
-            // TODO: check if this introduces errors, but i think i fixed a bug, else add getInverse() to getBoxMovingDirection()
 
             if (!moveSuccess) {
                 // if we could not move the box, we have to move the agency back
@@ -91,59 +90,81 @@ public abstract class LevelService {
 
         // find the object
         Position position = objectPositions.get(boardObject.getLabel());
+        int row = position.getRow(), column = position.getColumn();
 
         // find the object type
-        BoardCell boardCell = boardState[position.getRow()][position.getColumn()];
-
+        BoardCell boardCell = boardState[row][column];
+        System.err.println("updating position in gls: " + boardObject + " " + direction + " Iam: " + boardCell);
         int nextRow = -1;
         int nextColumn = -1;
 
         // move the object to the new position
         switch (direction) {
             case NORTH: {
-                nextRow = position.getRow();
-                nextColumn = position.getColumn() - 1;
+                nextRow = row - 1;
+                nextColumn = column;
                 if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
-                boardState[nextRow][nextColumn] = boardCell;
                 break;
             }
             case SOUTH: {
-                nextRow = position.getRow() + 1;
-                nextColumn = position.getColumn();
+                nextRow = row + 1;
+                nextColumn = column;
                 if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
-                boardState[nextRow][nextColumn] = boardCell;
                 break;
             }
             case EAST: {
-                nextRow = position.getRow();
-                nextColumn = position.getColumn() + 1;
+                nextRow = row;
+                nextColumn = column + 1;
                 if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
-                boardState[nextRow][nextColumn] = boardCell;
                 break;
             }
             case WEST: {
-                nextRow = position.getRow();
-                nextColumn = position.getColumn() - 1;
+                nextRow = row;
+                nextColumn = column - 1;
                 if (!isFree(nextRow, nextColumn)) {
                     // We cannot perform this action
                     return false;
                 }
-                boardState[nextRow][nextColumn] = boardCell;
                 break;
             }
         }
 
+        // update next board cell
+        BoardCell atCell = boardState[nextRow][nextColumn];
+        System.err.println("atDest ("+nextRow+","+nextColumn+"): " + atCell );
+
+        if (atCell==BoardCell.GOAL) { // handles cases where objects enters a goal cell
+            if ((boardCell == BoardCell.AGENT) || (boardCell == BoardCell.AGENT_GOAL)) {
+                boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
+            } else if ((boardCell == BoardCell.BOX) || (boardCell == BoardCell.BOX_GOAL)) {
+                boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
+                System.err.println("moved a box into a goal");
+            }
+        } else { // Handles cases of objects entering a free cell
+            if (boardCell == BoardCell.AGENT_GOAL) {
+                boardState[nextRow][nextColumn] = BoardCell.AGENT;
+            } else if  (boardCell == BoardCell.BOX_GOAL) {
+                boardState[nextRow][nextColumn] = BoardCell.BOX;
+            } else {
+                boardState[nextRow][nextColumn] = boardCell; // handles THE BOX and AGENT cases
+            }
+        }
+
         // free the cell where the object was located
-        boardState[position.getRow()][position.getColumn()] = BoardCell.FREE_CELL;
+        if ( (boardCell==BoardCell.AGENT_GOAL) || (boardCell==BoardCell.BOX_GOAL)) {
+            boardState[row][column] = BoardCell.GOAL;
+        } else {
+            boardState[row][column] = BoardCell.FREE_CELL;
+        }
         objectPositions.remove(boardObject.getLabel());
         objectPositions.put(boardObject.getLabel(), new Position(nextRow, nextColumn));
 
