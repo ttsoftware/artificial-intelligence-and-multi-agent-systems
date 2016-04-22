@@ -514,6 +514,10 @@ public abstract class LevelService {
                 level.getBoardState()[row][column] = BoardCell.GOAL;
                 break;
             default:
+                Agent ag = BDIService.getInstance().getAgent();
+                String sa = "Agent " + ag + ": ";
+                System.err.println(sa +"lvl: agents: "+ level.getAgents() + " boxes: " + level.getBoxes());
+                System.err.println(sa +"lvl: objectPositions: "+ level.getBoardObjectPositions() );
                 throw new AssertionError("Cannot remove box if not present");
         }
         debug("Box removed from level.BoardState");
@@ -693,7 +697,7 @@ public abstract class LevelService {
 
     /**
      * Under influence of an agent BDIService, this takes a PrimitivePlan
-     * and turns it into an ordered list of positions, visited by that agent.
+     * and turns it into an ordered list of positions, visited by that agent, without duplicates.
      * @param pseudoPlan
      * @return
      */
@@ -728,13 +732,27 @@ public abstract class LevelService {
 
         while (positions.hasNext()) {
             Position next = (Position) positions.next();
-            if (!isFree(next)) { // TODO: this also finds agents...
+            if (!isFree(next)) {
+                // TODO: this also finds agents...
                 obstacles.add(next);
             }
         }
 
         debug("Obstacles found: " + obstacles.toString(),-2);
         return obstacles;
+    }
+
+    public HashSet<Position> getFreeNeighbourSet(Position position) {
+        HashSet<Position> freeNeighbours = new HashSet<>();
+        Position n = new Position(position, Direction.NORTH);
+        Position s = new Position(position, Direction.SOUTH);
+        Position e = new Position(position, Direction.EAST);
+        Position w = new Position(position, Direction.WEST);
+        if (isFree(n)) freeNeighbours.add(n);
+        if (isFree(s)) freeNeighbours.add(s);
+        if (isFree(e)) freeNeighbours.add(e);
+        if (isFree(w)) freeNeighbours.add(w);
+        return freeNeighbours;
     }
 
     /**
@@ -756,14 +774,7 @@ public abstract class LevelService {
 
             // morphological dilation
             for (Position p : current) {
-                Position n = new Position(p, Direction.NORTH);
-                Position s = new Position(p, Direction.SOUTH);
-                Position e = new Position(p, Direction.EAST);
-                Position w = new Position(p, Direction.WEST);
-                if (isFree(n)) next.add(n);
-                if (isFree(s)) next.add(s);
-                if (isFree(e)) next.add(e);
-                if (isFree(w)) next.add(w);
+                next.addAll(getFreeNeighbourSet(p));
             }
 
             // make sure only new positions are kept
@@ -803,4 +814,89 @@ public abstract class LevelService {
 
         return goals;
     }
+
+    public Position getValidNeighbour(LinkedList<Position> fullPath, Position origin, int depth){
+        LinkedList<Position> prePath = new LinkedList<>();
+        LinkedList<Position> priorityPath = new LinkedList<>();
+
+        // divide the path in before / after target origin
+        ListIterator fullPathPositions = fullPath.listIterator();
+        boolean after = false;
+        while (fullPathPositions.hasNext()) {
+            Position next = (Position) fullPathPositions.next();
+            if (after) { // only add possible neighbours
+                if (isFree(next)) {
+                    priorityPath.addLast(next);
+                } else {
+                    break;
+                }
+            } else { // before
+                prePath.addFirst(next);
+            }
+            if (next.equals(origin)) {
+                after = true;
+                priorityPath.addLast(next);
+            }
+        }
+        priorityPath.addAll(prePath); // prioritized Path
+
+        HashSet<Position> previouslyDiscovered = new HashSet<>(priorityPath);
+
+        Iterator path = priorityPath.listIterator();
+
+        int neighbourcount = 0;
+        List<Position> validNeighbours = new ArrayList<>();
+
+        ArrayList<Position> newNeighbours = new ArrayList<>();
+        while ( path.hasNext() && (neighbourcount < depth) ) {
+            Position cell = (Position) path.next();
+            Position n;
+            while (hasUnseenFreeNeighbour(cell, previouslyDiscovered) && (neighbourcount < depth)) {
+                n = getUnseenFreeNeighbour(cell, previouslyDiscovered);
+                neighbourcount++;
+                newNeighbours.add(n);
+                previouslyDiscovered.add(n);
+
+                Position nn = n;
+                while (hasUnseenFreeNeighbour(nn, previouslyDiscovered) && (neighbourcount < depth)) {
+                    neighbourcount++;
+                    nn = getUnseenFreeNeighbour(nn, previouslyDiscovered);
+                    newNeighbours.add(nn);
+                    previouslyDiscovered.add(nn);
+                }
+                validNeighbours.add(nn);
+            }
+        } // enough neighbours found
+
+        //find closer valid neighbour
+        Position validNeighbour = validNeighbours.get(0);
+        int minDistance = origin.manhattanDist(validNeighbour);
+        for (Position p: validNeighbours) {
+            if (origin.manhattanDist(p) < minDistance) {
+                minDistance = origin.manhattanDist(p);
+                validNeighbour = p;
+            }
+        }
+
+        return validNeighbour;
+    }
+
+    private Position getUnseenFreeNeighbour(Position cell, HashSet<Position> previouslyDiscovered) {
+        HashSet<Position> neighbours = getFreeNeighbourSet(cell);
+        neighbours.removeAll(previouslyDiscovered);
+        Iterator it = neighbours.iterator();
+        if (it.hasNext()) {
+            Position freeeNeighbour = (Position) it.next();
+            return new Position(freeeNeighbour);
+        } else {
+            return null;
+        }
+    }
+
+    protected boolean hasUnseenFreeNeighbour(Position cell, HashSet<Position> previouslyDiscovered){
+        HashSet<Position> neighbours = getFreeNeighbourSet(cell);
+        neighbours.removeAll(previouslyDiscovered);
+        return (!neighbours.isEmpty());
+    }
+
 }

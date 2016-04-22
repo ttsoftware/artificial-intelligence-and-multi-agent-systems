@@ -18,4 +18,12 @@ public class Agent extends BoardObject {
     public int hashCode() {
         return label.hashCode();
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Agent) {
+            return super.equals(object);
+        }
+        return false;
+    }
 }

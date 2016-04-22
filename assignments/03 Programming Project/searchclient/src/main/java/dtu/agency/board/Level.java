@@ -24,8 +24,8 @@ public class Level {
     private List<Wall> walls;
 
     public Level(Level level) {
-        this.boardState = level.getBoardState().clone();
-        this.boardObjects = level.getBoardObjects().clone();
+        this.boardState = BoardCell.deepCopy(level.getBoardState());
+        this.boardObjects = BoardObject.deepCopy(level.getBoardObjects());
         this.boardObjectPositions = new ConcurrentHashMap<>(level.getBoardObjectPositions());
         this.goalQueues = new ArrayList<>(level.getGoalQueues());
         this.boxesGoals = new ConcurrentHashMap<>(level.getBoxesGoals());
@@ -66,6 +66,8 @@ public class Level {
         this.boxes = boxes;
         this.walls = walls;
     }
+
+
 
     public BoardCell[][] getBoardState() {
         return boardState;

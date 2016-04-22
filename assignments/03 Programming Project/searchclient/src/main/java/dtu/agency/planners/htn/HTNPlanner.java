@@ -13,6 +13,7 @@ import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
+import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.PlanningLevelService;
 
 
@@ -156,7 +157,7 @@ public class HTNPlanner {
      * Returns the intention to be solved by this planner
      */
     public HLAction getIntention() {
-        return HLAction.getOriginalAction(originalAction);
+        return HLAction.cloneHLAction(originalAction);
     }
 
     /**
@@ -175,8 +176,33 @@ public class HTNPlanner {
         debug("HTNPlanner.plan():",2);
 
         debug("initial" + initialNode.toString());
+        /* Debugging area start */
+        Agent ag = BDIService.getInstance().getAgent();
+        String sa = "Agent " + ag + ": ";
+        Box bx = originalAction.getBox();
+        int row = pls.getPosition(bx).getRow(), column = pls.getPosition(bx).getColumn();
+        // bdi level = pls level !!! BUG!
+        System.err.println(sa + "pls " + pls.getLevel());
+        System.err.println(sa + "bdi " + BDIService.getInstance().getBDILevelService().getLevel());
+        System.err.println(sa + "gls " + GlobalLevelService.getInstance().getLevel());
+        System.err.println(sa + "pls.boardState@pos " + pls.getLevel().getBoardState()[row][column]);
+        System.err.println(sa + "wants to track box " + bx + "@" +pls.getPosition(bx));
+        System.err.println(sa + "level information on box/location: ");
+        System.err.println(sa + "  boardState: " + pls.getLevel().getBoardState()[row][column]);
+        System.err.println(sa + "  boardObjectPositions: " + pls.getLevel().getBoardObjectPositions().get(bx.getLabel()));
+        System.err.println(sa + "  boardObjects: " + pls.getLevel().getBoardObjects()[row][column]);
+        System.err.println(sa + "  boxes: " + pls.getLevel().getBoxes());
+        row = pls.getPosition(ag).getRow();
+        column = pls.getPosition(ag).getColumn();
+        System.err.println(sa + "level information on agent/location: r/c" + row +"/"+ column);
+        System.err.println(sa + "  boardState: " + pls.getLevel().getBoardState()[row][column]);
+        System.err.println(sa + "  boardObjectPositions: " + pls.getLevel().getBoardObjectPositions().get(ag.getLabel()));
+        System.err.println(sa + "  boardObjects: " + pls.getLevel().getBoardObjects()[row][column]);
+        System.err.println(sa + "  agents: " + pls.getLevel().getAgents());
 
+        /* Debugging area end */
         // PlanningLevelService assuming responsibility over agent and current box
+        System.err.println("" + originalAction.getBox());
         pls.startTracking(originalAction.getBox());
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);
@@ -239,6 +265,7 @@ public class HTNPlanner {
                 agentDestination = leafNode.getState().getAgentPosition();
                 pls.stopTracking();
                 debug(strategy.status(), -2);
+                System.err.println(sa + "  finishes htnplanning and stops tracking " );
                 return leafNode.extractPlan();
             }
 

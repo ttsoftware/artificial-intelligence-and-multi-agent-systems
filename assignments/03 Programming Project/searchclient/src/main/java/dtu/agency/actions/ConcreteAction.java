@@ -18,7 +18,7 @@ public abstract class ConcreteAction implements Action<ConcreteActionType> {
 
     public abstract Direction getAgentDirection();
 
-    public static ConcreteAction getConcreteAction(ConcreteAction concreteAction) {
+    public static ConcreteAction cloneConcreteAction(ConcreteAction concreteAction) {
         switch (concreteAction.getType()) {
             case MOVE:
                 MoveConcreteAction move = (MoveConcreteAction) concreteAction;

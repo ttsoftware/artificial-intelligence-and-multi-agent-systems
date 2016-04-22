@@ -37,4 +37,12 @@ public class BoxAndGoal extends BoardObject {
     public BoardCell getType() {
         return BoardCell.BOX_GOAL;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof BoxAndGoal) {
+            return super.equals(object);
+        }
+        return false;
+    }
 }
