@@ -9,11 +9,11 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                "levels/MAtest.lvl",
+                // "levels/MAtest.lvl",
                 //"levels/SAhlplan.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl",
                 // "levels/ClearPathTest.lvl",
-                // "levels/SAD1_multi.lvl",
+                "levels/SAD1_multi.lvl",
                 // "levels/SApushing.lvl",
                 // "levels/SAD1_multi_1 agent_wins.lvl",
                 "-g",
