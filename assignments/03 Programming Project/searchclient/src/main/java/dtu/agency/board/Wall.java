@@ -14,4 +14,12 @@ public class Wall extends BoardObject {
     public Wall(Wall obj) {
         super(obj.getLabel());
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Wall) {
+            return super.equals(object);
+        }
+        return false;
+    }
 }

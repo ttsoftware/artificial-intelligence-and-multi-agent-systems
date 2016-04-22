@@ -514,6 +514,10 @@ public abstract class LevelService {
                 level.getBoardState()[row][column] = BoardCell.GOAL;
                 break;
             default:
+                Agent ag = BDIService.getInstance().getAgent();
+                String sa = "Agent " + ag + ": ";
+                System.err.println(sa +"lvl: agents: "+ level.getAgents() + " boxes: " + level.getBoxes());
+                System.err.println(sa +"lvl: objectPositions: "+ level.getBoardObjectPositions() );
                 throw new AssertionError("Cannot remove box if not present");
         }
         debug("Box removed from level.BoardState");

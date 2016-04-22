@@ -43,7 +43,10 @@ public class Goal extends BoardObject implements Comparable<Goal> {
     }
 
     @Override
-    public boolean equals(Object other) {
-        return other instanceof Goal && (Objects.equals(((Goal) other).getLabel(), label));
+    public boolean equals(Object object) {
+        if (object instanceof Goal) {
+            return super.equals(object);
+        }
+        return false;
     }
 }
