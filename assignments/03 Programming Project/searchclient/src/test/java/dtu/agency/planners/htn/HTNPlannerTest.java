@@ -5,7 +5,6 @@ import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.planners.Mind;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.GlobalLevelService;
@@ -52,9 +51,8 @@ public class HTNPlannerTest {
 
         BDIService.setInstance(new BDIService(agent));
 
+        BDIService mind = BDIService.getInstance();
         // Planner initialization
-        PlanningLevelService pls = new PlanningLevelService(GlobalLevelService.getInstance().getLevel());
-        Mind mind = new Mind(pls);
         Ideas ideas = mind.thinkOfIdeas(goal);
         System.err.println("Ideas: " + ideas.toString() + "\n");
 

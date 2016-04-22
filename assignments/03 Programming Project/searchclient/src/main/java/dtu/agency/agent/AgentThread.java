@@ -2,18 +2,15 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
-import dtu.agency.planners.Mind;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
-import dtu.agency.services.PlanningLevelService;
 
 public class AgentThread implements Runnable {
 
@@ -25,34 +22,32 @@ public class AgentThread implements Runnable {
     }
 
     /**
-     * The Agency offered a goal - we bid on it
+     * The Agency offered a goal - The agents bid on it
      *
      * @param event
      */
     @Subscribe
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
+        // setup local variables
+        BDIService mind = BDIService.getInstance();
+        Agent agent = mind.getAgent();
+
+        // calculate the best bid of solving this goal
         Goal goal = event.getGoal();
 
-        // calculate positions of self + boxes, when current plans are executed
-        // this as basis on bidding on the next
-        // TODO: important step - update the planning level service to match state after current plans are executed
-        PlanningLevelService pls = BDIService.getInstance().getLevelServiceAfterPendingPlans();
+        // use agents mind to calculate bid
+        Ideas ideas = mind.thinkOfIdeas(goal);
+        mind.filter(ideas, goal); // the intention are automatically stored in BDIService
 
-        int remainingSteps = BDIService.getInstance().remainingConcreteActions();
-
-        Mind mind = new Mind(pls);
-        Ideas ideas = mind.thinkOfIdeas(goal); // they are automatically stored in BDIService
-        AgentIntention intention = mind.filter(ideas, goal);
-
-        BDIService.getInstance().getIntentions().put(goal.getLabel(), intention);
-
-        int totalSteps = remainingSteps + intention.getApproximateSteps();
+        int remainingSteps = mind.remainingConcreteActions();
+        int approximation  = mind.getIntention(goal).getApproximateSteps();
+        int totalSteps = remainingSteps + approximation;
 
         // print status and communicate with agency
         System.err.println(Thread.currentThread().getName()
                 + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                 + ": received a goaloffer " + goal.getLabel()
-                + " event and returned: " + Integer.toString(totalSteps));
+                + " event and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(
                         BDIService.getInstance().getAgent(),
@@ -63,7 +58,7 @@ public class AgentThread implements Runnable {
     }
 
     /**
-     * The Agency assigned someone a goal
+     * The Agency assigned someone a goal - The agent solve it
      *
      * @param event
      */
@@ -79,23 +74,16 @@ public class AgentThread implements Runnable {
             Goal goal = event.getGoal();
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal );
 
+            // use the agent's mind / BDI Service to solve the task
             boolean successful = mind.solveGoal(goal); // generate a plan internal in the agents consciousness.
 
-            PrimitivePlan plan;
-            if (successful) {
-                // this updates the BDI internally in the agent
-                // TODO going from BDI v.3 --> BDI v.4 (REACTIVE AGENT)
-                // are we gonna submit the entire primitivePlan to the agency at once??
-                // maybe it is better to divide the sending of plans into smaller packages,
-                // e.g. solving separate intentions as GotoBox, MoveBox, etc.
-                // this will give the agent the possibility of reacting to changes
-                // in the environment.
-                plan = mind.calculateNextSteps();
-            } else {
+            if (!successful) {
                 // TODO: failed what to do... - respond with failure??
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal );
-                plan = new PrimitivePlan();
             }
+
+            // retrieves the list of primitive actions to execute (blindly)
+            PrimitivePlan plan = mind.getStepsToBeExecuted();
 
             // print status and communicate with agency
             System.err.println(Thread.currentThread().getName()
@@ -106,4 +94,5 @@ public class AgentThread implements Runnable {
             event.setResponse(plan);
         }
     }
+
 }
