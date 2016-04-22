@@ -149,7 +149,7 @@ public class PlanningLevelService extends LevelService {
      * @param plan any plan implementing the Plan interface
      */
     public void applyAll(Plan plan) {
-        List<Action> allActions = plan.getActions();
+        LinkedList<Action> allActions = (LinkedList<Action>) plan.getActions();
         Iterator actions = allActions.iterator();
         while (actions.hasNext()) {
             Action next = (Action) actions.next();

@@ -3,7 +3,6 @@ package dtu.agency.services;
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.agent.bdi.Ideas;
-import dtu.agency.agent.bdi.PrimitiveDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.*;
 import dtu.agency.planners.hlplanner.HLPlanner;
@@ -36,10 +35,8 @@ public class BDIService {
     private Agent agent;
     private HLPlan planToBeExecuted;
     private PrimitivePlan stepsToBeExecuted;
-    private PrimitiveDesire primitivePlans;
     private LinkedList<Goal> goalsToSolve;
     private HashMap<String, AgentIntention> intentions;
-    private HashMap<String, Ideas> ideas; // everything the agent want to achieve (aka desires :-) )
     private BDILevelService bdiLevelService;
 
     private static ThreadLocal<BDIService> threadLocal = new ThreadLocal<>();

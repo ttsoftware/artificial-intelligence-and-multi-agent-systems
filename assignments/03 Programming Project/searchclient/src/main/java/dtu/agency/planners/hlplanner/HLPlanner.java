@@ -20,9 +20,9 @@ public class HLPlanner {
     protected static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
     protected static void debug(String msg){ debug(msg, 0); }
 
-    private PlanningLevelService pls;
-    private AgentIntention intention;
-    private HLPlan plan;
+    private final PlanningLevelService pls;
+    private final AgentIntention intention;
+    private final HLPlan plan;
     private int committedActions;
 
     /**

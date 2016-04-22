@@ -10,8 +10,8 @@ import java.util.PriorityQueue;
  */
 public class BestFirstStrategy extends Strategy {
 
-    private HTNNodeComparator HTNNodeComparator;
-    private PriorityQueue<HTNNode> frontier;
+    private final HTNNodeComparator HTNNodeComparator;
+    private final PriorityQueue<HTNNode> frontier;
 
     public BestFirstStrategy(HTNNodeComparator h) {
         super();
