@@ -37,7 +37,12 @@ public class AgentThread implements Runnable {
 
         // use agents mind to calculate bid
         Ideas ideas = mind.thinkOfIdeas(goal);
-        mind.filter(ideas, goal); // the intention are automatically stored in BDIService
+        boolean successful = mind.filter(ideas, goal); // the intention are automatically stored in BDIService
+
+        if (!successful) {
+            // TODO: failed what to do... - respond with failure??
+            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal );
+        }
 
         int remainingSteps = mind.remainingConcreteActions();
         int approximation  = mind.getIntention(goal).getApproximateSteps();
@@ -50,7 +55,7 @@ public class AgentThread implements Runnable {
                 + " event and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
         EventBusService.getEventBus().post(new GoalEstimationEvent(
-                        BDIService.getInstance().getAgent(),
+                        agent,
                         goal,
                         totalSteps
                 )

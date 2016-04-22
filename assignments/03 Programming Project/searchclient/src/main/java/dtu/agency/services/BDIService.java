@@ -185,7 +185,7 @@ public class BDIService {
     /**
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
-    public void filter( Ideas ideas, Goal goal ) { // Belief is handled internally by pls
+    public boolean filter( Ideas ideas, Goal goal ) { // Belief is handled internally by pls
         PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
         AgentIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;
@@ -194,6 +194,7 @@ public class BDIService {
         // plan only 5 best initial heuristics, but if none of those are valid -> keep planning.
         while ( counter > 0 || bestIntention == null) {
             counter--;
+            if (ideas.getIdeas().isEmpty()) break;
             SolveGoalAction idea = ideas.getBest();
             Box targetBox = idea.getBox();
             Position targetBoxPosition = pls.getPosition(targetBox);
@@ -229,7 +230,11 @@ public class BDIService {
             }
 
         }
-        getIntentions().put(goal.getLabel(), bestIntention);
+        if (bestIntention != null) {
+            getIntentions().put(goal.getLabel(), bestIntention);
+            return true;
+        }
+        return false;
     }
 
 
