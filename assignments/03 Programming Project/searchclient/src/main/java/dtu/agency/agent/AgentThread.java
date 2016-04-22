@@ -4,6 +4,7 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.agent.bdi.Ideas;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
@@ -42,6 +43,9 @@ public class AgentThread implements Runnable {
         Mind mind = new Mind(pls);
         Ideas ideas = mind.thinkOfIdeas(goal); // they are automatically stored in BDIService
         AgentIntention intention = mind.filter(ideas, goal);
+
+        BDIService.getInstance().getIntentions().put(goal.getLabel(), intention);
+
         int totalSteps = remainingSteps + intention.getApproximateSteps();
 
         // print status and communicate with agency
@@ -67,33 +71,36 @@ public class AgentThread implements Runnable {
     @AllowConcurrentEvents
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
         if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
+            // setup local variables
+            BDIService mind = BDIService.getInstance();
+            Agent agent = mind.getAgent();
+
             // We won the bid for this goal!
-            System.err.println(Thread.currentThread().getName() + ": Agent " + BDIService.getInstance().getAgent().getLabel() + ": I won the bidding for: " + event.getGoal().getLabel());
+            Goal goal = event.getGoal();
+            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal );
 
-            BDIService.getInstance().addMeaningOfLife(event.getGoal()); // update the meaning of this agent's life
+            boolean successful = mind.solveGoal(goal); // generate a plan internal in the agents consciousness.
 
-            PlanningLevelService pls = BDIService.getInstance().getLevelServiceAfterPendingPlans();
-
-            Mind mind = new Mind(pls);
-
-//            PrimitivePlan plan = mind.clearPath(event.getGoal()); // use ClearPathTest level as test environment
-//            PrimitivePlan plan = mind.sandbox(); // use SAD1 level as test environment
-            PrimitivePlan plan = mind.solve(event.getGoal()); // solves all levels (ideally)
-
-            // TODO going from BDI v.3 --> BDI v.4 (REACTIVE AGENT)
-            // are we gonna submit the entire primitivePlan to the agency at once??
-            // maybe it is better to divide the sending of plans into smaller packages,
-            // e.g. solving separate intentions as GotoBox, MoveBox, etc.
-            // this will give the agent the possibility of reacting to changes
-            // in the environment.
+            PrimitivePlan plan;
+            if (successful) {
+                // this updates the BDI internally in the agent
+                // TODO going from BDI v.3 --> BDI v.4 (REACTIVE AGENT)
+                // are we gonna submit the entire primitivePlan to the agency at once??
+                // maybe it is better to divide the sending of plans into smaller packages,
+                // e.g. solving separate intentions as GotoBox, MoveBox, etc.
+                // this will give the agent the possibility of reacting to changes
+                // in the environment.
+                plan = mind.calculateNextSteps();
+            } else {
+                // TODO: failed what to do... - respond with failure??
+                System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal );
+                plan = new PrimitivePlan();
+            }
 
             // print status and communicate with agency
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": Using Concrete Plan: " + plan.toString());
-
-            // Add plan to map of goals and plans
-            BDIService.getInstance().setCurrentlyExecutingPlan(plan);
 
             // Send the response back
             event.setResponse(plan);

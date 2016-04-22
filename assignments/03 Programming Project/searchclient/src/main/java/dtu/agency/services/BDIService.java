@@ -1,10 +1,11 @@
 package dtu.agency.services;
 
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.PrimitiveDesire;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.board.*;
+import dtu.agency.planners.hlplanner.HLPlanner;
+import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.util.HashMap;
@@ -16,11 +17,19 @@ import java.util.LinkedList;
  * in execution phase
  */
 public class BDIService {
+    private static void debug(String msg, int indentationChange) {
+        DebugService.print(msg, indentationChange);
+    }
+    private static void debug(String msg) {
+        debug(msg, 0);
+    }
+//    DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // ***     DEBUGGING LEVEL     ***
+//    boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
+//    DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
 
     private Agent agent;
-    private Box currentTargetBox; // used for saving box when planning!
-    private Position agentCurrentPosition;
-    private PrimitivePlan currentlyExecutingPlan = null;
+    private HLPlan planToBeExecuted;
+    private PrimitivePlan stepsToBeExecuted;
     private PrimitiveDesire primitivePlans;
     private LinkedList<Goal> goalsToSolve;
     private HashMap<String, AgentIntention> intentions;
@@ -44,11 +53,12 @@ public class BDIService {
 
     public BDIService(Agent agent) {
         this.agent = agent;
-        this.currentTargetBox = null;
 
         Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
 
+        planToBeExecuted = new HLPlan();
+        stepsToBeExecuted = new PrimitivePlan();
         primitivePlans = new PrimitiveDesire(null);
         goalsToSolve = new LinkedList<>();
         intentions = new HashMap<>();
@@ -63,12 +73,12 @@ public class BDIService {
         return bdiLevelService.getPosition(agent);
     }
 
-    public PrimitivePlan getCurrentlyExecutingPlan() {
-        return currentlyExecutingPlan;
+    public PrimitivePlan getStepsToBeExecuted() {
+        return stepsToBeExecuted;
     }
 
-    public void setCurrentlyExecutingPlan(PrimitivePlan currentlyExecutingPlan) {
-        this.currentlyExecutingPlan = currentlyExecutingPlan;
+    public void setStepsToBeExecuted(PrimitivePlan stepsToBeExecuted) {
+        this.stepsToBeExecuted = stepsToBeExecuted;
     }
 
     public PrimitiveDesire getPrimitivePlans() {
@@ -91,16 +101,8 @@ public class BDIService {
         return intentions;
     }
 
-    public Box getCurrentTargetBox() {
-        return currentTargetBox;
-    }
-
     public BDILevelService getBDILevelService() {
         return bdiLevelService;
-    }
-
-    public void setCurrentTargetBox(Box currentTargetBox) {
-        this.currentTargetBox = currentTargetBox;
     }
 
     /**
@@ -115,9 +117,46 @@ public class BDIService {
      * @return the length of the current intended plans in number of steps
      */
     public int remainingConcreteActions(){
-        if (currentlyExecutingPlan != null) {
-            return currentlyExecutingPlan.size();
+        if (stepsToBeExecuted != null) {
+            return stepsToBeExecuted.size();
         }
         return 0;
+    }
+
+    /**
+     * This method tries to solve the level as best as possible at current state
+     *
+     * @param goal The goal to be solved
+     * @return The success whether a plan was found, to solving this goal
+     */
+    public boolean solveGoal(Goal goal) {
+        debug("SolveGoal is running - all levels should (ideally) be solved by this", 2);
+        // update the meaning of this agent's life
+        addMeaningOfLife(goal);
+
+        // Continue solving this goal, using the Intention found in the bidding round
+        AgentIntention intention = getIntentions().get(goal.getLabel());
+        PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
+
+        HLPlanner planner = new HLPlanner(intention, pls);
+        HLPlan hlPlan = planner.plan();
+
+        // Check the result of this planning phase, and return success
+        if (hlPlan != null) {
+            debug("Agent " + agent + ": Found HighLevel Plan: " + hlPlan.toString(), -2);
+            planToBeExecuted.extend(hlPlan);
+            return true;
+        } else {
+            debug("Agent " + agent + ": Did not find a HighLevel Plan.", -2);
+            return false;
+        }
+    }
+
+
+    public PrimitivePlan calculateNextSteps() {
+        PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
+        stepsToBeExecuted.appendActions( planToBeExecuted.evolve(pls) );
+        planToBeExecuted.getActions().clear();
+        return stepsToBeExecuted;
     }
 }

@@ -53,7 +53,7 @@ public class HLPlan implements AbstractPlan {
 
 
     @Override
-    public List<? extends AbstractAction> getActions() {
+    public LinkedList<? extends AbstractAction> getActions() {
         return new LinkedList<>(plan);
     }
 
@@ -120,4 +120,11 @@ public class HLPlan implements AbstractPlan {
         return "HLPlan:" + getActions().toString();
     }
 
+    public void extend(HLPlan hlPlan) {
+        Iterator actions = hlPlan.getActions().listIterator();
+        while (actions.hasNext()) {
+            HLAction action = (HLAction) actions.next();
+            plan.addLast(action);
+        }
+    }
 }

@@ -130,46 +130,30 @@ public class Mind {
 
         }
 
-
-        BDIService.getInstance().getIntentions().put(goal.getLabel(), bestIntention);
         return bestIntention;
     }
 
     /**
      * This method tries to solve the level as best as possible at current state
      *
-     * @param target Goal to solve
+     * @param intention AgentIntention used in the solution
      * @return The primitive plan solving this goal
      */
-    public PrimitivePlan solve(Goal target) {
-
+    public HLPlan solveGoal(AgentIntention intention) {
         debug("SOLVER is running - all levels should (ideally) be solved by this", 2);
-
-        // Find the Ideas produced at bidding round for this goal
-        AgentIntention intention = BDIService.getInstance().getIntentions().get(target.getLabel());
-        debug("Intention retrieved at solution round: "+intention);
 
         HLPlanner planner = new HLPlanner(intention, pls);
         HLPlan hlPlan = planner.plan();
 
-        PrimitivePlan plan = null;
-        if (hlPlan != null) {
-            // TODO: store the hlPlan in order for agent to react to changes later on (BDI v.4)
-            // BDIService.getInstance().getCurrentIntention().setHighLevelPlan(hlPlan);
-            plan = hlPlan.evolve(pls);
-        } else {
-            // TODO: failed what to do...
-        }
-
         // Check the result of this planning phase
-        if (plan != null) {
-            debug("Agent " + agent + ": Found Concrete Plan: " + plan.toString());
+        if (hlPlan != null) {
+            debug("Agent " + agent + ": Found HighLevel Plan: " + hlPlan.toString());
         } else {
-            debug("Agent " + agent + ": Did not find a Concrete Plan.");
+            debug("Agent " + agent + ": Did not find a HighLevel Plan.");
         }
 
         debug("", -2);
-        return plan;
+        return hlPlan;
     }
 
 
