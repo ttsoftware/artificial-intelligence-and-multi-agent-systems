@@ -41,11 +41,11 @@ public class AgentThread implements Runnable {
 
         if (!successful) {
             // TODO: failed what to do... - respond with failure??
-            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal );
+            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
         }
 
         int remainingSteps = mind.remainingConcreteActions();
-        int approximation  = mind.getIntention(goal).getApproximateSteps();
+        int approximation = mind.getIntention(goal).getApproximateSteps();
         int totalSteps = remainingSteps + approximation;
 
         // print status and communicate with agency
@@ -73,18 +73,19 @@ public class AgentThread implements Runnable {
         if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
             // setup local variables
             BDIService mind = BDIService.getInstance();
+
             Agent agent = mind.getAgent();
 
             // We won the bid for this goal!
             Goal goal = event.getGoal();
-            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal );
+            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
 
             // use the agent's mind / BDI Service to solve the task
             boolean successful = mind.solveGoal(goal); // generate a plan internal in the agents consciousness.
 
             if (!successful) {
                 // TODO: failed what to do... - respond with failure??
-                System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal );
+                System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
             }
 
             // retrieves the list of primitive actions to execute (blindly)
@@ -99,5 +100,4 @@ public class AgentThread implements Runnable {
             event.setResponse(plan);
         }
     }
-
 }

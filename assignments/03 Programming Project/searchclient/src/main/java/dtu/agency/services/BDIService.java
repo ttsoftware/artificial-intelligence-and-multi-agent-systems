@@ -25,6 +25,7 @@ public class BDIService {
     private static void debug(String msg, int indentationChange) {
         DebugService.print(msg, indentationChange);
     }
+
     private static void debug(String msg) {
         debug(msg, 0);
     }
@@ -113,8 +114,12 @@ public class BDIService {
      * @return My perception of how the environment surrounding me will look after I have executed my current plans
      */
     public PlanningLevelService getLevelServiceAfterPendingPlans() {
-        // TODO: This PLS should be changed to incluce the execution of the current intention
-        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevelClone());
+        // TODO: This PLS should be changed to include the execution of the current intention
+
+        /*bdiLevelService = new BDILevelService(
+                GlobalLevelService.getInstance().getLevelClone()
+        );*/
+        return new PlanningLevelService(bdiLevelService.getLevelClone());
     }
 
     /**
@@ -128,7 +133,7 @@ public class BDIService {
     /**
      * @return How many steps do I currently think i have to execute
      */
-    public int remainingConcreteActions(){
+    public int remainingConcreteActions() {
         if (stepsToBeExecuted != null) {
             return stepsToBeExecuted.size();
         }
@@ -182,14 +187,14 @@ public class BDIService {
     /**
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
-    public boolean filter( Ideas ideas, Goal goal ) { // Belief is handled internally by pls
+    public boolean filter(Ideas ideas, Goal goal) { // Belief is handled internally by pls
         PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
         AgentIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;
-        int counter = (ideas.getIdeas().size() < 5) ? ideas.getIdeas().size() : 5 ;
+        int counter = (ideas.getIdeas().size() < 5) ? ideas.getIdeas().size() : 5;
 
         // plan only 5 best initial heuristics, but if none of those are valid -> keep planning.
-        while ( counter > 0 || bestIntention == null) {
+        while (counter > 0 || bestIntention == null) {
             counter--;
             if (ideas.getIdeas().isEmpty()) break;
             SolveGoalAction idea = ideas.getBest();
@@ -198,7 +203,9 @@ public class BDIService {
 
             HTNPlanner htn = new HTNPlanner(pls, idea, RelaxationMode.NoAgentsNoBoxes);
             PrimitivePlan pseudoPlan = htn.plan();
-            if (pseudoPlan==null) {continue;}
+            if (pseudoPlan == null) {
+                continue;
+            }
             // the positions of the cells that the agent is going to step on top of
             LinkedList<Position> pseudoPath = pls.getOrderedPath(pseudoPlan);
 
@@ -208,7 +215,7 @@ public class BDIService {
             int nReachable = 0;
             ListIterator iterator = obstaclePositions.listIterator(0);
 
-            while (iterator.hasNext()){
+            while (iterator.hasNext()) {
                 Position next = (Position) iterator.next();
                 nReachable++;
                 if (targetBoxPosition.equals(next)) {
@@ -248,7 +255,9 @@ public class BDIService {
 
         // Continue solving this goal, using the Intention found in the bidding round
         AgentIntention intention = getIntentions().get(goal.getLabel());
-        PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
+        PlanningLevelService pls = new PlanningLevelService(
+                getLevelServiceAfterPendingPlans()
+        );
 
         HLPlanner planner = new HLPlanner(intention, pls);
         HLPlan hlPlan = planner.plan();
@@ -277,7 +286,7 @@ public class BDIService {
         // in the environment.
 
         PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
-        stepsToBeExecuted.appendActions( planToBeExecuted.evolve(pls) );
+        stepsToBeExecuted.appendActions(planToBeExecuted.evolve(pls));
         planToBeExecuted.getActions().clear();
     }
 
