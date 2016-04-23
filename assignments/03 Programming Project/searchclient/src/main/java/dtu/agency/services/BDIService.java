@@ -115,10 +115,6 @@ public class BDIService {
      */
     public PlanningLevelService getLevelServiceAfterPendingPlans() {
         // TODO: This PLS should be changed to include the execution of the current intention
-
-        /*bdiLevelService = new BDILevelService(
-                GlobalLevelService.getInstance().getLevelClone()
-        );*/
         return new PlanningLevelService(bdiLevelService.getLevelClone());
     }
 

@@ -1,14 +1,19 @@
 package dtu.agency.services;
 
 import dtu.agency.ProblemMarshaller;
+import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
+import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
 import dtu.agency.board.Level;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,11 +44,11 @@ public class GlobalLevelServiceTest {
     public void applyAction() {
         System.out.println(GlobalLevelService.getInstance().getLevel());
 
-        boolean successfullMove = GlobalLevelService.getInstance().applyAction(
+        boolean successfulMove = GlobalLevelService.getInstance().applyAction(
                 new Agent("1"),
                 new MoveConcreteAction(Direction.NORTH)
         );
-        assertTrue(successfullMove);
+        assertTrue(successfulMove);
 
         System.out.println(GlobalLevelService.getInstance().getLevel());
 
@@ -62,7 +67,35 @@ public class GlobalLevelServiceTest {
 
     @Test
     public void testMove() {
+        Agent agent = new Agent("1");
+        Box box = new Box("B0");
+        List<ConcreteAction> actions = new ArrayList<>();
 
+        actions.add(new MoveConcreteAction(Direction.NORTH));
+        actions.add(new MoveConcreteAction(Direction.NORTH));
+        actions.add(new MoveConcreteAction(Direction.NORTH));
+        actions.add(new PushConcreteAction(box, Direction.NORTH, Direction.NORTH));
+
+        System.out.println(GlobalLevelService.getInstance().getLevel());
+
+        actions.forEach(action -> {
+            boolean successfulMove = GlobalLevelService.getInstance().applyAction(agent, action);
+            assertTrue(successfulMove);
+
+            System.out.println(GlobalLevelService.getInstance().getLevel());
+        });
+
+        String state = GlobalLevelService.getInstance().getLevel().toString();
+        String expectedState =
+            "+++++++++++++++++\n" +
+            "+0     + B0b0+     +\n" +
+            "+      + 1+     +\n" +
+            "+      +  +     +\n" +
+            "+      +  +aA   +\n" +
+            "+      +  ++    +\n" +
+            "+               +\n" +
+            "+++++++++++++++++\n";
+        assertEquals(state, expectedState);
     }
 
     @Test
