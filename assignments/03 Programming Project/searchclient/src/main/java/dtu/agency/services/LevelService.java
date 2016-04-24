@@ -182,7 +182,7 @@ public abstract class LevelService {
             boardObjects[row][column] = ((BoxAndGoal) boardObject).getGoal();
         } else {
             boardState[row][column] = BoardCell.FREE_CELL;
-            boardObjects[row][column] = new Empty();
+            boardObjects[row][column] = new Empty(" ");
         }
 
         objectPositions.remove(boardObject.getLabel());

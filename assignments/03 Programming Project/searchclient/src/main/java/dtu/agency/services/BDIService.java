@@ -1,6 +1,5 @@
 package dtu.agency.services;
 
-import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.agent.bdi.Ideas;
@@ -11,7 +10,10 @@ import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 /**
@@ -20,16 +22,6 @@ import java.util.stream.Collectors;
  * in execution phase
  */
 public class BDIService {
-    private static void debug(String msg, int indentationChange) {
-        DebugService.print(msg, indentationChange);
-    }
-
-    private static void debug(String msg) {
-        debug(msg, 0);
-    }
-//    DebugService.setDebugLevel(DebugService.DebugLevel.PICKED); // ***     DEBUGGING LEVEL     ***
-//    boolean oldDebugMode = DebugService.setDebugMode(true);     // *** START DEBUGGER MESSAGES ***
-//    DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
 
     private Agent agent;
     private HLPlan currentHLPlan;
@@ -88,6 +80,13 @@ public class BDIService {
     }
 
     /**
+     * Update the current BDI level to the Global
+     */
+    public void updateBDILevelService() {
+        bdiLevelService.setLevel(GlobalLevelService.getInstance().getLevelClone());
+    }
+
+    /**
      * @param goal The goal solved by this intention
      * @return My previously chosen intention, concerning this goal, thought of at a prior state
      */
@@ -110,28 +109,18 @@ public class BDIService {
      * @return The ideas (list of SolveGoalActions) that could potentially solve this goal.
      */
     public Ideas thinkOfIdeas(Goal goal) {
-        debug("getIdeas(): ", 2);
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
         Ideas ideas = new Ideas(goal, pls); // agent destination is used for heuristic purpose
 
         for (Box box : pls.getLevel().getBoxes()) {
             // TODO: check for colors
-            debug(box.getLabel().substring(0, 1).toLowerCase() + "=?" + goal.getLabel().toLowerCase().substring(0, 1), 2);
             if (box.getLabel().toLowerCase().substring(0, 1).equals(goal.getLabel().toLowerCase().substring(0, 1))) {
                 SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
                 ideas.add(solveGoalAction);
-                debug("yes! -> adding" + solveGoalAction.toString(), -2);
-            } else {
-                debug("no!", -2);
             }
-        }
-        if (DebugService.inDebugMode()) {
-            String s = "Ideas conceived:";
-            ArrayList<AbstractAction> actions = new ArrayList<>(ideas.getIdeas());
-            for (AbstractAction action : actions) {
-                s += "\n" + action.toString();
+            else {
+                // TODO: What do we do here?
             }
-            debug(s, -2);
         }
         return ideas;
     }
@@ -202,8 +191,6 @@ public class BDIService {
      * @return The success whether a plan was found, to solving this goal
      */
     public boolean solveGoal(Goal goal) {
-        debug("SolveGoal is running - all levels should (ideally) be solved by this", 2);
-
         // Continue solving this goal, using the Intention found in the bidding round
         AgentIntention intention = getIntentions().get(goal.getLabel());
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
@@ -213,13 +200,10 @@ public class BDIService {
 
         // Check the result of this planning phase, and return success
         if (hlPlan != null) {
-            debug("Agent " + agent + ": Found HighLevel Plan: " + hlPlan.toString(), -2);
-            currentHLPlan.extend(hlPlan);
+            currentHLPlan = hlPlan;
             return true;
-        } else {
-            debug("Agent " + agent + ": Did not find a HighLevel Plan.", -2);
-            return false;
         }
+        return false;
     }
 
     /**

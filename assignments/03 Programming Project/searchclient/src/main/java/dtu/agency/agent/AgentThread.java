@@ -69,17 +69,19 @@ public class AgentThread implements Runnable {
     @AllowConcurrentEvents
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
         if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
-            // setup local variables
-            BDIService bdi = BDIService.getInstance();
 
-            Agent agent = bdi.getAgent();
+            // update BDI level
+            BDIService.getInstance().updateBDILevelService();
+
+            // setup local variables
+            Agent agent = BDIService.getInstance().getAgent();
 
             // We won the bid for this goal!
             Goal goal = event.getGoal();
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
 
             // use the agent's mind / BDI Service to solve the task
-            boolean successful = bdi.solveGoal(goal); // generate a plan internal in the agents consciousness.
+            boolean successful = BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
 
             if (!successful) {
                 // TODO: We post a planning error event
@@ -87,7 +89,7 @@ public class AgentThread implements Runnable {
             }
             else {
                 // retrieves the list of primitive actions to execute (blindly)
-                PrimitivePlan plan = bdi.getPrimitivePlan();
+                PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
                 // print status and communicate with agency
                 System.err.println(Thread.currentThread().getName()
