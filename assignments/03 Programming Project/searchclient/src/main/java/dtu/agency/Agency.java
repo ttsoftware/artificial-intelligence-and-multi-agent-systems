@@ -18,17 +18,21 @@ import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Agency implements Runnable {
 
     private static final Object synchronizer = new Object();
+    private int numberOfAgents;
 
     @Override
     public void run() {
         List<Agent> agents = GlobalLevelService.getInstance().getLevel().getAgents();
 
-        int numberOfAgents = agents.size();
+        numberOfAgents = agents.size();
 
         AgentService.getInstance().addAgents(agents);
 
@@ -42,48 +46,56 @@ public class Agency implements Runnable {
         // Register for self-handled events
         EventBusService.register(this);
 
-        // Offer goals to agents
-        // Each goalQueue is independent of one another so we can parallelStream
-        GlobalLevelService.getInstance().getLevel().getGoalQueues().parallelStream().forEach(goalQueue -> {
+        List<Goal> nextIndependentGoals;
 
-            Goal goal;
-            // we can poll(), since we know all estimations have finished
-            while ((goal = goalQueue.poll()) != null) {
+        // Map for agent -> is done executing a plan
+        HashMap<String, Boolean> agentIsFinished = new HashMap<>();
+        agents.forEach(agent -> agentIsFinished.put(agent.getLabel(), true));
 
-                // Register for incoming goal estimations
-                GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, numberOfAgents);
-                EventBusService.register(goalEstimationSubscriber);
+        HashMap<String, Lock> agentLocks = new HashMap<>();
+        agents.forEach(agent -> agentLocks.put(agent.getLabel(), new ReentrantLock()));
 
-                // offer the goal
-                System.err.println("Offering goal: " + goal.getLabel());
+        while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
-                EventBusService.post(new GoalOfferEvent(goal));
+            // Assign goals to the best agents and wait for plans to finish
+            getBestAgents(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
 
-                // Get the goal estimations (blocks current thread)
-                Agent bestAgent = goalEstimationSubscriber.getBestAgent();
+                Goal goal = goalAgentEntry.getKey();
+                Agent bestAgent = goalAgentEntry.getValue();
 
-                // Assign this goal, and wait for response
-                System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
+                // Lock this agent
+                agentLocks.get(bestAgent.getLabel()).lock();
 
-                GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
-                EventBusService.post(goalAssignmentEvent);
+                try {
+                    agentIsFinished.put(bestAgent.getLabel(), false);
 
-                // get the response containing the plan (blocks current thread)
-                // how long do we wish to wait for the agents to finish planning?
-                // right now we wait 2^32-1 milliseconds
-                ConcretePlan plan = goalAssignmentEvent.getResponse();
+                    // Assign this goal, and wait for response
+                    System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
 
-                System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
+                    GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
+                    EventBusService.post(goalAssignmentEvent);
 
-                SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
-                EventBusService.post(sendActionsEvent);
+                    // get the response containing the plan (blocks current thread)
+                    // how long do we wish to wait for the agents to finish planning?
+                    // right now we wait 2^32-1 milliseconds
+                    ConcretePlan plan = goalAssignmentEvent.getResponse();
 
-                // wait for the plan to finish executing
-                boolean isFinished = sendActionsEvent.getResponse();
+                    System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
 
-                System.err.println("The plan for goal: " + goal + " finished.");
-            }
-        });
+                    SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
+                    EventBusService.post(sendActionsEvent);
+
+                    // wait for the plan to finish executing
+                    boolean isFinished = sendActionsEvent.getResponse();
+
+                    System.err.println("The plan for goal: " + goal + " finished.");
+                }
+                finally {
+                    // unlock this agent
+                    agentLocks.get(bestAgent.getLabel()).unlock();
+                }
+            });
+        }
 
         try {
             // wait indefinitely until problem is solved
@@ -95,6 +107,34 @@ public class Agency implements Runnable {
         }
 
         System.err.println("Agency is exiting.");
+    }
+
+    /**
+     * Get the best agents for all goals
+     *
+     * @return
+     */
+    private HashMap<Goal, Agent> getBestAgents(List<Goal> goals) {
+
+        HashMap<Goal, Agent> bestAgents = new HashMap<>();
+
+        // Offer goals to agents
+        goals.forEach(goal -> {
+
+            // Register for incoming goal estimations
+            GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, numberOfAgents);
+            EventBusService.register(goalEstimationSubscriber);
+
+            // offer the goal
+            System.err.println("Offering goal: " + goal.getLabel());
+
+            EventBusService.post(new GoalOfferEvent(goal));
+
+            // Get the goal estimations (blocks current thread)
+            bestAgents.put(goal, goalEstimationSubscriber.getBestAgent());
+        });
+
+        return bestAgents;
     }
 
     @Subscribe

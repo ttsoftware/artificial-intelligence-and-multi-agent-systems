@@ -37,11 +37,6 @@ public class Ideas extends Desire<SolveGoalAction> { // everything the agent mig
 
     public void add(SolveGoalAction action) {
         ideas.add(action);
-//        if (action !=null) {
-//            ideas.add(action);
-//        } else {
-//            System.err.println("Null SolveGoalAction :-(");
-//        }
     }
 
     @Override

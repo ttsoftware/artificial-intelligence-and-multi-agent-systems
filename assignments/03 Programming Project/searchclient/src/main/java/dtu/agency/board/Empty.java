@@ -1,23 +1,23 @@
 package dtu.agency.board;
 
-public class Wall extends BoardObject {
+public class Empty extends BoardObject {
 
-    public Wall(String label) {
-        super(label);
+    public Empty() {
+        super(" ");
     }
 
     @Override
     public BoardCell getType() {
-        return BoardCell.WALL;
+        return BoardCell.FREE_CELL;
     }
 
-    public Wall(Wall obj) {
+    public Empty(Empty obj) {
         super(obj.getLabel());
     }
 
     @Override
     public boolean equals(Object object) {
-        if (object instanceof Wall) {
+        if (object instanceof Empty) {
             return super.equals(object);
         }
         return false;

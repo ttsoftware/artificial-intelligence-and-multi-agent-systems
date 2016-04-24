@@ -1,6 +1,5 @@
 package dtu.agency.planners.htn;
 
-import dtu.Main;
 import dtu.agency.actions.Action;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
 import dtu.agency.actions.abstractaction.hlaction.*;
@@ -14,6 +13,7 @@ import dtu.agency.planners.htn.strategy.Strategy;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.DebugService;
+import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.PlanningLevelService;
 
 
@@ -157,7 +157,7 @@ public class HTNPlanner {
      * Returns the intention to be solved by this planner
      */
     public HLAction getIntention() {
-        return HLAction.getOriginalAction(originalAction);
+        return HLAction.cloneHLAction(originalAction);
     }
 
     /**
@@ -176,8 +176,8 @@ public class HTNPlanner {
         debug("HTNPlanner.plan():",2);
 
         debug("initial" + initialNode.toString());
-
         // PlanningLevelService assuming responsibility over agent and current box
+        System.err.println("" + originalAction.getBox());
         pls.startTracking(originalAction.getBox());
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);

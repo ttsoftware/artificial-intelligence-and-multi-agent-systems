@@ -103,7 +103,7 @@ public class HTNNode {
         if (this.concreteAction==null) {
              return null;
         } else {
-            return ConcreteAction.getConcreteAction(this.concreteAction);
+            return ConcreteAction.cloneConcreteAction(this.concreteAction);
         }
     }
 

@@ -29,4 +29,13 @@ public class AgentAndGoal extends BoardObject {
     public BoardCell getType() {
         return BoardCell.AGENT_GOAL;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof AgentAndGoal) {
+            return super.equals(object);
+        }
+        return false;
+    }
+
 }

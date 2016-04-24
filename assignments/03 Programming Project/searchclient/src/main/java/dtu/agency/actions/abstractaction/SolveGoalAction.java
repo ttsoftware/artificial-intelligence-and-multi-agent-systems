@@ -67,11 +67,6 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
 
     @Override
     public String toString() {
-        String s = "SolveGoalAction(" +
-                getBox().toString() +
-                "," +
-                getGoal().toString() +
-                ")";
-        return s;
+        return "SolveGoalAction(" + getBox().toString() + "," + getGoal().toString() + ")";
     }
 }

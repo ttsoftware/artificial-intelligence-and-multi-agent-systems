@@ -143,6 +143,15 @@ public class PlannerClient {
         // send actions to server
         send(buildActionSet(agentsActions));
 
+        // update the GlobalLevelService with this action
+        agentsActions.forEach((agentNumber, concreteAction) -> {
+            String agentLabel = agentNumber.toString();
+            GlobalLevelService.getInstance().applyAction(
+                    GlobalLevelService.getInstance().getAgent(agentLabel),
+                    concreteAction
+            );
+        });
+
         // add plans back into the stack - they are now missing an action each
         currentPlans.forEach((agentNumber, concretePlan) -> {
             SendServerActionsEvent sendServerActionsEvent = currentSendServerActionsEvents.get(agentNumber);
@@ -170,13 +179,13 @@ public class PlannerClient {
             e.printStackTrace(System.err);
         }
         if (response == null) {
-            System.err.format("Lost contact with the server. We stop now");
-            System.exit(1);
+            // System.err.format("Lost contact with the server. We stop now");
+            // System.exit(1);
         }
-        if (response.contains("false")) {
+        else if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
         }
-        if (response.equals("success")) {
+        else if (response.equals("success")) {
             // Pretend problem is solved
             EventBusService.post(new ProblemSolvedEvent());
         }
