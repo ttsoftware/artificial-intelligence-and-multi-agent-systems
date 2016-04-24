@@ -12,7 +12,6 @@ import dtu.agency.planners.plans.Plan;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 public class PlanningLevelService extends LevelService {
 
@@ -53,7 +52,6 @@ public class PlanningLevelService extends LevelService {
      * (but might be applicable in order to guess on the sequence in which order to solve the goals!)
      */
     public void apply(Action action) {
-        debug("pls.apply Action: " + action);
         HLEffect effect = null;
 
         if (action instanceof HLAction) {
@@ -129,7 +127,6 @@ public class PlanningLevelService extends LevelService {
                     break;
 
                 case NONE:
-                    debug("None type action does not change state");
                     return;
             }
 
@@ -139,8 +136,6 @@ public class PlanningLevelService extends LevelService {
 
         // update applied effects variable
         appliedEffects.add(effect);
-        debug("This effect has been applied: " + effect);
-
     }
 
     /**
@@ -170,7 +165,6 @@ public class PlanningLevelService extends LevelService {
     }
 
     public void revertLast() {
-        debug("pls.revertLast");
         HLEffect last = appliedEffects.removeLast();
         removeAgent(agent);
         if (last.box != null) {
@@ -178,15 +172,12 @@ public class PlanningLevelService extends LevelService {
             insertBox(last.box, last.boxOrigin);
         }
         insertAgent(agent, last.agentOrigin);
-        debug("This effect has been applied in reverse: " + last);
     }
 
     public void revertAll() {
-        debug("pls.revertAll()");
         while (appliedEffects.size() > 0) {
             revertLast();
         }
-        debug("All tracked effects are reversed");
     }
 
     /**

@@ -2,13 +2,12 @@ package dtu.agency.planners.htn;
 
 import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.abstractaction.hlaction.*;
-import dtu.agency.actions.concreteaction.*;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
 import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
 import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
-import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -20,8 +19,6 @@ import java.util.Random;
  * Used by HTNPlanner
  */
 public class HTNNode {
-    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    private static void debug(String msg){ debug(msg, 0); }
 
     private static Random rnd = new Random(1);
     private final HTNNode parent;
@@ -120,11 +117,9 @@ public class HTNNode {
      * @return an ArryList of refinement HTNNodes
      */
     public ArrayList<HTNNode> getRefinementNodes() {
-        debug("HTNNode.getRefinements()",2);
         ArrayList<HTNNode> refinementNodes = new ArrayList<>();
 
         if (getRemainingPlan().isEmpty()) {
-            debug("No more remaining actions, returning empty list of refinement nodes", -2);
             return refinementNodes;
         }
 
@@ -133,19 +128,15 @@ public class HTNNode {
 
 
         if (nextAction instanceof ConcreteAction) { // case the concreteAction is primitive, add it as only node,
-            debug("Next concreteAction is Primitive, thus a single ChildNode is created");
             ConcreteAction primitive = (ConcreteAction) nextAction;
             HTNNode only = childNode( primitive, followingActions);
             if (only != null) { refinementNodes.add(only);}
-            debug("Refinement: " + refinementNodes.toString(), -2);
             return refinementNodes;
         }
 
         if (nextAction instanceof HLAction) { // case the concreteAction is high level, get the refinements from the concreteAction
-            debug("Next concreteAction is High Level, thus a we seek refinements to it:");
             HLAction highLevelAction = (HLAction) nextAction;
             ArrayList<MixedPlan> refinements = this.getState().getRefinements(highLevelAction);
-            debug("HTNNode.getRefinements() got: " + refinements.toString());
 
             for (MixedPlan refinement : refinements) {
 
@@ -164,7 +155,6 @@ public class HTNNode {
         }
 
         Collections.shuffle(refinementNodes, rnd);
-        debug("Refinements: " + refinementNodes.toString(), -2);
         return refinementNodes;
     }
 
