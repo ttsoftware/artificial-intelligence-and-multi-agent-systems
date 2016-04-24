@@ -114,7 +114,15 @@ public class BDIService {
      */
     public PlanningLevelService getLevelServiceAfterPendingPlans() {
         // TODO: This PLS should be changed to incluce the execution of the current intention
-        return new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevelClone());
+        PlanningLevelService pls = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevelClone());
+        HLPlan tempHLPlan = new HLPlan(planToBeExecuted);
+        PrimitivePlan tempLLPlan = new PrimitivePlan(stepsToBeExecuted);
+        System.err.println("getLevelServiceAfterPendingActions(): show pending actions");
+        System.err.println(""+ tempHLPlan);
+        System.err.println(""+ tempLLPlan);
+//        pls.applyAll(tempLLPlan);
+//        pls.applyAll(tempHLPlan);
+        return pls;
     }
 
     /**
@@ -182,7 +190,7 @@ public class BDIService {
     /**
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
-    public boolean filter( Ideas ideas, Goal goal ) { // Belief is handled internally by pls
+    public boolean filterIdeas(Ideas ideas, Goal goal ) { // Belief is handled internally by pls
         PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
         AgentIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;

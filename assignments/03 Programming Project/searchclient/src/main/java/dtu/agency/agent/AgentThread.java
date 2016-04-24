@@ -37,7 +37,7 @@ public class AgentThread implements Runnable {
 
         // use agents mind to calculate bid
         Ideas ideas = mind.thinkOfIdeas(goal);
-        boolean successful = mind.filter(ideas, goal); // the intention are automatically stored in BDIService
+        boolean successful = mind.filterIdeas(ideas, goal); // the intention are automatically stored in BDIService
 
         if (!successful) {
             // TODO: failed what to do... - respond with failure??
