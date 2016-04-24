@@ -2,8 +2,8 @@ package dtu.agency.services;
 
 import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
-import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.AgentIntention;
+import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.*;
 import dtu.agency.planners.hlplanner.HLPlanner;
 import dtu.agency.planners.htn.HTNPlanner;
@@ -11,10 +11,8 @@ import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.ListIterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Purpose of this BDIService is for the agent to be able to compare
@@ -34,9 +32,7 @@ public class BDIService {
 //    DebugService.setDebugMode(oldDebugMode);                    // ***  END DEBUGGER MESSAGES  ***
 
     private Agent agent;
-    private HLPlan planToBeExecuted;
-    private PrimitivePlan stepsToBeExecuted;
-    private LinkedList<Goal> goalsToSolve;
+    private HLPlan currentHLPlan;
     private HashMap<String, AgentIntention> intentions;
     private BDILevelService bdiLevelService;
 
@@ -61,9 +57,7 @@ public class BDIService {
         Level levelClone = GlobalLevelService.getInstance().getLevelClone();
         bdiLevelService = new BDILevelService(levelClone);
 
-        planToBeExecuted = new HLPlan();
-        stepsToBeExecuted = new PrimitivePlan();
-        goalsToSolve = new LinkedList<>();
+        currentHLPlan = new HLPlan();
         intentions = new HashMap<>();
     }
 
@@ -87,35 +81,10 @@ public class BDIService {
     }
 
     /**
-     * @return What am I going to do next
-     */
-    public PrimitivePlan getStepsToBeExecuted() {
-        if (stepsToBeExecuted.isEmpty()) {
-            calculateNextSteps();
-        }
-        return new PrimitivePlan(stepsToBeExecuted);
-    }
-
-    /**
-     * @return What do I think my purpose is in life
-     */
-    public LinkedList<Goal> getGoalsToSolve() {
-        return goalsToSolve;
-    }
-
-    /**
      * @return My current perception of the environment/level surrounding me, in it's current state
      */
     public BDILevelService getBDILevelService() {
         return bdiLevelService;
-    }
-
-    /**
-     * @return My perception of how the environment surrounding me will look after I have executed my current plans
-     */
-    public PlanningLevelService getLevelServiceAfterPendingPlans() {
-        // TODO: This PLS should be changed to include the execution of the current intention
-        return new PlanningLevelService(bdiLevelService.getLevelClone());
     }
 
     /**
@@ -127,22 +96,10 @@ public class BDIService {
     }
 
     /**
-     * @return How many steps do I currently think i have to execute
-     */
-    public int remainingConcreteActions() {
-        if (stepsToBeExecuted != null) {
-            return stepsToBeExecuted.size();
-        }
-        return 0;
-    }
-
-
-    /**
      * Public access to my thought routines,
      * some are just changing my inner state, but not returning anything
      * while other are more sporadic thoughts returning stuff that is not stored
      */
-
 
     /**
      * Fills the data structure containing information on ways to solve this
@@ -154,7 +111,7 @@ public class BDIService {
      */
     public Ideas thinkOfIdeas(Goal goal) {
         debug("getIdeas(): ", 2);
-        PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
+        PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
         Ideas ideas = new Ideas(goal, pls); // agent destination is used for heuristic purpose
 
         for (Box box : pls.getLevel().getBoxes()) {
@@ -184,7 +141,7 @@ public class BDIService {
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
     public boolean filter(Ideas ideas, Goal goal) { // Belief is handled internally by pls
-        PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
+        PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
         AgentIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;
         int counter = (ideas.getIdeas().size() < 5) ? ideas.getIdeas().size() : 5;
@@ -246,14 +203,10 @@ public class BDIService {
      */
     public boolean solveGoal(Goal goal) {
         debug("SolveGoal is running - all levels should (ideally) be solved by this", 2);
-        // update the meaning of this agent's life
-        addToMeaningOfLife(goal);
 
         // Continue solving this goal, using the Intention found in the bidding round
         AgentIntention intention = getIntentions().get(goal.getLabel());
-        PlanningLevelService pls = new PlanningLevelService(
-                getLevelServiceAfterPendingPlans()
-        );
+        PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
         HLPlan hlPlan = planner.plan();
@@ -261,7 +214,7 @@ public class BDIService {
         // Check the result of this planning phase, and return success
         if (hlPlan != null) {
             debug("Agent " + agent + ": Found HighLevel Plan: " + hlPlan.toString(), -2);
-            planToBeExecuted.extend(hlPlan);
+            currentHLPlan.extend(hlPlan);
             return true;
         } else {
             debug("Agent " + agent + ": Did not find a HighLevel Plan.", -2);
@@ -273,30 +226,19 @@ public class BDIService {
      * Convert my entire set of remaining High Level Plans to Concrete Actions,
      * and append them to my current Low Level Plan
      */
-    public void calculateNextSteps() {
-        // TODO going from BDI v.3 --> BDI v.4 (REACTIVE AGENT)
-        // are we gonna submit the entire primitivePlan to the agency at once??
-        // maybe it is better to divide the sending of plans into smaller packages,
-        // e.g. solving separate intentions as GotoBox, MoveBox, etc.
-        // this will give the agent the possibility of reacting to changes
-        // in the environment.
+    public PrimitivePlan getPrimitivePlan() {
 
-        PlanningLevelService pls = new PlanningLevelService(getLevelServiceAfterPendingPlans());
-        stepsToBeExecuted.appendActions(planToBeExecuted.evolve(pls));
-        planToBeExecuted.getActions().clear();
+        PrimitivePlan plan = new PrimitivePlan();
+        plan.appendActions(currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone())));
+
+        currentHLPlan.getActions().clear();
+
+        return plan;
     }
-
 
     /**
      * Private thought routines - Memory I/O, etc.
      */
-
-    /**
-     * @param target add purpose to my life
-     */
-    private void addToMeaningOfLife(Goal target) {
-        goalsToSolve.addLast(target);
-    }
 
     /**
      * @return Retrieve memory of Intentions, given a goal..
@@ -305,4 +247,10 @@ public class BDIService {
         return intentions;
     }
 
+    /**
+     * @return All intentions for this agent
+     */
+    public List<AgentIntention> getAgentIntentions() {
+        return intentions.values().stream().collect(Collectors.toList());
+    }
 }
