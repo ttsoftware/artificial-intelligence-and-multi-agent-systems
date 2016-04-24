@@ -220,6 +220,40 @@ public class LevelService implements Serializable {
         return neighbours;
     }
 
+    /**
+     * @param position
+     * @return A list of free cells adjacent to @position that are not goals
+     */
+    public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
 
     /**
      *
@@ -340,6 +374,25 @@ public class LevelService implements Serializable {
             }
         }
         return false;
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if the given position doesn't have a goal in it
+     */
+    public synchronized boolean isFreeOfGoals(int row, int column) {
+        if (isInLevel(row, column)) {
+            BoardCell boardCell = level.getBoardState()[row][column];
+            if (boardCell.equals(BoardCell.WALL)
+                    || boardCell.equals(BoardCell.GOAL)
+                    || boardCell.equals(BoardCell.BOX_GOAL)
+                    || boardCell.equals(BoardCell.AGENT_GOAL)
+                    || boardCell.equals(BoardCell.SOLVED_GOAL)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -530,6 +583,40 @@ public class LevelService implements Serializable {
                 && column >= 0
                 && level.getBoardState().length > row
                 && level.getBoardState()[0].length > column);
+    }
+
+    public Position getBestGoalWeighingPosition()
+    {
+        List<Goal> levelGoals = LevelService.getInstance().getLevel().getGoals();
+
+        List<BoardObject> levelAgentsAndBoxes = new ArrayList<>();
+        levelAgentsAndBoxes.addAll(getLevel().getAgents());
+        levelAgentsAndBoxes.addAll(getLevel().getBoxes());
+
+        int minRemoteness = Integer.MAX_VALUE;
+        BoardObject mostRemoteObject = null;
+
+        for(BoardObject boardObject : levelAgentsAndBoxes) {
+            int objectRemoteness = getLevelObjectRemoteness(boardObject, levelGoals);
+            if(minRemoteness > objectRemoteness) {
+                minRemoteness = objectRemoteness;
+                mostRemoteObject = boardObject;
+            }
+        }
+
+        return getPosition(mostRemoteObject.getLabel());
+    }
+
+    public int getLevelObjectRemoteness(BoardObject boardObject, List<Goal> goalList)
+    {
+        int remoteness = Integer.MAX_VALUE;
+        for(Goal goal : goalList)
+        {
+            int remotenessToGoal = manhattanDistance(goal, boardObject);
+            remoteness = Math.min(remoteness, remotenessToGoal);
+        }
+
+        return remoteness;
     }
 
     /**

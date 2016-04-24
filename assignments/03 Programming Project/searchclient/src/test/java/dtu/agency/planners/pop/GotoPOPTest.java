@@ -11,6 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class GotoPOPTest {
 
@@ -20,7 +22,7 @@ public class GotoPOPTest {
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/GoToBacktrack.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/GoalWeighingUltimateLevel.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -37,11 +39,12 @@ public class GotoPOPTest {
     public void planTest() {
         GotoPOP gotoPlanner = new GotoPOP(agent);
 
-        GotoAbstractAction gotoAbstractAction = new GotoAbstractAction(new Position(1,15));
+        GotoAbstractAction gotoAbstractAction = new GotoAbstractAction(new Position(1,1));
 
-        POPPlan popPlan = gotoPlanner.plan(gotoAbstractAction);
+        //List<Goal> blockingGoals = gotoPlanner.getBlockingGoals(gotoAbstractAction);
+        List<PriorityQueue<Goal>> goalQueueList = gotoPlanner.getWeighedGoals();
 
-        assert(popPlan.getActions().size() > 0);
+        assert(goalQueueList.size() > 0);
     }
 
     @Test
