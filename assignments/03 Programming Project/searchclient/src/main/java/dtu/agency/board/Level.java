@@ -67,8 +67,6 @@ public class Level {
         this.walls = walls;
     }
 
-
-
     public BoardCell[][] getBoardState() {
         return boardState;
     }
@@ -78,7 +76,7 @@ public class Level {
     }
 
     public BoardObject[][] getBoardObjects() {
-        return boardObjects;
+        return boardObjects.clone();
     }
 
     public void setBoardObjects(BoardObject[][] boardObjects) {
@@ -139,5 +137,43 @@ public class Level {
 
     public void setBoxes(List<Box> boxes) {
         this.boxes = boxes;
+    }
+
+    @Override
+    public String toString() {
+        String returnString = "";
+        for (int row = 0; row < boardState.length; row++) {
+            for (int cell = 0; cell < boardState[row].length; cell++) {
+                BoardCell cellType = boardState[row][cell];
+                switch (cellType) {
+                    case FREE_CELL:
+                        returnString += boardObjects[row][cell].getLabel();
+                        break;
+                    case WALL:
+                        returnString += boardObjects[row][cell].getLabel().substring(0, 1);
+                        break;
+                    case BOX:
+                        String boxLabel = boardObjects[row][cell].getLabel().substring(0, 1);
+                        returnString += boxLabel;
+                        break;
+                    case AGENT:
+                        String agentLabel = boardObjects[row][cell].getLabel();
+                        returnString += agentLabel;
+                        break;
+                    case GOAL:
+                        String goalLabel = boardObjects[row][cell].getLabel().substring(0, 1);
+                        returnString += goalLabel;
+                        break;
+                    case AGENT_GOAL:
+                        returnString += boardObjects[row][cell].getLabel();
+                        break;
+                    case BOX_GOAL:
+                        returnString += boardObjects[row][cell].getLabel();
+                        break;
+                }
+            }
+            returnString += "\n";
+        }
+        return returnString;
     }
 }

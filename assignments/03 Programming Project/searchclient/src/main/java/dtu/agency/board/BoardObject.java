@@ -33,11 +33,11 @@ public abstract class BoardObject implements Serializable {
         return (other.getLabel().equals(label));
     }
 
-    public static BoardObject[][] deepCopy(BoardObject[][] other){
+    public static BoardObject[][] deepCopy(BoardObject[][] other) {
         int sizeA = other.length;
         int sizeB = other[0].length;
         BoardObject[][] data = new BoardObject[sizeA][sizeB];
-        for (int i=0;i<sizeA;i++) {
+        for (int i = 0; i < sizeA; i++) {
             for (int j = 0; j < sizeB; j++) {
                 data[i][j] = BoardObject.cloneBoardObject(other[i][j]);
             }
@@ -45,40 +45,24 @@ public abstract class BoardObject implements Serializable {
         return data;
     }
 
-    public static BoardObject cloneBoardObject(BoardObject boardObject) {
-        if (boardObject == null) return null;
-
+    private static BoardObject cloneBoardObject(BoardObject boardObject) {
         switch (boardObject.getType()) {
-
-            case FREE_CELL: // handled in first if statement
-                return null;
-
+            case FREE_CELL:
+                return new Empty((Empty) boardObject);
             case WALL:
-                Wall wall = (Wall) boardObject;
-                return new Wall(wall);
-
+                return new Wall((Wall) boardObject);
             case BOX:
-                Box box = (Box) boardObject;
-                return new Box(box);
-
+                return new Box((Box) boardObject);
             case AGENT:
-                Agent agent = (Agent) boardObject;
-                return new Agent(agent);
-
+                return new Agent((Agent) boardObject);
             case GOAL:
-                Goal goal = (Goal) boardObject;
-                return new Goal(goal);
-
+                return new Goal((Goal) boardObject);
             case AGENT_GOAL:
-                AgentAndGoal agentAndGoal = (AgentAndGoal) boardObject;
-                return new AgentAndGoal(agentAndGoal);
-
+                return new AgentAndGoal((AgentAndGoal) boardObject);
             case BOX_GOAL:
-                BoxAndGoal boxAndGoal = (BoxAndGoal) boardObject;
-                return new BoxAndGoal(boxAndGoal);
-
+                return new BoxAndGoal((BoxAndGoal) boardObject);
             default:
-                return null;
+                throw new RuntimeException("Invalid boardObject");
         }
     }
 }

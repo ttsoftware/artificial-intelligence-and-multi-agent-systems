@@ -47,7 +47,7 @@ public class PlannerClientTest {
     @Test
     public void testMain() throws Exception {
 
-        String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi.lvl";
+        String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi_1_agent_wins.lvl";
         FileInputStream inputStream = new FileInputStream(path);
 
         System.setIn(inputStream);

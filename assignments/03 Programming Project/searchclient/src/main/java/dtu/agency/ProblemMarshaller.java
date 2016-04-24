@@ -126,6 +126,7 @@ public class ProblemMarshaller {
                 }
                 else {
                     boardState[row][column] = BoardCell.FREE_CELL;
+                    boardObjects[row][column] = new Empty(" ");
                 }
             }
         }

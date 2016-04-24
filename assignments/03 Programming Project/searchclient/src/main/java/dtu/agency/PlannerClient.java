@@ -179,13 +179,13 @@ public class PlannerClient {
             e.printStackTrace(System.err);
         }
         if (response == null) {
-            System.err.format("Lost contact with the server. We stop now");
-            System.exit(1);
+            // System.err.format("Lost contact with the server. We stop now");
+            // System.exit(1);
         }
-        if (response.contains("false")) {
+        else if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
         }
-        if (response.equals("success")) {
+        else if (response.equals("success")) {
             // Pretend problem is solved
             EventBusService.post(new ProblemSolvedEvent());
         }
