@@ -14,6 +14,7 @@ public class Main {
                 // "levels/ClearPathTest.lvl",
                 // "levels/SAD1_multi.lvl",
 //                "levels/SApushing.lvl",
+//                "levels/MAconflicts.lvl",
                 "-g",
                 "100",
                 "-t",

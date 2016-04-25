@@ -136,7 +136,34 @@ public class ConflictService {
 
     public ResolvedConflict resolveConflict(Conflict conflict) {
 
-        // TODO actually resolve conflict
+        /* TODO actually resolve conflict
+         *
+         * The "fastest" agent (The one with the shortest plan) is the
+         * conceder. It will concede the conflict handling to the "slowest"
+         * agent, being the initiator.
+         *
+         * The initiator looks one by one at the positions in the conceder's path,
+         * trying to find spots next to the path, where it can park, while
+         * the conceder walks past the initiator.
+         *
+         * parkingSpotsNeeded <- 1
+         * if initiator.lastAction is push/pull:
+         *      parkingSpotsNeeded <- 2
+         * Foreach position in concederPath:
+         *      parkingSpots <- findFreeNeighbours(position)
+         *      parkingSpot1 <- parkingSpots.get(0)
+         *
+         *      if parkingSpotsNeeded is 2:
+         *          foreach parkingSpot in parkingSpots:
+         *              additionalParkingSpots <- findFreeNeighbours(parkingSpot) (can not be position where it came from)
+         *              if additionalParkingSpots is not empty:
+         *                  parkingSpot1 <- parkingSpot
+         *                  parkingSpot2 <- additionalParkingSpots
+         *                  break
+         *
+         *       conflictPlan <- initiator.makePlan(GOTO(parkingSpot1, parkingSpot2)
+         *       resetPlan <- initiator.makePlan(GOBACK(conflictPlan))
+         */
 
         return null;
     }

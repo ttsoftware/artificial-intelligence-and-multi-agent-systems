@@ -47,7 +47,7 @@ public class PlannerClientTest {
     @Test
     public void testMain() throws Exception {
 
-        String path = resourcesDirectory.getAbsolutePath() + "/SAhlplan.lvl";
+        String path = resourcesDirectory.getAbsolutePath() + "/MAconflicts.lvl";
         FileInputStream inputStream = new FileInputStream(path);
 
         System.setIn(inputStream);
