@@ -1,36 +1,34 @@
 package dtu.agency.services;
 
-import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Position;
-import dtu.agency.events.client.DetectConflictsEvent;
+import dtu.agency.conflicts.Conflict;
+import dtu.agency.conflicts.ResolvedConflict;
+import dtu.agency.planners.plans.ConcretePlan;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by rasmus on 4/20/16.
- */
-public class ConflictDetectionService {
+public class ConflictService {
 
     /**
      * Takes all plans and checks whether all moves 1 step in the future will
      * cause conflicts.
      *
-     * @param event contains a list of agentNumber-plan pairs
+     * @param currentPlans contains a hashmap of agentNumber-plan pairs
      */
-    @Subscribe
-    public void detectConflictEventSubscriber(DetectConflictsEvent event) {
+    public List<Conflict> detectConflicts(HashMap<Integer, ConcretePlan> currentPlans) {
 
         // The seer keeps track of which future positions are occupied.
         HashMap<Position, Integer> seer = new HashMap<>();
-        List<Integer> conflictingAgents = new ArrayList<>();
+        List<Conflict> conflictingAgents = new ArrayList<>();
 
-        event.getCurrentPlans().forEach((agentNumber, concretePlan) -> {
+        currentPlans.forEach((agentNumber, concretePlan) -> {
             List<ConcreteAction> actions = concretePlan.getActions();
             if (!actions.isEmpty()) {
                 // If plan is not empty, check for conflicts
@@ -47,17 +45,23 @@ public class ConflictDetectionService {
                                 moveAction.getAgentDirection());
 
                         if (!seer.containsKey(newMoveAgentPosition)) {
-                            // If the seer doesn't know the new position, it is not (yet) in conflict
+                            // If the seer doesn't know the new position, it is not (yet) in Conflict
 
                             // Tell seer about current and new position
                             seer.put(currentAgentPosition, agentNumber);
                             seer.put(newMoveAgentPosition, agentNumber);
                         } else {
-                            // If the seer knows the new position, it is in conflict
+                            // If the seer knows the new position, it is in Conflict
 
                             // Add the conflicting agents to the conflictingAgents list
-                            conflictingAgents.add(seer.get(newMoveAgentPosition));
-                            conflictingAgents.add(agentNumber);
+                            conflictingAgents.add(
+                                new Conflict(
+                                    seer.get(newMoveAgentPosition),
+                                    currentPlans.get(seer.get(newMoveAgentPosition)),
+                                    agentNumber,
+                                    concretePlan
+                                )
+                            );
                         }
                         break;
                     case PULL:
@@ -70,18 +74,24 @@ public class ConflictDetectionService {
                                 pullAction.getAgentDirection());
 
                         if (!seer.containsKey(newPullAgentPosition)) {
-                            // If the seer doesn't know the new position, it is not (yet) in conflict
+                            // If the seer doesn't know the new position, it is not (yet) in Conflict
 
                             // Tell seer about current and new positions of both agent and box
                             seer.put(GlobalLevelService.getInstance().getPosition(pullAction.getBox()), agentNumber);
                             seer.put(newPullBoxPosition, agentNumber);
                             seer.put(newPullAgentPosition, agentNumber);
                         } else {
-                            // If the seer knows the new position, it is in conflict
+                            // If the seer knows the new position, it is in Conflict
 
                             // Add the conflicting agents to the conflictingAgents list
-                            conflictingAgents.add(seer.get(newPullAgentPosition));
-                            conflictingAgents.add(agentNumber);
+                            conflictingAgents.add(
+                                    new Conflict(
+                                            seer.get(newPullAgentPosition),
+                                            currentPlans.get(seer.get(newPullAgentPosition)),
+                                            agentNumber,
+                                            concretePlan
+                                    )
+                            );
                         }
 
                         break;
@@ -95,18 +105,24 @@ public class ConflictDetectionService {
                                 pushAction.getBoxMovingDirection());
 
                         if (!seer.containsKey(newPushAgentPosition)) {
-                            // If the seer doesn't know the new position, it is not (yet) in conflict
+                            // If the seer doesn't know the new position, it is not (yet) in Conflict
 
                             // Tell seer about current and new positions of both agent and box
                             seer.put(currentAgentPosition, agentNumber);
                             seer.put(newPushBoxPosition, agentNumber);
                             seer.put(newPushAgentPosition, agentNumber);
                         } else {
-                            // If the seer knows the new position, it is in conflict
+                            // If the seer knows the new position, it is in Conflict
 
                             // Add the conflicting agents to the conflictingAgents list
-                            conflictingAgents.add(seer.get(newPushAgentPosition));
-                            conflictingAgents.add(agentNumber);
+                            conflictingAgents.add(
+                                    new Conflict(
+                                            seer.get(newPushAgentPosition),
+                                            currentPlans.get(seer.get(newPushAgentPosition)),
+                                            agentNumber,
+                                            concretePlan
+                                    )
+                            );
                         }
 
                         break;
@@ -115,6 +131,13 @@ public class ConflictDetectionService {
             }
         });
 
-        event.setResponse(conflictingAgents.size() > 0);
+        return conflictingAgents;
+    }
+
+    public ResolvedConflict resolveConflict(Conflict conflict) {
+
+        // TODO actually resolve conflict
+
+        return null;
     }
 }

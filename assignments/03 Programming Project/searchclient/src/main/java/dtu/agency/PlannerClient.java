@@ -4,15 +4,19 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
+import dtu.agency.conflicts.Conflict;
+import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
+import dtu.agency.services.ConflictService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
+import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -102,6 +106,7 @@ public class PlannerClient {
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
         HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
         SendServerActionsEvent sendActionsEvent = null;
+        ConflictService conflictService = new ConflictService();
 
         try {
             // .take() will call Thread.wait() until an element (Stack) becomes available
@@ -131,15 +136,23 @@ public class PlannerClient {
         // pop the next action from each plan
         currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
-        // Hand conflicts to someone
-        DetectConflictsEvent detectConflictsEvent = new DetectConflictsEvent(currentPlans);
-        EventBusService.post(detectConflictsEvent);
+        List<Conflict> conflictingAgents = conflictService.detectConflicts(currentPlans);
+        if (!conflictingAgents.isEmpty()) {
 
-        //boolean isConflict = detectConflictsEvent.getResponse(1000);
+            conflictingAgents.forEach(conflict -> {
+                ResolvedConflict resolvedConflict = conflictService.resolveConflict(conflict);
 
-//        if (isConflict) {
-//            // TODO Shit if conflict - probably resolve it...
-//        }
+                currentPlans.put(
+                        Integer.valueOf(conflict.getAgentOne().getLabel()),
+                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getAgentOne().getLabel()))
+                );
+
+                currentPlans.put(
+                        Integer.valueOf(conflict.getAgentTwo().getLabel()),
+                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getAgentTwo().getLabel()))
+                );
+            });
+        }
 
         // send actions to server
         send(buildActionSet(agentsActions));

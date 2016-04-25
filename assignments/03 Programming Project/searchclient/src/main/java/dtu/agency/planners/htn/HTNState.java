@@ -119,7 +119,7 @@ public class HTNState {
 
 
     /**
-     * Detects if this state will conflict with another agent
+     * Detects if this state will Conflict with another agent
      * @return
      */
     private boolean agentConflict() {
@@ -148,7 +148,7 @@ public class HTNState {
     }
 
     /**
-     * Detects if this state will conflict with another box
+     * Detects if this state will Conflict with another box
      * @return
      */
     private boolean boxConflict() {
@@ -177,7 +177,7 @@ public class HTNState {
     }
 
     /**
-     * detects if this state will conflict with a wall
+     * detects if this state will Conflict with a wall
      * @return
      */
     private boolean wallConflict() {
