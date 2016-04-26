@@ -2,8 +2,8 @@ package dtu.agency.board;
 
 public class Empty extends BoardObject {
 
-    public Empty() {
-        super(" ");
+    public Empty(String label) {
+        super(label);
     }
 
     @Override

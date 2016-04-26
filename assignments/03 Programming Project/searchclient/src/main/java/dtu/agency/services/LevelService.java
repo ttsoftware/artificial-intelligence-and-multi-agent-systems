@@ -13,13 +13,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class LevelService {
-    protected static void debug(String msg, int indentationChange) {
-        DebugService.print(msg, indentationChange);
-    }
-
-    protected static void debug(String msg) {
-        debug(msg, 0);
-    }
 
     protected Level level;
 
@@ -100,6 +93,7 @@ public abstract class LevelService {
 
         // find the object type
         BoardCell currentCell = boardState[row][column];
+        BoardObject currentObject = boardObjects[row][column];
         int nextRow = -1;
         int nextColumn = -1;
 
@@ -151,38 +145,56 @@ public abstract class LevelService {
         // update next board cell
         if (nextCell == BoardCell.GOAL) {
             // handles cases where objects enters a goal cell
-            if (currentCell == BoardCell.AGENT
-                    || currentCell == BoardCell.AGENT_GOAL) {
-                boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
-                boardObjects[nextRow][nextColumn] = new AgentAndGoal((Agent) boardObject, (Goal) nextObject);
-            } else if (currentCell == BoardCell.BOX
-                    || currentCell == BoardCell.BOX_GOAL) {
-                boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
-                boardObjects[nextRow][nextColumn] = new BoxAndGoal((Box) boardObject, (Goal) nextObject);
+            switch (currentCell) {
+                case BOX:
+                    boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
+                    boardObjects[nextRow][nextColumn] = new BoxAndGoal((Box) currentObject, (Goal) nextObject);
+                    break;
+                case AGENT:
+                    boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
+                    boardObjects[nextRow][nextColumn] = new AgentAndGoal((Agent) currentObject, (Goal) nextObject);
+                    break;
+                case AGENT_GOAL:
+                    boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
+                    boardObjects[nextRow][nextColumn] = new AgentAndGoal(
+                            ((AgentAndGoal) currentObject).getAgent(),
+                            (Goal) nextObject
+                    );
+                    break;
+                case BOX_GOAL:
+                    boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
+                    boardObjects[nextRow][nextColumn] = new BoxAndGoal(
+                            ((BoxAndGoal) currentObject).getBox(),
+                            (Goal) nextObject
+                    );
+                    break;
+                default:
+                    throw new RuntimeException("We cannot move walls, goals or air.");
             }
         } else if (currentCell == BoardCell.AGENT_GOAL) {
-            // Handles cases of objects entering a free cell
+            // If the current cell is an agent goal and the next cell is free
             boardState[nextRow][nextColumn] = BoardCell.AGENT;
-            boardObjects[nextRow][nextColumn] = ((AgentAndGoal) boardObject).getAgent();
+            boardObjects[nextRow][nextColumn] = ((AgentAndGoal) currentObject).getAgent();
         } else if (currentCell == BoardCell.BOX_GOAL) {
+            // If the current cell is a box goal and the next cell is free
             boardState[nextRow][nextColumn] = BoardCell.BOX;
-            boardObjects[nextRow][nextColumn] = ((BoxAndGoal) boardObject).getBox();
+            boardObjects[nextRow][nextColumn] = ((BoxAndGoal) currentObject).getBox();
         } else {
+            // If the next cell is free
             boardState[nextRow][nextColumn] = currentCell;
-            boardObjects[nextRow][nextColumn] = boardObject;
+            boardObjects[nextRow][nextColumn] = currentObject;
         }
 
         // free the cell where the object was located
         if (currentCell == BoardCell.AGENT_GOAL) {
             boardState[row][column] = BoardCell.GOAL;
-            boardObjects[row][column] = ((AgentAndGoal) boardObject).getGoal();
-        }
-        else if (currentCell == BoardCell.BOX_GOAL) {
+            boardObjects[row][column] = ((AgentAndGoal) currentObject).getGoal();
+        } else if (currentCell == BoardCell.BOX_GOAL) {
             boardState[row][column] = BoardCell.GOAL;
-            boardObjects[row][column] = ((BoxAndGoal) boardObject).getGoal();
+            boardObjects[row][column] = ((BoxAndGoal) currentObject).getGoal();
         } else {
             boardState[row][column] = BoardCell.FREE_CELL;
-            boardObjects[row][column] = new Empty();
+            boardObjects[row][column] = new Empty(" ");
         }
 
         objectPositions.remove(boardObject.getLabel());
@@ -411,7 +423,6 @@ public abstract class LevelService {
     }
 
     public synchronized String getObjectLabels(Position pos) {
-        debug("getObject:");
         return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
     }
 
@@ -431,7 +442,6 @@ public abstract class LevelService {
      * @param position Position to insert the box in the level
      */
     protected synchronized void insertBox(Box box, Position position) {
-        debug("Inserting box into level", 2);
         int row = position.getRow();
         int column = position.getColumn();
 
@@ -449,26 +459,22 @@ public abstract class LevelService {
                 throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
-        debug("Box inserted into level.boardState");
 
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
         if (objectPositions.get(box.getLabel()) != null)
             throw new AssertionError("Expected the box NOT to exist in the level");
         objectPositions.put(box.getLabel(), new Position(row, column));
         level.setBoardObjectPositions(objectPositions);
-        debug("Box inserted into level.boardObjectPositions");
 
         List<Box> boxes = level.getBoxes();
         if (boxes.contains(box))
             throw new AssertionError("Box should not exist in level before adding it");
         boxes.add(box);
         level.setBoxes(boxes);
-        debug("Box inserted into level.boxes");
 
         BoardObject[][] boardObjects = level.getBoardObjects();
         boardObjects[row][column] = box;
         level.setBoardObjects(boardObjects);
-        debug("Box inserted into level.boardObjects", -2);
     }
 
     /**
@@ -479,7 +485,6 @@ public abstract class LevelService {
      * @param position Position to insert the agent
      */
     protected synchronized void insertAgent(Agent agent, Position position) {
-        debug("Inserting Agent into (planning) level", 2);
         int row = position.getRow();
         int column = position.getColumn();
 
@@ -499,21 +504,18 @@ public abstract class LevelService {
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
-        debug("Agent inserted into level.boardState");
 
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
         if (objectPositions.get(agent.getLabel()) != null)
             throw new AssertionError("Expected the agent NOT to exist in the level");
         objectPositions.put(agent.getLabel(), new Position(row, column));
         level.setBoardObjectPositions(objectPositions);
-        debug("Agent inserted into level.boardObjectPositions");
 
         List<Agent> agents = level.getAgents();
         if (agents.contains(agent))
             throw new AssertionError("Agent should not exist in level before adding it");
         agents.add(agent);
         level.setAgents(agents);
-        debug("Agent inserted into level.agents", -2);
 
         BoardObject[][] boardObjects = level.getBoardObjects();
         boardObjects[row][column] = agent;
@@ -527,7 +529,6 @@ public abstract class LevelService {
      * @param box Box to remove from the level
      */
     protected synchronized void removeBox(Box box) {
-        debug("Removing box from (planning) level", 2);
         Position boxPos = getPosition(box);
         int row = boxPos.getRow();
         int column = boxPos.getColumn();
@@ -548,26 +549,21 @@ public abstract class LevelService {
                 System.err.println(sa + "lvl: objectPositions: " + level.getBoardObjectPositions());
                 throw new AssertionError("Cannot remove box if not present");
         }
-        debug("Box removed from level.BoardState");
-
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
         if (objectPositions.get(box.getLabel()) == null)
             throw new AssertionError("Cannot remove non-existing box");
         objectPositions.remove(box.getLabel());
         level.setBoardObjectPositions(objectPositions);
-        debug("Box removed from level.boardObjectPositions");
 
         ArrayList<Box> boxes = new ArrayList<>(level.getBoxes());
         if (!boxes.contains(box))
             throw new AssertionError("Box should exist in level before removing it");
         boxes.remove(box);
         level.setBoxes(boxes);
-        debug("Box removed from (planning) level.boxes");
 
         BoardObject[][] boardObjects = level.getBoardObjects();
         boardObjects[row][column] = null;
         level.setBoardObjects(boardObjects);
-        debug("Box removed from level.boardobjects", -2);
     }
 
     /**
@@ -577,7 +573,6 @@ public abstract class LevelService {
      * @param agent Agent to remove from level
      */
     protected synchronized void removeAgent(Agent agent) {
-        debug("Removing agent from (planning) level", 2);
 
         Position agentPos = getPosition(agent);
         int row = agentPos.getRow();
@@ -594,27 +589,22 @@ public abstract class LevelService {
             default:
                 throw new AssertionError("Cannot remove agent if not present");
         }
-        debug("Agent removed from Level.BoardState");
 
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();
         if (objectPositions.get(agent.getLabel()) == null)
             throw new AssertionError("Cannot remove non-existing agent");
         objectPositions.remove(agent.getLabel());
         level.setBoardObjectPositions(objectPositions);
-        debug("Agent removed from Level.BoardObjectPositions");
 
         List<Agent> agents = level.getAgents();
         if (!agents.contains(agent))
             throw new AssertionError("Agent should exist in level before removing it");
         agents.remove(agent);
         level.setAgents(agents);
-        debug("Agent removed from Level.Agents");
 
         BoardObject[][] boardObjects = level.getBoardObjects();
         boardObjects[row][column] = null;
         level.setBoardObjects(boardObjects);
-        debug("Agent removed from level.boardobjects", -2);
-
     }
 
     /**
@@ -731,7 +721,6 @@ public abstract class LevelService {
      * @return
      */
     public LinkedList<Position> getOrderedPath(PrimitivePlan pseudoPlan) {
-        debug("Getting ordered path from (pseudo)plan", 2);
         LinkedList<Position> path = new LinkedList<>();
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
@@ -743,7 +732,6 @@ public abstract class LevelService {
             }
             previous = next;
         }
-        debug("Path discovered: " + path.toString(), -2);
         return path;
     }
 
@@ -754,7 +742,6 @@ public abstract class LevelService {
      * @return
      */
     public LinkedList<Position> getObstaclePositions(LinkedList<Position> pseudoPath) {
-        debug("Getting positions of obstacles in path", 2);
         LinkedList<Position> obstacles = new LinkedList<>();
 
         Iterator positions = pseudoPath.iterator();
@@ -768,7 +755,6 @@ public abstract class LevelService {
             }
         }
 
-        debug("Obstacles found: " + obstacles.toString(), -2);
         return obstacles;
     }
 
@@ -794,12 +780,11 @@ public abstract class LevelService {
      * @return
      */
     public LinkedList<HashSet<Position>> getFreeNeighbours(Set<Position> path, int size) {
-        debug("Getting positions of free positions to put obstacles at", 2);
         LinkedList<HashSet<Position>> all = new LinkedList<>();
         HashSet<Position> previous = new HashSet<>();
         HashSet<Position> current = new HashSet<>(path);
         int neighbours = 0;
-        do {
+        while (neighbours < size) {
             // initialize next to hold the new positions
             HashSet<Position> next = new HashSet<>();
 
@@ -819,13 +804,12 @@ public abstract class LevelService {
             // update running variables
             previous.addAll(current);
             current = next;
-        } while (neighbours < size);
+        }
 
         String s = "{";
         for (HashSet<Position> layer : all) {
             s += layer.toString() + "\n";
         }
-        debug("Free Positions ordered by layers:\n" + s + "}", -2);
 
         return all;
     }

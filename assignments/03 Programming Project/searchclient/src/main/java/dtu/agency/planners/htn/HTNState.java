@@ -4,7 +4,8 @@ import dtu.agency.actions.AbstractAction;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.actions.abstractaction.SolveGoalAction;
-import dtu.agency.actions.abstractaction.hlaction.*;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RMoveBoxAction;
 import dtu.agency.actions.concreteaction.Direction;
@@ -14,7 +15,6 @@ import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.BoardCell;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
-import dtu.agency.services.DebugService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -22,12 +22,10 @@ import java.util.ArrayList;
 /**
  * Data structure to keep track of state of the two chosen BoardObjects targeted
  * in a specific HTNPlanner, an Agent and a Box
- *  - Along with all the methods needed to manipulate the state
- *    when encountering Concrete- as well as HL-Actions
+ * - Along with all the methods needed to manipulate the state
+ * when encountering Concrete- as well as HL-Actions
  */
 public class HTNState {
-    private static void debug(String msg, int indentationChange) { DebugService.print(msg, indentationChange); }
-    private static void debug(String msg){ debug(msg, 0); }
 
     private final Position agentPosition;
     private final Position boxPosition;
@@ -36,6 +34,7 @@ public class HTNState {
 
     /**
      * copy constructor
+     *
      * @param other The HTNState to be copied
      */
     public HTNState(HTNState other) {
@@ -85,11 +84,10 @@ public class HTNState {
     /**
      * A check performed to see if the current state is legal
      * or if it e.g. has an agent and a wall in same position (illegal)
+     *
      * @return
      */
     private boolean isLegal() {
-        debug("isLegal(): ", 2);
-        debug("RelaxMode: " + relaxationMode.toString());
         boolean legal = true;
 
         switch (relaxationMode) { // walls are considered already
@@ -113,23 +111,19 @@ public class HTNState {
                 break;
         }
 
-        debug("", -2);
         return legal;
     }
 
 
     /**
      * Detects if this state will conflict with another agent
+     *
      * @return
      */
     private boolean agentConflict() {
         boolean conflict = false;
-        debug("agentConflict",2);
-        debug("AgentPosition: "+agentPosition);
         conflict |= agentConflict(agentPosition);
-        debug("BoxPosition: "+boxPosition);
         conflict |= agentConflict(boxPosition);
-        debug("",-2);
         return conflict;
     }
 
@@ -137,57 +131,47 @@ public class HTNState {
         boolean conflict = false;
         if (!pls.isFree(pos)) {
             BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
-            if (DebugService.inDebugMode()) {
-                debug("status: " + cell);
-                String objectAtPosition = pls.getObjectLabels(pos);
-                debug("agentConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
+            if (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL) {
+                conflict = true;
             }
-            if (cell == BoardCell.AGENT || cell == BoardCell.AGENT_GOAL) { conflict = true; }
         }
         return conflict;
     }
 
     /**
      * Detects if this state will conflict with another box
+     *
      * @return
      */
     private boolean boxConflict() {
         boolean conflict = false;
-        debug("boxConflict",2);
-        debug("AgentPosition: "+agentPosition);
         conflict |= boxConflict(agentPosition);
-        debug("BoxPosition: "+boxPosition);
         conflict |= boxConflict(boxPosition);
-        debug("",-2);
         return conflict;
     }
 
-    private boolean boxConflict(Position pos){
+    private boolean boxConflict(Position pos) {
         boolean conflict = false;
-        if (!pls.isFree(pos) ) {
+        if (!pls.isFree(pos)) {
             BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
-            if (DebugService.inDebugMode()) {
-                debug("status: " + cell);
-                String objectAtPosition = pls.getObjectLabels(pos);
-                debug("boxConflict: @" + pos + " something else exist labelled: " + objectAtPosition);
+            if (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL) {
+                conflict = true;
             }
-            if (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL ) { conflict = true; }
         }
         return conflict;
     }
 
     /**
      * detects if this state will conflict with a wall
+     *
      * @return
      */
     private boolean wallConflict() {
         boolean conflict = pls.isWall(agentPosition);
-        debug("Agent position "+agentPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
         if (conflict) return conflict;
 
         if (boxPosition != null) {
             conflict |= pls.isWall(boxPosition);
-            debug("Box position "+boxPosition.toString()+" is same as a wall:" + Boolean.toString(conflict) );
         }
         return conflict;
     }
@@ -195,8 +179,7 @@ public class HTNState {
     /**
      * Any High Level ConcreteAction can be refined, as per the Hierarchical Task Network (HTN) approach
      */
-    public ArrayList<MixedPlan> getRefinements(HLAction action){
-        debug("getRefinements(): " + action.toString(), 2);
+    public ArrayList<MixedPlan> getRefinements(HLAction action) {
         HTNState priorState = this;
         // check if the prior state fulfills this HLActions agentDestination, and if so return empty plan of refinements
 
@@ -204,11 +187,9 @@ public class HTNState {
 
         if (this.isPurposeFulfilled(action)) {
             refinements = action.doneRefinement();
-
-        } else {
-
+        }
+        else {
             switch (action.getType()) {
-
                 case RGotoAction:
                     RGotoAction gta = (RGotoAction) action;
 
@@ -218,7 +199,6 @@ public class HTNState {
                         HTNState result = priorState.applyConcreteAction(move);
                         if (result == null) continue; // illegal move, discard it
 
-                        debug(move.toString() + " -> " + result.toString());
                         gotoRefinement.addAction(move);
                         gotoRefinement.addAction(gta); // append this action again recursively
                         refinements.add(gotoRefinement);
@@ -228,11 +208,10 @@ public class HTNState {
                 case RMoveBoxAction:
                     RMoveBoxAction mba = (RMoveBoxAction) action;
                     if (!this.boxIsMovable()) {
-                        debug("Box not movable");
-                    } else {
-
+                        // "Box not movable"
+                    }
+                    else {
                         Direction dirToBox = priorState.getDirectionToBox();
-                        debug("direction to box: " + dirToBox.toString());
 
                         // PUSH REFINEMENTS
                         for (Direction dir : Direction.values()) {
@@ -240,7 +219,6 @@ public class HTNState {
                             ConcreteAction push = new PushConcreteAction(mba.getBox(), dirToBox, dir);
                             HTNState result = priorState.applyConcreteAction(push);
                             if (result == null) continue; // then the action was illegal !
-                            debug(push.toString() + " -> " + result.toString());
                             pushRefinement.addAction(push);
                             pushRefinement.addAction(mba);
                             refinements.add(pushRefinement);
@@ -252,7 +230,6 @@ public class HTNState {
                             ConcreteAction pull = new PullConcreteAction(mba.getBox(), dir, dirToBox);
                             HTNState result = priorState.applyConcreteAction(pull);
                             if (result == null) continue; // then the action was illegal !
-                            debug(pull.toString() + " -> " + result.toString());
                             pullRefinement.addAction(pull);
                             pullRefinement.addAction(mba);
                             refinements.add(pullRefinement);
@@ -265,39 +242,33 @@ public class HTNState {
 
                 case HMoveBoxAndReturn:
                     HMoveBoxAction mbar = (HMoveBoxAction) action;
-                    debug("mbar refinement mbar.getBox():"+mbar.getBox());
-                    debug("mbar refinement mbar.getAgentDestination():"+mbar.getAgentDestination());
-                    debug("mbar refinement pls.getCurrentBox():"+pls.getTrackingBox());
-                    debug("mbar refinement pls.getCurrentBoxPosition():"+pls.getPosition(pls.getTrackingBox()));
                     MixedPlan mbarRefinement = new MixedPlan();
 
-                    mbarRefinement.addAction(new RGotoAction( pls.getTrackingBox(), pls.getPosition(pls.getTrackingBox()) ) );
-                    mbarRefinement.addAction(new RMoveBoxAction( mbar.getBox(), mbar.getBoxDestination() ) );
-                    mbarRefinement.addAction(new RGotoAction( mbar.getAgentDestination() ) );
+                    mbarRefinement.addAction(new RGotoAction(pls.getTrackingBox(), pls.getPosition(pls.getTrackingBox())));
+                    mbarRefinement.addAction(new RMoveBoxAction(mbar.getBox(), mbar.getBoxDestination()));
+                    mbarRefinement.addAction(new RGotoAction(mbar.getAgentDestination()));
                     refinements.add(mbarRefinement);
                     break;
-                }
             }
-        debug("refinements: " + refinements.toString(), -2);
+        }
         return refinements;
     }
 
     /**
      * Refactored this, such that the action does not apply a state, but a state applies an action.
      * The given instance is the "oldState", and the returned state is the "newState"
+     *
      * @param concreteAction The concrete action to be applied (move / push / pull)
      * @return a new HTNState instance with @concreteAction applied to it
      */
     public HTNState applyConcreteAction(ConcreteAction concreteAction) {
-        debug("applyConcreteActions():", 2);
         Position oldAgentPos = getAgentPosition();
-        Position oldBoxPos   = getBoxPosition();
-        RelaxationMode mode  = getRelaxationMode();
+        Position oldBoxPos = getBoxPosition();
+        RelaxationMode mode = getRelaxationMode();
         Position newAgentPos, newBoxPos;
         HTNState result;
 
-        boolean valid =  true;
-        debug(this.toString() );
+        boolean valid = true;
 
         switch (concreteAction.getType()) {
             case MOVE: {
@@ -305,15 +276,11 @@ public class HTNState {
                 newAgentPos = pls.getAdjacentPositionInDirection(oldAgentPos, moveAction.getDirection());
 
                 result = new HTNState(newAgentPos, oldBoxPos, pls, mode);
-                debug(" + " + moveAction.toString() + " -> " + result.toString() );
 
                 if (result.isLegal()) {
-                    debug("", -2);
                     return result;
-                } else {
-                    debug("HTNState.applyMove: Invalid result " + result.toString(), -2);
-                    return null;
                 }
+                return null;
             }
             case PUSH: {
 
@@ -323,18 +290,14 @@ public class HTNState {
                 newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pushAction.getBoxMovingDirection());
                 result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
-                debug(" + " + pushAction.toString() + " -> " + result.toString());
                 // check preconditions !!! THIS IS PUSH
-
-                valid &= !pushAction.getAgentDirection().getInverse().equals(pushAction.getBoxMovingDirection()); // NOT opposite directions (would be pull!)
-                debug(" validation push not opposite directions:" + Boolean.toString(valid));
-
+                // NOT opposite directions (would be pull!)
+                valid &= !pushAction.getAgentDirection().getInverse().equals(pushAction.getBoxMovingDirection());
                 // post conditions
-                valid &= newAgentPos.equals(oldBoxPos);        // Push: agent follows box
-                debug(" validation push agent follows box:" + Boolean.toString(valid));
-
-                valid &= !newBoxPos.equals(oldAgentPos);       // Push: agent is not at wrong location
-                debug(" validation push box is not at old agent location:" + Boolean.toString(valid));
+                // Push: agent follows box
+                valid &= newAgentPos.equals(oldBoxPos);
+                // Push: agent is not at wrong location
+                valid &= !newBoxPos.equals(oldAgentPos);
 
                 break;
             }
@@ -346,49 +309,38 @@ public class HTNState {
                 newBoxPos = pls.getAdjacentPositionInDirection(oldBoxPos, pullAction.getBoxMovingDirection());
                 result = new HTNState(newAgentPos, newBoxPos, pls, mode);
 
-                debug(" + " + pullAction.toString() + " -> " + result.toString());
-
                 // check preconditions !!! THIS IS PULL
-                valid &= !pullAction.getAgentDirection().getInverse().equals(pullAction.getBoxMovingDirection()); // NOT same directions (would be push)
-                debug(" validation pull not same directions:" + Boolean.toString(valid));
-
+                // NOT same directions (would be push)
+                valid &= !pullAction.getAgentDirection().getInverse().equals(pullAction.getBoxMovingDirection());
                 // post conditions
-                valid &= newBoxPos.equals(oldAgentPos);        // Pull: box follows agent
-                debug(" validation pull box follows agent :" + Boolean.toString(valid));
-
-                valid &= (!newAgentPos.equals(oldBoxPos));       // Pull: agent is not at wrong location
-                debug(" validation pull agent is not at old box location:" + Boolean.toString(valid));
-
+                // Pull: box follows agent
+                valid &= newBoxPos.equals(oldAgentPos);
+                // Pull: agent is not at wrong location
+                valid &= (!newAgentPos.equals(oldBoxPos));
                 break;
             }
             case NONE: {
-                debug("", -2);
                 return this;
             }
             default:
-                debug("", -2);
                 throw new UnsupportedOperationException("Invalid action type");
         }
-        valid &= oldAgentPos.isAdjacentTo(oldBoxPos);   // box and agent is neighbor in prior state // is this unnecessary?
-        debug(" validation box and agent is neighbor in prior state:" + Boolean.toString(valid));
-
-        valid &= newAgentPos.isAdjacentTo(newBoxPos);   // box and agent are still neighbours in posterior state
-        debug(" validation box and agent are still neighbours in posterior state:" + Boolean.toString(valid));
-
+        // box and agent is neighbor in prior state // is this unnecessary?
+        valid &= oldAgentPos.isAdjacentTo(oldBoxPos);
+        // box and agent are still neighbours in posterior state
+        valid &= newAgentPos.isAdjacentTo(newBoxPos);
         valid &= result.isLegal();
-        debug(" validation the new state is legal:" + Boolean.toString(valid));
 
-        debug("", -2);
         return (valid) ? result : null;
     }
 
     /**
      * Checks if the purpose of the current high level action is fulfilled
+     *
      * @param abstractAction To be checked for fulfilled purpose
      * @return boolean True if purpose is fulfilled
      */
     public boolean isPurposeFulfilled(AbstractAction abstractAction) {
-        debug("isPurposeFulfilled(" + abstractAction.toString() + "):", 2);
         boolean fulfilled = false;
 
         if (abstractAction instanceof HLAction) {
@@ -396,7 +348,7 @@ public class HTNState {
             switch (abstractAction.getType()) {
 
                 case RGotoAction:
-                    if (action.getBox()==null) {
+                    if (action.getBox() == null) {
                         fulfilled = this.getAgentPosition().equals(action.getAgentDestination());
                     } else {
                         fulfilled = this.getAgentPosition().isAdjacentTo(action.getAgentDestination());
@@ -427,7 +379,6 @@ public class HTNState {
                 throw new UnsupportedOperationException("Invalid AbstractAction type");
             }
         }
-        debug("Purpose of " + abstractAction +" is " + ((fulfilled) ? "" : "not ") + "fulfilled: ", -2);
         return fulfilled;
     }
 
@@ -453,15 +404,15 @@ public class HTNState {
         final int prime = 31;
         int result = 1;
         result = prime * result + agentPosition.hashCode();
-        result = prime * result + ((boxPosition!=null) ? boxPosition.hashCode() : 0);
+        result = prime * result + ((boxPosition != null) ? boxPosition.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         String s;
-        s  = "State:[Ag:" + agentPosition.toString();
-        s += ",Bx:" + ((boxPosition!=null) ? boxPosition.toString() : "null") + "]";
+        s = "State:[Ag:" + agentPosition.toString();
+        s += ",Bx:" + ((boxPosition != null) ? boxPosition.toString() : "null") + "]";
         return s;
     }
 
