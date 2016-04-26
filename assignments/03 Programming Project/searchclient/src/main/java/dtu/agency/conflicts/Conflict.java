@@ -6,49 +6,55 @@ import dtu.agency.services.GlobalLevelService;
 
 public class Conflict {
 
-    private Agent agentOne;
-    private ConcretePlan agentOnePlan;
+    private Agent conceder;
+    private ConcretePlan concederPlan;
 
-    private Agent agentTwo;
-    private ConcretePlan agentTwoPlan;
+    private Agent initiator;
+    private ConcretePlan initiatorPlan;
 
     public Conflict(Agent agentOne, ConcretePlan agentOnePlan, Agent agentTwo, ConcretePlan agentTwoPlan) {
-        this.agentOne = agentOne;
-        this.agentOnePlan = agentOnePlan;
-        this.agentTwo = agentTwo;
-        this.agentTwoPlan = agentTwoPlan;
+
+        if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
+            conceder = agentOne;
+            concederPlan = agentOnePlan;
+            initiator = agentTwo;
+            initiatorPlan = agentTwoPlan;
+        } else {
+            conceder = agentTwo;
+            concederPlan = agentTwoPlan;
+            initiator = agentOne;
+            initiatorPlan = agentOnePlan;
+        }
     }
 
     public Conflict(Integer agentOne, ConcretePlan agentOnePlan, Integer agentTwo, ConcretePlan agentTwoPlan) {
-        GlobalLevelService levelService = GlobalLevelService.getInstance();
-        this.agentOne = levelService.getAgent(agentOne.toString());
-        this.agentOnePlan = agentOnePlan;
 
-        this.agentTwo = levelService.getAgent(agentTwo.toString());
-        this.agentTwoPlan = agentTwoPlan;
+        if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
+            conceder = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            concederPlan = agentOnePlan;
+            initiator = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            initiatorPlan = agentTwoPlan;
+        } else {
+            conceder = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            concederPlan = agentTwoPlan;
+            initiator = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            initiatorPlan = agentOnePlan;
+        }
     }
 
-    public Agent getFastest() {
-        return (agentOnePlan.getActions().size() <= agentTwoPlan.getActions().size()) ? agentOne : agentTwo;
+    public Agent getConceder() {
+        return conceder;
     }
 
-    public Agent getSlowest() {
-        return (agentOnePlan.getActions().size() > agentTwoPlan.getActions().size()) ? agentOne : agentTwo;
+    public ConcretePlan getConcederPlan() {
+        return concederPlan;
     }
 
-    public Agent getAgentOne() {
-        return agentOne;
+    public Agent getInitiator() {
+        return initiator;
     }
 
-    public ConcretePlan getAgentOnePlan() {
-        return agentOnePlan;
-    }
-
-    public Agent getAgentTwo() {
-        return agentTwo;
-    }
-
-    public ConcretePlan getAgentTwoPlan() {
-        return agentTwoPlan;
+    public ConcretePlan getInitiatorPlan() {
+        return initiatorPlan;
     }
 }

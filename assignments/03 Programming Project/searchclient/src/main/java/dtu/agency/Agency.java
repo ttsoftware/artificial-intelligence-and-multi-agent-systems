@@ -10,7 +10,6 @@ import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.AgentService;

@@ -143,13 +143,13 @@ public class PlannerClient {
                 ResolvedConflict resolvedConflict = conflictService.resolveConflict(conflict);
 
                 currentPlans.put(
-                        Integer.valueOf(conflict.getAgentOne().getLabel()),
-                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getAgentOne().getLabel()))
+                        Integer.valueOf(conflict.getConceder().getLabel()),
+                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getConceder().getLabel()))
                 );
 
                 currentPlans.put(
-                        Integer.valueOf(conflict.getAgentTwo().getLabel()),
-                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getAgentTwo().getLabel()))
+                        Integer.valueOf(conflict.getInitiator().getLabel()),
+                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getInitiator().getLabel()))
                 );
             });
         }
