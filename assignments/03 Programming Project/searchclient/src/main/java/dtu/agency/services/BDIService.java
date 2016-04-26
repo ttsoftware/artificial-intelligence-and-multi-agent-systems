@@ -138,10 +138,13 @@ public class BDIService {
         while (counter > 0 || bestIntention == null) {
             counter--;
             if (ideas.getIdeas().isEmpty()) break;
+
             SolveGoalAction idea = ideas.getBest();
             Box targetBox = idea.getBox();
+
             Position targetBoxPosition = pls.getPosition(targetBox);
             BoardCell boxCell = pls.getCell(targetBoxPosition);
+
             if (boxCell == BoardCell.BOX_GOAL) {
                 BoxAndGoal boxAndGoal = (BoxAndGoal) pls.getObject(targetBoxPosition);
                 if (boxAndGoal.isSolved()) {
@@ -155,8 +158,9 @@ public class BDIService {
                 continue;
             }
             // the positions of the cells that the agent is going to step on top of
-            LinkedList<Position> pseudoPath = pls.getOrderedPath(pseudoPlan);
-            LinkedList<Position> obstaclePositions = pls.getObstaclePositions(pseudoPath);
+            LinkedList<Position> agentPseudoPath = pls.getOrderedPath(pseudoPlan);
+            LinkedList<Position> agentBoxPseudoPath = pls.getOrderPathWithBox(pseudoPlan);
+            LinkedList<Position> obstaclePositions = pls.getObstaclePositions(agentPseudoPath);
 
             // see how many obstacles on the path are reachable (cheaper) / unreachable (more expensive)
             int nReachable = 0;
@@ -174,7 +178,16 @@ public class BDIService {
 
             int nUnReachable = obstaclePositions.size() - nReachable;
 
-            AgentIntention intention = new AgentIntention(goal, targetBox, pseudoPlan, pseudoPath, obstaclePositions, nReachable, nUnReachable);
+            AgentIntention intention = new AgentIntention(
+                    goal,
+                    targetBox,
+                    pseudoPlan,
+                    agentPseudoPath,
+                    agentBoxPseudoPath,
+                    obstaclePositions,
+                    nReachable,
+                    nUnReachable
+            );
             if (intention.getApproximateSteps() < bestApproximation) {
                 bestIntention = intention;
                 bestApproximation = intention.getApproximateSteps();

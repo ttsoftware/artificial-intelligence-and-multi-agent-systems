@@ -8,17 +8,20 @@ import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Level;
+import dtu.agency.board.Position;
+import dtu.agency.planners.plans.PrimitivePlan;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class GlobalLevelServiceTest {
+public class LevelServiceTest {
 
     private static File resourcesDirectory = new File("src/test/resources");
 
@@ -54,14 +57,14 @@ public class GlobalLevelServiceTest {
 
         String state = GlobalLevelService.getInstance().getLevel().toString();
         String expectedState =
-            "+++++++++++++++++\n" +
-            "+0     + b+     +\n" +
-            "+      + B+     +\n" +
-            "+      +  +     +\n" +
-            "+      +  +aA   +\n" +
-            "+      + 1++    +\n" +
-            "+               +\n" +
-            "+++++++++++++++++\n";
+                "+++++++++++++++++\n" +
+                        "+0     + b+     +\n" +
+                        "+      + B+     +\n" +
+                        "+      +  +     +\n" +
+                        "+      +  +aA   +\n" +
+                        "+      + 1++    +\n" +
+                        "+               +\n" +
+                        "+++++++++++++++++\n";
         assertEquals(state, expectedState);
     }
 
@@ -87,15 +90,42 @@ public class GlobalLevelServiceTest {
 
         String state = GlobalLevelService.getInstance().getLevel().toString();
         String expectedState =
-            "+++++++++++++++++\n" +
-            "+0     + B0b0+     +\n" +
-            "+      + 1+     +\n" +
-            "+      +  +     +\n" +
-            "+      +  +aA   +\n" +
-            "+      +  ++    +\n" +
-            "+               +\n" +
-            "+++++++++++++++++\n";
+                "+++++++++++++++++\n" +
+                        "+0     + (B0b0)+     +\n" +
+                        "+      + 1+     +\n" +
+                        "+      +  +     +\n" +
+                        "+      +  +aA   +\n" +
+                        "+      +  ++    +\n" +
+                        "+               +\n" +
+                        "+++++++++++++++++\n";
         assertEquals(state, expectedState);
+    }
+
+    @Test
+    public void testGetValidNeighbour() {
+        Agent agent = new Agent("1");
+        Box box = new Box("B0");
+
+        BDIService.setInstance(new BDIService(agent));
+
+        PrimitivePlan plan = new PrimitivePlan();
+
+        plan.pushAction(new MoveConcreteAction(Direction.NORTH));
+        plan.pushAction(new MoveConcreteAction(Direction.NORTH));
+        plan.pushAction(new MoveConcreteAction(Direction.NORTH));
+        plan.pushAction(new PushConcreteAction(box, Direction.NORTH, Direction.NORTH));
+
+        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderPathWithBox(plan);
+
+        // find first free neighbour to the path
+        Position freeNeighbour = GlobalLevelService.getInstance().getFreeNeighbour(
+                path,
+                3
+        );
+
+        assertTrue(freeNeighbour.distanceFromPath(path) == 3);
+
+        System.out.println(freeNeighbour);
     }
 
     @Test

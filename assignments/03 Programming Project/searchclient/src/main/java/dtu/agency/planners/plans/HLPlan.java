@@ -8,7 +8,6 @@ import dtu.agency.services.PlanningLevelService;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -75,7 +74,7 @@ public class HLPlan implements AbstractPlan {
         }
 
         // return pls and plan to the state before this method
-        pls.revertLast(plan.size());
+        // pls.revertLast(plan.size());
 
         return approximateSteps;
     }
@@ -95,7 +94,7 @@ public class HLPlan implements AbstractPlan {
             return null;
         }
         htn.commitPlan();
-        int actionsCommitted = 1;
+        // int actionsCommitted = 1;
 
         Iterator actions = getActions().iterator();
         while (actions.hasNext()) {
@@ -105,17 +104,17 @@ public class HLPlan implements AbstractPlan {
             PrimitivePlan primitives = htn.plan();
             if (primitives==null) {
                 prepend(first);
-                pls.revertLast(actionsCommitted);
+                // pls.revertLast(actionsCommitted);
                 return null;
             }
             plan.appendActions(primitives);
             htn.commitPlan();
-            actionsCommitted += 1;
+            // actionsCommitted += 1;
         }
 
         // return pls and plan to the state before this method
         prepend(first);
-        pls.revertLast(actionsCommitted);
+        // pls.revertLast(actionsCommitted);
         return plan;
     }
 
