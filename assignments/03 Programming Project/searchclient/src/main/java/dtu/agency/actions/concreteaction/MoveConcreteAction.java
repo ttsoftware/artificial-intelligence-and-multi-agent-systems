@@ -21,6 +21,13 @@ public class MoveConcreteAction extends ConcreteAction {
         this.heuristicValue = heuristicValue;
     }
 
+    public MoveConcreteAction(MoveConcreteAction other) {
+        this.agent = (other.getAgent()!=null) ? new Agent(other.getAgent()) : null;
+        this.direction = other.getDirection();
+        this.agentPosition = (other.getAgentPosition()!=null) ? new Position(other.getAgentPosition()) : null;
+        this.heuristicValue = other.getHeuristicValue();
+    }
+
     @Override
     public ConcreteActionType getType() {
         return ConcreteActionType.MOVE;
@@ -32,6 +39,11 @@ public class MoveConcreteAction extends ConcreteAction {
     }
 
     public Direction getDirection() {
+        return direction;
+    }
+
+    @Override
+    public Direction getAgentDirection() {
         return direction;
     }
 

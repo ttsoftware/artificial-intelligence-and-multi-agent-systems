@@ -1,31 +1,31 @@
 package dtu.agency.planners.pop;
 
 import dtu.agency.actions.BlockingGoalsAndActions;
-import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.concreteaction.ActionComparator;
+import dtu.agency.actions.abstractaction.actioncomparators.ConcreteActionComparator;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.board.*;
 import dtu.agency.planners.pop.preconditions.AgentAtPrecondition;
 import dtu.agency.planners.pop.preconditions.Precondition;
-import dtu.agency.actions.abstractaction.GotoAbstractAction;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
-public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
+public class GotoPOP {
 
     private Position agentStartPosition;
-
-    public GotoPOP(Agent agent) {
-        super(agent);
-        agentStartPosition = LevelService.getInstance().getBestGoalWeighingPosition();
+    private Agent agent;
+    
+    public GotoPOP() {
+        agent = new Agent("-1");
+        agentStartPosition = GlobalLevelService.getInstance().getBestGoalWeighingPosition();
     }
 
-    public List<PriorityQueue<Goal>> getWeighedGoals() {
+    public List<PriorityBlockingQueue<Goal>> getWeighedGoals() {
 
-        List<PriorityQueue<Goal>> goalQueueList = new ArrayList<>();
+        List<PriorityBlockingQueue<Goal>> goalQueueList = new ArrayList<>();
 
-        List<Goal> levelGoals = LevelService.getInstance().getLevel().getGoals();
+        List<Goal> levelGoals = GlobalLevelService.getInstance().getLevel().getGoals();
         List<Goal> handledGoals = new ArrayList<>();
 
         for (Goal goal : levelGoals) {
@@ -33,10 +33,10 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
                 List<Goal> blockingGoalsList = getBlockingGoals(goal.getPosition());
                 blockingGoalsList.add(0, goal);
 
-                List<PriorityQueue<Goal>> newQueueList = getNonSelfStandingGoalList(blockingGoalsList, goalQueueList, handledGoals);
+                List<PriorityBlockingQueue<Goal>> newQueueList = getNonSelfStandingGoalList(blockingGoalsList, goalQueueList, handledGoals);
                 if(newQueueList == null)
                 {
-                    PriorityQueue<Goal> blockingGoalsPriorityQueue = getPriorityQueueFromList(blockingGoalsList);
+                    PriorityBlockingQueue<Goal> blockingGoalsPriorityQueue = getPriorityQueueFromList(blockingGoalsList);
                     goalQueueList.add(blockingGoalsPriorityQueue);
                 }
                 else{
@@ -57,13 +57,13 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
                 new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false)).getBlockingGoals();
     }
 
-    public List<PriorityQueue<Goal>> getNonSelfStandingGoalList(List<Goal> currentGoalList, List<PriorityQueue<Goal>> goalQueuesList, List<Goal> handledGoals) {
+    public List<PriorityBlockingQueue<Goal>> getNonSelfStandingGoalList(List<Goal> currentGoalList, List<PriorityBlockingQueue<Goal>> goalQueuesList, List<Goal> handledGoals) {
 
         for (int i = 0; i < currentGoalList.size(); i++) {
             Goal goal = currentGoalList.get(i);
             if (handledGoals.contains(goal)) {
 
-                for (PriorityQueue<Goal> goalQueue : goalQueuesList) {
+                for (PriorityBlockingQueue<Goal> goalQueue : goalQueuesList) {
                     if (goalQueue.contains(goal)) {
                         int firstRepetitiveGoalWeight = -1;
 
@@ -97,9 +97,9 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
     }
 
 
-    public PriorityQueue<Goal> getPriorityQueueFromList(List<Goal> goals)
+    public PriorityBlockingQueue<Goal> getPriorityQueueFromList(List<Goal> goals)
     {
-        PriorityQueue<Goal> weightedGoals = new PriorityQueue<>(new GoalComparator());
+        PriorityBlockingQueue<Goal> weightedGoals = new PriorityBlockingQueue<>();
 
         goals.get(0).setWeight(0);
 
@@ -140,7 +140,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
             if (!stepAdditionalActions.isEmpty()) {
                 MoveConcreteAction nextAction = stepAdditionalActions.poll();
 
-                currentBlockingGoals.add((Goal) LevelService.getInstance().getLevel().getBoardObjects()
+                currentBlockingGoals.add((Goal) GlobalLevelService.getInstance().getLevel().getBoardObjects()
                         [nextAction.getAgentPosition().getRow()][nextAction.getAgentPosition().getColumn()]);
                 previousActions.add(nextAction);
 
@@ -174,7 +174,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
            if (stepAdditionalActions != null && !stepAdditionalActions.isEmpty()) {
                MoveConcreteAction nextAction = stepAdditionalActions.poll();
                previousActions.add(nextAction);
-               currentBlockingGoals.add((Goal) LevelService.getInstance().getLevel().getBoardObjects()
+               currentBlockingGoals.add((Goal) GlobalLevelService.getInstance().getLevel().getBoardObjects()
                        [nextAction.getAgentPosition().getRow()][nextAction.getAgentPosition().getColumn()]);
 
                canBacktrack = canBacktrack || stepAdditionalActions.size() > 0;
@@ -244,9 +244,9 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
      * @return A queue of MoveActions which solves the given precondition
      */
     public PriorityQueue<MoveConcreteAction> solvePrecondition(AgentAtPrecondition precondition) {
-        PriorityQueue<MoveConcreteAction> concreteActions = new PriorityQueue<>(new ActionComparator());
+        PriorityQueue<MoveConcreteAction> concreteActions = new PriorityQueue<>(new ConcreteActionComparator());
 
-        List<Neighbour> neighbours = LevelService.getInstance().getFreeNeighbours(
+        List<Neighbour> neighbours = GlobalLevelService.getInstance().getFreeNeighbours(
                 precondition.getAgentPreconditionPosition()
         );
 
@@ -255,7 +255,7 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
                     agent,
                     neighbour.getPosition(),
                     neighbour.getDirection().getInverse(),
-                    LevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
+                    GlobalLevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             concreteActions.add(nextAction);
         }
@@ -269,9 +269,9 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
      * @return the list of further actions that can be taken, including moving to goal cells
      */
     public PriorityQueue<MoveConcreteAction> solvePreconditionForGoal(AgentAtPrecondition precondition) {
-        PriorityQueue<MoveConcreteAction> concreteActions = new PriorityQueue<>(new ActionComparator());
+        PriorityQueue<MoveConcreteAction> concreteActions = new PriorityQueue<>(new ConcreteActionComparator());
 
-        List<Neighbour> neighbours = LevelService.getInstance().getNonGoalFreeNeighbours(
+        List<Neighbour> neighbours = GlobalLevelService.getInstance().getNonGoalFreeNeighbours(
                 precondition.getAgentPreconditionPosition()
         );
 
@@ -280,77 +280,11 @@ public class GotoPOP extends AbstractPOP<GotoAbstractAction> {
                     agent,
                     neighbour.getPosition(),
                     neighbour.getDirection().getInverse(),
-                    LevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
+                    GlobalLevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             concreteActions.add(nextAction);
         }
 
         return concreteActions;
-    }
-
-    public POPPlan plan(GotoAbstractAction gotoAbstractAction)
-    {
-        Position goalPosition = gotoAbstractAction.getPosition();
-        agentStartPosition = LevelService.getInstance().getPosition(agent.getLabel());
-
-        return new POPPlan(getPlan(goalPosition, new Stack<>()));
-    }
-
-
-    /**
-     *
-     * @param currentAgentPosition
-     * @param previousActions
-     * @return a stack of actions for moving from a position to a goal position
-     */
-    public Stack<ConcreteAction> getPlan(Position currentAgentPosition, Stack<MoveConcreteAction> previousActions) {
-        Stack<ConcreteAction> actions = new Stack<>();
-
-        Precondition currentPrecondition = new AgentAtPrecondition(agent, currentAgentPosition);
-
-        if (currentAgentPosition.isAdjacentTo(agentStartPosition)) {
-            actions.add(new MoveConcreteAction(agent, currentAgentPosition, LevelService.getInstance()
-                    .getMovingDirection(agentStartPosition, currentAgentPosition), 0));
-            return actions;
-        }
-
-        PriorityQueue<MoveConcreteAction> stepActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
-
-        boolean foundNextAction = false;
-
-        while(!stepActions.isEmpty() && !foundNextAction) {
-            MoveConcreteAction nextAction = (MoveConcreteAction) stepActions.poll();
-
-            boolean foundCorrectAction = false;
-
-            while (!foundCorrectAction) {
-                if (introducesCycle(nextAction, previousActions)) {
-                    if (!stepActions.isEmpty()) {
-                        nextAction = stepActions.poll();
-                    } else {
-                        return null;
-                    }
-                } else {
-                    foundCorrectAction = true;
-                }
-            }
-
-            previousActions.add(nextAction);
-
-            if ((actions = getPlan(nextAction.getAgentPosition(), previousActions)) == null || actions.isEmpty()) {
-                previousActions.remove(nextAction);
-                if (stepActions.isEmpty()) {
-                    return null;
-                }
-            } else {
-                foundNextAction = true;
-            }
-
-            if (actions != null && actions.size() == 1) {
-                actions.addAll(0, previousActions);
-            }
-        }
-
-        return actions;
     }
 }

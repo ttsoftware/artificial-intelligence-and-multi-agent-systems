@@ -24,6 +24,6 @@ public class MoveBoxAbstractAction extends AbstractAction {
 
     @Override
     public AbstractActionType getType() {
-        return AbstractActionType.MoveBoxAction;
+        return AbstractActionType.RMoveBoxAction;
     }
 }

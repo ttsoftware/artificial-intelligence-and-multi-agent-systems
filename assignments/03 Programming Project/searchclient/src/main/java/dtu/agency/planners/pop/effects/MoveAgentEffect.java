@@ -5,13 +5,13 @@ import dtu.agency.board.BoardCell;
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Level;
 import dtu.agency.board.Position;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 
 public class MoveAgentEffect extends Effect {
 
     public Level applyChangeToLevel(Level level, MoveConcreteAction action) {
 
-        Position goalPosition = LevelService.getInstance().getAdjacentPositionInDirection(action.getAgentPosition(), action.getDirection());
+        Position goalPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(action.getAgentPosition(), action.getDirection());
         BoardCell[][] boardState = level.getBoardState();
         BoardObject[][] boardObjects = level.getBoardObjects();
 

@@ -44,9 +44,14 @@ public class ProblemMarshaller {
         BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
         BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
         ConcurrentHashMap<String, Position> boardObjectPositions = new ConcurrentHashMap<>();
-        PriorityBlockingQueue<Goal> goalQueue = new PriorityBlockingQueue<>();
+        List<PriorityBlockingQueue<Goal>> goalQueues = new ArrayList<>();
         ConcurrentHashMap<String, List<Goal>> boxesGoals = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, List<Box>> goalsBoxes = new ConcurrentHashMap<>();
+
+        ConcurrentHashMap<String, Agent> agentsMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Box> boxesMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Goal> goalsMap = new ConcurrentHashMap<>();
+
         List<Agent> agents = new ArrayList<>();
         List<Box> boxes = new ArrayList<>();
         List<Wall> walls = new ArrayList<>();
@@ -83,10 +88,11 @@ public class ProblemMarshaller {
                     wallCount++;
                 }
                 else if ('0' <= cell && cell <= '9') {
-                    // Its an agency cell
+                    // Its an agent cell
                     String label = String.valueOf(cell);
                     Agent agent = new Agent(label);
                     agents.add(agent);
+                    agentsMap.put(label, agent);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.AGENT;
                     boardObjects[row][column] = agent;
@@ -96,6 +102,7 @@ public class ProblemMarshaller {
                     String label = String.valueOf(cell) + Integer.toString(boxCount);
                     Box box = new Box(label);
                     boxes.add(box);
+                    boxesMap.put(label, box);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.BOX;
                     boardObjects[row][column] = box;
@@ -109,11 +116,17 @@ public class ProblemMarshaller {
                     boardState[row][column] = BoardCell.GOAL;
                     boardObjects[row][column] = goal;
                     goals.add(goal);
+                    goalsMap.put(label, goal);
+                    // add goal to queue
+                    PriorityBlockingQueue<Goal> goalQueue = new PriorityBlockingQueue<>();
                     goalQueue.offer(goal);
+                    goalQueues.add(goalQueue);
+
                     goalCount++;
                 }
                 else {
                     boardState[row][column] = BoardCell.FREE_CELL;
+                    boardObjects[row][column] = new Empty(" ");
                 }
             }
         }
@@ -140,9 +153,12 @@ public class ProblemMarshaller {
                 boardState,
                 boardObjects,
                 boardObjectPositions,
-                goalQueue,
+                goalQueues,
                 boxesGoals,
                 goalsBoxes,
+                agentsMap,
+                boxesMap,
+                goalsMap,
                 goals,
                 agents,
                 boxes,

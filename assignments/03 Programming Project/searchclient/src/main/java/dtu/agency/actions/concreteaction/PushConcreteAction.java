@@ -8,6 +8,10 @@ public class PushConcreteAction extends MoveBoxConcreteAction {
         super(box, agentDirection, boxDirection);
     }
 
+    public PushConcreteAction(PushConcreteAction push) {
+        super(push);
+    }
+
     @Override
     public ConcreteActionType getType() {
         return ConcreteActionType.PUSH;
@@ -15,6 +19,6 @@ public class PushConcreteAction extends MoveBoxConcreteAction {
 
     @Override
     public String toString() {
-        return "Push(" + getAgentDirection() + "," + getBoxDirection() + ")";
+        return "Push(" + getAgentDirection() + "," + getBoxMovingDirection() + ")";
     }
 }

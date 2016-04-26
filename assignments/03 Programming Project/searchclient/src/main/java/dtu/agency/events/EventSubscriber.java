@@ -1,6 +1,8 @@
 package dtu.agency.events;
 
-public interface EventSubscriber<T extends Event> {
+import java.io.Serializable;
+
+public interface EventSubscriber<T extends Event> extends Serializable {
 
     /**
      * Listens for event

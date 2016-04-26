@@ -1,6 +1,9 @@
 package dtu.agency.planners.htn;
 
+import dtu.agency.ProblemMarshallerTest;
+import dtu.agency.board.Level;
 import dtu.agency.board.Position;
+import dtu.agency.services.PlanningLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -14,6 +17,7 @@ public class HTNStateTest {
     private static Position agentOne, agentTwo, agentThree;
     private static Position boxOne, boxTwo, boxThree;
     private static HTNState a, b, c;
+    private static final RelaxationMode mode = RelaxationMode.None;
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -23,10 +27,11 @@ public class HTNStateTest {
         boxOne = new Position(2, 1);
         boxTwo = new Position(2, 2);
         boxThree = new Position(2, 2);
-
-        a = new HTNState(agentOne, boxOne);
-        b = new HTNState(agentTwo, boxTwo);     // b == c
-        c = new HTNState(agentThree, boxThree);
+        Level level = ProblemMarshallerTest.marshall("/action_test.lvl");
+        PlanningLevelService pls = new PlanningLevelService(level);
+        a = new HTNState(agentOne, boxOne, pls, mode);
+        b = new HTNState(agentTwo, boxTwo, pls, mode);     // b == c
+        c = new HTNState(agentThree, boxThree, pls, mode);
     }
 
     @Test
@@ -68,6 +73,16 @@ public class HTNStateTest {
         assertTrue(1 == 2);
     }
 
+    @Test
+    public void concreteActionApplication() {
+        // to be written
+        assertTrue(1 == 2);
+    }
 
+    @Test
+    public void abstractActionGoalChecks() {
+        // to be written
+        assertTrue(1 == 2);
+    }
 
 }

@@ -3,7 +3,7 @@ package dtu.agency.events.agent;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.Event;
-import dtu.agency.planners.ConcretePlan;
+import dtu.agency.planners.plans.ConcretePlan;
 
 public class PlanOfferEvent extends Event {
 

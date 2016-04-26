@@ -4,7 +4,7 @@ import dtu.agency.ProblemMarshaller;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.services.LevelService;
+import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class MoveBoxPOPTest {
 
         // Parse the level
         Level level = ProblemMarshaller.marshall(fileReader);
-        LevelService.getInstance().setLevel(level);
+        GlobalLevelService.getInstance().setLevel(level);
 
         agent = level.getAgents().get(0);
         goal = level.getGoals().get(0);

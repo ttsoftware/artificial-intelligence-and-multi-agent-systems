@@ -2,6 +2,7 @@ package dtu.agency.events.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.agent.GoalEstimationEvent;
@@ -43,10 +44,13 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
     @Subscribe
     @AllowConcurrentEvents
     public void changeSubscriber(GoalEstimationEvent event) {
-        agentEstimations.offer(event);
-        // notify estimationsThread to see if all agents have estimated
-        synchronized (goal) {
-            goal.notify();
+        if (event.getGoal().getLabel().equals(goal.getLabel())) {
+            // The estimation is for this given goal
+            agentEstimations.offer(event);
+            // notify estimationsThread to see if all agents have estimated
+            synchronized (goal) {
+                goal.notify();
+            }
         }
     }
 
@@ -57,15 +61,15 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
     /**
      * Waits for all estimations to finish before returning. Will block calling thread.
      *
-     * @return The label of the agent whose estimation was lowest
+     * @return The agent whose estimation was lowest
      */
-    public String getBestAgent() {
+    public Agent getBestAgent() {
         try {
             // Wait for the value lowest estimation to be assigned
             estimationsThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace(System.err);
         }
-        return lowestEstimation.getAgentLabel();
+        return lowestEstimation.getAgent();
     }
 }

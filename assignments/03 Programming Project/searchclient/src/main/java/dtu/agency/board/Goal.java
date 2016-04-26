@@ -11,6 +11,12 @@ public class Goal extends BoardObject implements Comparable<Goal> {
         this.weight = weight;
     }
 
+    public Goal(Goal other) {
+        super(other.getLabel());
+        this.position = new Position(other.getPosition());
+        this.weight = other.getWeight();
+    }
+
     public int getWeight() {
         return weight;
     }
@@ -26,5 +32,23 @@ public class Goal extends BoardObject implements Comparable<Goal> {
     @Override
     public int compareTo(Goal otherGoal) {
         return weight - otherGoal.getWeight();
+    }
+
+    @Override
+    public BoardCell getType() {
+        return BoardCell.GOAL;
+    }
+
+    @Override
+    public int hashCode() {
+        return label.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Goal) {
+            return super.equals(object);
+        }
+        return false;
     }
 }

@@ -1,5 +1,7 @@
 package dtu.agency.board;
 
+import dtu.agency.actions.concreteaction.Direction;
+
 import java.io.Serializable;
 
 public class Position implements Serializable {
@@ -7,9 +9,44 @@ public class Position implements Serializable {
     private final int row;
     private final int column;
 
+    public Position(Position other) {
+        this.row = other.getRow();
+        this.column = other.getColumn();
+    }
+
     public Position(int row, int column) {
         this.row = row;
         this.column = column;
+    }
+
+    public Position(Position old, Direction dir) {
+        // Coordinates used to interpret direction
+        //  R
+        //C 0 1 2
+        //  1
+        //  2
+        switch (dir) { // (0,0) is NORTH-WEST corner
+            case NORTH:
+                this.row = old.getRow() - 1;
+                this.column = old.getColumn();
+                break;
+            case SOUTH:
+                this.row = old.getRow() + 1;
+                this.column = old.getColumn();
+                break;
+            case EAST:
+                this.row = old.getRow();
+                this.column = old.getColumn() + 1;
+                break;
+            case WEST:
+                this.row = old.getRow();
+                this.column = old.getColumn() - 1;
+                break;
+            default:
+                this.row = old.getRow();
+                this.column = old.getColumn();
+                break;
+        }
     }
 
     public int getRow() {
@@ -18,6 +55,14 @@ public class Position implements Serializable {
 
     public int getColumn() {
         return column;
+    }
+
+    public static int manhattanDist(Position p1, Position p2) {
+        return Math.abs(p1.getRow() - p2.getRow()) + Math.abs(p1.getColumn() - p2.getColumn());
+    }
+
+    public int manhattanDist(Position position) {
+        return manhattanDist(this, position);
     }
 
     public boolean isAdjacentTo(Position otherPosition) {
@@ -29,6 +74,10 @@ public class Position implements Serializable {
 
     @Override
     public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (object == null)
+            return false;
         if (object.getClass() == this.getClass()) {
             Position foreignPosition = (Position) object;
             return (foreignPosition.getRow() == row
@@ -50,11 +99,6 @@ public class Position implements Serializable {
     }
 
     public String toString() {
-        String s = "(" +
-                Integer.toString(getRow()) +
-                "," +
-                Integer.toString(getColumn()) +
-                ")";
-        return s;
+        return "(" + Integer.toString(getRow()) + "," + Integer.toString(getColumn()) + ")";
     }
 }
