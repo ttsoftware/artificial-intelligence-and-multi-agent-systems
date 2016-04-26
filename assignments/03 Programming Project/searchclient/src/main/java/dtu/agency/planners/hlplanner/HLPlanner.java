@@ -2,9 +2,7 @@ package dtu.agency.planners.hlplanner;
 
 import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.agent.bdi.AgentIntention;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Position;
+import dtu.agency.board.*;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
@@ -42,7 +40,16 @@ public class HLPlanner {
 
         while (obstacles.hasNext()) {
             Position obstacleOrigin = (Position) obstacles.next();
-            Box box = new Box(pls.getObjectLabels(obstacleOrigin));
+            BoardCell cell = pls.getCell(obstacleOrigin);
+            BoardObject boardObject = pls.getObject(obstacleOrigin);
+
+            Box box;
+            if (cell == BoardCell.BOX_GOAL) {
+                box = ((BoxAndGoal) boardObject).getBox();
+            }
+            else {
+                box = (Box) boardObject;
+            }
 
             if (box.equals(intention.targetBox) && obstacles.hasNext()) {
                 // move goal box to free position and try re-planning from there (recurse once)

@@ -537,8 +537,16 @@ public abstract class LevelService {
         return value;
     }
 
-    public synchronized String getObjectLabels(Position pos) {
+    public synchronized String getObjectLabel(Position pos) {
         return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
+    }
+
+    public synchronized BoardObject getObject(Position pos) {
+        return level.getBoardObjects()[pos.getRow()][pos.getColumn()];
+    }
+
+    public synchronized BoardCell getCell(Position pos) {
+        return level.getBoardState()[pos.getRow()][pos.getColumn()];
     }
 
     public synchronized Position getPosition(BoardObject boardObject) {
@@ -567,7 +575,8 @@ public abstract class LevelService {
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
 
-        switch (cell) {       // update the cell where the agent is now located
+        // update the cell where the agent is now located
+        switch (cell) {
             case FREE_CELL:
                 boardState[row][column] = BoardCell.BOX;
                 break;
@@ -592,7 +601,15 @@ public abstract class LevelService {
         level.setBoxes(boxes);
 
         BoardObject[][] boardObjects = level.getBoardObjects();
-        boardObjects[row][column] = box;
+        if (cell == BoardCell.GOAL) {
+            boardObjects[row][column] = new BoxAndGoal(
+                    box,
+                    (Goal) getObject(position)
+            );
+        }
+        else {
+            boardObjects[row][column] = box;
+        }
         level.setBoardObjects(boardObjects);
     }
 
@@ -637,7 +654,15 @@ public abstract class LevelService {
         level.setAgents(agents);
 
         BoardObject[][] boardObjects = level.getBoardObjects();
-        boardObjects[row][column] = agent;
+        if (cell == BoardCell.GOAL) {
+            boardObjects[row][column] = new AgentAndGoal(
+                    agent,
+                    (Goal) getObject(position)
+            );
+        }
+        else {
+            boardObjects[row][column] = agent;
+        }
         level.setBoardObjects(boardObjects);
     }
 
@@ -652,14 +677,15 @@ public abstract class LevelService {
         int row = boxPos.getRow();
         int column = boxPos.getColumn();
 
-        BoardCell cell = level.getBoardState()[row][column];
+        BoardCell[][] boardState = level.getBoardState();
+        BoardCell cell = boardState[row][column];
 
         switch (cell) {
             case BOX:
-                level.getBoardState()[row][column] = BoardCell.FREE_CELL;
+                boardState[row][column] = BoardCell.FREE_CELL;
                 break;
             case BOX_GOAL:
-                level.getBoardState()[row][column] = BoardCell.GOAL;
+                boardState[row][column] = BoardCell.GOAL;
                 break;
             default:
                 Agent ag = BDIService.getInstance().getAgent();
@@ -681,7 +707,12 @@ public abstract class LevelService {
         level.setBoxes(boxes);
 
         BoardObject[][] boardObjects = level.getBoardObjects();
-        boardObjects[row][column] = null;
+        if (cell == BoardCell.BOX_GOAL) {
+            boardObjects[row][column] = ((BoxAndGoal) getObject(boxPos)).getGoal();
+        }
+        else {
+            boardObjects[row][column] = new Empty(" ");
+        }
         level.setBoardObjects(boardObjects);
     }
 
@@ -697,13 +728,14 @@ public abstract class LevelService {
         int row = agentPos.getRow();
         int column = agentPos.getColumn();
 
-        BoardCell cell = level.getBoardState()[row][column];
+        BoardCell[][] boardCells = level.getBoardState();
+        BoardCell cell = boardCells[row][column];
         switch (cell) {
             case AGENT:
-                level.getBoardState()[row][column] = BoardCell.FREE_CELL;
+                boardCells[row][column] = BoardCell.FREE_CELL;
                 break;
             case AGENT_GOAL:
-                level.getBoardState()[row][column] = BoardCell.GOAL;
+                boardCells[row][column] = BoardCell.GOAL;
                 break;
             default:
                 throw new AssertionError("Cannot remove agent if not present");
@@ -722,7 +754,13 @@ public abstract class LevelService {
         level.setAgents(agents);
 
         BoardObject[][] boardObjects = level.getBoardObjects();
-        boardObjects[row][column] = null;
+        if (cell == BoardCell.AGENT_GOAL) {
+            boardObjects[row][column] = ((AgentAndGoal) getObject(agentPos)).getGoal();
+        }
+        else {
+            boardObjects[row][column] = new Empty(" ");
+        }
+        level.setBoardState(boardCells);
         level.setBoardObjects(boardObjects);
     }
 

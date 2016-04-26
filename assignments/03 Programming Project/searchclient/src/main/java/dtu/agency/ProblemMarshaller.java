@@ -37,13 +37,13 @@ public class ProblemMarshaller {
             fileLine = fileReader.readLine();
         }
 
-        // Add walls to short lines
+        // Add spaces to short lines
         ArrayList<String> tempLines = new ArrayList<>();
         for (String line : lines) {
             if (line.length() < columnCount) {
                 String tempLine = line;
                 while (tempLine.length() < columnCount) {
-                    tempLine += "+";
+                    tempLine += " ";
                 }
                 tempLines.add(tempLine);
             }

@@ -141,6 +141,13 @@ public class BDIService {
             SolveGoalAction idea = ideas.getBest();
             Box targetBox = idea.getBox();
             Position targetBoxPosition = pls.getPosition(targetBox);
+            BoardCell boxCell = pls.getCell(targetBoxPosition);
+            if (boxCell == BoardCell.BOX_GOAL) {
+                BoxAndGoal boxAndGoal = (BoxAndGoal) pls.getObject(targetBoxPosition);
+                if (boxAndGoal.isSolved()) {
+                    continue;
+                }
+            }
 
             HTNPlanner htn = new HTNPlanner(pls, idea, RelaxationMode.NoAgentsNoBoxes);
             PrimitivePlan pseudoPlan = htn.plan();
@@ -149,7 +156,6 @@ public class BDIService {
             }
             // the positions of the cells that the agent is going to step on top of
             LinkedList<Position> pseudoPath = pls.getOrderedPath(pseudoPlan);
-
             LinkedList<Position> obstaclePositions = pls.getObstaclePositions(pseudoPath);
 
             // see how many obstacles on the path are reachable (cheaper) / unreachable (more expensive)
@@ -173,7 +179,6 @@ public class BDIService {
                 bestIntention = intention;
                 bestApproximation = intention.getApproximateSteps();
             }
-
         }
         if (bestIntention != null) {
             getIntentions().put(goal.getLabel(), bestIntention);
@@ -181,7 +186,6 @@ public class BDIService {
         }
         return false;
     }
-
 
     /**
      * This method tries to solve the level as best as possible at current state
