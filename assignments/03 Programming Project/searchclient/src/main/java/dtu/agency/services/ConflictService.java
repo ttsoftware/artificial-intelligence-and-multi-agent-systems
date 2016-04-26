@@ -1,6 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
@@ -8,11 +9,10 @@ import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.planners.plans.ConcretePlan;
+import dtu.agency.planners.plans.PrimitivePlan;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ConflictService {
 
@@ -164,6 +164,20 @@ public class ConflictService {
          *       conflictPlan <- initiator.makePlan(GOTO(parkingSpot1, parkingSpot2)
          *       resetPlan <- initiator.makePlan(GOBACK(conflictPlan))
          */
+
+        LinkedList<Position> concederPath = GlobalLevelService.getInstance().getOrderedPath(
+                (PrimitivePlan) conflict.getConcederPlan()
+        );
+
+        ConcreteActionType conflictingActionType = conflict.getInitiatorPlan().getActions().get(0).getType();
+        int parkingSpacesNeeded = (conflictingActionType == ConcreteActionType.PUSH ||
+                                   conflictingActionType == ConcreteActionType.PULL) ? 2 : 1;
+
+        List<Position> parkingSpaces = GlobalLevelService.getInstance().getFreeNeighbours(concederPath, parkingSpacesNeeded);
+
+        if (!parkingSpaces.isEmpty()) {
+
+        }
 
         return null;
     }

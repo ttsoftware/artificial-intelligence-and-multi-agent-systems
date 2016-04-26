@@ -938,42 +938,13 @@ public abstract class LevelService {
      * until enough free positions is found to absorb *size* obstacles.
      *
      * @param path is the set of positions the agent must travel
-     * @param size is the number of free neighboring locations we must discover
+     * @param size is the number of free neighboring locations we must discover (max 2)
      * @return
      */
-    public LinkedList<HashSet<Position>> getFreeNeighbours(Set<Position> path, int size) {
-        LinkedList<HashSet<Position>> all = new LinkedList<>();
-        HashSet<Position> previous = new HashSet<>();
-        HashSet<Position> current = new HashSet<>(path);
-        int neighbours = 0;
-        while (neighbours < size) {
-            // initialize next to hold the new positions
-            HashSet<Position> next = new HashSet<>();
+    public List<Position> getFreeNeighbours(LinkedList<Position> path, int size) {
+        List<Position> parkingSpaces = new ArrayList<>();
 
-            // morphological dilation
-            for (Position p : current) {
-                next.addAll(getFreeNeighbourSet(p));
-            }
-
-            // make sure only new positions are kept
-            next.removeAll(current);
-            next.removeAll(previous);
-
-            // add the new Positions to output list
-            all.addLast(new HashSet<>(next));
-            neighbours += next.size();
-
-            // update running variables
-            previous.addAll(current);
-            current = next;
-        }
-
-        String s = "{";
-        for (HashSet<Position> layer : all) {
-            s += layer.toString() + "\n";
-        }
-
-        return all;
+        return parkingSpaces;
     }
 
     /**
