@@ -138,10 +138,13 @@ public class BDIService {
         while (counter > 0 || bestIntention == null) {
             counter--;
             if (ideas.getIdeas().isEmpty()) break;
+
             SolveGoalAction idea = ideas.getBest();
             Box targetBox = idea.getBox();
+
             Position targetBoxPosition = pls.getPosition(targetBox);
             BoardCell boxCell = pls.getCell(targetBoxPosition);
+
             if (boxCell == BoardCell.BOX_GOAL) {
                 BoxAndGoal boxAndGoal = (BoxAndGoal) pls.getObject(targetBoxPosition);
                 if (boxAndGoal.isSolved()) {

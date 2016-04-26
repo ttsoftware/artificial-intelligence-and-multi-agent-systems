@@ -1,10 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.concreteaction.Direction;
-import dtu.agency.actions.concreteaction.MoveConcreteAction;
-import dtu.agency.actions.concreteaction.PullConcreteAction;
-import dtu.agency.actions.concreteaction.PushConcreteAction;
+import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.*;
 import dtu.agency.planners.plans.PrimitivePlan;
 
@@ -884,11 +881,32 @@ public abstract class LevelService {
      */
     public LinkedList<Position> getOrderedPath(PrimitivePlan pseudoPlan) {
         LinkedList<Position> path = new LinkedList<>();
+
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
         for (ConcreteAction action : pseudoPlan.getActionsClone()) {
+            // the agents next position
             Position next = new Position(previous, action.getAgentDirection());
+
+            if (action instanceof MoveBoxConcreteAction) {
+                // we also need to add the box' position to the path
+                Position nextBox = null;
+                switch (action.getType()) {
+                    case PUSH:
+                        // if we are pushing, the box should end up in front of the agent
+                        nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
+                        break;
+                    case PULL:
+                        // if we are pulling, the box should end up in the agents' previous position
+                        nextBox = new Position(previous);
+                        break;
+                }
+                if (!path.contains(nextBox) && nextBox != null) {
+                    path.addLast(nextBox);
+                }
+            }
+
             if (!path.contains(next)) {
                 path.addLast(new Position(next));
             }
@@ -941,7 +959,7 @@ public abstract class LevelService {
      * @param size is the number of free neighboring locations we must discover
      * @return
      */
-    public LinkedList<HashSet<Position>> getFreeNeighbours(Set<Position> path, int size) {
+    public LinkedList<HashSet<Position>> getFreeNeighbours(LinkedList<Position> path, int size) {
         LinkedList<HashSet<Position>> all = new LinkedList<>();
         HashSet<Position> previous = new HashSet<>();
         HashSet<Position> current = new HashSet<>(path);
@@ -968,11 +986,6 @@ public abstract class LevelService {
             current = next;
         }
 
-        String s = "{";
-        for (HashSet<Position> layer : all) {
-            s += layer.toString() + "\n";
-        }
-
         return all;
     }
 
@@ -997,10 +1010,8 @@ public abstract class LevelService {
         LinkedList<Position> priorityPath = new LinkedList<>();
 
         // divide the path in before / after target origin
-        ListIterator fullPathPositions = fullPath.listIterator();
-        boolean after = false;
-        while (fullPathPositions.hasNext()) {
-            Position next = (Position) fullPathPositions.next();
+       boolean after = false;
+        for (Position next : fullPath) {
             if (after) { // only add possible neighbours
                 if (isFree(next)) {
                     priorityPath.addLast(next);
@@ -1015,37 +1026,38 @@ public abstract class LevelService {
                 priorityPath.addLast(next);
             }
         }
+
         priorityPath.addAll(prePath); // prioritized Path
 
         HashSet<Position> previouslyDiscovered = new HashSet<>(priorityPath);
 
         Iterator path = priorityPath.listIterator();
 
-        int neighbourcount = 0;
+        int neighbourCount = 0;
         List<Position> validNeighbours = new ArrayList<>();
 
         ArrayList<Position> newNeighbours = new ArrayList<>();
-        while (path.hasNext() && (neighbourcount < depth)) {
+        while (path.hasNext() && (neighbourCount < depth)) {
             Position cell = (Position) path.next();
-            Position n;
-            while (hasUnseenFreeNeighbour(cell, previouslyDiscovered) && (neighbourcount < depth)) {
-                n = getUnseenFreeNeighbour(cell, previouslyDiscovered);
-                neighbourcount++;
-                newNeighbours.add(n);
-                previouslyDiscovered.add(n);
+            Position neighbour;
+            while (hasUnseenFreeNeighbour(cell, previouslyDiscovered) && (neighbourCount < depth)) {
+                neighbour = getUnseenFreeNeighbour(cell, previouslyDiscovered);
+                neighbourCount++;
+                newNeighbours.add(neighbour);
+                previouslyDiscovered.add(neighbour);
 
-                Position nn = n;
-                while (hasUnseenFreeNeighbour(nn, previouslyDiscovered) && (neighbourcount < depth)) {
-                    neighbourcount++;
-                    nn = getUnseenFreeNeighbour(nn, previouslyDiscovered);
-                    newNeighbours.add(nn);
-                    previouslyDiscovered.add(nn);
+                Position neighbourNeighbour = neighbour;
+                while (hasUnseenFreeNeighbour(neighbourNeighbour, previouslyDiscovered) && (neighbourCount < depth)) {
+                    neighbourCount++;
+                    neighbourNeighbour = getUnseenFreeNeighbour(neighbourNeighbour, previouslyDiscovered);
+                    newNeighbours.add(neighbourNeighbour);
+                    previouslyDiscovered.add(neighbourNeighbour);
                 }
-                validNeighbours.add(nn);
+                validNeighbours.add(neighbourNeighbour);
             }
         } // enough neighbours found
 
-        //find closer valid neighbour
+        // find closer valid neighbour
         Position validNeighbour = validNeighbours.get(0);
         int minDistance = origin.manhattanDist(validNeighbour);
         for (Position p : validNeighbours) {

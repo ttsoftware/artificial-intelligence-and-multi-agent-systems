@@ -70,7 +70,12 @@ public class HLPlanner {
             }
             else {
                 // next obstacle is in the path - move box to free position
-                Position neighbour = pls.getValidNeighbour(intention.getPseudoPath(), obstacleOrigin, remainingObstacles);
+                Position neighbour = pls.getValidNeighbour(
+                        intention.getPseudoPath(),
+                        obstacleOrigin,
+                        remainingObstacles
+                );
+
                 moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
             }
