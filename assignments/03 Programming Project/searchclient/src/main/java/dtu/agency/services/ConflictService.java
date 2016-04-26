@@ -1,18 +1,22 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.concreteaction.ConcreteActionType;
-import dtu.agency.actions.concreteaction.MoveConcreteAction;
-import dtu.agency.actions.concreteaction.PullConcreteAction;
-import dtu.agency.actions.concreteaction.PushConcreteAction;
+import dtu.agency.actions.abstractaction.hlaction.HLAction;
+import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
+import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
+import dtu.agency.conflicts.ParkingSpace;
 import dtu.agency.conflicts.ResolvedConflict;
+import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 import javafx.util.Pair;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class ConflictService {
 
@@ -23,6 +27,8 @@ public class ConflictService {
      * @param currentPlans contains a hashmap of agentNumber-plan pairs
      */
     public List<Conflict> detectConflicts(HashMap<Integer, ConcretePlan> currentPlans) {
+
+        // TODO: agents without a plan is not considered. They should!
 
         // The seer keeps track of which future positions are occupied.
         HashMap<Position, Integer> seer = new HashMap<>();
@@ -134,6 +140,13 @@ public class ConflictService {
         return conflictingAgents;
     }
 
+    /**
+     * Takes a conflict and makes new plans for the agents so that they
+     * will avoid conflicting.
+     *
+     * @param conflict to be solved
+     * @return ResolvedConflict containing plans that solve the conflict
+     */
     public ResolvedConflict resolveConflict(Conflict conflict) {
 
         /* TODO actually resolve conflict
@@ -165,18 +178,97 @@ public class ConflictService {
          *       resetPlan <- initiator.makePlan(GOBACK(conflictPlan))
          */
 
+        // Find path of the conceder
         LinkedList<Position> concederPath = GlobalLevelService.getInstance().getOrderedPath(
                 (PrimitivePlan) conflict.getConcederPlan()
         );
 
-        ConcreteActionType conflictingActionType = conflict.getInitiatorPlan().getActions().get(0).getType();
-        int parkingSpacesNeeded = (conflictingActionType == ConcreteActionType.PUSH ||
-                                   conflictingActionType == ConcreteActionType.PULL) ? 2 : 1;
+        // Save the conflicting action
+        ConcreteAction conflictingAction = conflict.getInitiatorPlan().getActions().get(0);
 
-        List<Position> parkingSpaces = GlobalLevelService.getInstance().getFreeNeighbours(concederPath, parkingSpacesNeeded);
+        // Determine if the conflicting action is of type Push or Pull
+        boolean pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
+                              conflictingAction.getType() == ConcreteActionType.PULL);
 
+        // Find parking spaces
+        List<ParkingSpace> parkingSpaces = GlobalLevelService.getInstance().getFreeNeighbours(concederPath, (pushOrPull ? 2 : 1));
+
+
+        // If we actually found parking spaces
         if (!parkingSpaces.isEmpty()) {
+            if (pushOrPull) {
+                // If the conflicting action was push or pull, we must also move the box out of the way.
 
+                // TODO: Probably move shit out of the way
+
+//                HMoveBoxAction outOfTheWayAction = new HMoveBoxAction(conflictingAction)
+            } else {
+                // Else, we just move the initiator away
+
+                // Construct action for moving the initiator away
+                RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0).getParkingSpaceOne());
+                // Construct action for moving the initiator back to his original position
+                RGotoAction moveBackAction = new RGotoAction(
+                    GlobalLevelService.getInstance().getPosition(
+                        conflict.getInitiator().getLabel()
+                    )
+                );
+
+                // Construct HTNPlanner for outOfTheWayAction
+                HTNPlanner htnPlanner = new HTNPlanner(
+                    new PlanningLevelService(
+                        GlobalLevelService.getInstance().getLevel()
+                    ),
+                    outOfTheWayAction,
+                    RelaxationMode.None
+                );
+
+                // Find plan for moving out of the way
+                PrimitivePlan outOfTheWayPlan = htnPlanner.plan();
+
+                // Construct HTNPlanner for moveBackAction
+                htnPlanner = new HTNPlanner(
+                    new PlanningLevelService(
+                            GlobalLevelService.getInstance().getLevel()
+                    ),
+                    moveBackAction,
+                    RelaxationMode.None
+                );
+
+                // Find plan for moving back to original position
+                PrimitivePlan moveBackPlan = htnPlanner.plan();
+
+                // Append NoOp actions after moving away
+                IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
+                    outOfTheWayPlan.addAction(new NoConcreteAction())
+                );
+
+                // Append moveBackPlan
+                outOfTheWayPlan.appendActions(moveBackPlan);
+
+                // Append the original plan
+                outOfTheWayPlan.appendActions((PrimitivePlan) conflict.getInitiatorPlan());
+
+                // Initialize concederPlan
+                PrimitivePlan concederPlan = new PrimitivePlan();
+
+                // Add NoOp actions so that it waits until the initiator is away
+                IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
+                    concederPlan.addAction(new NoConcreteAction())
+                );
+                // Append the original concederPlan
+                concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
+
+                // Return new resolved Conflict
+                return new ResolvedConflict(
+                    conflict.getInitiator(),
+                    outOfTheWayPlan,
+                    conflict.getConceder(),
+                    concederPlan
+                );
+            }
+        } else {
+            // TODO: Try again with initiator and conceder switched
         }
 
         return null;

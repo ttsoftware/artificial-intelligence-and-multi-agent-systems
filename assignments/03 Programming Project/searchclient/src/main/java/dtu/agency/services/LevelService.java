@@ -6,6 +6,7 @@ import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.*;
+import dtu.agency.conflicts.ParkingSpace;
 import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;
@@ -941,8 +942,9 @@ public abstract class LevelService {
      * @param size is the number of free neighboring locations we must discover (max 2)
      * @return
      */
-    public List<Position> getFreeNeighbours(LinkedList<Position> path, int size) {
-        List<Position> parkingSpaces = new ArrayList<>();
+    public List<ParkingSpace> getFreeNeighbours(LinkedList<Position> path, int size) {
+        List<ParkingSpace> parkingSpaces = new ArrayList<>();
+
 
         return parkingSpaces;
     }
