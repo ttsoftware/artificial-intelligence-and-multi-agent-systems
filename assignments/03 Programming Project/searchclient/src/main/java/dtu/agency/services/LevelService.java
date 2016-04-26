@@ -287,6 +287,79 @@ public abstract class LevelService {
     }
 
     /**
+     * @param position
+     * @return A list of free cells adjacent to @position that are not goals
+     */
+    public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (LevelService.getInstance().isFreeOfGoals(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
+    /**
+     *
+     * @param position
+     * @param objectsToIgnore
+     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
+     * if any of them exists
+     */
+    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (LevelService.getInstance().isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
+    /**
      * @param currentPosition
      * @param movingDirection
      * @return The position arrived at after moving from @currentPosition in @movingDirection
@@ -350,9 +423,9 @@ public abstract class LevelService {
      * @param position
      * @return True if object at given position can be moved
      */
-    public synchronized boolean isMoveable(Position position) {
-        return isMoveable(position.getRow(), position.getColumn());
-    }
+       public synchronized boolean isMoveable(Position position) {
+           return isMoveable(position.getRow(), position.getColumn());
+       }
 
     /**
      * @param row
@@ -372,6 +445,40 @@ public abstract class LevelService {
     }
 
     /**
+     * @param row
+     * @param column
+     * @return True if the given position is free
+     */
+    public synchronized boolean isFree(int row, int column) {
+        if (isInLevel(row, column)) {
+            if (level.getBoardState()[row][column].equals(BoardCell.FREE_CELL)
+                    || level.getBoardState()[row][column].equals(BoardCell.GOAL)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param row
+     * @param column
+     * @return True if the given position doesn't have a goal in it
+     */
+    public synchronized boolean isFreeOfGoals(int row, int column) {
+        if (isInLevel(row, column)) {
+            BoardCell boardCell = level.getBoardState()[row][column];
+            if (boardCell.equals(BoardCell.WALL)
+                    || boardCell.equals(BoardCell.GOAL)
+                    || boardCell.equals(BoardCell.BOX_GOAL)
+                    || boardCell.equals(BoardCell.AGENT_GOAL)
+                    || boardCell.equals(BoardCell.SOLVED_GOAL)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * @param position
      * @return True if the given position is free
      */
@@ -382,17 +489,50 @@ public abstract class LevelService {
     /**
      * @param row
      * @param column
-     * @return True if the given position is free
+     * @param objectsToIgnore
+     * @return True if the given position is free or if it contains one object from the objectsToIgnore list
      */
-    public synchronized boolean isFree(int row, int column) {
+    public synchronized boolean isFree(int row, int column, List<BoardObject> objectsToIgnore) {
         if (isInLevel(row, column)) {
             BoardCell cell = level.getBoardState()[row][column];
             if (cell.equals(BoardCell.FREE_CELL)
                     || cell.equals(BoardCell.GOAL)) {
                 return true;
             }
+            else {
+                for(BoardObject objectToIgnore : objectsToIgnore) {
+                    if (level.getBoardObjects()[row][column] != null) {
+                        if (level.getBoardObjects()[row][column].getLabel().equals(objectToIgnore.getLabel())) {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         return false;
+    }
+
+    /**
+     *
+     * @param positionA
+     * @param positionB
+     * @return The direction of positionB relative to positionA
+     */
+    public synchronized Direction getMovingDirection(Position positionA, Position positionB) {
+        if (positionA.getRow() == positionB.getRow()) {
+            if (positionA.getColumn() < positionB.getColumn()) {
+                return Direction.EAST;
+            } else {
+                return Direction.WEST;
+            }
+        } else if (positionA.getColumn() == positionB.getColumn()) {
+            if (positionA.getRow() < positionB.getRow()) {
+                return Direction.SOUTH;
+            } else {
+                return Direction.NORTH;
+            }
+        }
+        throw new InvalidParameterException("Given positions are not adjacent.");
     }
 
     /**
@@ -433,6 +573,7 @@ public abstract class LevelService {
     public synchronized Position getPosition(String objectLabel) {
         return level.getBoardObjectPositions().get(objectLabel);
     }
+
 
     /**
      * Insert a box into the level
@@ -661,7 +802,7 @@ public abstract class LevelService {
 
     /**
      * Manhattan distance: <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">https://en.wikipedia.org/wiki/Taxicab_geometry</a>
-     * <p>
+     *
      * Should have Expected O(1) time complexity.
      *
      * @param objectA
@@ -711,6 +852,40 @@ public abstract class LevelService {
                 && column >= 0
                 && level.getBoardState().length > row
                 && level.getBoardState()[0].length > column);
+    }
+
+    public Position getBestGoalWeighingPosition()
+    {
+        List<Goal> levelGoals = LevelService.getInstance().getLevel().getGoals();
+
+        List<BoardObject> levelAgentsAndBoxes = new ArrayList<>();
+        levelAgentsAndBoxes.addAll(getLevel().getAgents());
+        levelAgentsAndBoxes.addAll(getLevel().getBoxes());
+
+        int minRemoteness = Integer.MAX_VALUE;
+        BoardObject mostRemoteObject = null;
+
+        for(BoardObject boardObject : levelAgentsAndBoxes) {
+            int objectRemoteness = getLevelObjectRemoteness(boardObject, levelGoals);
+            if(minRemoteness > objectRemoteness) {
+                minRemoteness = objectRemoteness;
+                mostRemoteObject = boardObject;
+            }
+        }
+
+        return getPosition(mostRemoteObject.getLabel());
+    }
+
+    public int getLevelObjectRemoteness(BoardObject boardObject, List<Goal> goalList)
+    {
+        int remoteness = Integer.MAX_VALUE;
+        for(Goal goal : goalList)
+        {
+            int remotenessToGoal = manhattanDistance(goal, boardObject);
+            remoteness = Math.min(remoteness, remotenessToGoal);
+        }
+
+        return remoteness;
     }
 
     /**
