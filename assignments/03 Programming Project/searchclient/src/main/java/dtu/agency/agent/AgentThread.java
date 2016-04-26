@@ -49,7 +49,7 @@ public class AgentThread implements Runnable {
             int totalSteps =  bdi.getAgentIntentions()
                     .stream()
                     .mapToInt(AgentIntention::getApproximateSteps)
-                    .reduce((x, y) -> x + y).getAsInt();
+                    .sum();
 
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()

@@ -93,6 +93,7 @@ public abstract class LevelService {
 
         // find the object type
         BoardCell currentCell = boardState[row][column];
+        BoardObject currentObject = boardObjects[row][column];
         int nextRow = -1;
         int nextColumn = -1;
 
@@ -144,37 +145,56 @@ public abstract class LevelService {
         // update next board cell
         if (nextCell == BoardCell.GOAL) {
             // handles cases where objects enters a goal cell
-            if (currentCell == BoardCell.AGENT
-                    || currentCell == BoardCell.AGENT_GOAL) {
-                boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
-                boardObjects[nextRow][nextColumn] = new AgentAndGoal((Agent) boardObject, (Goal) nextObject);
-            } else if (currentCell == BoardCell.BOX
-                    || currentCell == BoardCell.BOX_GOAL) {
-                boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
-                boardObjects[nextRow][nextColumn] = new BoxAndGoal((Box) boardObject, (Goal) nextObject);
+            switch (currentCell) {
+                case BOX:
+                    boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
+                    boardObjects[nextRow][nextColumn] = new BoxAndGoal((Box) currentObject, (Goal) nextObject);
+                    break;
+                case AGENT:
+                    boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
+                    boardObjects[nextRow][nextColumn] = new AgentAndGoal((Agent) currentObject, (Goal) nextObject);
+                    break;
+                case AGENT_GOAL:
+                    boardState[nextRow][nextColumn] = BoardCell.AGENT_GOAL;
+                    boardObjects[nextRow][nextColumn] = new AgentAndGoal(
+                            ((AgentAndGoal) currentObject).getAgent(),
+                            (Goal) nextObject
+                    );
+                    break;
+                case BOX_GOAL:
+                    boardState[nextRow][nextColumn] = BoardCell.BOX_GOAL;
+                    boardObjects[nextRow][nextColumn] = new BoxAndGoal(
+                            ((BoxAndGoal) currentObject).getBox(),
+                            (Goal) nextObject
+                    );
+                    break;
+                default:
+                    throw new RuntimeException("We cannot move walls, goals or air.");
             }
         } else if (currentCell == BoardCell.AGENT_GOAL) {
-            // Handles cases of objects entering a free cell
+            // If the current cell is an agent goal and the next cell is free
             boardState[nextRow][nextColumn] = BoardCell.AGENT;
-            boardObjects[nextRow][nextColumn] = ((AgentAndGoal) boardObject).getAgent();
+            boardObjects[nextRow][nextColumn] = ((AgentAndGoal) currentObject).getAgent();
         } else if (currentCell == BoardCell.BOX_GOAL) {
+            // If the current cell is a box goal and the next cell is free
             boardState[nextRow][nextColumn] = BoardCell.BOX;
-            boardObjects[nextRow][nextColumn] = ((BoxAndGoal) boardObject).getBox();
+            boardObjects[nextRow][nextColumn] = ((BoxAndGoal) currentObject).getBox();
         } else {
+            // If the next cell is free
             boardState[nextRow][nextColumn] = currentCell;
-            boardObjects[nextRow][nextColumn] = boardObject;
+            boardObjects[nextRow][nextColumn] = currentObject;
         }
 
         // free the cell where the object was located
         if (currentCell == BoardCell.AGENT_GOAL) {
             boardState[row][column] = BoardCell.GOAL;
-            boardObjects[row][column] = ((AgentAndGoal) boardObject).getGoal();
+            boardObjects[row][column] = ((AgentAndGoal) currentObject).getGoal();
         } else if (currentCell == BoardCell.BOX_GOAL) {
             boardState[row][column] = BoardCell.GOAL;
-            boardObjects[row][column] = ((BoxAndGoal) boardObject).getGoal();
+            boardObjects[row][column] = ((BoxAndGoal) currentObject).getGoal();
         } else {
             boardState[row][column] = BoardCell.FREE_CELL;
-            boardObjects[row][column] = new Empty(" " + Integer.toString(row) + Integer.toString(column));
+            boardObjects[row][column] = new Empty(" ");
         }
 
         objectPositions.remove(boardObject.getLabel());

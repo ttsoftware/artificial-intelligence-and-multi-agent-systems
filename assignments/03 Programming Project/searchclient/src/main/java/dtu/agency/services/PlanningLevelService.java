@@ -15,15 +15,14 @@ import java.util.LinkedList;
 
 public class PlanningLevelService extends LevelService {
 
-    Agent agent = BDIService.getInstance().getAgent(); // The agent planning this
-    Position currentAgentPosition;                     // if tracking, the agent's position
-    Box currentBox;                                    // if tracking, the box tracked
-    Position currentBoxPosition;                       // if tracking, the box' position
-    LinkedList<HLEffect> appliedEffects;               // stored for reverse application purpose
-
+    private Agent agent = BDIService.getInstance().getAgent(); // The agent planning this
+    private Position currentAgentPosition;                     // if tracking, the agent's position
+    private Box currentBox;                                    // if tracking, the box tracked
+    private Position currentBoxPosition;                       // if tracking, the box' position
+    private LinkedList<HLEffect> appliedEffects;               // stored for reverse application purpose
 
     public PlanningLevelService(PlanningLevelService other) {
-        setLevel(new Level(other.getLevel()));
+        level = other.getLevelClone();
         currentBox = null;
         currentBoxPosition = null;
         currentAgentPosition = null;
@@ -31,7 +30,7 @@ public class PlanningLevelService extends LevelService {
     }
 
     public PlanningLevelService(Level level) {
-        setLevel(level);
+        this.level = level;
         currentBox = null;
         currentBoxPosition = null;
         currentAgentPosition = null;
@@ -40,10 +39,6 @@ public class PlanningLevelService extends LevelService {
 
     public Box getTrackingBox() {
         return currentBox;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
     }
 
     /**

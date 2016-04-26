@@ -125,7 +125,6 @@ public class BDIService {
         return ideas;
     }
 
-
     /**
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
