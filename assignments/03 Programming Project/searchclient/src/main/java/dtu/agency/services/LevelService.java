@@ -537,8 +537,16 @@ public abstract class LevelService {
         return value;
     }
 
-    public synchronized String getObjectLabels(Position pos) {
+    public synchronized String getObjectLabel(Position pos) {
         return level.getBoardObjects()[pos.getRow()][pos.getColumn()].getLabel();
+    }
+
+    public synchronized BoardObject getObject(Position pos) {
+        return level.getBoardObjects()[pos.getRow()][pos.getColumn()];
+    }
+
+    public synchronized BoardCell getCell(Position pos) {
+        return level.getBoardState()[pos.getRow()][pos.getColumn()];
     }
 
     public synchronized Position getPosition(BoardObject boardObject) {

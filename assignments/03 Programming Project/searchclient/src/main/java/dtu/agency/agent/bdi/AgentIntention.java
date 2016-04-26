@@ -30,7 +30,7 @@ public class AgentIntention {
         this.unreachableObstacles = other.unreachableObstacles;
     }
 
-    public AgentIntention(Goal target, Box box, PrimitivePlan plan, LinkedList<Position> path, LinkedList<Position> obstacles, int reachable, int unreachable ) {
+    public AgentIntention(Goal target, Box box, PrimitivePlan plan, LinkedList<Position> path, LinkedList<Position> obstacles, int reachable, int unreachable) {
         goal = target;
         targetBox = box;
         pseudoPlan = plan;
@@ -42,24 +42,24 @@ public class AgentIntention {
 
     public int getApproximateSteps() {
         // TODO : WEIGHTS SHOULD BE CONFIGURED CENTRAL LOCATION
-        int weightPathLength  = 1;  // Weight for length of path
-        int weightReachable   = 2;  // Weight for reachable boxes
+        int weightPathLength = 1;  // Weight for length of path
+        int weightReachable = 2;  // Weight for reachable boxes
         int weightUnreachable = 12; // Weight for unreachable boxes
         if (pseudoPath == null) {
             return Integer.MAX_VALUE;
         } else {
             return pseudoPath.size() * weightPathLength
                     + unreachableObstacles * weightUnreachable
-                    + ((reachableObstacles>0) ? unreachableObstacles-1 : 0) * weightReachable; // -1 for eliminating the target box itself from punishment
+                    + ((reachableObstacles > 0) ? unreachableObstacles - 1 : 0) * weightReachable; // -1 for eliminating the target box itself from punishment
         }
     }
 
     @Override
     public String toString() {
         return "AgentIntention: Agent " + BDIService.getInstance().getAgent()
-                + " intends to solve goal "+goal+" using box " +targetBox+ "\n"
-                + "using a path of length " +pseudoPath.size() + " with "
-                + reachableObstacles + "/" +unreachableObstacles
+                + " intends to solve goal " + goal + " using box " + targetBox + "\n"
+                + "using a path of length " + pseudoPath.size() + " with "
+                + reachableObstacles + "/" + unreachableObstacles
                 + "reachable/unreachable obstacles in path";
 
     }

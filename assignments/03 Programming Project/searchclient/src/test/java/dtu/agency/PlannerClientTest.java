@@ -47,8 +47,8 @@ public class PlannerClientTest {
     @Test
     public void testMain() throws Exception {
 
-        // String path = resourcesDirectory.getAbsolutePath() + "/SApushing.lvl";
-        String path = resourcesDirectory.getAbsolutePath() + "/SApushing_2.lvl";
+        String path = resourcesDirectory.getAbsolutePath() + "/SApushing.lvl";
+        // String path = resourcesDirectory.getAbsolutePath() + "/SApushing_2.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi_1_agent_wins.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi.lvl";
         FileInputStream inputStream = new FileInputStream(path);
