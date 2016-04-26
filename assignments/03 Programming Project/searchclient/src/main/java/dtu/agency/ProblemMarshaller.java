@@ -37,6 +37,22 @@ public class ProblemMarshaller {
             fileLine = fileReader.readLine();
         }
 
+        // Add walls to short lines
+        ArrayList<String> tempLines = new ArrayList<>();
+        for (String line : lines) {
+            if (line.length() < columnCount) {
+                String tempLine = line;
+                while (tempLine.length() < columnCount) {
+                    tempLine += "+";
+                }
+                tempLines.add(tempLine);
+            }
+            else {
+                tempLines.add(line);
+            }
+        }
+        lines = tempLines;
+
         Map<Character, String> colors = new HashMap<>();
 
         // Objects we wish to create
@@ -86,8 +102,7 @@ public class ProblemMarshaller {
                     boardState[row][column] = BoardCell.WALL;
                     boardObjects[row][column] = wall;
                     wallCount++;
-                }
-                else if ('0' <= cell && cell <= '9') {
+                } else if ('0' <= cell && cell <= '9') {
                     // Its an agent cell
                     String label = String.valueOf(cell);
                     Agent agent = new Agent(label);
@@ -96,8 +111,7 @@ public class ProblemMarshaller {
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.AGENT;
                     boardObjects[row][column] = agent;
-                }
-                else if ('A' <= cell && cell <= 'Z') {
+                } else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     String label = String.valueOf(cell) + Integer.toString(boxCount);
                     Box box = new Box(label);
@@ -107,8 +121,7 @@ public class ProblemMarshaller {
                     boardState[row][column] = BoardCell.BOX;
                     boardObjects[row][column] = box;
                     boxCount++;
-                }
-                else if ('a' <= cell && cell <= 'z') {
+                } else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
                     String label = String.valueOf(cell) + Integer.toString(goalCount);
                     Goal goal = new Goal(label, new Position(row, column), DEFAULT_WEIGHT);
@@ -123,8 +136,7 @@ public class ProblemMarshaller {
                     goalQueues.add(goalQueue);
 
                     goalCount++;
-                }
-                else {
+                } else {
                     boardState[row][column] = BoardCell.FREE_CELL;
                     boardObjects[row][column] = new Empty(" ");
                 }
