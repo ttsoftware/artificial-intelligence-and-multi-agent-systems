@@ -128,7 +128,7 @@ public class BDIService {
     /**
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
-    public boolean filter(Ideas ideas, Goal goal) { // Belief is handled internally by pls
+    public boolean filterIdeas(Ideas ideas, Goal goal) { // Belief is handled internally by pls
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
         AgentIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;

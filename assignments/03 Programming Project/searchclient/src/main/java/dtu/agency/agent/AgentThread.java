@@ -38,7 +38,7 @@ public class AgentThread implements Runnable {
 
         // use agents mind to calculate bid
         Ideas ideas = bdi.thinkOfIdeas(goal);
-        boolean successful = bdi.filter(ideas, goal); // the intention are automatically stored in BDIService
+        boolean successful = bdi.filterIdeas(ideas, goal); // the intention are automatically stored in BDIService
 
         if (!successful) {
             // TODO: We post a planning error event

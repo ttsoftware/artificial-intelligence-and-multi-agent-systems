@@ -31,6 +31,10 @@ public class HLPlan implements AbstractPlan {
         this.plan = new LinkedList<>(plan);
     }
 
+    public HLPlan(HLPlan other) {
+        this.plan = new LinkedList<>(other.plan);
+    }
+
     public HLAction poll() {
         return plan.pollFirst();
     }
