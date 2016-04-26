@@ -1,7 +1,5 @@
 package dtu.agency.board;
 
-import java.util.Objects;
-
 public class Goal extends BoardObject implements Comparable<Goal> {
 
     private int weight;

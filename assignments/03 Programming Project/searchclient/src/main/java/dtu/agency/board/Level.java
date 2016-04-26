@@ -95,6 +95,10 @@ public class Level {
         return goalQueues;
     }
 
+    public void setGoalQueues(List<PriorityBlockingQueue<Goal>> goalQueues) {
+        this.goalQueues = goalQueues;
+    }
+
     public ConcurrentHashMap<String, List<Goal>> getBoxesGoals() {
         return boxesGoals;
     }
