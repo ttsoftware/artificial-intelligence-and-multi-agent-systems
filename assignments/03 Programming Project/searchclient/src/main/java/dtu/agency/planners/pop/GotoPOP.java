@@ -26,7 +26,7 @@ public class GotoPOP {
         List<PriorityBlockingQueue<Goal>> goalQueueList = new ArrayList<>();
 
         List<Goal> levelGoals = GlobalLevelService.getInstance().getLevel().getGoals();
-        List<Goal> handledGoals = new ArrayList<>();
+        Set<Goal> handledGoals = new HashSet<Goal>();
 
         for (Goal goal : levelGoals) {
             if (!handledGoals.contains(goal)) {
@@ -57,7 +57,7 @@ public class GotoPOP {
                 new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false)).getBlockingGoals();
     }
 
-    public List<PriorityBlockingQueue<Goal>> getNonSelfStandingGoalList(List<Goal> currentGoalList, List<PriorityBlockingQueue<Goal>> goalQueuesList, List<Goal> handledGoals) {
+    public List<PriorityBlockingQueue<Goal>> getNonSelfStandingGoalList(List<Goal> currentGoalList, List<PriorityBlockingQueue<Goal>> goalQueuesList, Set<Goal> handledGoals) {
 
         for (int i = 0; i < currentGoalList.size(); i++) {
             Goal goal = currentGoalList.get(i);
@@ -65,7 +65,7 @@ public class GotoPOP {
 
                 for (PriorityBlockingQueue<Goal> goalQueue : goalQueuesList) {
                     if (goalQueue.contains(goal)) {
-                        int firstRepetitiveGoalWeight = -1;
+                        int firstRepetitiveGoalWeight = Integer.MIN_VALUE;
 
                         Iterator<Goal> it = goalQueue.iterator();
                         while (it.hasNext()) {
@@ -76,7 +76,7 @@ public class GotoPOP {
                             }
                         }
 
-                        if (firstRepetitiveGoalWeight != -1) {
+                        if (firstRepetitiveGoalWeight != Integer.MIN_VALUE) {
                             int repetitiveGoalIndex = currentGoalList.indexOf(goal);
                             int goalWeight = firstRepetitiveGoalWeight - 1;
 
