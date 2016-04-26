@@ -6,7 +6,7 @@ public class BoxAndGoal extends BoardObject {
     private final Goal goal;
 
     public BoxAndGoal(Box box, Goal goal) {
-        super(box.getLabel() + goal.getLabel());
+        super("(" + box.getLabel() + goal.getLabel() + ")");
         this.box = box;
         this.goal = goal;
     }

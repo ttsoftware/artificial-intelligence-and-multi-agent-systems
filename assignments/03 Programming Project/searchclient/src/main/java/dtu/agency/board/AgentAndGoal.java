@@ -6,7 +6,7 @@ public class AgentAndGoal extends BoardObject {
     private final Goal goal;
 
     public AgentAndGoal(Agent agent, Goal goal) {
-        super(agent.getLabel() + goal.getLabel());
+        super("(" + agent.getLabel() + goal.getLabel() + ")");
         this.agent = agent;
         this.goal = goal;
     }

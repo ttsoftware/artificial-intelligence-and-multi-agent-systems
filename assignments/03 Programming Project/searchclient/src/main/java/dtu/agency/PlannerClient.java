@@ -10,6 +10,7 @@ import dtu.agency.events.agent.ProblemSolvedEvent;
 import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
+import dtu.agency.planners.pop.GotoPOP;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
@@ -40,6 +41,10 @@ public class PlannerClient {
 
         // Create the level service
         GlobalLevelService.getInstance().setLevel(level);
+
+        // Prioritize goals
+        GotoPOP gotoPlanner = new GotoPOP();
+        GlobalLevelService.getInstance().updatePriorityQueues(gotoPlanner.getWeighedGoals());
 
         numberOfAgents = level.getAgents().size();
         sendServerActionsQueue = new ArrayBlockingQueue<>(numberOfAgents);
