@@ -6,7 +6,7 @@ public class AgentAndGoal extends BoardObject {
     private final Goal goal;
 
     public AgentAndGoal(Agent agent, Goal goal) {
-        super(agent.getLabel() + goal.getLabel());
+        super("(" + agent.getLabel() + goal.getLabel() + ")");
         this.agent = agent;
         this.goal = goal;
     }
@@ -29,4 +29,13 @@ public class AgentAndGoal extends BoardObject {
     public BoardCell getType() {
         return BoardCell.AGENT_GOAL;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof AgentAndGoal) {
+            return super.equals(object);
+        }
+        return false;
+    }
+
 }

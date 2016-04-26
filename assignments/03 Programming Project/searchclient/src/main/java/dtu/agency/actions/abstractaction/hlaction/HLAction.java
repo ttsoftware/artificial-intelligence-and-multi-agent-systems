@@ -56,23 +56,23 @@ public abstract class HLAction extends AbstractAction {
     }
 
 
-    public static HLAction getOriginalAction(HLAction originalAction) {
-        switch (originalAction.getType()) {
+    public static HLAction cloneHLAction(HLAction other) {
+        switch (other.getType()) {
 
             case RGotoAction:
-                RGotoAction gta = (RGotoAction) originalAction;
+                RGotoAction gta = (RGotoAction) other;
                 return new RGotoAction(gta);
 
             case RMoveBoxAction:
-                RMoveBoxAction rmba = (RMoveBoxAction) originalAction;
+                RMoveBoxAction rmba = (RMoveBoxAction) other;
                 return new RMoveBoxAction(rmba);
 
             case No:
-                NoAction na = (NoAction) originalAction;
+                NoAction na = (NoAction) other;
                 return new NoAction(na);
 
             case HMoveBoxAndReturn:
-                HMoveBoxAction hmba = (HMoveBoxAction) originalAction;
+                HMoveBoxAction hmba = (HMoveBoxAction) other;
                 return new HMoveBoxAction(hmba);
 
             default:

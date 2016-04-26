@@ -6,7 +6,7 @@ public class BoxAndGoal extends BoardObject {
     private final Goal goal;
 
     public BoxAndGoal(Box box, Goal goal) {
-        super(box.getLabel() + goal.getLabel());
+        super("(" + box.getLabel() + goal.getLabel() + ")");
         this.box = box;
         this.goal = goal;
     }
@@ -36,5 +36,13 @@ public class BoxAndGoal extends BoardObject {
     @Override
     public BoardCell getType() {
         return BoardCell.BOX_GOAL;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof BoxAndGoal) {
+            return super.equals(object);
+        }
+        return false;
     }
 }

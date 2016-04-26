@@ -1,0 +1,44 @@
+0: I can't solve a - B is in my way
+Agency: Someone move B
+3: X steps
+1: Y steps
+2: Z steps
+Agency: 2 won with fewest steps
+2: Moves box until conflict with 1
+1: Has fewest actions left in his plan (has to resolve conflict)
+1: Moves to the closest free tile not in 2's plan (North)
+2: Moves b into right corridor - B is no longer in 0's path to A
+0: Moves until conflict with 1
+1: Has fewest actions left in his plan (has to resolve conflict)
+1: Cannot move anywhere to resolve conflict - asks 0 to resolve it (new event - "I can't move")
+0: Tries to move along it's path, such there is a free neighbour where 1 can go.
+0: Cannot find such a place along it's path.
+0: Posts a "We cannot solve this conflict ourselves"
+Agency: Someone create a free neighbour to 0's path (We need to somehow get the path to this point)
+0: I can't create a free neighbour
+3: I can't create a free neighbour
+1: I can't create a free neighbour
+2: I can create a free neighbour
+2: Moves itself and B 1 tile further into the corridor. There is now a free neighbour to 0's path
+2: Posts an event signifying this.
+0: Can now resolve the conflict with 1 by moving back some amount of steps in it's own path.
+1: Can now move into the newly created free neighbour
+0: Moves along it's path until it has conflict with 3
+3: Has fewest actions left in his plan (has to resolve conflict)
+3: Cannot move anywehere to resolve the conflict ("I can't move")
+0: Tries to move along it's path, such there is a free neighbour where 3 can go.
+0: Cannot find such a place along it's path.
+0: Posts a "We cannot solve this conflict ourselves"
+Agency: Someone create a free neighbour to 0's path (We need to somehow get the path to this point)
+0: I can't create a free neighbour
+3: I can't create a free neighbour
+2: I can't create a free neighbour
+1: I can create a free neighbour (It can do this, because it relaxes "no-agents")
+1: Tries to move east - has conflict with 2.
+2: Has fewest actions left in his plan (has to resolve conflict)
+2: Resolves the conflict by moving itself and B 1 step east
+1: Moves 1 step east creating a free neighbour to 0's path.
+1: Posts an event signifying this new free neighbour
+0: Can now resolve the conflict with 3 by moving back some amount of steps in it's own path.
+3: Can now move into the newly created free tile
+0: Can now solve A

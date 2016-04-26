@@ -24,8 +24,8 @@ public class Level {
     private List<Wall> walls;
 
     public Level(Level level) {
-        this.boardState = level.getBoardState().clone();
-        this.boardObjects = level.getBoardObjects().clone();
+        this.boardState = BoardCell.deepCopy(level.getBoardState());
+        this.boardObjects = BoardObject.deepCopy(level.getBoardObjects());
         this.boardObjectPositions = new ConcurrentHashMap<>(level.getBoardObjectPositions());
         this.goalQueues = new ArrayList<>(level.getGoalQueues());
         this.boxesGoals = new ConcurrentHashMap<>(level.getBoxesGoals());
@@ -76,7 +76,7 @@ public class Level {
     }
 
     public BoardObject[][] getBoardObjects() {
-        return boardObjects;
+        return boardObjects.clone();
     }
 
     public void setBoardObjects(BoardObject[][] boardObjects) {
@@ -93,6 +93,10 @@ public class Level {
 
     public List<PriorityBlockingQueue<Goal>> getGoalQueues() {
         return goalQueues;
+    }
+
+    public void setGoalQueues(List<PriorityBlockingQueue<Goal>> goalQueues) {
+        this.goalQueues = goalQueues;
     }
 
     public ConcurrentHashMap<String, List<Goal>> getBoxesGoals() {
@@ -137,5 +141,43 @@ public class Level {
 
     public void setBoxes(List<Box> boxes) {
         this.boxes = boxes;
+    }
+
+    @Override
+    public String toString() {
+        String returnString = "";
+        for (int row = 0; row < boardState.length; row++) {
+            for (int cell = 0; cell < boardState[row].length; cell++) {
+                BoardCell cellType = boardState[row][cell];
+                switch (cellType) {
+                    case FREE_CELL:
+                        returnString += boardObjects[row][cell].getLabel();
+                        break;
+                    case WALL:
+                        returnString += boardObjects[row][cell].getLabel().substring(0, 1);
+                        break;
+                    case BOX:
+                        String boxLabel = boardObjects[row][cell].getLabel().substring(0, 1);
+                        returnString += boxLabel;
+                        break;
+                    case AGENT:
+                        String agentLabel = boardObjects[row][cell].getLabel();
+                        returnString += agentLabel;
+                        break;
+                    case GOAL:
+                        String goalLabel = boardObjects[row][cell].getLabel().substring(0, 1);
+                        returnString += goalLabel;
+                        break;
+                    case AGENT_GOAL:
+                        returnString += boardObjects[row][cell].getLabel();
+                        break;
+                    case BOX_GOAL:
+                        returnString += boardObjects[row][cell].getLabel();
+                        break;
+                }
+            }
+            returnString += "\n";
+        }
+        return returnString;
     }
 }

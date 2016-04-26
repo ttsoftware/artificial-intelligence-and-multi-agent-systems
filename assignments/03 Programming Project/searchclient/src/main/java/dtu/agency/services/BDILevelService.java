@@ -7,4 +7,8 @@ public class BDILevelService extends LevelService {
     public BDILevelService(Level level) {
         this.level = level;
     }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
 }

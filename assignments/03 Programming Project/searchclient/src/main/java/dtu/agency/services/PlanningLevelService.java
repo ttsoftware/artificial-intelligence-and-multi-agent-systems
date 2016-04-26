@@ -12,19 +12,17 @@ import dtu.agency.planners.plans.Plan;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 public class PlanningLevelService extends LevelService {
 
-    Agent agent = BDIService.getInstance().getAgent(); // The agent planning this
-    Position currentAgentPosition;                     // if tracking, the agent's position
-    Box currentBox;                                    // if tracking, the box tracked
-    Position currentBoxPosition;                       // if tracking, the box' position
-    LinkedList<HLEffect> appliedEffects;               // stored for reverse application purpose
-
+    private Agent agent = BDIService.getInstance().getAgent(); // The agent planning this
+    private Position currentAgentPosition;                     // if tracking, the agent's position
+    private Box currentBox;                                    // if tracking, the box tracked
+    private Position currentBoxPosition;                       // if tracking, the box' position
+    private LinkedList<HLEffect> appliedEffects;               // stored for reverse application purpose
 
     public PlanningLevelService(PlanningLevelService other) {
-        setLevel(new Level(other.getLevel()));
+        level = other.getLevelClone();
         currentBox = null;
         currentBoxPosition = null;
         currentAgentPosition = null;
@@ -32,7 +30,7 @@ public class PlanningLevelService extends LevelService {
     }
 
     public PlanningLevelService(Level level) {
-        setLevel(level);
+        this.level = level;
         currentBox = null;
         currentBoxPosition = null;
         currentAgentPosition = null;
@@ -43,17 +41,12 @@ public class PlanningLevelService extends LevelService {
         return currentBox;
     }
 
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
     /**
      * Applies any applicable action - high level, recursive level and concrete actions
      * SolveGoalActions are not applicable in order to get a consistent / precise state in the end
      * (but might be applicable in order to guess on the sequence in which order to solve the goals!)
      */
     public void apply(Action action) {
-        debug("pls.apply Action: " + action);
         HLEffect effect = null;
 
         if (action instanceof HLAction) {
@@ -129,7 +122,6 @@ public class PlanningLevelService extends LevelService {
                     break;
 
                 case NONE:
-                    debug("None type action does not change state");
                     return;
             }
 
@@ -139,8 +131,6 @@ public class PlanningLevelService extends LevelService {
 
         // update applied effects variable
         appliedEffects.add(effect);
-        debug("This effect has been applied: " + effect);
-
     }
 
     /**
@@ -149,7 +139,7 @@ public class PlanningLevelService extends LevelService {
      * @param plan any plan implementing the Plan interface
      */
     public void applyAll(Plan plan) {
-        List<Action> allActions = plan.getActions();
+        LinkedList<Action> allActions = (LinkedList<Action>) plan.getActions();
         Iterator actions = allActions.iterator();
         while (actions.hasNext()) {
             Action next = (Action) actions.next();
@@ -170,7 +160,6 @@ public class PlanningLevelService extends LevelService {
     }
 
     public void revertLast() {
-        debug("pls.revertLast");
         HLEffect last = appliedEffects.removeLast();
         removeAgent(agent);
         if (last.box != null) {
@@ -178,15 +167,12 @@ public class PlanningLevelService extends LevelService {
             insertBox(last.box, last.boxOrigin);
         }
         insertAgent(agent, last.agentOrigin);
-        debug("This effect has been applied in reverse: " + last);
     }
 
     public void revertAll() {
-        debug("pls.revertAll()");
         while (appliedEffects.size() > 0) {
             revertLast();
         }
-        debug("All tracked effects are reversed");
     }
 
     /**

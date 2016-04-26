@@ -64,20 +64,13 @@ public class HMoveBoxAction extends HLAction implements Serializable {
 
     @Override
     public String toString() {
-        String s = "HMoveBoxAction(" +
-                getBox().toString() +
-                "->" +
-                getBoxDestination().toString() +
-                "," +
-                getAgentDestination().toString() +
-                ")";
-        return s;
+        return "HMoveBoxAction(" + getBox().toString() + "->" +
+                getBoxDestination().toString() + "," + getAgentDestination().toString() + ")";
     }
 
     @Override
     public int approximateSteps(PlanningLevelService pls) {
         Position boxPosition = pls.getPosition(box);
-        debug("agent " + agent);
         Position agentPosition = pls.getPosition(agent);
 
         int approximation = 0;
