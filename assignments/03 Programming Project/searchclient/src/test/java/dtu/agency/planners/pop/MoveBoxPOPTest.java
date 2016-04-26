@@ -18,7 +18,7 @@ public class MoveBoxPOPTest {
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/SAD1_move_box.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/Move_Box_Backtrack.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));

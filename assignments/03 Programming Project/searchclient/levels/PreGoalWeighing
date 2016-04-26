@@ -1,0 +1,3 @@
+Before we start the goal weighing process, we want to choose an object in the level (box OR agent) that is heuristically
+farthest away from our goals. This will be the position that we will use in order to weigh our goals, and place them in
+priority queues.
