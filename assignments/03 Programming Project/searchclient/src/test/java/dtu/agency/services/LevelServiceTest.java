@@ -115,13 +115,15 @@ public class LevelServiceTest {
         plan.pushAction(new MoveConcreteAction(Direction.NORTH));
         plan.pushAction(new PushConcreteAction(box, Direction.NORTH, Direction.NORTH));
 
-        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderedPath(plan);
+        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderPathWithBox(plan);
 
-        Position freeNeighbour = GlobalLevelService.getInstance().getValidNeighbour(
+        // find first free neighbour to the path
+        Position freeNeighbour = GlobalLevelService.getInstance().getFreeNeighbour(
                 path,
-                new Position(6, 10),
                 3
         );
+
+        assertTrue(freeNeighbour.distanceFromPath(path) == 3);
 
         System.out.println(freeNeighbour);
     }

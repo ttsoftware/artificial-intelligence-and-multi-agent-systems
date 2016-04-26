@@ -3,6 +3,7 @@ package dtu.agency.board;
 import dtu.agency.actions.concreteaction.Direction;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 
 public class Position implements Serializable {
 
@@ -72,19 +73,29 @@ public class Position implements Serializable {
                     && Math.abs(otherPosition.getColumn() - column) == 1);
     }
 
+    /**
+     * The shortest distance from this to any position in path
+     * @param path
+     * @return
+     */
+    public int distanceFromPath(LinkedList<Position> path) {
+        if (path.contains(this)) {
+            // this is in the path
+            return 0;
+        }
+        // find the smallest manhattan distance
+        return path.stream().mapToInt(position -> position.manhattanDist(this)).min().getAsInt();
+    }
+
     @Override
     public boolean equals(Object object) {
-        if (this == object)
-            return true;
-        if (object == null)
-            return false;
-        if (object.getClass() == this.getClass()) {
-            Position foreignPosition = (Position) object;
-            return (foreignPosition.getRow() == row
-                    && foreignPosition.getColumn() == column);
-        } else {
-            throw new RuntimeException("Invalid position object comparision.");
+        if (this == object) return true;
+        if (object == null) return false;
+        if (object instanceof Position) {
+            return (((Position) object).getRow() == row
+                    && ((Position) object).getColumn() == column);
         }
+        throw new RuntimeException("Invalid position object comparison.");
     }
 
     @Override

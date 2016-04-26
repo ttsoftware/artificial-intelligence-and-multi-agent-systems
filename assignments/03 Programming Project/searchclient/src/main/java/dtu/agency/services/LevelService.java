@@ -9,6 +9,7 @@ import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Collectors;
 
 public abstract class LevelService {
 
@@ -212,148 +213,6 @@ public abstract class LevelService {
      */
     public Agent getAgent(String label) {
         return level.getAgentsMap().get(label);
-    }
-
-    /**
-     * @param position
-     * @return A list of adjacent cells containing a box or an agent
-     */
-    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isMoveable(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isMoveable(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isMoveable(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isMoveable(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position that are not goals
-     */
-    public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFreeOfGoals(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFreeOfGoals(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFreeOfGoals(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFreeOfGoals(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @param objectsToIgnore
-     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
-     * if any of them exists
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
     }
 
     /**
@@ -603,8 +462,7 @@ public abstract class LevelService {
                     box,
                     (Goal) getObject(position)
             );
-        }
-        else {
+        } else {
             boardObjects[row][column] = box;
         }
         level.setBoardObjects(boardObjects);
@@ -626,11 +484,9 @@ public abstract class LevelService {
 
         switch (cell) {       // update the cell where the agent is now located
             case FREE_CELL:
-                //level.getBoardState()[row][column] = BoardCell.AGENT;
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             case GOAL:
-                //level.getBoardState()[row][column] = BoardCell.AGENT_GOAL;
                 boardState[row][column] = BoardCell.AGENT_GOAL;
                 break;
             default:
@@ -656,8 +512,7 @@ public abstract class LevelService {
                     agent,
                     (Goal) getObject(position)
             );
-        }
-        else {
+        } else {
             boardObjects[row][column] = agent;
         }
         level.setBoardObjects(boardObjects);
@@ -706,8 +561,7 @@ public abstract class LevelService {
         BoardObject[][] boardObjects = level.getBoardObjects();
         if (cell == BoardCell.BOX_GOAL) {
             boardObjects[row][column] = ((BoxAndGoal) getObject(boxPos)).getGoal();
-        }
-        else {
+        } else {
             boardObjects[row][column] = new Empty(" ");
         }
         level.setBoardObjects(boardObjects);
@@ -753,8 +607,7 @@ public abstract class LevelService {
         BoardObject[][] boardObjects = level.getBoardObjects();
         if (cell == BoardCell.AGENT_GOAL) {
             boardObjects[row][column] = ((AgentAndGoal) getObject(agentPos)).getGoal();
-        }
-        else {
+        } else {
             boardObjects[row][column] = new Empty(" ");
         }
         level.setBoardState(boardCells);
@@ -874,18 +727,17 @@ public abstract class LevelService {
 
     /**
      * Under influence of an agent BDIService, this takes a PrimitivePlan
-     * and turns it into an ordered list of positions, visited by that agent, without duplicates.
+     * and turns it into an ordered list of positions, visited by that agent and its box, without duplicates.
      *
-     * @param pseudoPlan
      * @return
      */
-    public LinkedList<Position> getOrderedPath(PrimitivePlan pseudoPlan) {
+    public LinkedList<Position> getOrderPathWithBox(PrimitivePlan plan) {
         LinkedList<Position> path = new LinkedList<>();
 
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        for (ConcreteAction action : pseudoPlan.getActionsClone()) {
+        for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
             Position next = new Position(previous, action.getAgentDirection());
 
@@ -916,77 +768,44 @@ public abstract class LevelService {
     }
 
     /**
-     * Finds an ordered list of obstacles in a path
+     * Under influence of an agent BDIService, this takes a PrimitivePlan
+     * and turns it into an ordered list of positions, visited by that agent, without duplicates.
      *
-     * @param pseudoPath
+     * @param plan
      * @return
      */
-    public LinkedList<Position> getObstaclePositions(LinkedList<Position> pseudoPath) {
-        LinkedList<Position> obstacles = new LinkedList<>();
+    public LinkedList<Position> getOrderedPath(PrimitivePlan plan) {
+        LinkedList<Position> path = new LinkedList<>();
 
-        Iterator positions = pseudoPath.iterator();
-        positions.next(); // the agent itself.. to be ignored as obstacle :-)
+        Position previous = getPosition(BDIService.getInstance().getAgent());
+        path.add(new Position(previous));
 
-        while (positions.hasNext()) {
-            Position next = (Position) positions.next();
-            if (!isFree(next)) {
-                // TODO: this also finds agents...
-                obstacles.add(next);
+        for (ConcreteAction action : plan.getActions()) {
+            // the agents next position
+            Position next = new Position(previous, action.getAgentDirection());
+            if (!path.contains(next)) {
+                path.addLast(new Position(next));
             }
+            previous = next;
         }
-
-        return obstacles;
-    }
-
-    public HashSet<Position> getFreeNeighbourSet(Position position) {
-        HashSet<Position> freeNeighbours = new HashSet<>();
-        Position n = new Position(position, Direction.NORTH);
-        Position s = new Position(position, Direction.SOUTH);
-        Position e = new Position(position, Direction.EAST);
-        Position w = new Position(position, Direction.WEST);
-        if (isFree(n)) freeNeighbours.add(n);
-        if (isFree(s)) freeNeighbours.add(s);
-        if (isFree(e)) freeNeighbours.add(e);
-        if (isFree(w)) freeNeighbours.add(w);
-        return freeNeighbours;
+        return path;
     }
 
     /**
-     * Finding a list of sets of unique positions, by dilating the path given
-     * until enough free positions is found to absorb *size* obstacles.
+     * Finds an ordered list of obstacles in a path
      *
-     * @param path is the set of positions the agent must travel
-     * @param size is the number of free neighboring locations we must discover
+     * @param path
      * @return
      */
-    public LinkedList<HashSet<Position>> getFreeNeighbours(LinkedList<Position> path, int size) {
-        LinkedList<HashSet<Position>> all = new LinkedList<>();
-        HashSet<Position> previous = new HashSet<>();
-        HashSet<Position> current = new HashSet<>(path);
-        int neighbours = 0;
-        while (neighbours < size) {
-            // initialize next to hold the new positions
-            HashSet<Position> next = new HashSet<>();
-
-            // morphological dilation
-            for (Position p : current) {
-                next.addAll(getFreeNeighbourSet(p));
+    public LinkedList<Position> getObstaclePositions(LinkedList<Position> path) {
+        LinkedList<Position> obstacles = new LinkedList<>();
+        for (Position position : path) {
+            if (!isFree(position)) {
+                // TODO: this should also find agents
+                obstacles.add(position);
             }
-
-            // make sure only new positions are kept
-            next.removeAll(current);
-            next.removeAll(previous);
-
-            // add the new Positions to output list
-            all.addLast(new HashSet<>(next));
-            neighbours += next.size();
-
-            // update running variables
-            previous.addAll(current);
-            current = next;
         }
-
-        return all;
+        return obstacles;
     }
 
     /**
@@ -1005,86 +824,229 @@ public abstract class LevelService {
         return goals;
     }
 
-    public Position getValidNeighbour(LinkedList<Position> fullPath, Position origin, int depth) {
-        LinkedList<Position> prePath = new LinkedList<>();
-        LinkedList<Position> priorityPath = new LinkedList<>();
+    /**
+     * @param position
+     * @return A list of adjacent cells containing a box or an agent
+     */
+    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
 
-        // divide the path in before / after target origin
-       boolean after = false;
-        for (Position next : fullPath) {
-            if (after) { // only add possible neighbours
-                if (isFree(next)) {
-                    priorityPath.addLast(next);
-                } else {
-                    break;
-                }
-            } else { // before
-                prePath.addFirst(next);
-            }
-            if (next.equals(origin)) {
-                after = true;
-                priorityPath.addLast(next);
-            }
+        if (isMoveable(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (isMoveable(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (isMoveable(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (isMoveable(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
         }
 
-        priorityPath.addAll(prePath); // prioritized Path
-
-        HashSet<Position> previouslyDiscovered = new HashSet<>(priorityPath);
-
-        Iterator path = priorityPath.listIterator();
-
-        int neighbourCount = 0;
-        List<Position> validNeighbours = new ArrayList<>();
-
-        ArrayList<Position> newNeighbours = new ArrayList<>();
-        while (path.hasNext() && (neighbourCount < depth)) {
-            Position cell = (Position) path.next();
-            Position neighbour;
-            while (hasUnseenFreeNeighbour(cell, previouslyDiscovered) && (neighbourCount < depth)) {
-                neighbour = getUnseenFreeNeighbour(cell, previouslyDiscovered);
-                neighbourCount++;
-                newNeighbours.add(neighbour);
-                previouslyDiscovered.add(neighbour);
-
-                Position neighbourNeighbour = neighbour;
-                while (hasUnseenFreeNeighbour(neighbourNeighbour, previouslyDiscovered) && (neighbourCount < depth)) {
-                    neighbourCount++;
-                    neighbourNeighbour = getUnseenFreeNeighbour(neighbourNeighbour, previouslyDiscovered);
-                    newNeighbours.add(neighbourNeighbour);
-                    previouslyDiscovered.add(neighbourNeighbour);
-                }
-                validNeighbours.add(neighbourNeighbour);
-            }
-        } // enough neighbours found
-
-        // find closer valid neighbour
-        Position validNeighbour = validNeighbours.get(0);
-        int minDistance = origin.manhattanDist(validNeighbour);
-        for (Position p : validNeighbours) {
-            if (origin.manhattanDist(p) < minDistance) {
-                minDistance = origin.manhattanDist(p);
-                validNeighbour = p;
-            }
-        }
-
-        return validNeighbour;
+        return neighbours;
     }
 
-    private Position getUnseenFreeNeighbour(Position cell, HashSet<Position> previouslyDiscovered) {
-        HashSet<Position> neighbours = getFreeNeighbourSet(cell);
-        neighbours.removeAll(previouslyDiscovered);
-        Iterator it = neighbours.iterator();
-        if (it.hasNext()) {
-            Position freeeNeighbour = (Position) it.next();
-            return new Position(freeeNeighbour);
-        } else {
-            return null;
+    /**
+     * @param position
+     * @return A list of free cells adjacent to @position
+     */
+    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (isFree(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
         }
+        if (isFree(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (isFree(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (isFree(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
     }
 
-    protected boolean hasUnseenFreeNeighbour(Position cell, HashSet<Position> previouslyDiscovered) {
-        HashSet<Position> neighbours = getFreeNeighbourSet(cell);
-        neighbours.removeAll(previouslyDiscovered);
-        return (!neighbours.isEmpty());
+    /**
+     * @param position
+     * @return A list of free cells adjacent to @position that are not goals
+     */
+    public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (isFreeOfGoals(position.getRow(), position.getColumn() - 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (isFreeOfGoals(position.getRow(), position.getColumn() + 1)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (isFreeOfGoals(position.getRow() - 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (isFreeOfGoals(position.getRow() + 1, position.getColumn())) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
+    /**
+     * @param position
+     * @param objectsToIgnore
+     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
+     * if any of them exists
+     */
+    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+        if (isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+        if (isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
+    public HashSet<Position> getFreeNeighbourSet(Position position) {
+        HashSet<Position> freeNeighbours = new HashSet<>();
+        Position n = new Position(position, Direction.NORTH);
+        Position s = new Position(position, Direction.SOUTH);
+        Position e = new Position(position, Direction.EAST);
+        Position w = new Position(position, Direction.WEST);
+        if (isFree(n)) freeNeighbours.add(n);
+        if (isFree(s)) freeNeighbours.add(s);
+        if (isFree(e)) freeNeighbours.add(e);
+        if (isFree(w)) freeNeighbours.add(w);
+        return freeNeighbours;
+    }
+
+    public synchronized Position getFreeNeighbour(LinkedList<Position> path) {
+        return getFreeNeighbours(path, 1).pollFirst();
+    }
+
+    public synchronized Position getFreeNeighbour(LinkedList<Position> path, int depth) {
+        Position neighbourAtDepth = null;
+        TreeSet<Position> freeNeighbours = getFreeNeighbours(path, depth);
+        while (depth > 0) {
+            neighbourAtDepth = freeNeighbours.pollFirst();
+            depth--;
+        }
+        if (neighbourAtDepth == null) {
+            throw new RuntimeException("No neighbour found at given depth");
+        }
+        return neighbourAtDepth;
+    }
+
+    /**
+     * Returns a SortedSet of free neighbouring positions, ordered by their distance to the path.
+     * These free positions may be adjacent to the path, or adjacent to free positions adjacent to the path and so on...
+     *
+     * This function is roughly O(N), where N is the set of all cells in the level
+     *
+     * @param path
+     * @param numberOfNeighbours
+     * @return
+     */
+    public synchronized TreeSet<Position> getFreeNeighbours(final LinkedList<Position> path, int numberOfNeighbours) {
+
+        TreeSet<Position> freeNeighboursSet = new TreeSet<>(new Comparator<Position>() {
+            @Override
+            public int compare(Position positionA, Position positionB) {
+                // Order the goals by distance to path
+                return positionA.distanceFromPath(path) - positionB.distanceFromPath(path);
+            }
+        });
+
+        Set<Position> unExploredPositions = new HashSet<>(path);
+        Set<Position> exploredPositions = new HashSet<>();
+
+        // loop until we find enough neighbours or fail
+        while (freeNeighboursSet.size() < numberOfNeighbours) {
+            Set<Position> neighboursFound = new HashSet<>();
+            for (Position position : unExploredPositions) {
+                // if we have not yet checked the neighbours of this position
+                if (!exploredPositions.contains(position)) {
+                    // find free neighbours to this position, which have not already been explored
+                    Set<Position> neighbours = getFreeNeighbours(position).stream()
+                            .map(Neighbour::getPosition)
+                            .filter(neighbourPosition -> !path.contains(neighbourPosition)) // should never be in the path
+                            .collect(Collectors.toSet());
+                    // add all the free neighbours to the ordered set
+                    freeNeighboursSet.addAll(neighbours);
+                    // add all the free neighbours to the set of found neighbours
+                    neighboursFound.addAll(neighbours);
+                    // add this position to the set of explored positions
+                    exploredPositions.add(position);
+                    if (freeNeighboursSet.size() >= numberOfNeighbours) {
+                        // we can stop now
+                        break;
+                    }
+                }
+            }
+            // add all the neighbours found in this iteration to the set of unexplored positions
+            unExploredPositions.clear();
+            unExploredPositions.addAll(neighboursFound);
+        }
+
+        return freeNeighboursSet;
     }
 }
