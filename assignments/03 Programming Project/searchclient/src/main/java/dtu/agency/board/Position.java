@@ -2,10 +2,9 @@ package dtu.agency.board;
 
 import dtu.agency.actions.concreteaction.Direction;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Position implements Serializable {
+public class Position {
 
     private final int row;
     private final int column;

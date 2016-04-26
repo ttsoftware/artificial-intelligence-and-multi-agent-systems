@@ -15,8 +15,8 @@ public class Main {
                 // "levels/ClearPathTest.lvl",
                 // "levels/SAD1_multi.lvl",
                 // "levels/SApushing.lvl",
-                // "levels/SAboxesOfHanoi.lvl", // TODO: Does not work
-                "levels/SAboxesOfHanoi_simple.lvl", // TODO: Does not work (see PlannerClientTest)
+                "levels/SAboxesOfHanoi.lvl", // TODO: Does not work
+                // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
                 "-g",
                 "100",

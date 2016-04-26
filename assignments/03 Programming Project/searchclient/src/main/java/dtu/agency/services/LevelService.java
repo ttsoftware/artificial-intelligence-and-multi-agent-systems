@@ -780,7 +780,7 @@ public abstract class LevelService {
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        for (ConcreteAction action : plan.getActions()) {
+        for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
             Position next = new Position(previous, action.getAgentDirection());
             if (!path.contains(next)) {
@@ -799,12 +799,18 @@ public abstract class LevelService {
      */
     public LinkedList<Position> getObstaclePositions(LinkedList<Position> path) {
         LinkedList<Position> obstacles = new LinkedList<>();
-        for (Position position : path) {
-            if (!isFree(position)) {
-                // TODO: this should also find agents
-                obstacles.add(position);
+
+        Iterator positions = path.iterator();
+        positions.next(); // the agent itself.. to be ignored as obstacle :-)
+
+        while (positions.hasNext()) {
+            Position next = (Position) positions.next();
+            if (!isFree(next)) {
+                // TODO: this also finds agents...
+                obstacles.add(next);
             }
         }
+
         return obstacles;
     }
 
@@ -985,7 +991,7 @@ public abstract class LevelService {
 
     public synchronized Position getFreeNeighbour(LinkedList<Position> path, int depth) {
         Position neighbourAtDepth = null;
-        TreeSet<Position> freeNeighbours = getFreeNeighbours(path, depth);
+        LinkedList<Position> freeNeighbours = getFreeNeighbours(path, depth);
         while (depth > 0) {
             neighbourAtDepth = freeNeighbours.pollFirst();
             depth--;
@@ -1006,21 +1012,15 @@ public abstract class LevelService {
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized TreeSet<Position> getFreeNeighbours(final LinkedList<Position> path, int numberOfNeighbours) {
+    public synchronized LinkedList<Position> getFreeNeighbours(final LinkedList<Position> path, int numberOfNeighbours) {
 
-        TreeSet<Position> freeNeighboursSet = new TreeSet<>(new Comparator<Position>() {
-            @Override
-            public int compare(Position positionA, Position positionB) {
-                // Order the goals by distance to path
-                return positionA.distanceFromPath(path) - positionB.distanceFromPath(path);
-            }
-        });
+        LinkedList<Position> freeNeighboursQueue = new LinkedList<>();
 
         Set<Position> unExploredPositions = new HashSet<>(path);
         Set<Position> exploredPositions = new HashSet<>();
 
         // loop until we find enough neighbours or fail
-        while (freeNeighboursSet.size() < numberOfNeighbours) {
+        while (freeNeighboursQueue.size() < numberOfNeighbours) {
             Set<Position> neighboursFound = new HashSet<>();
             for (Position position : unExploredPositions) {
                 // if we have not yet checked the neighbours of this position
@@ -1028,25 +1028,30 @@ public abstract class LevelService {
                     // find free neighbours to this position, which have not already been explored
                     Set<Position> neighbours = getFreeNeighbours(position).stream()
                             .map(Neighbour::getPosition)
-                            .filter(neighbourPosition -> !path.contains(neighbourPosition)) // should never be in the path
+                            .filter(neighbourPosition -> {
+                                // should never be in the path or already in the queue
+                                return !path.contains(neighbourPosition)
+                                        && !freeNeighboursQueue.contains(neighbourPosition);
+                            })
                             .collect(Collectors.toSet());
-                    // add all the free neighbours to the ordered set
-                    freeNeighboursSet.addAll(neighbours);
                     // add all the free neighbours to the set of found neighbours
                     neighboursFound.addAll(neighbours);
                     // add this position to the set of explored positions
                     exploredPositions.add(position);
-                    if (freeNeighboursSet.size() >= numberOfNeighbours) {
+                    if (freeNeighboursQueue.size() >= numberOfNeighbours) {
                         // we can stop now
                         break;
                     }
                 }
             }
+            // add all the free neighbours to the ordered set
+            freeNeighboursQueue.addAll(neighboursFound);
+
             // add all the neighbours found in this iteration to the set of unexplored positions
             unExploredPositions.clear();
             unExploredPositions.addAll(neighboursFound);
         }
 
-        return freeNeighboursSet;
+        return freeNeighboursQueue;
     }
 }
