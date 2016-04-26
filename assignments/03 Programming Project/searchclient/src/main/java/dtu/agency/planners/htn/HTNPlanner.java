@@ -89,7 +89,6 @@ public class HTNPlanner {
         this.agentDestination = null;
     }
 
-
     /**
      * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
      *

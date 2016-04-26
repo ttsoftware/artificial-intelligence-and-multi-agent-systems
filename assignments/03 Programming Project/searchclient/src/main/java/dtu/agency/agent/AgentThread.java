@@ -80,8 +80,12 @@ public class AgentThread implements Runnable {
             Goal goal = event.getGoal();
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
 
+            // the intention are automatically stored in BDIService
+            Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
+
             // use the agent's mind / BDI Service to solve the task
-            boolean successful = BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
+            successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
 
             if (!successful) {
                 // TODO: We post a planning error event

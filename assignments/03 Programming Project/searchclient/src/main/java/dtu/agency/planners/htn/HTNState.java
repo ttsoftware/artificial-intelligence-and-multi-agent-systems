@@ -13,6 +13,7 @@ import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
 import dtu.agency.board.BoardCell;
+import dtu.agency.board.BoxAndGoal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.services.PlanningLevelService;
@@ -96,15 +97,18 @@ public class HTNState {
                 legal &= (!wallConflict());
                 legal &= (!boxConflict());
                 legal &= (!agentConflict());
+                legal &= (!solvedGoalConflict());
                 break;
 
             case NoAgents:        // Boxes and Walls are considered
                 legal &= (!wallConflict());
                 legal &= (!boxConflict());
+                legal &= (!solvedGoalConflict());
                 break;
 
             case NoAgentsNoBoxes: // Only Walls are considered
                 legal &= (!wallConflict());
+                legal &= (!solvedGoalConflict());
                 break;
 
             default:
@@ -114,6 +118,15 @@ public class HTNState {
         return legal;
     }
 
+    /**
+     * Detects if this state will conflict with a solved goal
+     *
+     * @return
+     */
+    private boolean solvedGoalConflict() {
+        BoardCell cell = pls.getCell(boxPosition);
+        return cell == BoardCell.BOX_GOAL && ((BoxAndGoal) pls.getObject(boxPosition)).isSolved();
+    }
 
     /**
      * Detects if this state will conflict with another agent
@@ -187,8 +200,7 @@ public class HTNState {
 
         if (this.isPurposeFulfilled(action)) {
             refinements = action.doneRefinement();
-        }
-        else {
+        } else {
             switch (action.getType()) {
                 case RGotoAction:
                     RGotoAction gta = (RGotoAction) action;
@@ -209,8 +221,7 @@ public class HTNState {
                     RMoveBoxAction mba = (RMoveBoxAction) action;
                     if (!this.boxIsMovable()) {
                         // "Box not movable"
-                    }
-                    else {
+                    } else {
                         Direction dirToBox = priorState.getDirectionToBox();
 
                         // PUSH REFINEMENTS
