@@ -115,17 +115,31 @@ public class LevelServiceTest {
         plan.pushAction(new MoveConcreteAction(Direction.NORTH));
         plan.pushAction(new PushConcreteAction(box, Direction.NORTH, Direction.NORTH));
 
-        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderPathWithBox(plan);
+        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderedPathWithBox(plan);
 
-        // find first free neighbour to the path
-        Position freeNeighbour = GlobalLevelService.getInstance().getFreeNeighbour(
-                path,
-                3
-        );
+        // find 3rd free neighbour to the path
+        Position freeNeighbour = GlobalLevelService.getInstance().getFreeNeighbour(path, 3);
 
-        assertTrue(freeNeighbour.distanceFromPath(path) == 3);
+        assertEquals(freeNeighbour, new Position(6, 8));
+    }
 
-        System.out.println(freeNeighbour);
+    @Test
+    public void testGetOrderedPath() {
+        Agent agent = new Agent("1");
+        Box box = new Box("B0");
+
+        BDIService.setInstance(new BDIService(agent));
+
+        PrimitivePlan plan = new PrimitivePlan();
+
+        plan.pushAction(new MoveConcreteAction(Direction.NORTH));
+        plan.pushAction(new MoveConcreteAction(Direction.NORTH));
+        plan.pushAction(new MoveConcreteAction(Direction.NORTH));
+        plan.pushAction(new PushConcreteAction(box, Direction.NORTH, Direction.NORTH));
+
+        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderedPath(plan);
+
+        assertEquals(path.getLast(), new Position(2, 9));
     }
 
     @Test

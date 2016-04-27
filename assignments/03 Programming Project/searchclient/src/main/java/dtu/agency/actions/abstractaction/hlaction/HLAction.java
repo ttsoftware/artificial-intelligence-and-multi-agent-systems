@@ -18,6 +18,7 @@ import java.util.ArrayList;
  */
 public abstract class HLAction extends AbstractAction {
     protected Agent agent = BDIService.getInstance().getAgent();
+
     /**
      * This is where the agent is going to be after completing this action
      */

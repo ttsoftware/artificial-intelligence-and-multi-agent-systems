@@ -29,6 +29,10 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
+
+        // update BDI level
+        BDIService.getInstance().updateBDILevelService();
+
         // setup local variables
         BDIService bdi = BDIService.getInstance();
         Agent agent = bdi.getAgent();

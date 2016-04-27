@@ -731,7 +731,7 @@ public abstract class LevelService {
      *
      * @return
      */
-    public LinkedList<Position> getOrderPathWithBox(PrimitivePlan plan) {
+    public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan) {
         LinkedList<Position> path = new LinkedList<>();
 
         Position previous = getPosition(BDIService.getInstance().getAgent());
@@ -1005,7 +1005,7 @@ public abstract class LevelService {
     /**
      * Returns a SortedSet of free neighbouring positions, ordered by their distance to the path.
      * These free positions may be adjacent to the path, or adjacent to free positions adjacent to the path and so on...
-     *
+     * <p>
      * This function is roughly O(N), where N is the set of all cells in the level
      *
      * @param path

@@ -30,12 +30,12 @@ public class Main {
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/ClearPathTest.lvl",
                 // "levels/SAD1_multi.lvl", // TODO: Problem with bidding
-                "levels/SApushing.lvl",
-                // "levels/SAboxesOfHanoi.lvl", // TODO: Does not work
+                // "levels/SApushing.lvl",
+                "levels/SAboxesOfHanoi.lvl", // TODO: Does not work (After solving e, it thinks E is in the path of solving d)
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
                 "-g",
-                "100",
+                "150",
                 "-t",
                 "60",
                 "-c",
