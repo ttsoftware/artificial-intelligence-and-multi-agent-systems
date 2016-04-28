@@ -113,7 +113,7 @@ public class PlannerClientThread implements Runnable {
             // .take() will call Thread.wait() until an element (Stack) becomes available
             sendActionsEvent = sendServerActionsQueue.take();
         } catch (InterruptedException e) {
-            e.printStackTrace(System.err);
+            // we should be able to safely ignore this exception
         }
 
         // We take the next collection of plans from the queue
@@ -165,7 +165,7 @@ public class PlannerClientThread implements Runnable {
     }
 
     public void send(String toServer) {
-        // System.err.println("Trying: " + toServer);
+        System.err.println("Trying: " + toServer);
         System.out.println(toServer);
 
         String response = null;
