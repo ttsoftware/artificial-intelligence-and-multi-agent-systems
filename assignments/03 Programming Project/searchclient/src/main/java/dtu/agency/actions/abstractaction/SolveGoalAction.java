@@ -8,9 +8,7 @@ import dtu.agency.board.Position;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
-import java.io.Serializable;
-
-public class SolveGoalAction extends AbstractAction implements Serializable {
+public class SolveGoalAction extends AbstractAction {
 
     private final Box box;
     private final Goal goal;
@@ -39,7 +37,7 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
 
     public Position getAgentDestination(PlanningLevelService pls) {
         // TODO: Why does the agent always wish to go back to where it started from?
-        return pls.getPosition(BDIService.getInstance().getAgent());
+        return pls.getPosition(box);
     }
 
     public Position getBoxDestination() {

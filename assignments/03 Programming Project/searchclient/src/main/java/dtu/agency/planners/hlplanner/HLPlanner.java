@@ -81,7 +81,11 @@ public class HLPlanner {
         // no more obstacles - and the goal box was not among the obstacles
         // move it to the goal position
 
-        moveBoxInPlanner(intention.targetBox, pls.getPosition(intention.goal), intention.getAgentPseudoPath().peekLast());
+        moveBoxInPlanner(
+                intention.targetBox,
+                pls.getPosition(intention.goal),
+                intention.getAgentPseudoPath().peekLast()
+        );
         // pls.revertLast(committedActions);
         return plan;
     }

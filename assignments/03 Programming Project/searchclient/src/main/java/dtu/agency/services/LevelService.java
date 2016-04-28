@@ -754,14 +754,12 @@ public abstract class LevelService {
                         nextBox = new Position(previous);
                         break;
                 }
-                if (!path.contains(nextBox) && nextBox != null) {
+                if (nextBox != null) {
                     path.addLast(nextBox);
                 }
             }
 
-            if (!path.contains(next)) {
-                path.addLast(new Position(next));
-            }
+            path.addLast(new Position(next));
             previous = next;
         }
         return path;
@@ -783,9 +781,7 @@ public abstract class LevelService {
         for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
             Position next = new Position(previous, action.getAgentDirection());
-            if (!path.contains(next)) {
-                path.addLast(new Position(next));
-            }
+            path.addLast(new Position(next));
             previous = next;
         }
         return path;
@@ -799,15 +795,21 @@ public abstract class LevelService {
      */
     public LinkedList<Position> getObstaclePositions(LinkedList<Position> path) {
         LinkedList<Position> obstacles = new LinkedList<>();
+        path = new LinkedList<>(path);
 
-        Iterator positions = path.iterator();
-        positions.next(); // the agent itself.. to be ignored as obstacle :-)
+        // Remove the move which enters the box' position
+        path.removeLast();
+
+        Iterator<Position> positions = path.iterator();
+        Position agentPosition = positions.next();
 
         while (positions.hasNext()) {
-            Position next = (Position) positions.next();
+            Position next = positions.next();
             if (!isFree(next)) {
-                // TODO: this also finds agents...
-                obstacles.add(next);
+                // TODO: This should also finds agents. Maybe. Who knows?
+                if (!next.equals(agentPosition) && !obstacles.contains(next)) {
+                    obstacles.add(next);
+                }
             }
         }
 
@@ -1014,13 +1016,13 @@ public abstract class LevelService {
      */
     public synchronized LinkedList<Position> getFreeNeighbours(final LinkedList<Position> path, int numberOfNeighbours) {
 
-        LinkedList<Position> freeNeighboursQueue = new LinkedList<>();
+        LinkedList<Position> freeNeighboursList = new LinkedList<>();
 
         Set<Position> unExploredPositions = new HashSet<>(path);
         Set<Position> exploredPositions = new HashSet<>();
 
         // loop until we find enough neighbours or fail
-        while (freeNeighboursQueue.size() < numberOfNeighbours) {
+        while (freeNeighboursList.size() < numberOfNeighbours) {
             Set<Position> neighboursFound = new HashSet<>();
             for (Position position : unExploredPositions) {
                 // if we have not yet checked the neighbours of this position
@@ -1031,27 +1033,27 @@ public abstract class LevelService {
                             .filter(neighbourPosition -> {
                                 // should never be in the path or already in the queue
                                 return !path.contains(neighbourPosition)
-                                        && !freeNeighboursQueue.contains(neighbourPosition);
+                                        && !freeNeighboursList.contains(neighbourPosition);
                             })
                             .collect(Collectors.toSet());
                     // add all the free neighbours to the set of found neighbours
                     neighboursFound.addAll(neighbours);
                     // add this position to the set of explored positions
                     exploredPositions.add(position);
-                    if (freeNeighboursQueue.size() >= numberOfNeighbours) {
+                    if (freeNeighboursList.size() >= numberOfNeighbours) {
                         // we can stop now
                         break;
                     }
                 }
             }
             // add all the free neighbours to the ordered set
-            freeNeighboursQueue.addAll(neighboursFound);
+            freeNeighboursList.addAll(neighboursFound);
 
             // add all the neighbours found in this iteration to the set of unexplored positions
             unExploredPositions.clear();
             unExploredPositions.addAll(neighboursFound);
         }
 
-        return freeNeighboursQueue;
+        return freeNeighboursList;
     }
 }
