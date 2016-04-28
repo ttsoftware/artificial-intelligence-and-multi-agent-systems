@@ -42,7 +42,7 @@ public class PlannerClientThread implements Runnable {
         try {
             level = ProblemMarshaller.marshall(serverMessages);
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+            // We should safely be able to ignore this exception
         }
 
         // Create the level service
