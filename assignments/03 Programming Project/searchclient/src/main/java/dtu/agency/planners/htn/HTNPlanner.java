@@ -111,7 +111,6 @@ public class HTNPlanner {
         this.initialNode = new HTNNode(initialState, this.originalAction, pls);
     }
 
-
     /**
      * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
      *
@@ -129,7 +128,6 @@ public class HTNPlanner {
         HTNState initialState = new HTNState(agentOrigin, boxOrigin, pls, mode);
         this.initialNode = new HTNNode(initialState, this.originalAction, pls);
     }
-
 
     private HTNNode getInitialNode() {
         return new HTNNode(initialNode);
@@ -156,7 +154,6 @@ public class HTNPlanner {
     public int getBestPlanApproximation() {
         return aStarHTNNodeComparator.h(initialNode);
     }
-
 
     /**
      * Finds the concrete plan (provided an (initial) node)

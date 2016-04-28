@@ -159,7 +159,7 @@ public class BDIService {
             }
             // the positions of the cells that the agent is going to step on top of
             LinkedList<Position> agentPseudoPath = pls.getOrderedPath(pseudoPlan);
-            LinkedList<Position> agentBoxPseudoPath = pls.getOrderPathWithBox(pseudoPlan);
+            LinkedList<Position> agentBoxPseudoPath = pls.getOrderedPathWithBox(pseudoPlan);
             LinkedList<Position> obstaclePositions = pls.getObstaclePositions(agentPseudoPath);
 
             // see how many obstacles on the path are reachable (cheaper) / unreachable (more expensive)

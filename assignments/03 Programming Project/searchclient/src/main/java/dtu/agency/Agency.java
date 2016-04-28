@@ -1,6 +1,7 @@
 package dtu.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Agent;
@@ -10,7 +11,6 @@ import dtu.agency.events.agency.GoalEstimationEventSubscriber;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.agent.ProblemSolvedEvent;
-import dtu.agency.events.client.DetectConflictsEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.services.AgentService;
@@ -25,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Agency implements Runnable {
 
-    private static final Object synchronizer = new Object();
     private int numberOfAgents;
 
     @Override
@@ -58,7 +57,7 @@ public class Agency implements Runnable {
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
             // Assign goals to the best agents and wait for plans to finish
-            getBestAgents(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
+            offerGoals(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
 
                 Goal goal = goalAgentEntry.getKey();
                 Agent bestAgent = goalAgentEntry.getValue();
@@ -97,14 +96,8 @@ public class Agency implements Runnable {
             });
         }
 
-        try {
-            // wait indefinitely until problem is solved
-            synchronized (synchronizer) {
-                synchronizer.wait();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace(System.err);
-        }
+        // We should have solved the entire problem now
+        EventBusService.post(new ProblemSolvedEvent());
 
         System.err.println("Agency is exiting.");
     }
@@ -114,7 +107,7 @@ public class Agency implements Runnable {
      *
      * @return
      */
-    private HashMap<Goal, Agent> getBestAgents(List<Goal> goals) {
+    private HashMap<Goal, Agent> offerGoals(List<Goal> goals) {
 
         HashMap<Goal, Agent> bestAgents = new HashMap<>();
 
@@ -145,23 +138,13 @@ public class Agency implements Runnable {
         EventBusService.post(new SendServerActionsEvent(event.getAgent(), event.getPlan()));
     }
 
+    /**
+     * We re-post dead events until someone responds to them
+     * Maybe we should only re-post a certain number of times?
+     * @param event
+     */
     @Subscribe
-    public void detectConflictEventSubscriber(DetectConflictsEvent event) {
-
-        // TODO Detect conflict in the plans at given timestep
-
-        // Set to true if there is a conflict
-        event.setResponse(false);
-    }
-
-    @Subscribe
-    public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
-        // wait for all threads to finish
-        ThreadService.shutdown();
-
-        // allow this thread to be joined
-        synchronized (synchronizer) {
-            synchronizer.notify();
-        }
+    public void deadEventSubscriber(DeadEvent event) {
+        EventBusService.post(event.getEvent());
     }
 }

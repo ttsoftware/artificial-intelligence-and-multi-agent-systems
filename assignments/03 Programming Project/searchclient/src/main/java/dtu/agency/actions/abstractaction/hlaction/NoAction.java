@@ -5,12 +5,7 @@ import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.services.PlanningLevelService;
 
-import java.io.Serializable;
-
-/**
-* This Action Does Nothing..
-*/
-public class NoAction extends HLAction implements Serializable {
+public class NoAction extends HLAction {
 
     private final Position agentDestination;
 

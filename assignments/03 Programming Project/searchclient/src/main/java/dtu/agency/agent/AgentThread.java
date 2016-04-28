@@ -2,7 +2,6 @@ package dtu.agency.agent;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.agent.bdi.AgentIntention;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
@@ -29,6 +28,10 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
+
+        // update BDI level
+        BDIService.getInstance().updateBDILevelService();
+
         // setup local variables
         BDIService bdi = BDIService.getInstance();
         Agent agent = bdi.getAgent();
@@ -46,10 +49,14 @@ public class AgentThread implements Runnable {
         }
         else {
             // We return the sum of all intentions so far
-            int totalSteps =  bdi.getAgentIntentions()
+            /*
+            int totalSteps = bdi.getAgentIntentions()
                     .stream()
                     .mapToInt(AgentIntention::getApproximateSteps)
                     .sum();
+            */
+            // We return the approximate steps for this goal only
+            int totalSteps = bdi.getIntention(goal).getApproximateSteps();
 
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
