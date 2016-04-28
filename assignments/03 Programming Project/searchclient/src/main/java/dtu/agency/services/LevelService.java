@@ -731,10 +731,10 @@ public abstract class LevelService {
      * @return
      */
     public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan) {
-        LinkedList<Position> path = new LinkedList<>();
+        LinkedList<Position> bigPath = new LinkedList<>();
 
         Position previous = getPosition(BDIService.getInstance().getAgent());
-        path.add(new Position(previous));
+        bigPath.add(new Position(previous));
 
         for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
@@ -746,21 +746,36 @@ public abstract class LevelService {
                 switch (action.getType()) {
                     case PUSH:
                         // if we are pushing, the box should end up in front of the agent
+                        bigPath.addLast(new Position(next));
                         nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
+                        bigPath.addLast(nextBox);
                         break;
                     case PULL:
                         // if we are pulling, the box should end up in the agents' previous position
                         nextBox = new Position(previous);
+                        bigPath.addLast(nextBox);
+                        bigPath.addLast(new Position(next));
                         break;
                 }
-                if (nextBox != null) {
-                    path.addLast(nextBox);
-                }
+            }
+            else {
+                bigPath.addLast(new Position(next));
             }
 
-            path.addLast(new Position(next));
             previous = next;
         }
+
+        LinkedList<Position> path = new LinkedList<>();
+
+        Position previousPosition = bigPath.pollFirst();
+        Position nextPosition;
+        while ((nextPosition = bigPath.pollFirst()) != null) {
+            if (!previousPosition.equals(nextPosition)) {
+                path.addLast(previousPosition);
+            }
+            previousPosition = nextPosition;
+        }
+
         return path;
     }
 

@@ -6,7 +6,10 @@ import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
-import dtu.agency.board.*;
+import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
+import dtu.agency.board.Level;
+import dtu.agency.board.Position;
 import dtu.agency.planners.plans.PrimitivePlan;
 import org.junit.Test;
 
@@ -183,7 +186,10 @@ public class LevelServiceTest {
         GlobalLevelService.getInstance().setLevel(level);
 
         Agent agent = new Agent("0");
+        Box boxA = new Box("A2");
         Box boxB = new Box("B0");
+        Box boxC = new Box("C1");
+        Box boxD = new Box("D3");
 
         BDIService.setInstance(new BDIService(agent));
 
@@ -215,16 +221,33 @@ public class LevelServiceTest {
         plan.addAction(new PushConcreteAction(boxB, Direction.EAST, Direction.EAST));
         plan.addAction(new PushConcreteAction(boxB, Direction.EAST, Direction.EAST));
         plan.addAction(new PushConcreteAction(boxB, Direction.EAST, Direction.EAST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
+        plan.addAction(new MoveConcreteAction(Direction.WEST));
 
-        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderedPath(plan);
+        LinkedList<Position> path = GlobalLevelService.getInstance().getOrderedPathWithBox(plan);
 
-        Position obstaclePosition = new Position(4, 8);
+        Position obstacleAPosition = new Position(4, 8);
+        Position obstacleBPosition = new Position(4, 1);
+        Position obstacleCPosition = new Position(4, 4);
+        Position obstacleDPosition = new Position(4, 13);
 
         LinkedList<Position> obstacleFreePath = GlobalLevelService.getInstance()
                 .getObstacleFreePath(
                         path,
                         BDIService.getInstance().getAgentCurrentPosition(),
-                        obstaclePosition
+                        obstacleAPosition
                 );
 
         LinkedList<Position> expectedSubPath = new LinkedList<>();
@@ -247,21 +270,63 @@ public class LevelServiceTest {
         expectedSubPath.addLast(new Position(5, 11));
         expectedSubPath.addLast(new Position(4, 11));
         expectedSubPath.addLast(new Position(4, 12));
+        expectedSubPath.addLast(new Position(4, 12));
+        expectedSubPath.addLast(new Position(4, 11));
+        expectedSubPath.addLast(new Position(4, 10));
+        expectedSubPath.addLast(new Position(4, 9));
+        expectedSubPath.addLast(new Position(4, 8));
+        expectedSubPath.addLast(new Position(4, 7));
+        expectedSubPath.addLast(new Position(4, 6));
+        expectedSubPath.addLast(new Position(4, 5));
 
-        assertEquals(obstacleFreePath, expectedSubPath);
+        assertEquals(expectedSubPath, obstacleFreePath);
 
         PriorityQueue<Position> weightSubPath = GlobalLevelService.getInstance()
-                .weightedObstacleSubPath(obstacleFreePath, obstaclePosition);
+                .weightedObstacleSubPath(obstacleFreePath, obstacleAPosition);
 
-        assertEquals(obstaclePosition, weightSubPath.poll());
+        assertEquals(obstacleAPosition, weightSubPath.poll());
 
-        Position freeNeighbour = GlobalLevelService.getInstance().getFreeNeighbour(
+        // free neighbour for A
+        Position freeNeighbourA = GlobalLevelService.getInstance().getFreeNeighbour(
                 path,
-                obstaclePosition,
+                obstacleAPosition,
+                4
+        );
+
+        assertEquals(new Position(1, 6), freeNeighbourA);
+
+        GlobalLevelService.getInstance().removeBox(boxA);
+        GlobalLevelService.getInstance().insertBox(boxA, new Position(1, 6));
+        GlobalLevelService.getInstance().removeAgent(agent);
+        GlobalLevelService.getInstance().insertAgent(agent, obstacleAPosition);
+
+        // free neighbour for C
+        Position freeNeighbourC = GlobalLevelService.getInstance().getFreeNeighbour(
+                path,
+                obstacleCPosition,
                 3
         );
 
-        assertEquals(new Position(1, 6), freeNeighbour);
+        assertEquals(new Position(2, 6), freeNeighbourC);
+
+        GlobalLevelService.getInstance().removeBox(boxC);
+        GlobalLevelService.getInstance().insertBox(boxC, new Position(2, 6));
+        GlobalLevelService.getInstance().removeAgent(agent);
+        GlobalLevelService.getInstance().insertAgent(agent, obstacleCPosition);
+
+        // free neighbour for D
+        Position freeNeighbourD = GlobalLevelService.getInstance().getFreeNeighbour(
+                path,
+                obstacleDPosition,
+                2
+        );
+
+        assertEquals(new Position(3, 14), freeNeighbourD);
+
+        GlobalLevelService.getInstance().removeBox(boxD);
+        GlobalLevelService.getInstance().insertBox(boxD, new Position(3, 14));
+        GlobalLevelService.getInstance().removeAgent(agent);
+        GlobalLevelService.getInstance().insertAgent(agent, obstacleDPosition);
     }
 
     @Test

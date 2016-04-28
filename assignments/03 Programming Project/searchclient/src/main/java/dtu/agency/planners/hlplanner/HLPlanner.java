@@ -77,8 +77,7 @@ public class HLPlanner {
                 Position neighbour = pls.getFreeNeighbour(
                         intention.getAgentAndBoxPseudoPath(),
                         obstacleOrigin,
-                        remainingObstacles
-                );
+                        remainingObstacles);
 
                 moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
