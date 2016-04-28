@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class PlannerClientTest {
+public class PlannerClientThreadTest {
 
     private static File resourcesDirectory = new File("src/test/resources");
     private HashMap<Integer, ConcretePlan> agentsPlans = new HashMap<>();
@@ -66,8 +66,33 @@ public class PlannerClientTest {
     }
 
     @Test
-    public void testAll() throws Exception {
+    public void test0() throws Exception {
         testLevel("obstaclePathTestLevel.lvl");
+    }
+
+    @Test
+    public void test1() throws Exception {
+        testLevel("SApushing.lvl");
+    }
+
+    @Test
+    public void test2() throws Exception {
+        testLevel("SApushing_2.lvl");
+    }
+
+    @Test
+    public void test3() throws Exception {
+        testLevel("SAD1_multi_1_agent_wins.lvl");
+    }
+
+    @Test
+    public void test4() throws Exception {
+        testLevel("SAboxesOfHanoi_simple.lvl");
+    }
+
+    @Test
+    public void test5() throws Exception {
+        testLevel("SAhlplan_old.lvl");
     }
 
     public void testLevel(String level) throws Exception {
@@ -102,13 +127,13 @@ public class PlannerClientTest {
         // pop the next action from each plan
         agentsPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
-        String toServer = PlannerClient.buildActionSet(agentsActions, numberOfAgents);
+        String toServer = new PlannerClientThread().buildActionSet(agentsActions, numberOfAgents);
 
         assertEquals(toServer, "[Move(E),Move(W),Move(N),Move(S)]");
 
         agentsPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
-        toServer = PlannerClient.buildActionSet(agentsActions, numberOfAgents);
+        toServer = new PlannerClientThread().buildActionSet(agentsActions, numberOfAgents);
 
         assertEquals(toServer, "[Push(E,E),Move(W),Pull(W,S),Move(S)]");
     }

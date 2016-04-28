@@ -30,6 +30,6 @@ public class GlobalLevelService extends LevelService {
      * @param level Level
      */
     public void setLevel(Level level) {
-        instance.level = instance.level == null ? level : instance.level;
+        instance.level = level;
     }
 }
