@@ -50,7 +50,8 @@ public class PlannerClientTest {
         // String path = resourcesDirectory.getAbsolutePath() + "/SApushing.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SApushing_2.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi_1_agent_wins.lvl";
-        String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi.lvl";
+        // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi.lvl";
+        String path = resourcesDirectory.getAbsolutePath() + "/SAhlplan_old.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi_simple.lvl";
         FileInputStream inputStream = new FileInputStream(path);
 

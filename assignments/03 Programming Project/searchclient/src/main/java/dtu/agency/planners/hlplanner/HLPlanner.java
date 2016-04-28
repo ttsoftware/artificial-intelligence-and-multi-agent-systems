@@ -53,7 +53,11 @@ public class HLPlanner {
 
             if (box.equals(intention.targetBox) && obstacles.hasNext()) {
                 // move goal box to free position and try re-planning from there (recurse once)
-                Position neighbour = pls.getFreeNeighbour(intention.getAgentAndBoxPseudoPath(), remainingObstacles);
+                Position neighbour = pls.getFreeNeighbour(
+                        intention.getAgentAndBoxPseudoPath(),
+                        obstacleOrigin,
+                        remainingObstacles
+                );
                 moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
                 intention.obstaclePositions.removeAll(removedObstacles);
@@ -70,7 +74,11 @@ public class HLPlanner {
             }
             else {
                 // next obstacle is in the path - move box to free position
-                Position neighbour = pls.getFreeNeighbour(intention.getAgentAndBoxPseudoPath(), remainingObstacles);
+                Position neighbour = pls.getFreeNeighbour(
+                        intention.getAgentAndBoxPseudoPath(),
+                        obstacleOrigin,
+                        remainingObstacles
+                );
 
                 moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
