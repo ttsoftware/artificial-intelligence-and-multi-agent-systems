@@ -113,13 +113,14 @@ public class BDIService {
         Ideas ideas = new Ideas(goal, pls); // agent destination is used for heuristic purpose
 
         for (Box box : pls.getLevel().getBoxes()) {
-            // TODO: check for colors
-            if (box.getLabel().toLowerCase().substring(0, 1).equals(goal.getLabel().toLowerCase().substring(0, 1))) {
-                SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
-                ideas.add(solveGoalAction);
-            }
-            else {
-                // TODO: What do we do here?
+            if (box.getColor().equals(agent.getColor())) {
+                if (box.canSolveGoal(goal)) {
+                    SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
+                    ideas.add(solveGoalAction);
+                }
+                else {
+                    // TODO: What do we do here?
+                }
             }
         }
         return ideas;

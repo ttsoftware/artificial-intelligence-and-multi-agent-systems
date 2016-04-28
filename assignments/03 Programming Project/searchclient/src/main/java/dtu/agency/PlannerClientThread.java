@@ -113,18 +113,18 @@ public class PlannerClientThread implements Runnable {
             // .take() will call Thread.wait() until an element (Stack) becomes available
             sendActionsEvent = sendServerActionsQueue.take();
         } catch (InterruptedException e) {
-            e.printStackTrace(System.err);
+            // we should be able to safely ignore this exception
         }
 
         // We take the next collection of plans from the queue
         while (sendActionsEvent != null) {
             currentPlans.put(
-                    Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
+                    sendActionsEvent.getAgent().getNumber(),
                     sendActionsEvent.getConcretePlan()
             );
             // Add the event to the HashMap, such that we can add it back to the queue later
             currentSendServerActionsEvents.put(
-                    Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
+                    sendActionsEvent.getAgent().getNumber(),
                     sendActionsEvent
             );
             // poll next element, without waiting
@@ -142,9 +142,8 @@ public class PlannerClientThread implements Runnable {
 
         // update the GlobalLevelService with this action
         agentsActions.forEach((agentNumber, concreteAction) -> {
-            String agentLabel = agentNumber.toString();
             GlobalLevelService.getInstance().applyAction(
-                    GlobalLevelService.getInstance().getAgent(agentLabel),
+                    GlobalLevelService.getInstance().getAgent(agentNumber),
                     concreteAction
             );
         });
@@ -166,7 +165,7 @@ public class PlannerClientThread implements Runnable {
     }
 
     public void send(String toServer) {
-        // System.err.println("Trying: " + toServer);
+        System.err.println("Trying: " + toServer);
         System.out.println(toServer);
 
         String response = null;

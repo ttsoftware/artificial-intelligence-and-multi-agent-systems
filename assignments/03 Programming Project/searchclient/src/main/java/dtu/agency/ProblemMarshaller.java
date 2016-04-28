@@ -103,6 +103,9 @@ public class ProblemMarshaller {
                 } else if ('0' <= cell && cell <= '9') {
                     // Its an agent cell
                     String label = String.valueOf(cell);
+                    if (colors.containsKey(cell)) {
+                        label = colors.get(cell) + label;
+                    }
                     Agent agent = new Agent(label);
                     agents.add(agent);
                     agentsMap.put(label, agent);
@@ -112,6 +115,9 @@ public class ProblemMarshaller {
                 } else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     String label = String.valueOf(cell) + Integer.toString(boxCount);
+                    if (colors.containsKey(cell)) {
+                        label = colors.get(cell) + label;
+                    }
                     Box box = new Box(label);
                     boxes.add(box);
                     boxesMap.put(label, box);

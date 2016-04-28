@@ -51,8 +51,8 @@ public class Agency implements Runnable {
         HashMap<String, Boolean> agentIsFinished = new HashMap<>();
         agents.forEach(agent -> agentIsFinished.put(agent.getLabel(), true));
 
-        HashMap<String, Lock> agentLocks = new HashMap<>();
-        agents.forEach(agent -> agentLocks.put(agent.getLabel(), new ReentrantLock()));
+        HashMap<Integer, Lock> agentLocks = new HashMap<>();
+        agents.forEach(agent -> agentLocks.put(agent.getNumber(), new ReentrantLock()));
 
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
@@ -63,7 +63,7 @@ public class Agency implements Runnable {
                 Agent bestAgent = goalAgentEntry.getValue();
 
                 // Lock this agent
-                agentLocks.get(bestAgent.getLabel()).lock();
+                agentLocks.get(bestAgent.getNumber()).lock();
 
                 try {
                     agentIsFinished.put(bestAgent.getLabel(), false);
@@ -91,7 +91,7 @@ public class Agency implements Runnable {
                 }
                 finally {
                     // unlock this agent
-                    agentLocks.get(bestAgent.getLabel()).unlock();
+                    agentLocks.get(bestAgent.getNumber()).unlock();
                 }
             });
         }
