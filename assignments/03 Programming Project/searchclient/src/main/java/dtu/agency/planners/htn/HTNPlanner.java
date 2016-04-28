@@ -161,7 +161,6 @@ public class HTNPlanner {
      */
     public PrimitivePlan plan() {
         // PlanningLevelService assuming responsibility over agent and current box
-        System.err.println("" + originalAction.getBox());
         pls.startTracking(originalAction.getBox());
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);

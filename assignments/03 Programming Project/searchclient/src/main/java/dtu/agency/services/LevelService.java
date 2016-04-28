@@ -9,6 +9,7 @@ import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Collectors;
 
 public abstract class LevelService {
 
@@ -212,6 +213,18 @@ public abstract class LevelService {
      */
     public Agent getAgent(String label) {
         return level.getAgentsMap().get(label);
+    }
+
+    /**
+     * @param agentNumber
+     * @return The agent associated with the given number
+     */
+    public Agent getAgent(Integer agentNumber) {
+        // There should only be 1 agent with this number
+        return level.getAgents()
+                .stream()
+                .filter(agent -> agent.getNumber() == agentNumber)
+                .collect(Collectors.toList()).get(0);
     }
 
     /**

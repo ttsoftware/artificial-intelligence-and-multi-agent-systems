@@ -119,12 +119,12 @@ public class PlannerClientThread implements Runnable {
         // We take the next collection of plans from the queue
         while (sendActionsEvent != null) {
             currentPlans.put(
-                    Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
+                    sendActionsEvent.getAgent().getNumber(),
                     sendActionsEvent.getConcretePlan()
             );
             // Add the event to the HashMap, such that we can add it back to the queue later
             currentSendServerActionsEvents.put(
-                    Integer.valueOf(sendActionsEvent.getAgent().getLabel()),
+                    sendActionsEvent.getAgent().getNumber(),
                     sendActionsEvent
             );
             // poll next element, without waiting
@@ -142,9 +142,8 @@ public class PlannerClientThread implements Runnable {
 
         // update the GlobalLevelService with this action
         agentsActions.forEach((agentNumber, concreteAction) -> {
-            String agentLabel = agentNumber.toString();
             GlobalLevelService.getInstance().applyAction(
-                    GlobalLevelService.getInstance().getAgent(agentLabel),
+                    GlobalLevelService.getInstance().getAgent(agentNumber),
                     concreteAction
             );
         });

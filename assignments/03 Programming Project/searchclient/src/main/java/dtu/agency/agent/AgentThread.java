@@ -28,7 +28,6 @@ public class AgentThread implements Runnable {
      */
     @Subscribe
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
-
         // update BDI level
         BDIService.getInstance().updateBDILevelService();
 
@@ -44,8 +43,9 @@ public class AgentThread implements Runnable {
         boolean successful = bdi.filterIdeas(ideas, goal); // the intention are automatically stored in BDIService
 
         if (!successful) {
-            // TODO: We post a planning error event
-            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
+            // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
+            // We cannot solve this goal, so we return a ridiculously high estimate
+            EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
         }
         else {
             // We return the sum of all intentions so far
