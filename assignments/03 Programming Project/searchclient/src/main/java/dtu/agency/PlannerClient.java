@@ -174,7 +174,7 @@ public class PlannerClient {
     }
 
     public static void send(String toServer) {
-        System.err.println("Trying: " + toServer);
+        // System.err.println("Trying: " + toServer);
         System.out.println(toServer);
 
         String response = null;

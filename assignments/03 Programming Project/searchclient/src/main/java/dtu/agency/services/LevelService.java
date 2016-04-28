@@ -9,7 +9,6 @@ import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.stream.Collectors;
 
 public abstract class LevelService {
 
@@ -731,11 +730,11 @@ public abstract class LevelService {
      *
      * @return
      */
-    public LinkedList<Position> getOrderPathWithBox(PrimitivePlan plan) {
-        LinkedList<Position> path = new LinkedList<>();
+    public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan) {
+        LinkedList<Position> bigPath = new LinkedList<>();
 
         Position previous = getPosition(BDIService.getInstance().getAgent());
-        path.add(new Position(previous));
+        bigPath.add(new Position(previous));
 
         for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
@@ -747,23 +746,36 @@ public abstract class LevelService {
                 switch (action.getType()) {
                     case PUSH:
                         // if we are pushing, the box should end up in front of the agent
+                        bigPath.addLast(new Position(next));
                         nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
+                        bigPath.addLast(nextBox);
                         break;
                     case PULL:
                         // if we are pulling, the box should end up in the agents' previous position
                         nextBox = new Position(previous);
+                        bigPath.addLast(nextBox);
+                        bigPath.addLast(new Position(next));
                         break;
                 }
-                if (!path.contains(nextBox) && nextBox != null) {
-                    path.addLast(nextBox);
-                }
+            }
+            else {
+                bigPath.addLast(new Position(next));
             }
 
-            if (!path.contains(next)) {
-                path.addLast(new Position(next));
-            }
             previous = next;
         }
+
+        LinkedList<Position> path = new LinkedList<>();
+
+        Position previousPosition = bigPath.pollFirst();
+        Position nextPosition;
+        while ((nextPosition = bigPath.pollFirst()) != null) {
+            if (!previousPosition.equals(nextPosition)) {
+                path.addLast(previousPosition);
+            }
+            previousPosition = nextPosition;
+        }
+
         return path;
     }
 
@@ -783,9 +795,7 @@ public abstract class LevelService {
         for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
             Position next = new Position(previous, action.getAgentDirection());
-            if (!path.contains(next)) {
-                path.addLast(new Position(next));
-            }
+            path.addLast(new Position(next));
             previous = next;
         }
         return path;
@@ -800,14 +810,16 @@ public abstract class LevelService {
     public LinkedList<Position> getObstaclePositions(LinkedList<Position> path) {
         LinkedList<Position> obstacles = new LinkedList<>();
 
-        Iterator positions = path.iterator();
-        positions.next(); // the agent itself.. to be ignored as obstacle :-)
+        Iterator<Position> positions = path.iterator();
+        Position agentPosition = positions.next();
 
         while (positions.hasNext()) {
-            Position next = (Position) positions.next();
+            Position next = positions.next();
             if (!isFree(next)) {
-                // TODO: this also finds agents...
-                obstacles.add(next);
+                // TODO: This should also finds agents. Maybe. Who knows?
+                if (!next.equals(agentPosition) && !obstacles.contains(next)) {
+                    obstacles.add(next);
+                }
             }
         }
 
@@ -985,187 +997,77 @@ public abstract class LevelService {
         return freeNeighbours;
     }
 
-    public synchronized Position getFreeNeighbour(LinkedList<Position> path) {
-        return getFreeNeighbours(path, 1).pollFirst();
-    }
-
-    public synchronized Position getFreeNeighbour(LinkedList<Position> path, int depth) {
-        Position neighbourAtDepth = null;
-        LinkedList<Position> freeNeighbours = getFreeNeighbours(path, depth);
-        while (depth > 0) {
-            neighbourAtDepth = freeNeighbours.pollFirst();
-            depth--;
-        }
-        if (neighbourAtDepth == null) {
-            throw new RuntimeException("No neighbour found at given depth");
-        }
-        return neighbourAtDepth;
-    }
-
     /**
      * Returns a SortedSet of free neighbouring positions, ordered by their distance to the path.
      * These free positions may be adjacent to the path, or adjacent to free positions adjacent to the path and so on...
-     *
+     * <p>
      * This function is roughly O(N), where N is the set of all cells in the level
      *
      * @param path
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized LinkedList<Position> getFreeNeighbours(final LinkedList<Position> path, int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path, Position obstaclePosition, int numberOfNeighbours) {
 
-        LinkedList<Position> freeNeighboursQueue = new LinkedList<>();
+        // find free path for this obstacle
+        LinkedList<Position> obstacleFreePath = getObstacleFreePath(
+                path,
+                BDIService.getInstance().getAgentCurrentPosition(),
+                obstaclePosition
+        );
 
-        Set<Position> unExploredPositions = new HashSet<>(path);
-        Set<Position> exploredPositions = new HashSet<>();
+        // find weighted sub path
+        PriorityQueue<Position> weightSubPath = weightedObstacleSubPath(obstacleFreePath, obstaclePosition);
 
-        // loop until we find enough neighbours or fail
-        while (freeNeighboursQueue.size() < numberOfNeighbours) {
-            Set<Position> neighboursFound = new HashSet<>();
-            for (Position position : unExploredPositions) {
-                // if we have not yet checked the neighbours of this position
-                if (!exploredPositions.contains(position)) {
-                    // find free neighbours to this position, which have not already been explored
-                    Set<Position> neighbours = getFreeNeighbours(position).stream()
-                            .map(Neighbour::getPosition)
-                            .filter(neighbourPosition -> {
-                                // should never be in the path or already in the queue
-                                return !path.contains(neighbourPosition)
-                                        && !freeNeighboursQueue.contains(neighbourPosition);
-                            })
-                            .collect(Collectors.toSet());
-                    // add all the free neighbours to the set of found neighbours
-                    neighboursFound.addAll(neighbours);
-                    // add this position to the set of explored positions
-                    exploredPositions.add(position);
-                    if (freeNeighboursQueue.size() >= numberOfNeighbours) {
-                        // we can stop now
-                        break;
-                    }
-                }
+        Position weightedPosition;
+
+        // as the list is now prioritized, we want to find the first neighbor, at maxdepth or shallower
+        // previously seen positions
+        HashSet<Position> previouslySeen = new HashSet<>(obstacleFreePath);
+
+        // iterate in weighted order
+        while ((weightedPosition = weightSubPath.poll()) != null) {
+            if (hasUnseenFreeNeighbour(weightedPosition, previouslySeen)) {
+                return recursiveNeighbour(weightedPosition, previouslySeen, numberOfNeighbours);
             }
-            // add all the free neighbours to the ordered set
-            freeNeighboursQueue.addAll(neighboursFound);
-
-            // add all the neighbours found in this iteration to the set of unexplored positions
-            unExploredPositions.clear();
-            unExploredPositions.addAll(neighboursFound);
         }
 
-        return freeNeighboursQueue;
+        throw new RuntimeException("We cannot find a free neighbour for this obstacle");
     }
 
     /**
-     * Finding a list of sets of unique positions, by dilating the path given
-     * until enough free positions is found to absorb *size* obstacles.
+     * Find 'deepest' neighbour to given {@code position}
      *
-     * @param path is the set of positions the agent must travel
-     * @param size is the number of free neighboring locations we must discover
      * @return
      */
-    public LinkedList<HashSet<Position>> getFreeNeighbours(Set<Position> path, int size) {
-        LinkedList<HashSet<Position>> all = new LinkedList<>();
-        HashSet<Position> previous = new HashSet<>();
-        HashSet<Position> current = new HashSet<>(path);
-        int neighbours = 0;
-        while (neighbours < size) {
-            // initialize next to hold the new positions
-            HashSet<Position> next = new HashSet<>();
-
-            // morphological dilation
-            for (Position p : current) {
-                next.addAll(getFreeNeighbourSet(p));
-            }
-
-            // make sure only new positions are kept
-            next.removeAll(current);
-            next.removeAll(previous);
-
-            // add the new Positions to output list
-            all.addLast(new HashSet<>(next));
-            neighbours += next.size();
-
-            // update running variables
-            previous.addAll(current);
-            current = next;
+    private Position recursiveNeighbour(Position position,
+                                        HashSet<Position> previouslyDiscovered,
+                                        int numberOfNeighbours) {
+        if (numberOfNeighbours == 0) {
+            // end recursion if number of neighbours is reached
+            return position;
         }
 
-        String s = "{";
-        for (HashSet<Position> layer : all) {
-            s += layer.toString() + "\n";
+        if (hasUnseenFreeNeighbour(position, previouslyDiscovered)) {
+            // recursively find neighbours
+            Position neighbour = getUnseenFreeNeighbour(position, previouslyDiscovered);
+            previouslyDiscovered.add(position);
+            return recursiveNeighbour(neighbour, previouslyDiscovered, --numberOfNeighbours);
         }
 
-        return all;
+        // return this position if no free neighbours
+        return position;
     }
 
-    public Position getValidNeighbour(LinkedList<Position> fullPath, Position origin, int depth) {
-        LinkedList<Position> prePath = new LinkedList<>();
-        LinkedList<Position> priorityPath = new LinkedList<>();
-
-        // divide the path in before / after target origin
-        ListIterator fullPathPositions = fullPath.listIterator();
-        boolean after = false;
-        while (fullPathPositions.hasNext()) {
-            Position next = (Position) fullPathPositions.next();
-            if (after) { // only add possible neighbours
-                if (isFree(next)) {
-                    priorityPath.addLast(next);
-                } else {
-                    break;
-                }
-            } else { // before
-                prePath.addFirst(next);
-            }
-            if (next.equals(origin)) {
-                after = true;
-                priorityPath.addLast(next);
-            }
-        }
-        priorityPath.addAll(prePath); // prioritized Path
-
-        HashSet<Position> previouslyDiscovered = new HashSet<>(priorityPath);
-
-        Iterator path = priorityPath.listIterator();
-
-        int neighbourcount = 0;
-        List<Position> validNeighbours = new ArrayList<>();
-
-        ArrayList<Position> newNeighbours = new ArrayList<>();
-        while (path.hasNext() && (neighbourcount < depth)) {
-            Position cell = (Position) path.next();
-            Position n;
-            while (hasUnseenFreeNeighbour(cell, previouslyDiscovered) && (neighbourcount < depth)) {
-                n = getUnseenFreeNeighbour(cell, previouslyDiscovered);
-                neighbourcount++;
-                newNeighbours.add(n);
-                previouslyDiscovered.add(n);
-
-                Position nn = n;
-                while (hasUnseenFreeNeighbour(nn, previouslyDiscovered) && (neighbourcount < depth)) {
-                    neighbourcount++;
-                    nn = getUnseenFreeNeighbour(nn, previouslyDiscovered);
-                    newNeighbours.add(nn);
-                    previouslyDiscovered.add(nn);
-                }
-                validNeighbours.add(nn);
-            }
-        } // enough neighbours found
-
-        //find closer valid neighbour
-        Position validNeighbour = validNeighbours.get(0);
-        int minDistance = origin.manhattanDist(validNeighbour);
-        for (Position p : validNeighbours) {
-            if (origin.manhattanDist(p) < minDistance) {
-                minDistance = origin.manhattanDist(p);
-                validNeighbour = p;
-            }
-        }
-
-        return validNeighbour;
-    }
-
-    private Position getUnseenFreeNeighbour(Position cell, HashSet<Position> previouslyDiscovered) {
-        HashSet<Position> neighbours = getFreeNeighbourSet(cell);
+    /**
+     * Returns a free neighbour of {@code position}, which does not exist in previouslyDiscovered
+     *
+     * @param position
+     * @param previouslyDiscovered
+     * @return
+     */
+    private Position getUnseenFreeNeighbour(Position position, HashSet<Position> previouslyDiscovered) {
+        HashSet<Position> neighbours = getFreeNeighbourSet(position);
         neighbours.removeAll(previouslyDiscovered);
         Iterator it = neighbours.iterator();
         if (it.hasNext()) {
@@ -1176,9 +1078,82 @@ public abstract class LevelService {
         }
     }
 
-    protected boolean hasUnseenFreeNeighbour(Position cell, HashSet<Position> previouslyDiscovered) {
-        HashSet<Position> neighbours = getFreeNeighbourSet(cell);
+    /**
+     * Does this {@code position} have free neighbours, which do not exist in {@code previouslyDiscovered}
+     *
+     * @param position
+     * @param previouslyDiscovered
+     * @return
+     */
+    private boolean hasUnseenFreeNeighbour(Position position, HashSet<Position> previouslyDiscovered) {
+        HashSet<Position> neighbours = getFreeNeighbourSet(position);
         neighbours.removeAll(previouslyDiscovered);
         return (!neighbours.isEmpty());
+    }
+
+    /**
+     * Returns the sub-path of {@code path}, excluding other sub-paths blocked by other obstacles than {@code obstacle}
+     *
+     * @param path
+     * @param obstaclePosition
+     * @return
+     */
+    public LinkedList<Position> getObstacleFreePath(LinkedList<Position> path,
+                                                    Position agentPosition,
+                                                    Position obstaclePosition) {
+
+        LinkedList<Position> subPath = new LinkedList<>();
+
+        boolean ignoringPositions = false;
+        Position ignoreStartPosition = null;
+        for (Position position : path) {
+            if (!ignoringPositions) {
+                if (isFree(position)) {
+                    // we can add position to sub-path
+                    subPath.addLast(position);
+                } else if (position.equals(obstaclePosition)) {
+                    // this is the obstacle we wish to keep
+                    subPath.addLast(position);
+                } else if (position.equals(agentPosition)) {
+                    // this is the agent we are operating from
+                    subPath.addLast(position);
+                } else {
+                    // we ignore all positions until we find this position again
+                    ignoringPositions = true;
+                    ignoreStartPosition = position;
+                }
+            } else {
+                if (ignoreStartPosition.equals(position)) {
+                    // we are back on the valid sub-path
+                    ignoringPositions = false;
+                } else {
+                    // we do not care about this position
+                }
+            }
+        }
+        return subPath;
+    }
+
+    /**
+     * Returns the weighted {@code subPath} of given {@code obstaclePosition}.
+     * Positions in {@code subPath} are weighted by distance from {@code obstaclePosition}
+     *
+     * @param subPath
+     * @param obstaclePosition
+     * @return
+     */
+    public PriorityQueue<Position> weightedObstacleSubPath(LinkedList<Position> subPath,
+                                                           Position obstaclePosition) {
+        PriorityQueue<Position> weightedSubPath = new PriorityQueue<>(new Comparator<Position>() {
+            @Override
+            public int compare(Position a, Position b) {
+                // Order by distance form obstacle
+                return a.manhattanDist(obstaclePosition) - b.manhattanDist(obstaclePosition);
+            }
+        });
+
+        weightedSubPath.addAll(subPath);
+
+        return weightedSubPath;
     }
 }

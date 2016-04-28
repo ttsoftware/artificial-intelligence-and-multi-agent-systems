@@ -124,8 +124,18 @@ public class HTNState {
      * @return
      */
     private boolean solvedGoalConflict() {
-        BoardCell cell = pls.getCell(boxPosition);
-        return cell == BoardCell.BOX_GOAL && ((BoxAndGoal) pls.getObject(boxPosition)).isSolved();
+        BoardCell boxCell = pls.getCell(boxPosition);
+        BoardCell agentCell = pls.getCell(agentPosition);
+
+        if (boxCell == BoardCell.BOX_GOAL
+                && ((BoxAndGoal) pls.getObject(boxPosition)).isSolved()) {
+            return true;
+        }
+        if (agentCell == BoardCell.BOX_GOAL
+                && ((BoxAndGoal) pls.getObject(agentPosition)).isSolved()) {
+            return true;
+        }
+        return false;
     }
 
     /**
