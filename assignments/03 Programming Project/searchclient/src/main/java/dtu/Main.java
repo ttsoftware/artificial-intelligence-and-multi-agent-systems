@@ -20,7 +20,7 @@ public class Main {
                 // "levels/MAchallenge.lvl", // TODO: Does not work - StackOverflowError in POP
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl", // TODO: Does not work (Class cast exception - POP)
-                // "levels/friendofDFS.lvl", // TODO: Does not work (Class cast exception)
+                // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
@@ -32,7 +32,7 @@ public class Main {
                 // "levels/SAD1_multi.lvl", // TODO: Problem with bidding
                 // "levels/obstaclePathTestLevel.lvl", // TODO: Works with disappointing placement of (C)
                 // "levels/SApushing.lvl",
-                // "levels/SAboxesOfHanoi.lvl", // TODO: Does not work (After solving e, it thinks E is in the path of solving d)
+                // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
                 "-g",
