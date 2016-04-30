@@ -86,6 +86,11 @@ public class PlannerClientThreadTest {
     }
 
     @Test
+    public void test3_1() throws Exception {
+        testLevel("SAD1_multi.lvl");
+    }
+
+    @Test
     public void test4() throws Exception {
         testLevel("SAboxesOfHanoi_simple.lvl");
     }
@@ -98,6 +103,16 @@ public class PlannerClientThreadTest {
     @Test
     public void test6() throws Exception {
         testLevel("MAsimple1.lvl");
+    }
+
+    @Test
+    public void test7() throws Exception {
+        testLevel("MAchallenge.lvl");
+    }
+
+    @Test
+    public void test8() throws Exception {
+        testLevel("MA_out_of_my_way_Henning.lvl");
     }
 
     public void testLevel(String level) throws Exception {
