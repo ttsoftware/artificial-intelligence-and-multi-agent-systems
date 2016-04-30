@@ -136,6 +136,7 @@ public class LevelServiceTest {
         // find 3rd free neighbour to the path
         Position freeNeighbour = GlobalLevelService.getInstance().getFreeNeighbour(
                 path,
+                BDIService.getInstance().getBDILevelService().getPosition(agent),
                 BDIService.getInstance().getBDILevelService().getPosition(box),
                 3
         );
@@ -243,52 +244,53 @@ public class LevelServiceTest {
         Position obstacleCPosition = new Position(4, 4);
         Position obstacleDPosition = new Position(4, 13);
 
-        LinkedList<Position> obstacleFreePath = GlobalLevelService.getInstance()
+        LinkedList<Position> obstacleAFreePath = GlobalLevelService.getInstance()
                 .getObstacleFreePath(
                         path,
                         BDIService.getInstance().getAgentCurrentPosition(),
                         obstacleAPosition
                 );
 
-        LinkedList<Position> expectedSubPath = new LinkedList<>();
-        expectedSubPath.addLast(new Position(6, 11));
-        expectedSubPath.addLast(new Position(5, 11));
-        expectedSubPath.addLast(new Position(4, 11));
-        expectedSubPath.addLast(new Position(4, 10));
-        expectedSubPath.addLast(new Position(4, 9));
-        expectedSubPath.addLast(new Position(4, 8));
-        expectedSubPath.addLast(new Position(4, 7));
-        expectedSubPath.addLast(new Position(4, 6));
-        expectedSubPath.addLast(new Position(4, 5));
-        expectedSubPath.addLast(new Position(4, 5));
-        expectedSubPath.addLast(new Position(4, 6));
-        expectedSubPath.addLast(new Position(4, 7));
-        expectedSubPath.addLast(new Position(4, 8));
-        expectedSubPath.addLast(new Position(4, 9));
-        expectedSubPath.addLast(new Position(4, 10));
-        expectedSubPath.addLast(new Position(4, 11));
-        expectedSubPath.addLast(new Position(5, 11));
-        expectedSubPath.addLast(new Position(4, 11));
-        expectedSubPath.addLast(new Position(4, 12));
-        expectedSubPath.addLast(new Position(4, 12));
-        expectedSubPath.addLast(new Position(4, 11));
-        expectedSubPath.addLast(new Position(4, 10));
-        expectedSubPath.addLast(new Position(4, 9));
-        expectedSubPath.addLast(new Position(4, 8));
-        expectedSubPath.addLast(new Position(4, 7));
-        expectedSubPath.addLast(new Position(4, 6));
-        expectedSubPath.addLast(new Position(4, 5));
+        LinkedList<Position> expectedASubPath = new LinkedList<>();
+        expectedASubPath.addLast(new Position(6, 11));
+        expectedASubPath.addLast(new Position(5, 11));
+        expectedASubPath.addLast(new Position(4, 11));
+        expectedASubPath.addLast(new Position(4, 10));
+        expectedASubPath.addLast(new Position(4, 9));
+        expectedASubPath.addLast(new Position(4, 8));
+        expectedASubPath.addLast(new Position(4, 7));
+        expectedASubPath.addLast(new Position(4, 6));
+        expectedASubPath.addLast(new Position(4, 5));
+        expectedASubPath.addLast(new Position(4, 5));
+        expectedASubPath.addLast(new Position(4, 6));
+        expectedASubPath.addLast(new Position(4, 7));
+        expectedASubPath.addLast(new Position(4, 8));
+        expectedASubPath.addLast(new Position(4, 9));
+        expectedASubPath.addLast(new Position(4, 10));
+        expectedASubPath.addLast(new Position(4, 11));
+        expectedASubPath.addLast(new Position(5, 11));
+        expectedASubPath.addLast(new Position(4, 11));
+        expectedASubPath.addLast(new Position(4, 12));
+        expectedASubPath.addLast(new Position(4, 12));
+        expectedASubPath.addLast(new Position(4, 11));
+        expectedASubPath.addLast(new Position(4, 10));
+        expectedASubPath.addLast(new Position(4, 9));
+        expectedASubPath.addLast(new Position(4, 8));
+        expectedASubPath.addLast(new Position(4, 7));
+        expectedASubPath.addLast(new Position(4, 6));
+        expectedASubPath.addLast(new Position(4, 5));
 
-        assertEquals(expectedSubPath, obstacleFreePath);
+        assertEquals(expectedASubPath, obstacleAFreePath);
 
         PriorityQueue<Position> weightSubPath = GlobalLevelService.getInstance()
-                .weightedObstacleSubPath(obstacleFreePath, obstacleAPosition);
+                .weightedObstacleSubPath(obstacleAFreePath, obstacleAPosition);
 
         assertEquals(obstacleAPosition, weightSubPath.poll());
 
         // free neighbour for A
         Position freeNeighbourA = GlobalLevelService.getInstance().getFreeNeighbour(
                 path,
+                BDIService.getInstance().getBDILevelService().getPosition(agent),
                 obstacleAPosition,
                 4
         );
@@ -300,9 +302,22 @@ public class LevelServiceTest {
         GlobalLevelService.getInstance().removeAgent(agent);
         GlobalLevelService.getInstance().insertAgent(agent, obstacleAPosition);
 
+        BDIService.getInstance().updateBDILevelService();
+
+        LinkedList<Position> obstacleCFreePath = GlobalLevelService.getInstance()
+                .getObstacleFreePath(
+                        path,
+                        BDIService.getInstance().getAgentCurrentPosition(),
+                        obstacleCPosition
+                );
+
+        assertTrue(obstacleCFreePath.contains(new Position(4, 5)));
+        assertTrue(obstacleCFreePath.contains(new Position(4, 6)));
+
         // free neighbour for C
         Position freeNeighbourC = GlobalLevelService.getInstance().getFreeNeighbour(
                 path,
+                BDIService.getInstance().getBDILevelService().getPosition(agent),
                 obstacleCPosition,
                 3
         );
@@ -314,9 +329,12 @@ public class LevelServiceTest {
         GlobalLevelService.getInstance().removeAgent(agent);
         GlobalLevelService.getInstance().insertAgent(agent, obstacleCPosition);
 
+        BDIService.getInstance().updateBDILevelService();
+
         // free neighbour for D
         Position freeNeighbourD = GlobalLevelService.getInstance().getFreeNeighbour(
                 path,
+                BDIService.getInstance().getBDILevelService().getPosition(agent),
                 obstacleDPosition,
                 2
         );

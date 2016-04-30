@@ -18,7 +18,6 @@ public class HLPlanner {
     private final PlanningLevelService pls;
     private final AgentIntention intention;
     private final HLPlan plan;
-    // private int committedActions;
 
     /**
      *
@@ -29,7 +28,6 @@ public class HLPlanner {
         this.pls  = pls;
         this.intention = intention;
         this.plan = new HLPlan();
-        // this.committedActions = 0;
     }
 
     public HLPlan plan() {
@@ -39,6 +37,8 @@ public class HLPlanner {
         LinkedList<Position> removedObstacles = new LinkedList<>();
 
         while (obstacles.hasNext()) {
+            Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
+
             Position obstacleOrigin = (Position) obstacles.next();
             BoardObject boardObject = pls.getObject(obstacleOrigin);
 
@@ -78,6 +78,7 @@ public class HLPlanner {
                 // move goal box to free position and try re-planning from there (recurse once)
                 Position neighbour = pls.getFreeNeighbour(
                         intention.getAgentAndBoxPseudoPath(),
+                        agentPosition,
                         obstacleOrigin,
                         remainingObstacles
                 );
@@ -90,8 +91,11 @@ public class HLPlanner {
             }
             else if (box.equals(intention.targetBox)) {
                 // only 'obstacle' left in path is goal box - move it into goal position
-                moveBoxInPlanner(box, pls.getPosition(intention.goal), intention.getAgentPseudoPath().peekLast());
-                // pls.revertLast(committedActions);
+                moveBoxInPlanner(
+                        box,
+                        pls.getPosition(intention.goal),
+                        intention.getAgentPseudoPath().peekLast()
+                );
                 removedObstacles.add(obstacleOrigin);
                 return plan;
             }
@@ -99,8 +103,10 @@ public class HLPlanner {
                 // next obstacle is in the path - move box to free position
                 Position neighbour = pls.getFreeNeighbour(
                         intention.getAgentAndBoxPseudoPath(),
+                        agentPosition,
                         obstacleOrigin,
-                        remainingObstacles);
+                        remainingObstacles
+                );
 
                 moveBoxInPlanner(box, neighbour, obstacleOrigin);
                 removedObstacles.add(obstacleOrigin);
@@ -116,7 +122,7 @@ public class HLPlanner {
                 pls.getPosition(intention.goal),
                 intention.getAgentPseudoPath().peekLast()
         );
-        // pls.revertLast(committedActions);
+
         return plan;
     }
 
@@ -129,6 +135,5 @@ public class HLPlanner {
         );
         plan.append(moveBoxAction);
         pls.apply(moveBoxAction);
-        // committedActions++;
     }
 }
