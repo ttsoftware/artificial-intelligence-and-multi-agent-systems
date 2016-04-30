@@ -157,11 +157,13 @@ public class Level {
                         returnString += boardObjects[row][cell].getLabel().substring(0, 1);
                         break;
                     case BOX:
-                        String boxLabel = boardObjects[row][cell].getLabel().substring(0, 1);
+                        String boxLabel = boardObjects[row][cell].getLabel();
+                        boxLabel = boxLabel.substring(boxLabel.length() - 2, boxLabel.length() -1);
                         returnString += boxLabel;
                         break;
                     case AGENT:
                         String agentLabel = boardObjects[row][cell].getLabel();
+                        agentLabel = agentLabel.substring(agentLabel.length() - 1, agentLabel.length());
                         returnString += agentLabel;
                         break;
                     case GOAL:

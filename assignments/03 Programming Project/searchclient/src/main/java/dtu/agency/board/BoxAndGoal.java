@@ -30,7 +30,7 @@ public class BoxAndGoal extends BoardObject {
      * @return True if the @goal is of the same type as the @box
      */
     public boolean isSolved() {
-        return box.getLabel().startsWith(goal.getLabel().toUpperCase().substring(0, 1));
+        return box.canSolveGoal(goal);
     }
 
     @Override

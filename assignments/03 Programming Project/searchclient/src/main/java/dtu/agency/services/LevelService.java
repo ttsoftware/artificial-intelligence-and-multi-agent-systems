@@ -9,6 +9,7 @@ import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Collectors;
 
 public abstract class LevelService {
 
@@ -212,6 +213,18 @@ public abstract class LevelService {
      */
     public Agent getAgent(String label) {
         return level.getAgentsMap().get(label);
+    }
+
+    /**
+     * @param agentNumber
+     * @return The agent associated with the given number
+     */
+    public Agent getAgent(Integer agentNumber) {
+        // There should only be 1 agent with this number
+        return level.getAgents()
+                .stream()
+                .filter(agent -> agent.getNumber() == agentNumber)
+                .collect(Collectors.toList()).get(0);
     }
 
     /**
@@ -757,8 +770,7 @@ public abstract class LevelService {
                         bigPath.addLast(new Position(next));
                         break;
                 }
-            }
-            else {
+            } else {
                 bigPath.addLast(new Position(next));
             }
 
@@ -1007,24 +1019,23 @@ public abstract class LevelService {
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized Position getFreeNeighbour(final LinkedList<Position> path, Position obstaclePosition, int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path, Position agentPosition, Position obstaclePosition, int numberOfNeighbours) {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
                 path,
-                BDIService.getInstance().getAgentCurrentPosition(),
+                agentPosition,
                 obstaclePosition
         );
 
         // find weighted sub path
         PriorityQueue<Position> weightSubPath = weightedObstacleSubPath(obstacleFreePath, obstaclePosition);
 
-        Position weightedPosition;
-
-        // as the list is now prioritized, we want to find the first neighbor, at maxdepth or shallower
+        // as the list is now prioritized, we want to find the first neighbor, at numberOfNeighbours or shallower
         // previously seen positions
         HashSet<Position> previouslySeen = new HashSet<>(obstacleFreePath);
 
+        Position weightedPosition;
         // iterate in weighted order
         while ((weightedPosition = weightSubPath.poll()) != null) {
             if (hasUnseenFreeNeighbour(weightedPosition, previouslySeen)) {
@@ -1106,8 +1117,10 @@ public abstract class LevelService {
 
         boolean ignoringPositions = false;
         Position ignoreStartPosition = null;
+
         for (Position position : path) {
             if (!ignoringPositions) {
+                // we potentially want to add these positions
                 if (isFree(position)) {
                     // we can add position to sub-path
                     subPath.addLast(position);
@@ -1123,6 +1136,7 @@ public abstract class LevelService {
                     ignoreStartPosition = position;
                 }
             } else {
+                // we potentially want to ignore these positions
                 if (ignoreStartPosition.equals(position)) {
                     // we are back on the valid sub-path
                     ignoringPositions = false;

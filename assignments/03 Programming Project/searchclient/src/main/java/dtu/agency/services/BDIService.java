@@ -113,13 +113,14 @@ public class BDIService {
         Ideas ideas = new Ideas(goal, pls); // agent destination is used for heuristic purpose
 
         for (Box box : pls.getLevel().getBoxes()) {
-            // TODO: check for colors
-            if (box.getLabel().toLowerCase().substring(0, 1).equals(goal.getLabel().toLowerCase().substring(0, 1))) {
-                SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
-                ideas.add(solveGoalAction);
-            }
-            else {
-                // TODO: What do we do here?
+            if (box.getColor().equals(agent.getColor())) {
+                if (box.canSolveGoal(goal)) {
+                    SolveGoalAction solveGoalAction = new SolveGoalAction(box, goal);
+                    ideas.add(solveGoalAction);
+                }
+                else {
+                    // TODO: What do we do here?
+                }
             }
         }
         return ideas;
@@ -208,7 +209,7 @@ public class BDIService {
      */
     public boolean solveGoal(Goal goal) {
         // Continue solving this goal, using the Intention found in the bidding round
-        AgentIntention intention = getIntentions().get(goal.getLabel());
+        AgentIntention intention = intentions.get(goal.getLabel());
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
@@ -219,6 +220,23 @@ public class BDIService {
             currentHLPlan = hlPlan;
             return true;
         }
+        return false;
+    }
+
+    /**
+     *
+     * @param path
+     * @param obstacle
+     * @return
+     */
+    public boolean solveMoveObstacle(LinkedList<Position> path, BoardObject obstacle) {
+
+        // TODO:
+        PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
+
+        HLPlanner planner = new HLPlanner(intention, pls);
+        HLPlan hlPlan = planner.plan();
+
         return false;
     }
 
