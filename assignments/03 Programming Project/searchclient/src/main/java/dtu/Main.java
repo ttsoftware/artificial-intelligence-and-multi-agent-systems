@@ -17,9 +17,9 @@ public class Main {
                 // "levels/MAsimple1.lvl", // TODO: Why do agents wait for each other to finish?
                 // "levels/MApacman.lvl", // TODO: Does not work
                 // "levels/MAmultiagentSort.lvl", // TODO: Does not work
-                // "levels/MAchallenge.lvl", // TODO: Does not work - Colors do not work
+                // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
-                // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
+                "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl", // TODO: Does not work (Class cast exception - POP)
                 // "levels/friendofDFS.lvl",
@@ -29,7 +29,7 @@ public class Main {
                 // "levels/SAD1_multi.lvl",
                 // "levels/SAD1_multi_conflict.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
-                "levels/SAhlplan.lvl",
+                // "levels/SAhlplan.lvl",
                 // "levels/SAhlplan_old.lvl",
                 // "levels/ClearPathTest.lvl",
                 // "levels/obstaclePathTestLevel.lvl",

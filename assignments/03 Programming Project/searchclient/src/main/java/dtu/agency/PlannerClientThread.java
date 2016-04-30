@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Level;
-import dtu.agency.events.agent.ProblemSolvedEvent;
+import dtu.agency.events.agency.ProblemSolvedEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.pop.GotoPOP;

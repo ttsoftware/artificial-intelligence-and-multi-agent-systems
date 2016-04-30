@@ -7,6 +7,8 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
+import dtu.agency.events.agency.MoveObstacleAssignmentEvent;
+import dtu.agency.events.agency.MoveObstacleOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
@@ -111,5 +113,27 @@ public class AgentThread implements Runnable {
                 event.setResponse(plan);
             }
         }
+    }
+
+    /**
+     * Provide an estimation of how many steps we need for moving the obstacle
+     * @param event
+     */
+    @Subscribe
+    @AllowConcurrentEvents
+    public void moveObstacleOfferEventSubscriber(MoveObstacleOfferEvent event) {
+
+
+    }
+
+    /**
+     * Create a plan for moving the obstacle
+     * @param event
+     */
+    @Subscribe
+    @AllowConcurrentEvents
+    public void moveObstacleAssignmentEventSubscriber(MoveObstacleAssignmentEvent event) {
+
+
     }
 }
