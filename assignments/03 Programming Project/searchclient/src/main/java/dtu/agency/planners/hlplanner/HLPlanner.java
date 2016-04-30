@@ -44,13 +44,34 @@ public class HLPlanner {
 
             Box box;
             if (boardObject.getType() == BoardCell.BOX_GOAL) {
-                box = ((BoxAndGoal) boardObject).getBox();
+                // there is a box in our path
+                BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
+                if (boxGoal.isSolved()) {
+                    throw new RuntimeException("I cannot un-solve a solved goal");
+                }
+                else {
+                    box = ((BoxAndGoal) boardObject).getBox();
+                }
             }
             else if (boardObject.getType() == BoardCell.BOX) {
+                // there is a box in our path
                 box = (Box) boardObject;
             }
+            else if (boardObject.getType() == BoardCell.AGENT_GOAL
+                    || boardObject.getType() == BoardCell.AGENT) {
+                // there is an agent in our path - ask it to move
+                // ignore it for now, it might move on its own
+                // if it does not move on its own, we are gonna have to ask it to move
+                remainingObstacles--;
+                continue;
+            }
             else {
-                throw new AssertionError("What boardObject is this even?: " + boardObject.getClass().getName());
+                throw new AssertionError("What boardObject is this?: " + boardObject.getClass().getName());
+            }
+
+            // see if this agent can actually move this box
+            if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
+                throw new RuntimeException("We cannot move this obstacle ourselves. Help!");
             }
 
             if (box.equals(intention.targetBox) && obstacles.hasNext()) {

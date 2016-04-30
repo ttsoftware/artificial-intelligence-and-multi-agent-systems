@@ -22,8 +22,6 @@ import dtu.agency.services.ThreadService;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Agency implements Runnable {
 
@@ -49,16 +47,6 @@ public class Agency implements Runnable {
 
         List<Goal> nextIndependentGoals;
 
-        // Map for agent -> is done executing a plan
-        HashMap<String, Boolean> agentIsFinished = new HashMap<>();
-        agents.forEach(agent -> agentIsFinished.put(agent.getLabel(), true));
-
-        HashMap<Integer, Lock> agentLocks = new HashMap<>();
-        agents.forEach(agent -> {
-            final Lock lock = new ReentrantLock();
-            agentLocks.put(agent.getNumber(), lock);
-        });
-
         final KeyLockManager lockManager = KeyLockManagers.newLock();
 
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
@@ -72,7 +60,6 @@ public class Agency implements Runnable {
 
                 // Lock this agent
                 lockManager.executeLocked(bestAgent.getNumber(), () -> {
-                    agentIsFinished.put(bestAgent.getLabel(), false);
 
                     // Assign this goal, and wait for response
                     System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
