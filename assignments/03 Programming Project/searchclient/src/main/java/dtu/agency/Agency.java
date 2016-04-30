@@ -3,6 +3,8 @@ package dtu.agency;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
+import de.jkeylockmanager.manager.KeyLockManager;
+import de.jkeylockmanager.manager.KeyLockManagers;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
@@ -52,20 +54,24 @@ public class Agency implements Runnable {
         agents.forEach(agent -> agentIsFinished.put(agent.getLabel(), true));
 
         HashMap<Integer, Lock> agentLocks = new HashMap<>();
-        agents.forEach(agent -> agentLocks.put(agent.getNumber(), new ReentrantLock()));
+        agents.forEach(agent -> {
+            final Lock lock = new ReentrantLock();
+            agentLocks.put(agent.getNumber(), lock);
+        });
+
+        final KeyLockManager lockManager = KeyLockManagers.newLock();
 
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
             // Assign goals to the best agents and wait for plans to finish
+
             offerGoals(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
 
                 Goal goal = goalAgentEntry.getKey();
                 Agent bestAgent = goalAgentEntry.getValue();
 
                 // Lock this agent
-                agentLocks.get(bestAgent.getNumber()).lock();
-
-                try {
+                lockManager.executeLocked(bestAgent.getNumber(), () -> {
                     agentIsFinished.put(bestAgent.getLabel(), false);
 
                     // Assign this goal, and wait for response
@@ -88,11 +94,7 @@ public class Agency implements Runnable {
                     boolean isFinished = sendActionsEvent.getResponse();
 
                     System.err.println("The plan for goal: " + goal + " finished.");
-                }
-                finally {
-                    // unlock this agent
-                    agentLocks.get(bestAgent.getNumber()).unlock();
-                }
+                });
             });
         }
 

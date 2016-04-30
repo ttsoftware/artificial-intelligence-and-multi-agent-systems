@@ -26,7 +26,7 @@ public class Main {
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
-                // "levels/SAD1_multi.lvl",
+                "levels/SAD1_multi.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
                 // "levels/SAhlplan.lvl", // TODO: Does not work anymore :'(
                 // "levels/SAhlplan_old.lvl",

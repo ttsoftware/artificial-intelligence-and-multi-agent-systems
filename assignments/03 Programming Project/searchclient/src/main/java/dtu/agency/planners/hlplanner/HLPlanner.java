@@ -40,15 +40,17 @@ public class HLPlanner {
 
         while (obstacles.hasNext()) {
             Position obstacleOrigin = (Position) obstacles.next();
-            BoardCell cell = pls.getCell(obstacleOrigin);
             BoardObject boardObject = pls.getObject(obstacleOrigin);
 
             Box box;
-            if (cell == BoardCell.BOX_GOAL) {
+            if (boardObject.getType() == BoardCell.BOX_GOAL) {
                 box = ((BoxAndGoal) boardObject).getBox();
             }
-            else {
+            else if (boardObject.getType() == BoardCell.BOX) {
                 box = (Box) boardObject;
+            }
+            else {
+                throw new AssertionError("What boardObject is this even?: " + boardObject.getClass().getName());
             }
 
             if (box.equals(intention.targetBox) && obstacles.hasNext()) {
