@@ -29,10 +29,10 @@ public class Main {
                 // "levels/SAD1_multi.lvl",
                 // "levels/SAD1_multi_conflict.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
-                // "levels/SAhlplan.lvl", // TODO: Does not work anymore :'(
+                "levels/SAhlplan.lvl",
                 // "levels/SAhlplan_old.lvl",
                 // "levels/ClearPathTest.lvl",
-                "levels/obstaclePathTestLevel.lvl", // TODO: Works with disappointing placement of (C)
+                // "levels/obstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
