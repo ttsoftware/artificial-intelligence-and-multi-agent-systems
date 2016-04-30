@@ -161,12 +161,12 @@ public class AgentThread implements Runnable {
             // setup local variables
             Agent agent = BDIService.getInstance().getAgent();
 
-            // TODO: Think of ideas for moving this obstacle?
-            // Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            // boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
+            // TODO: Think of ideas for moving this obstacle
+            Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
 
-            // TODO: Create plan for moving object
-            // BDIService.getInstance().solveGoal(goal);
+            // Create plan for moving object
+            BDIService.getInstance().solveMoveObstacle(event.getPath(), event.getObstacle());
 
             // retrieve the list of primitive actions to execute (blindly)
             PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();

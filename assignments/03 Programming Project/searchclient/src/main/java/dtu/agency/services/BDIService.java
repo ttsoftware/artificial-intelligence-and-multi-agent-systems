@@ -209,7 +209,7 @@ public class BDIService {
      */
     public boolean solveGoal(Goal goal) {
         // Continue solving this goal, using the Intention found in the bidding round
-        AgentIntention intention = getIntentions().get(goal.getLabel());
+        AgentIntention intention = intentions.get(goal.getLabel());
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
@@ -220,6 +220,23 @@ public class BDIService {
             currentHLPlan = hlPlan;
             return true;
         }
+        return false;
+    }
+
+    /**
+     *
+     * @param path
+     * @param obstacle
+     * @return
+     */
+    public boolean solveMoveObstacle(LinkedList<Position> path, BoardObject obstacle) {
+
+        // TODO:
+        PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
+
+        HLPlanner planner = new HLPlanner(intention, pls);
+        HLPlan hlPlan = planner.plan();
+
         return false;
     }
 

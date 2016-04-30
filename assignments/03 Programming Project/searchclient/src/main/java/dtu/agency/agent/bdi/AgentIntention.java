@@ -81,6 +81,7 @@ public class AgentIntention {
     public LinkedList<Position> getAgentAndBoxPseudoPath() {
         return new LinkedList<>(agentBoxPseudoPath);
     }
+
     public LinkedList<Position> getAgentPseudoPath() {
         return new LinkedList<>(agentPseudoPath);
     }
