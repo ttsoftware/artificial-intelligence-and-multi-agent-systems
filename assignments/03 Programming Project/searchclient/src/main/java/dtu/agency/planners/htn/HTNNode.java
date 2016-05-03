@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class HTNNode {
 
-    private static Random rnd = new Random(1);
+    //private static Random rnd = new Random(1);
     private final HTNNode parent;
     private final ConcreteAction concreteAction;   // primitive concreteAction represented by this node
     private final HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
@@ -154,7 +154,7 @@ public class HTNNode {
             }
         }
 
-        Collections.shuffle(refinementNodes, rnd);
+        //Collections.shuffle(refinementNodes, rnd);
         return refinementNodes;
     }
 

@@ -136,12 +136,6 @@ public class PlannerClientThread implements Runnable {
             sendActionsEvent = sendServerActionsQueue.poll();
         }
 
-        // we should now have emptied the queue
-
-        HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
-        // pop the next action from each plan
-        currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
-
         List<Conflict> conflictingAgents = conflictService.detectConflicts(currentPlans);
         if (!conflictingAgents.isEmpty()) {
 
@@ -159,6 +153,11 @@ public class PlannerClientThread implements Runnable {
                 );
             });
         }
+
+        // we should now have emptied the queue
+        HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
+        // pop the next action from each plan
+        currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
 
         // send actions to server
         send(buildActionSet(agentsActions));
