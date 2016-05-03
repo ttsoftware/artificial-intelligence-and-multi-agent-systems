@@ -16,8 +16,9 @@ public class Main {
                 // "levels/SAD1_multi.lvl",
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl", // TODO: Does not work
-                "levels/SAboxesOfHanoi_simple.lvl", // TODO: Does not work (see PlannerClientTest)
+                // "levels/SAboxesOfHanoi_simple.lvl", // TODO: Does not work (see PlannerClientTest)
                 // "levels/SAD1_multi_1_agent_wins.lvl",
+                "levels/MAconflicts.lvl",
                 "-g",
                 "100",
                 "-t",
