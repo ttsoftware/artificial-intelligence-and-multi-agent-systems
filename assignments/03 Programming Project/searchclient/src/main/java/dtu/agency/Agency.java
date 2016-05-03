@@ -136,7 +136,7 @@ public class Agency implements Runnable {
      */
     @Subscribe
     @AllowConcurrentEvents
-    public void moveObstacleEventSubscriber(HelpMoveObstacleEvent event) {
+    public void helpMoveObstacleEventSubscriber(HelpMoveObstacleEvent event) {
 
         // Subscribe to move obstacle estimations
         MoveObstacleEstimationEventSubscriber obstacleEstimationSubscriber = new MoveObstacleEstimationEventSubscriber(

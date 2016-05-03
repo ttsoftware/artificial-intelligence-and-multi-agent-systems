@@ -142,6 +142,11 @@ public class AgentThread implements Runnable {
 
         int totalSteps = 0;
 
+        System.err.println(Thread.currentThread().getName()
+                + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                + ": received a task offer for moving " + event.getObstacle().getLabel()
+                + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
+
         EventBusService.getEventBus().post(new MoveObstacleEstimationEvent(agent, obstacle, totalSteps));
     }
 
@@ -161,12 +166,12 @@ public class AgentThread implements Runnable {
             // setup local variables
             Agent agent = BDIService.getInstance().getAgent();
 
-            // TODO: Think of ideas for moving this obstacle?
-            // Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            // boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
+            // TODO: Think of ideas for moving this obstacle
+            //Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            //boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
 
-            // TODO: Create plan for moving object
-            // BDIService.getInstance().solveGoal(goal);
+            // Create plan for moving object
+            BDIService.getInstance().solveMoveObstacle(event.getPath(), event.getObstacle());
 
             // retrieve the list of primitive actions to execute (blindly)
             PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();

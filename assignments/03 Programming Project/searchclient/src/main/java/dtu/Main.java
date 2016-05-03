@@ -10,6 +10,7 @@ public class Main {
         String[] serverArgs = {
                 "-l",
                 // "levels/recursion_and_friends.lvl", // TODO: Does not work
+                // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
                 // "levels/MAsimple5.lvl", // TODO: Does not work - Class cast exception
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
@@ -21,7 +22,7 @@ public class Main {
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
-                // "levels/Crunch.lvl", // TODO: Does not work (Class cast exception - POP)
+                // "levels/Crunch.lvl",
                 // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
@@ -38,7 +39,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/MAtest.lvl",
                 "-g",
-                "300",
+                "200",
                 "-t",
                 "60",
                 "-c",

@@ -1,11 +1,9 @@
 package dtu.agency.planners.pop;
 
 import dtu.agency.ProblemMarshaller;
-import dtu.agency.actions.abstractaction.GotoAbstractAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Level;
-import dtu.agency.board.Position;
 import dtu.agency.services.GlobalLevelService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,7 +20,7 @@ public class GotoPOPTest {
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/MAtest.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/Crunch.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -39,9 +37,6 @@ public class GotoPOPTest {
     public void planTest() {
         GotoPOP gotoPlanner = new GotoPOP();
 
-        GotoAbstractAction gotoAbstractAction = new GotoAbstractAction(new Position(1,1));
-
-        //List<Goal> blockingGoals = gotoPlanner.getBlockingGoals(gotoAbstractAction);
         List<PriorityBlockingQueue<Goal>> goalQueueList = gotoPlanner.getWeighedGoals();
 
         assert(goalQueueList.size() > 0);

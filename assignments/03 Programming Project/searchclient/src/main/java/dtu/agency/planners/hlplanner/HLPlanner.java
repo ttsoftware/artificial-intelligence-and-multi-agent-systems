@@ -83,7 +83,8 @@ public class HLPlanner {
                 boolean isObstacleMoved = helpMeEvent.getResponse();
 
                 if (isObstacleMoved) {
-                    // we can continue to try solving next obstacle
+                    // we can continue and try solving next obstacle
+                    remainingObstacles--;
                     continue;
                 }
                 else {
