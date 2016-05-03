@@ -9,18 +9,36 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
+                // "levels/recursion_and_friends.lvl", // TODO: Does not work
+                // "levels/MAsimple5.lvl", // TODO: Does not work - Class cast exception
+                // "levels/MAsimple4.lvl", // TODO: Does not work
+                // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
+                // "levels/MAsimple2.lvl", // TODO: Why do agents wait for each other to finish?
+                // "levels/MAsimple1.lvl", // TODO: Why do agents wait for each other to finish?
+                // "levels/MApacman.lvl", // TODO: Does not work
+                // "levels/MAmultiagentSort.lvl", // TODO: Does not work
+                // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
-                // "levels/SAhlplan_old.lvl", // TODO: Does not work
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
-                // "levels/ClearPathTest.lvl",
+                // "levels/Firefly.lvl",
+                // "levels/Crunch.lvl", // TODO: Does not work (Class cast exception - POP)
+                // "levels/friendofDFS.lvl",
+                // "levels/friendofBFS.lvl",
+                // "levels/SAD1.lvl",
+                // "levels/SAD2.lvl",
                 // "levels/SAD1_multi.lvl",
-                // "levels/SApushing.lvl",
-                // "levels/SAboxesOfHanoi.lvl", // TODO: Does not work
-                // "levels/SAboxesOfHanoi_simple.lvl", // TODO: Does not work (see PlannerClientTest)
+                // "levels/SAD1_multi_conflict.lvl",
                 // "levels/SAD1_multi_1_agent_wins.lvl",
+                // "levels/SAhlplan.lvl",
+                // "levels/SAhlplan_old.lvl",
+                // "levels/ClearPathTest.lvl",
+                // "levels/obstaclePathTestLevel.lvl",
+                // "levels/SApushing.lvl",
+                // "levels/SAboxesOfHanoi.lvl",
+                // "levels/SAboxesOfHanoi_simple.lvl",
                 "levels/MAconflicts.lvl",
                 "-g",
-                "100",
+                "300",
                 "-t",
                 "60",
                 "-c",

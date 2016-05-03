@@ -1,6 +1,7 @@
 package dtu.agency.board;
 
 public class Agent extends BoardObject {
+
     public Agent(String label) {
         super(label);
     }
@@ -25,5 +26,13 @@ public class Agent extends BoardObject {
             return super.equals(object);
         }
         return false;
+    }
+
+    public String getColor() {
+        return label.substring(0, label.length() - 1);
+    }
+
+    public int getNumber() {
+        return Integer.valueOf(label.substring(label.length() - 1, label.length()));
     }
 }

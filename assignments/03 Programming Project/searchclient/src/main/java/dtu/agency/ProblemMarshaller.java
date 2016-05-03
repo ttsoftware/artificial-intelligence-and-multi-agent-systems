@@ -25,10 +25,25 @@ public class ProblemMarshaller {
         int columnCount = 0;
 
         ArrayList<String> lines = new ArrayList<>();
+        Map<Character, String> colors = new HashMap<>();
 
         // read all lines into the lines array
         String fileLine = fileReader.readLine();
         while (fileLine != null && !fileLine.equals("")) {
+
+            // Read lines specifying colors
+            if (fileLine.matches("^[a-z]+:\\s*[0-9A-Z](,\\s*[0-9A-Z])*\\s*$")) {
+                fileLine.replaceAll("\\s", "");
+                String[] colonSplit = fileLine.split(":");
+                String color = colonSplit[0].trim();
+
+                for (String id : colonSplit[1].split(",")) {
+                    colors.put(id.trim().charAt(0), color);
+                }
+                fileLine = fileReader.readLine();
+                continue;
+            }
+
             rowCount++;
             if (fileLine.length() > columnCount) {
                 columnCount = fileLine.length();
@@ -46,17 +61,13 @@ public class ProblemMarshaller {
                     tempLine += " ";
                 }
                 tempLines.add(tempLine);
-            }
-            else {
+            } else {
                 tempLines.add(line);
             }
         }
         lines = tempLines;
 
-        Map<Character, String> colors = new HashMap<>();
-
         // Objects we wish to create
-        // TODO: Fix board size to match actual board size
         BoardCell[][] boardState = new BoardCell[rowCount][columnCount];
         BoardObject[][] boardObjects = new BoardObject[rowCount][columnCount];
         ConcurrentHashMap<String, Position> boardObjectPositions = new ConcurrentHashMap<>();
@@ -72,19 +83,6 @@ public class ProblemMarshaller {
         List<Box> boxes = new ArrayList<>();
         List<Wall> walls = new ArrayList<>();
         List<Goal> goals = new ArrayList<>();
-
-        // Read lines specifying colors
-        for (String line : lines) {
-            if (line.matches("^[a-z]+:\\s*[0-9A-Z](,\\s*[0-9A-Z])*\\s*$")) {
-                line.replaceAll("\\s", "");
-                String[] colonSplit = line.split(":");
-                String color = colonSplit[0].trim();
-
-                for (String id : colonSplit[1].split(",")) {
-                    colors.put(id.trim().charAt(0), color);
-                }
-            }
-        }
 
         int wallCount = 0;
         int boxCount = 0;
@@ -105,6 +103,9 @@ public class ProblemMarshaller {
                 } else if ('0' <= cell && cell <= '9') {
                     // Its an agent cell
                     String label = String.valueOf(cell);
+                    if (colors.containsKey(cell)) {
+                        label = colors.get(cell) + label;
+                    }
                     Agent agent = new Agent(label);
                     agents.add(agent);
                     agentsMap.put(label, agent);
@@ -114,6 +115,9 @@ public class ProblemMarshaller {
                 } else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     String label = String.valueOf(cell) + Integer.toString(boxCount);
+                    if (colors.containsKey(cell)) {
+                        label = colors.get(cell) + label;
+                    }
                     Box box = new Box(label);
                     boxes.add(box);
                     boxesMap.put(label, box);

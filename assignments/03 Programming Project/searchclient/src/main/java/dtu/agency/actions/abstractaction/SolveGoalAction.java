@@ -8,9 +8,7 @@ import dtu.agency.board.Position;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
-import java.io.Serializable;
-
-public class SolveGoalAction extends AbstractAction implements Serializable {
+public class SolveGoalAction extends AbstractAction {
 
     private final Box box;
     private final Goal goal;
@@ -28,7 +26,9 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
         this.goal = new Goal(other.getGoal());
     }
 
-    public Goal getGoal() { return goal; }
+    public Goal getGoal() {
+        return goal;
+    }
 
     @Override
     public AbstractActionType getType() {
@@ -36,7 +36,8 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
     }
 
     public Position getAgentDestination(PlanningLevelService pls) {
-        return pls.getPosition(BDIService.getInstance().getAgent());
+        // TODO: Why does the agent always wish to go back to where it started from?
+        return pls.getPosition(box);
     }
 
     public Position getBoxDestination() {
@@ -47,12 +48,13 @@ public class SolveGoalAction extends AbstractAction implements Serializable {
         // this is gonna be a rough estimation, on the relaxed path
         Agent agent = BDIService.getInstance().getAgent();
         int approximateSteps = 0;
+
         Position boxOrigin = pls.getPosition(box);
         Position boxDestination = pls.getPosition(goal);
-        System.err.println("agent: " + pls.getPosition(agent));
-        System.err.println("box: " + boxOrigin);
-        approximateSteps += pls.getPosition(agent).manhattanDist(boxOrigin) -1;
+
+        approximateSteps += pls.getPosition(agent).manhattanDist(boxOrigin) - 1;
         approximateSteps += boxOrigin.manhattanDist(boxDestination);
+
         if (boxOrigin.isAdjacentTo(boxDestination)) {
             // ensures that boxes next to the goal is preferred eg in SAD2
             // this mirrors the elimination of risks of other boxes being in this part of the path

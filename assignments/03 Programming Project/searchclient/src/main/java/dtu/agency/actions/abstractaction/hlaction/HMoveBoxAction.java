@@ -3,16 +3,13 @@ package dtu.agency.actions.abstractaction.hlaction;
 import dtu.agency.actions.abstractaction.AbstractActionType;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
-import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
-
-import java.io.Serializable;
 
 
 /**
  * This Action Moves a box and returns the agent to the box origin
  */
-public class HMoveBoxAction extends HLAction implements Serializable {
+public class HMoveBoxAction extends HLAction {
 
     private final Box box;
     private final Position boxDestination;
