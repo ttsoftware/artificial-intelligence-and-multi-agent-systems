@@ -142,6 +142,11 @@ public class AgentThread implements Runnable {
 
         int totalSteps = 0;
 
+        System.err.println(Thread.currentThread().getName()
+                + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                + ": received a task offer for moving " + event.getObstacle().getLabel()
+                + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
+
         EventBusService.getEventBus().post(new MoveObstacleEstimationEvent(agent, obstacle, totalSteps));
     }
 
@@ -162,8 +167,8 @@ public class AgentThread implements Runnable {
             Agent agent = BDIService.getInstance().getAgent();
 
             // TODO: Think of ideas for moving this obstacle
-            Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
+            //Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            //boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
 
             // Create plan for moving object
             BDIService.getInstance().solveMoveObstacle(event.getPath(), event.getObstacle());

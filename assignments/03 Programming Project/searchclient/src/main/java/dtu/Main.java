@@ -10,6 +10,7 @@ public class Main {
         String[] serverArgs = {
                 "-l",
                 // "levels/recursion_and_friends.lvl", // TODO: Does not work
+                // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
                 // "levels/MAsimple5.lvl", // TODO: Does not work - Class cast exception
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
@@ -37,7 +38,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 "-g",
-                "300",
+                "200",
                 "-t",
                 "60",
                 "-c",

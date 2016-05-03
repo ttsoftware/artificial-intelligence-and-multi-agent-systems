@@ -234,8 +234,8 @@ public class BDIService {
         // TODO:
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
-        HLPlanner planner = new HLPlanner(intention, pls);
-        HLPlan hlPlan = planner.plan();
+        //HLPlanner planner = new HLPlanner(intention, pls);
+        //HLPlan hlPlan = planner.plan();
 
         return false;
     }
