@@ -3,6 +3,7 @@ package dtu.agency.services;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.*;
+import dtu.agency.conflicts.ParkingSpace;
 import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;

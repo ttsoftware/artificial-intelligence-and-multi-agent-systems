@@ -34,21 +34,32 @@ public class ConflictService {
         HashMap<Position, Integer> seer = new HashMap<>();
         List<Conflict> conflictingAgents = new ArrayList<>();
 
+        GlobalLevelService.getInstance().getLevel().getAgents().stream().forEach((agent) ->
+            seer.put(
+                    GlobalLevelService.getInstance().getPosition(agent),
+                    agent.getNumber()
+            )
+        );
+
         currentPlans.forEach((agentNumber, concretePlan) -> {
             List<ConcreteAction> actions = concretePlan.getActions();
             if (!actions.isEmpty()) {
                 // If plan is not empty, check for conflicts
 
                 ConcreteAction action = actions.get(0);
-                Position currentAgentPosition = GlobalLevelService.getInstance().getPosition(agentNumber.toString());
+                Position currentAgentPosition = GlobalLevelService.getInstance().getPosition(
+                        GlobalLevelService.getInstance().getAgent(agentNumber)
+                );
 
                 switch (action.getType()) {
                     case MOVE:
                         MoveConcreteAction moveAction = (MoveConcreteAction) action;
 
                         // Find the new position of the agent based on the move action
-                        Position newMoveAgentPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(currentAgentPosition,
-                                moveAction.getAgentDirection());
+                        Position newMoveAgentPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(
+                                currentAgentPosition,
+                                moveAction.getAgentDirection()
+                        );
 
                         if (!seer.containsKey(newMoveAgentPosition)) {
                             // If the seer doesn't know the new position, it is not (yet) in Conflict
@@ -178,11 +189,6 @@ public class ConflictService {
          *       resetPlan <- initiator.makePlan(GOBACK(conflictPlan))
          */
 
-        // Find path of the conceder
-        LinkedList<Position> concederPath = GlobalLevelService.getInstance().getOrderedPath(
-                (PrimitivePlan) conflict.getConcederPlan()
-        );
-
         // Save the conflicting action
         ConcreteAction conflictingAction = conflict.getInitiatorPlan().getActions().get(0);
 
@@ -190,9 +196,7 @@ public class ConflictService {
         boolean pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
                 conflictingAction.getType() == ConcreteActionType.PULL);
 
-        // Find parking spaces
-        List<ParkingSpace> parkingSpaces = GlobalLevelService.getInstance().getParkingSpaces(concederPath, (pushOrPull ? 2 : 1));
-
+        List<Position> parkingSpaces = getParkingPositions(conflict, pushOrPull);
 
         // If we actually found parking spaces
         if (!parkingSpaces.isEmpty()) {
@@ -202,10 +206,7 @@ public class ConflictService {
             // TODO: Try again with initiator and conceder switched
 
             // Switch conceder and initiator
-
-            concederPath = GlobalLevelService.getInstance().getOrderedPath(
-                    (PrimitivePlan) conflict.getInitiatorPlan()
-            );
+            conflict = switchConcederAndInitiator(conflict);
 
             conflictingAction = conflict.getConcederPlan().getActions().get(0);
 
@@ -213,8 +214,7 @@ public class ConflictService {
             pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
                     conflictingAction.getType() == ConcreteActionType.PULL);
 
-            // Find parking spaces
-            parkingSpaces = GlobalLevelService.getInstance().getParkingSpaces(concederPath, (pushOrPull ? 2 : 1));
+            parkingSpaces = getParkingPositions(conflict, pushOrPull);
 
             if (!parkingSpaces.isEmpty()) {
                 return getResolveConflictForConcederAndConflictingAction(true, conflictingAction, conflict,
@@ -225,24 +225,58 @@ public class ConflictService {
         return null;
     }
 
+    public List<Position> getParkingPositions (Conflict conflict, boolean pushOrPull) {
+        List<Position> parkingSpaces = new ArrayList<>();
+
+        // Find parking spaces
+        parkingSpaces.add(
+                GlobalLevelService.getInstance().getFreeNeighbour(
+                        GlobalLevelService.getInstance().getOrderedPath(
+                                (PrimitivePlan) conflict.getInitiatorPlan()
+                        ),
+                        GlobalLevelService.getInstance().getPosition(conflict.getInitiator()),
+                        GlobalLevelService.getInstance().getPosition(conflict.getInitiator()),
+                        1
+                )
+        );
+
+        // Find parking spaces
+        if (pushOrPull) {
+            parkingSpaces.add(
+                    GlobalLevelService.getInstance().getFreeNeighbour(
+                            GlobalLevelService.getInstance().getOrderedPath(
+                                    (PrimitivePlan) conflict.getInitiatorPlan()
+                            ),
+                            GlobalLevelService.getInstance().getPosition(conflict.getInitiator()),
+                            GlobalLevelService.getInstance().getPosition(((MoveBoxConcreteAction) conflict.getInitiatorPlan().getActions().get(0)).getBox()),
+                            2
+                    )
+            );
+        }
+
+        return parkingSpaces;
+    }
+
+    public Conflict switchConcederAndInitiator (Conflict conflict) {
+        Agent conceder = conflict.getConceder();
+        Agent initiator = conflict.getInitiator();
+        ConcretePlan concederPlan = conflict.getConcederPlan();
+        ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
+
+        conflict.setConceder(initiator);
+        conflict.setInitiator(conceder);
+        conflict.setConcederPlan(initiatorPlan);
+        conflict.setInitiatorPlan(concederPlan);
+
+        return conflict;
+    }
+
 
     public ResolvedConflict getResolveConflictForConcederAndConflictingAction(boolean switchConcederAndInitiator,
                                                                               ConcreteAction conflictingAction,
                                                                               Conflict conflict,
                                                                               boolean pushOrPull,
-                                                                              List<ParkingSpace> parkingSpaces) {
-
-        if(switchConcederAndInitiator) {
-            Agent conceder = conflict.getConceder();
-            Agent initiator = conflict.getInitiator();
-            ConcretePlan concederPlan = conflict.getConcederPlan();
-            ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
-
-            conflict.setConceder(initiator);
-            conflict.setInitiator(conceder);
-            conflict.setConcederPlan(initiatorPlan);
-            conflict.setInitiatorPlan(concederPlan);
-        }
+                                                                              List<Position> parkingSpaces) {
 
         if (pushOrPull) {
             return getResolvedConflictForAgentAndBox(conflict, parkingSpaces,
@@ -252,10 +286,10 @@ public class ConflictService {
         }
     }
 
-    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<ParkingSpace> parkingSpaces)
+    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<Position> parkingSpaces)
     {
         // Construct action for moving the initiator away
-        RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0).getParkingSpace());
+        RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0));
         // Construct action for moving the initiator back to his original position
         RGotoAction moveBackAction = new RGotoAction(
                 GlobalLevelService.getInstance().getPosition(
@@ -290,7 +324,7 @@ public class ConflictService {
         return getResolvedConflict(parkingSpaces, outOfTheWayPlan, moveBackPlan, conflict);
     }
 
-    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<ParkingSpace> parkingSpaces, Box box){
+    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<Position> parkingSpaces, Box box){
         // If the conflicting action was push or pull, we must also move the box out of the way.
 
         //We will move the box to the first parking space (which is closest to the place where the conflict
@@ -306,8 +340,8 @@ public class ConflictService {
 
         PrimitivePlan moveBoxAndAgentOutOfTheWayPlan = getPlanToMoveBoxAndAgent(
                 box,
-                parkingSpaces.get(0).getParkingSpace(),
-                parkingSpaces.get(1).getParkingSpace()
+                parkingSpaces.get(0),
+                parkingSpaces.get(1)
         );
 
         PrimitivePlan moveBoxAndAgentBackPlan = getPlanToMoveBoxAndAgent(
@@ -337,7 +371,7 @@ public class ConflictService {
         return htnPlanner.plan();
     }
 
-    public ResolvedConflict getResolvedConflict(List<ParkingSpace> parkingSpaces,
+    public ResolvedConflict getResolvedConflict(List<Position> parkingSpaces,
                                                 PrimitivePlan outOfTheWayPlan,
                                                 PrimitivePlan moveBackPlan,
                                                 Conflict conflict) {
@@ -347,7 +381,7 @@ public class ConflictService {
             outOfTheWayPlan.addAction(new NoConcreteAction())
         );*/
 
-        IntStream.range(0, parkingSpaces.get(0).getActionIndexInPlan()).forEach((number) ->
+        IntStream.range(0, 2).forEach((number) ->
                 outOfTheWayPlan.addAction(new NoConcreteAction())
         );
 
@@ -361,9 +395,8 @@ public class ConflictService {
         PrimitivePlan concederPlan = new PrimitivePlan();
 
         // Add NoOp actions so that it waits until the initiator is away
-        IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
-                concederPlan.addAction(new NoConcreteAction())
-        );
+        concederPlan.addAction(new NoConcreteAction());
+
         // Append the original concederPlan
         concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
 

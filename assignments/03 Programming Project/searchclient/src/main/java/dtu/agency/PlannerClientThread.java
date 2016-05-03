@@ -4,10 +4,13 @@ import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Level;
+import dtu.agency.conflicts.Conflict;
+import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.ProblemSolvedEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.pop.GotoPOP;
+import dtu.agency.services.ConflictService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
@@ -16,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.IntStream;
@@ -108,6 +112,7 @@ public class PlannerClientThread implements Runnable {
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
         HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
         SendServerActionsEvent sendActionsEvent = null;
+        ConflictService conflictService = new ConflictService();
 
         try {
             // .take() will call Thread.wait() until an element (Stack) becomes available
@@ -136,6 +141,24 @@ public class PlannerClientThread implements Runnable {
         HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
         // pop the next action from each plan
         currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
+
+        List<Conflict> conflictingAgents = conflictService.detectConflicts(currentPlans);
+        if (!conflictingAgents.isEmpty()) {
+
+            conflictingAgents.forEach(conflict -> {
+                ResolvedConflict resolvedConflict = conflictService.resolveConflict(conflict);
+
+                currentPlans.put(
+                        Integer.valueOf(conflict.getConceder().getLabel()),
+                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getConceder().getLabel()))
+                );
+
+                currentPlans.put(
+                        Integer.valueOf(conflict.getInitiator().getLabel()),
+                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getInitiator().getLabel()))
+                );
+            });
+        }
 
         // send actions to server
         send(buildActionSet(agentsActions));
