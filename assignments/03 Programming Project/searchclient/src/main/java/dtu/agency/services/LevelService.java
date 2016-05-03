@@ -942,9 +942,18 @@ public abstract class LevelService {
      * @param size is the number of free neighboring locations we must discover (max 2)
      * @return
      */
-    public List<ParkingSpace> getFreeNeighbours(LinkedList<Position> path, int size) {
+    public List<ParkingSpace> getParkingSpaces(LinkedList<Position> path, int size) {
         List<ParkingSpace> parkingSpaces = new ArrayList<>();
 
+        for(int i = path.size() - 1; i >= 0 && size != 0; i--)
+        {
+            List<Neighbour> neighbours = getFreeNeighbours(path.get(i));
+
+            if(neighbours.size() > 0) {
+                parkingSpaces.add(new ParkingSpace(neighbours.get(0).getPosition(), i));
+                size--;
+            }
+        }
 
         return parkingSpaces;
     }

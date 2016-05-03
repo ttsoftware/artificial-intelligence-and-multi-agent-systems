@@ -1,10 +1,11 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.abstractaction.hlaction.HLAction;
 import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
+import dtu.agency.board.Agent;
+import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ParkingSpace;
@@ -13,7 +14,6 @@ import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.plans.PrimitivePlan;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -188,89 +188,191 @@ public class ConflictService {
 
         // Determine if the conflicting action is of type Push or Pull
         boolean pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
-                              conflictingAction.getType() == ConcreteActionType.PULL);
+                conflictingAction.getType() == ConcreteActionType.PULL);
 
         // Find parking spaces
-        List<ParkingSpace> parkingSpaces = GlobalLevelService.getInstance().getFreeNeighbours(concederPath, (pushOrPull ? 2 : 1));
+        List<ParkingSpace> parkingSpaces = GlobalLevelService.getInstance().getParkingSpaces(concederPath, (pushOrPull ? 2 : 1));
 
 
         // If we actually found parking spaces
         if (!parkingSpaces.isEmpty()) {
-            if (pushOrPull) {
-                // If the conflicting action was push or pull, we must also move the box out of the way.
-
-                // TODO: Probably move shit out of the way
-
-//                HMoveBoxAction outOfTheWayAction = new HMoveBoxAction(conflictingAction)
-            } else {
-                // Else, we just move the initiator away
-
-                // Construct action for moving the initiator away
-                RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0).getParkingSpaceOne());
-                // Construct action for moving the initiator back to his original position
-                RGotoAction moveBackAction = new RGotoAction(
-                    GlobalLevelService.getInstance().getPosition(
-                        conflict.getInitiator().getLabel()
-                    )
-                );
-
-                // Construct HTNPlanner for outOfTheWayAction
-                HTNPlanner htnPlanner = new HTNPlanner(
-                    new PlanningLevelService(
-                        GlobalLevelService.getInstance().getLevel()
-                    ),
-                    outOfTheWayAction,
-                    RelaxationMode.None
-                );
-
-                // Find plan for moving out of the way
-                PrimitivePlan outOfTheWayPlan = htnPlanner.plan();
-
-                // Construct HTNPlanner for moveBackAction
-                htnPlanner = new HTNPlanner(
-                    new PlanningLevelService(
-                            GlobalLevelService.getInstance().getLevel()
-                    ),
-                    moveBackAction,
-                    RelaxationMode.None
-                );
-
-                // Find plan for moving back to original position
-                PrimitivePlan moveBackPlan = htnPlanner.plan();
-
-                // Append NoOp actions after moving away
-                IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
-                    outOfTheWayPlan.addAction(new NoConcreteAction())
-                );
-
-                // Append moveBackPlan
-                outOfTheWayPlan.appendActions(moveBackPlan);
-
-                // Append the original plan
-                outOfTheWayPlan.appendActions((PrimitivePlan) conflict.getInitiatorPlan());
-
-                // Initialize concederPlan
-                PrimitivePlan concederPlan = new PrimitivePlan();
-
-                // Add NoOp actions so that it waits until the initiator is away
-                IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
-                    concederPlan.addAction(new NoConcreteAction())
-                );
-                // Append the original concederPlan
-                concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
-
-                // Return new resolved Conflict
-                return new ResolvedConflict(
-                    conflict.getInitiator(),
-                    outOfTheWayPlan,
-                    conflict.getConceder(),
-                    concederPlan
-                );
-            }
+            return getResolveConflictForConcederAndConflictingAction(false, conflictingAction, conflict,
+                    pushOrPull, parkingSpaces);
         } else {
             // TODO: Try again with initiator and conceder switched
+
+            // Switch conceder and initiator
+
+            concederPath = GlobalLevelService.getInstance().getOrderedPath(
+                    (PrimitivePlan) conflict.getInitiatorPlan()
+            );
+
+            conflictingAction = conflict.getConcederPlan().getActions().get(0);
+
+            // Determine if the conflicting action is of type Push or Pull
+            pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
+                    conflictingAction.getType() == ConcreteActionType.PULL);
+
+            // Find parking spaces
+            parkingSpaces = GlobalLevelService.getInstance().getParkingSpaces(concederPath, (pushOrPull ? 2 : 1));
+
+            if (!parkingSpaces.isEmpty()) {
+                return getResolveConflictForConcederAndConflictingAction(true, conflictingAction, conflict,
+                        pushOrPull, parkingSpaces);
+            }
         }
 
         return null;
+    }
+
+
+    public ResolvedConflict getResolveConflictForConcederAndConflictingAction(boolean switchConcederAndInitiator,
+                                                                              ConcreteAction conflictingAction,
+                                                                              Conflict conflict,
+                                                                              boolean pushOrPull,
+                                                                              List<ParkingSpace> parkingSpaces) {
+
+        if(switchConcederAndInitiator) {
+            Agent conceder = conflict.getConceder();
+            Agent initiator = conflict.getInitiator();
+            ConcretePlan concederPlan = conflict.getConcederPlan();
+            ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
+
+            conflict.setConceder(initiator);
+            conflict.setInitiator(conceder);
+            conflict.setConcederPlan(initiatorPlan);
+            conflict.setInitiatorPlan(concederPlan);
+        }
+
+        if (pushOrPull) {
+            return getResolvedConflictForAgentAndBox(conflict, parkingSpaces,
+                    ((MoveBoxConcreteAction) conflictingAction).getBox());
+        } else {
+            return getResolvedConflictForAgent(conflict, parkingSpaces);
+        }
+    }
+
+    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<ParkingSpace> parkingSpaces)
+    {
+        // Construct action for moving the initiator away
+        RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0).getParkingSpace());
+        // Construct action for moving the initiator back to his original position
+        RGotoAction moveBackAction = new RGotoAction(
+                GlobalLevelService.getInstance().getPosition(
+                        conflict.getInitiator().getLabel()
+                )
+        );
+
+        // Construct HTNPlanner for outOfTheWayAction
+        HTNPlanner htnPlanner = new HTNPlanner(
+                new PlanningLevelService(
+                        GlobalLevelService.getInstance().getLevel()
+                ),
+                outOfTheWayAction,
+                RelaxationMode.None
+        );
+
+        // Find plan for moving out of the way
+        PrimitivePlan outOfTheWayPlan = htnPlanner.plan();
+
+        // Construct HTNPlanner for moveBackAction
+        htnPlanner = new HTNPlanner(
+                new PlanningLevelService(
+                        GlobalLevelService.getInstance().getLevel()
+                ),
+                moveBackAction,
+                RelaxationMode.None
+        );
+
+        // Find plan for moving back to original position
+        PrimitivePlan moveBackPlan = htnPlanner.plan();
+
+        return getResolvedConflict(parkingSpaces, outOfTheWayPlan, moveBackPlan, conflict);
+    }
+
+    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<ParkingSpace> parkingSpaces, Box box){
+        // If the conflicting action was push or pull, we must also move the box out of the way.
+
+        //We will move the box to the first parking space (which is closest to the place where the conflict
+        //happened). Then the agent will go in the second parking space, s.t. it shortens the path it has to
+        //take in order to resolve the conflict
+
+        //Make the plan for moving the box and the agent out of the way
+
+        Position agentPositionBeforeConflict = GlobalLevelService.getInstance().
+                getPosition(conflict.getInitiator().getLabel());
+        Position boxPositionBeforeConflict = GlobalLevelService.getInstance().
+                getPosition(box);
+
+        PrimitivePlan moveBoxAndAgentOutOfTheWayPlan = getPlanToMoveBoxAndAgent(
+                box,
+                parkingSpaces.get(0).getParkingSpace(),
+                parkingSpaces.get(1).getParkingSpace()
+        );
+
+        PrimitivePlan moveBoxAndAgentBackPlan = getPlanToMoveBoxAndAgent(
+               box,
+                boxPositionBeforeConflict,
+                agentPositionBeforeConflict
+        );
+
+        return getResolvedConflict(parkingSpaces, moveBoxAndAgentOutOfTheWayPlan, moveBoxAndAgentBackPlan, conflict);
+    }
+
+    public PrimitivePlan getPlanToMoveBoxAndAgent(Box box, Position boxDestination, Position agentDestination) {
+        HMoveBoxAction moveBoxOutOfTheWayAction = new HMoveBoxAction(
+                box,
+                boxDestination,
+                agentDestination
+        );
+
+        HTNPlanner htnPlanner = new HTNPlanner(
+                new PlanningLevelService(
+                        GlobalLevelService.getInstance().getLevel()
+                ),
+                moveBoxOutOfTheWayAction,
+                RelaxationMode.None
+        );
+
+        return htnPlanner.plan();
+    }
+
+    public ResolvedConflict getResolvedConflict(List<ParkingSpace> parkingSpaces,
+                                                PrimitivePlan outOfTheWayPlan,
+                                                PrimitivePlan moveBackPlan,
+                                                Conflict conflict) {
+        // Append NoOp actions after moving away
+        // I don't think we have to wait that much. It's enough to wait until the conceder has moved past the parking space
+        /*IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
+            outOfTheWayPlan.addAction(new NoConcreteAction())
+        );*/
+
+        IntStream.range(0, parkingSpaces.get(0).getActionIndexInPlan()).forEach((number) ->
+                outOfTheWayPlan.addAction(new NoConcreteAction())
+        );
+
+        // Append moveBackPlan
+        outOfTheWayPlan.appendActions(moveBackPlan);
+
+        // Append the original plan
+        outOfTheWayPlan.appendActions((PrimitivePlan) conflict.getInitiatorPlan());
+
+        // Initialize concederPlan
+        PrimitivePlan concederPlan = new PrimitivePlan();
+
+        // Add NoOp actions so that it waits until the initiator is away
+        IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
+                concederPlan.addAction(new NoConcreteAction())
+        );
+        // Append the original concederPlan
+        concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
+
+        // Return new resolved Conflict
+        return new ResolvedConflict(
+                conflict.getInitiator(),
+                outOfTheWayPlan,
+                conflict.getConceder(),
+                concederPlan
+        );
     }
 }

@@ -4,23 +4,19 @@ import dtu.agency.board.Position;
 
 public class ParkingSpace {
 
-    private Position parkingSpaceOne;
-    private Position parkingSpaceTwo;
+    private Position parkingSpace;
+    private int actionIndexInPlan;
 
-    public ParkingSpace(Position positionOne, Position positionTwo) {
-        parkingSpaceOne = positionOne;
-        parkingSpaceTwo = positionTwo;
+    public ParkingSpace(Position parkingSpacePosition, int actionIndexInPlan) {
+        parkingSpace = parkingSpacePosition;
+        this.actionIndexInPlan = actionIndexInPlan;
     }
 
-    public ParkingSpace(Position positionOne) {
-        parkingSpaceOne = positionOne;
+    public Position getParkingSpace() {
+        return parkingSpace;
     }
 
-    public Position getParkingSpaceOne() {
-        return parkingSpaceOne;
-    }
-
-    public Position getParkingSpaceTwo() {
-        return parkingSpaceTwo;
+    public int getActionIndexInPlan() {
+        return actionIndexInPlan;
     }
 }

@@ -57,4 +57,20 @@ public class Conflict {
     public ConcretePlan getInitiatorPlan() {
         return initiatorPlan;
     }
+
+    public void setConceder(Agent conceder) {
+        this.conceder = conceder;
+    }
+
+    public void setConcederPlan(ConcretePlan concederPlan) {
+        this.concederPlan = concederPlan;
+    }
+
+    public void setInitiator(Agent initiator) {
+        this.initiator = initiator;
+    }
+
+    public void setInitiatorPlan(ConcretePlan initiatorPlan) {
+        this.initiatorPlan = initiatorPlan;
+    }
 }
