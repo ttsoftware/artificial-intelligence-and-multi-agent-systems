@@ -31,7 +31,14 @@ public class GotoPOP {
         for (Goal goal : levelGoals) {
             if (!handledGoals.contains(goal)) {
                 List<Goal> blockingGoalsList = getBlockingGoals(goal.getPosition());
-                blockingGoalsList.add(0, goal);
+
+                //sometimes the planner finds a path that goes back in a circle through the goal. I have decided
+                //that instead of backtracking, I'm just going to leave it find the correct path from that point on
+                //P.S. it never includes actions that form a loop, apart from the case in which the loop begins and
+                //ends in the goal
+                if(!blockingGoalsList.contains(goal)){
+                    blockingGoalsList.add(0, goal);
+                }
 
                 List<PriorityBlockingQueue<Goal>> newQueueList = getNonSelfStandingGoalList(blockingGoalsList, goalQueueList, handledGoals);
                 if(newQueueList == null)
@@ -134,7 +141,7 @@ public class GotoPOP {
         }
 
         PriorityQueue<MoveConcreteAction> stepActions = solvePreconditionForGoal((AgentAtPrecondition) currentPrecondition);
-        PriorityQueue<MoveConcreteAction> stepAdditionalActions = solvePrecondition((AgentAtPrecondition) currentPrecondition);
+        PriorityQueue<MoveConcreteAction> stepAdditionalActions = solvePreconditionWithGoals((AgentAtPrecondition) currentPrecondition);
 
         if (stepActions.isEmpty() && !canBacktrack) {
             if (!stepAdditionalActions.isEmpty()) {
@@ -144,6 +151,7 @@ public class GotoPOP {
                         [nextAction.getAgentPosition().getRow()][nextAction.getAgentPosition().getColumn()]);
                 previousActions.add(nextAction);
 
+                canBacktrack = canBacktrack || stepAdditionalActions.size() > 0;
                 blockingGoalsAndActions = getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack);
                 return blockingGoalsAndActions;
             } else {
@@ -159,7 +167,7 @@ public class GotoPOP {
                 MoveConcreteAction nextAction = stepActions.poll();
 
                 previousActions.add(nextAction);
-                canBacktrack = canBacktrack || stepActions.size() > 0;
+                canBacktrack = canBacktrack || stepActions.size() > 0 || stepAdditionalActions.size() > 0;
 
                 if (getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack) == null) {
                     previousActions.remove(nextAction);
@@ -238,15 +246,11 @@ public class GotoPOP {
         return false;
     }
 
-    /**
-     *
-     * @param precondition
-     * @return A queue of MoveActions which solves the given precondition
-     */
-    public PriorityQueue<MoveConcreteAction> solvePrecondition(AgentAtPrecondition precondition) {
+    public PriorityQueue<MoveConcreteAction> solvePreconditionWithGoals(AgentAtPrecondition precondition)
+    {
         PriorityQueue<MoveConcreteAction> concreteActions = new PriorityQueue<>(new ConcreteActionComparator());
 
-        List<Neighbour> neighbours = GlobalLevelService.getInstance().getFreeNeighbours(
+        List<Neighbour> neighbours = GlobalLevelService.getInstance().getGoalFreeNeighbours(
                 precondition.getAgentPreconditionPosition()
         );
 

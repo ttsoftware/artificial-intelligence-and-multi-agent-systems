@@ -22,7 +22,7 @@ public class Main {
                 // "levels/MAtest.lvl",
                 "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
-                // "levels/Crunch.lvl", // TODO: Does not work (Class cast exception - POP)
+                // "levels/Crunch.lvl",
                 // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",

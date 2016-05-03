@@ -227,6 +227,39 @@ public abstract class LevelService {
                 .collect(Collectors.toList()).get(0);
     }
 
+    public synchronized List<Neighbour> getGoalFreeNeighbours(Position position) {
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        if (level.getBoardState()[position.getRow()][position.getColumn() - 1].equals(BoardCell.GOAL)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() - 1),
+                    Direction.WEST
+            ));
+        }
+        if (level.getBoardState()[position.getRow()][position.getColumn() + 1].equals(BoardCell.GOAL)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow(), position.getColumn() + 1),
+                    Direction.EAST
+            ));
+        }
+
+        if (level.getBoardState()[position.getRow() - 1][position.getColumn()].equals(BoardCell.GOAL)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() - 1, position.getColumn()),
+                    Direction.NORTH
+            ));
+        }
+
+        if (level.getBoardState()[position.getRow() + 1][position.getColumn()].equals(BoardCell.GOAL)) {
+            neighbours.add(new Neighbour(
+                    new Position(position.getRow() + 1, position.getColumn()),
+                    Direction.SOUTH
+            ));
+        }
+
+        return neighbours;
+    }
+
     /**
      * @param currentPosition
      * @param movingDirection
@@ -713,13 +746,13 @@ public abstract class LevelService {
         levelAgentsAndBoxes.addAll(getLevel().getAgents());
         levelAgentsAndBoxes.addAll(getLevel().getBoxes());
 
-        int minRemoteness = Integer.MAX_VALUE;
+        int maxRemoteness = Integer.MIN_VALUE;
         BoardObject mostRemoteObject = null;
 
         for (BoardObject boardObject : levelAgentsAndBoxes) {
             int objectRemoteness = getLevelObjectRemoteness(boardObject, levelGoals);
-            if (minRemoteness > objectRemoteness) {
-                minRemoteness = objectRemoteness;
+            if (maxRemoteness < objectRemoteness) {
+                maxRemoteness = objectRemoteness;
                 mostRemoteObject = boardObject;
             }
         }
