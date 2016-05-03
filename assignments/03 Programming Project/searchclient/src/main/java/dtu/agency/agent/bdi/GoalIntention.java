@@ -9,45 +9,45 @@ import dtu.agency.services.BDIService;
 
 import java.util.LinkedList;
 
-public class AgentIntention {
+public class GoalIntention extends Intention {
     // (top level) Intentions are really SolveGoalSuperActions()
     // but could also be other orders issued by TheAgency
-    public final Goal goal; // Goal to be solved
-    public final Box targetBox;  // Box that solves the goal
-    public final PrimitivePlan pseudoPlan;
-    public final LinkedList<Position> agentPseudoPath;           // agent's core path, ordered without duplicates
-    public final LinkedList<Position> agentBoxPseudoPath;           // agent's core path, ordered without duplicates
-    public final LinkedList<Position> obstaclePositions;    // ordered position of obstacles encountered
-    private final int reachableObstacles;   // obstacles placed so that the agent may move them without moving the target box first (including the target box, ordered by distance from agent)
-    private final int unreachableObstacles; // obstacles placed so that the agent cannot move them before moving the target box
+    private final Goal goal; // Goal to be solved
+    private final Box targetBox;  // Box that solves the goal
+    private final LinkedList<Position> agentPseudoPath;           // agent's core path, ordered without duplicates
+    private final LinkedList<Position> agentBoxPseudoPath;           // agent's core path, ordered without duplicates
 
-    public AgentIntention(AgentIntention other) {
+    public GoalIntention(GoalIntention other) {
+        super(
+                new PrimitivePlan(other.pseudoPlan),
+                new LinkedList<>(other.obstaclePositions),
+                other.getReachableObstacles(),
+                other.getUnreachableObstacles()
+        );
         this.goal = new Goal(other.goal);
         this.targetBox = new Box(other.targetBox);
-        this.pseudoPlan = new PrimitivePlan(other.pseudoPlan);
         this.agentPseudoPath = new LinkedList<>(other.agentPseudoPath);
         this.agentBoxPseudoPath = new LinkedList<>(other.agentPseudoPath);
-        this.obstaclePositions = new LinkedList<>(other.obstaclePositions);
-        this.reachableObstacles = other.reachableObstacles;
-        this.unreachableObstacles = other.unreachableObstacles;
     }
 
-    public AgentIntention(Goal target,
-                          Box box,
-                          PrimitivePlan plan,
-                          LinkedList<Position> agentPath,
-                          LinkedList<Position> agentBoxPath,
-                          LinkedList<Position> obstacles,
-                          int reachable,
-                          int unreachable) {
+    public GoalIntention(Goal target,
+                         Box box,
+                         PrimitivePlan plan,
+                         LinkedList<Position> agentPath,
+                         LinkedList<Position> agentBoxPath,
+                         LinkedList<Position> obstacles,
+                         int reachable,
+                         int unreachable) {
+        super(
+                plan,
+                obstacles,
+                reachable,
+                unreachable
+        );
         goal = target;
         targetBox = box;
-        pseudoPlan = plan;
         agentPseudoPath = agentPath;
         agentBoxPseudoPath = agentBoxPath;
-        obstaclePositions = obstacles;
-        reachableObstacles = reachable;
-        unreachableObstacles = unreachable;
     }
 
     public int getApproximateSteps() {
@@ -66,7 +66,7 @@ public class AgentIntention {
 
     @Override
     public String toString() {
-        return "AgentIntention: Agent " + BDIService.getInstance().getAgent()
+        return "GoalIntention: Agent " + BDIService.getInstance().getAgent()
                 + " intends to solve goal " + goal + " using box " + targetBox + "\n"
                 + "using a path of length " + agentPseudoPath.size() + " with "
                 + reachableObstacles + "/" + unreachableObstacles
@@ -74,11 +74,19 @@ public class AgentIntention {
 
     }
 
-    public int getObstacleCount() {
-        return reachableObstacles + unreachableObstacles;
+    public Goal getGoal() {
+        return goal;
     }
 
-    public LinkedList<Position> getAgentAndBoxPseudoPath() {
+    public Box getTargetBox() {
+        return targetBox;
+    }
+
+    public LinkedList<Position> getAgentBoxPseudoPath() {
+        return agentBoxPseudoPath;
+    }
+
+    public LinkedList<Position> getAgentBoxPseudoPathClone() {
         return new LinkedList<>(agentBoxPseudoPath);
     }
 

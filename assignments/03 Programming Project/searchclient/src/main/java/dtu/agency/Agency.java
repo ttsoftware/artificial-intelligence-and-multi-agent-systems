@@ -8,8 +8,10 @@ import de.jkeylockmanager.manager.KeyLockManagers;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
+import dtu.agency.board.Position;
 import dtu.agency.events.agency.*;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
+import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
@@ -18,8 +20,11 @@ import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class Agency implements Runnable {
 
@@ -150,34 +155,53 @@ public class Agency implements Runnable {
         EventBusService.post(new MoveObstacleOfferEvent(event.getPath(), event.getObstacle()));
 
         // Get the move obstacle estimations (blocks current thread)
-        Agent bestAgent = obstacleEstimationSubscriber.getBestAgent();
+        PriorityBlockingQueue<MoveObstacleEstimationEvent> agentEstimations
+                = obstacleEstimationSubscriber.getEstimations();
 
-        // Assign the task of moving the obstacle to the best agent
-        MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
-                bestAgent,
-                event.getPath(),
-                event.getObstacle()
-        );
+        // loop through all estimations, insert bad ones in list for calling agent
+        List<LinkedList<Position>> badAgentPaths = new ArrayList<>();
+        MoveObstacleEstimationEvent estimation;
+        while ((estimation = agentEstimations.poll()) != null) {
+            if (estimation.isSolvesObstacle()) {
+                // an agent can move the obstacle! Wohoo!
+                break;
+            }
+            // this agent has an obstacle in its path for solving our obstacle
+            badAgentPaths.add(estimation.getPath());
+        }
 
-        EventBusService.post(moveObstacleAssignmentEvent);
+        if (badAgentPaths.size() == numberOfAgents) {
+            // no agents can move our obstacle without help
+            event.setResponse(badAgentPaths);
+        }
+        else {
+            // Assign the task of moving the obstacle to the best agent
+            MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
+                    estimation.getAgent(),
+                    event.getPath(),
+                    event.getObstacle()
+            );
 
-        // Get the plan from the assigned agent
-        ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
+            EventBusService.post(moveObstacleAssignmentEvent);
 
-        // Send the plan to the client
-        SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
-                bestAgent,
-                plan
-        );
-        EventBusService.post(sendActionsEvent);
+            // Get the plan from the assigned agent
+            ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
 
-        // wait for the plan to finish executing
-        boolean isFinished = sendActionsEvent.getResponse();
+            // Send the plan to the client
+            SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
+                    estimation.getAgent(),
+                    plan
+            );
+            EventBusService.post(sendActionsEvent);
 
-        System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+            // wait for the plan to finish executing
+            boolean isFinished = sendActionsEvent.getResponse();
 
-        // Allow the agent who is waiting for the obstacle to continue
-        event.setResponse(isFinished);
+            System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+
+            // Allow the agent who is waiting for the obstacle to continue
+            event.setResponse(new ArrayList<>());
+        }
     }
 
     /**

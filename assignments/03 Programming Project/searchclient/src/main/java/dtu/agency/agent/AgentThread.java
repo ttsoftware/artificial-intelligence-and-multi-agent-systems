@@ -58,7 +58,7 @@ public class AgentThread implements Runnable {
             /*
             int totalSteps = bdi.getAgentIntentions()
                     .stream()
-                    .mapToInt(AgentIntention::getApproximateSteps)
+                    .mapToInt(GoalIntention::getApproximateSteps)
                     .sum();
             */
             // We return the approximate steps for this goal only
@@ -147,7 +147,9 @@ public class AgentThread implements Runnable {
                 + ": received a task offer for moving " + event.getObstacle().getLabel()
                 + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
-        EventBusService.getEventBus().post(new MoveObstacleEstimationEvent(agent, obstacle, totalSteps));
+        EventBusService.getEventBus().post(
+                new MoveObstacleEstimationEvent(agent, obstacle, path, false)
+        );
     }
 
     /**

@@ -115,6 +115,11 @@ public class PlannerClientThreadTest {
         testLevel("MA_out_of_my_way_Henning.lvl");
     }
 
+    @Test
+    public void test9() throws Exception {
+        testLevel("MA_help_henning.lvl");
+    }
+
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;

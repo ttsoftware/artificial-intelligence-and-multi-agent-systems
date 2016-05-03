@@ -1,7 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.SolveGoalAction;
-import dtu.agency.agent.bdi.AgentIntention;
+import dtu.agency.agent.bdi.GoalIntention;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.*;
 import dtu.agency.planners.hlplanner.HLPlanner;
@@ -25,7 +25,7 @@ public class BDIService {
 
     private Agent agent;
     private HLPlan currentHLPlan;
-    private HashMap<String, AgentIntention> intentions;
+    private HashMap<String, GoalIntention> intentions;
     private BDILevelService bdiLevelService;
 
     private static ThreadLocal<BDIService> threadLocal = new ThreadLocal<>();
@@ -90,7 +90,7 @@ public class BDIService {
      * @param goal The goal solved by this intention
      * @return My previously chosen intention, concerning this goal, thought of at a prior state
      */
-    public AgentIntention getIntention(Goal goal) {
+    public GoalIntention getIntention(Goal goal) {
         return intentions.get(goal.getLabel());
     }
 
@@ -131,7 +131,7 @@ public class BDIService {
      */
     public boolean filterIdeas(Ideas ideas, Goal goal) { // Belief is handled internally by pls
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
-        AgentIntention bestIntention = null;
+        GoalIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;
         int counter = (ideas.getIdeas().size() < 5) ? ideas.getIdeas().size() : 5;
 
@@ -179,7 +179,7 @@ public class BDIService {
 
             int nUnReachable = obstaclePositions.size() - nReachable;
 
-            AgentIntention intention = new AgentIntention(
+            GoalIntention intention = new GoalIntention(
                     goal,
                     targetBox,
                     pseudoPlan,
@@ -209,7 +209,7 @@ public class BDIService {
      */
     public boolean solveGoal(Goal goal) {
         // Continue solving this goal, using the Intention found in the bidding round
-        AgentIntention intention = intentions.get(goal.getLabel());
+        GoalIntention intention = intentions.get(goal.getLabel());
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
@@ -231,8 +231,9 @@ public class BDIService {
      */
     public boolean solveMoveObstacle(LinkedList<Position> path, BoardObject obstacle) {
 
-        // TODO:
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
+
+
 
         //HLPlanner planner = new HLPlanner(intention, pls);
         //HLPlan hlPlan = planner.plan();
@@ -261,14 +262,14 @@ public class BDIService {
     /**
      * @return Retrieve memory of Intentions, given a goal..
      */
-    private HashMap<String, AgentIntention> getIntentions() {
+    private HashMap<String, GoalIntention> getIntentions() {
         return intentions;
     }
 
     /**
      * @return All intentions for this agent
      */
-    public List<AgentIntention> getAgentIntentions() {
+    public List<GoalIntention> getAgentIntentions() {
         return intentions.values().stream().collect(Collectors.toList());
     }
 }

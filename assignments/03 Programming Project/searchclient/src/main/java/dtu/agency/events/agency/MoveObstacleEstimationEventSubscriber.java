@@ -2,7 +2,6 @@ package dtu.agency.events.agency;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.board.Agent;
 import dtu.agency.board.BoardObject;
 import dtu.agency.events.EventSubscriber;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
@@ -10,8 +9,6 @@ import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class MoveObstacleEstimationEventSubscriber implements EventSubscriber<MoveObstacleEstimationEvent> {
-
-    private MoveObstacleEstimationEvent lowestEstimation;
 
     private final BoardObject obstacle;
     private final int numberOfAgents;
@@ -32,7 +29,6 @@ public class MoveObstacleEstimationEventSubscriber implements EventSubscriber<Mo
                     while (agentEstimations.size() != numberOfAgents) {
                         obstacle.wait();
                     }
-                    lowestEstimation = agentEstimations.take();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace(System.err);
@@ -63,13 +59,13 @@ public class MoveObstacleEstimationEventSubscriber implements EventSubscriber<Mo
      *
      * @return The agent whose estimation was lowest
      */
-    public Agent getBestAgent() {
+    public PriorityBlockingQueue<MoveObstacleEstimationEvent> getEstimations() {
         try {
             // Wait for the value lowest estimation to be assigned
             obstacleEstimationsThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace(System.err);
         }
-        return lowestEstimation.getAgent();
+        return agentEstimations;
     }
 }
