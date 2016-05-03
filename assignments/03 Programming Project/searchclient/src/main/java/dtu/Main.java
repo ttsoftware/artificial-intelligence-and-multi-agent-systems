@@ -20,7 +20,7 @@ public class Main {
                 // "levels/MAmultiagentSort.lvl", // TODO: Does not work
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
-                "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
+                // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl", // TODO: Does not work (Class cast exception - POP)
                 // "levels/friendofDFS.lvl",
@@ -35,7 +35,7 @@ public class Main {
                 // "levels/ClearPathTest.lvl",
                 // "levels/obstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
-                // "levels/SAboxesOfHanoi.lvl",
+                "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 "-g",
                 "200",
