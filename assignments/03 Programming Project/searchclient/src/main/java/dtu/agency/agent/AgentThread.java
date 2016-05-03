@@ -4,7 +4,7 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.board.Agent;
-import dtu.agency.board.BoardObject;
+import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
 import dtu.agency.events.agency.GoalAssignmentEvent;
@@ -46,7 +46,7 @@ public class AgentThread implements Runnable {
 
         // use agents mind to calculate bid
         Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-        boolean successful = BDIService.getInstance().filterIdeas(ideas, goal); // the intention are automatically stored in BDIService
+        boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal); // the intention are automatically stored in BDIService
 
         if (!successful) {
             // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
@@ -54,15 +54,8 @@ public class AgentThread implements Runnable {
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
         }
         else {
-            // We return the sum of all intentions so far
-            /*
-            int totalSteps = bdi.getAgentIntentions()
-                    .stream()
-                    .mapToInt(GoalIntention::getApproximateSteps)
-                    .sum();
-            */
             // We return the approximate steps for this goal only
-            int totalSteps = BDIService.getInstance().getIntention(goal).getApproximateSteps();
+            int totalSteps = BDIService.getInstance().getIntention(goal.getLabel()).getApproximateSteps();
 
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
@@ -95,7 +88,7 @@ public class AgentThread implements Runnable {
 
             // the intention are automatically stored in BDIService
             Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
+            boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal);
 
             // use the agent's mind / BDI Service to solve the task
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
@@ -134,22 +127,28 @@ public class AgentThread implements Runnable {
         Agent agent = BDIService.getInstance().getAgent();
 
         LinkedList<Position> path = event.getPath();
-        BoardObject obstacle = event.getObstacle();
+        Box obstacle = (Box) event.getObstacle();
 
-        // TODO: Think of ideas for moving this obstacle?
-        // Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-        // boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
-
-        int totalSteps = 0;
-
-        System.err.println(Thread.currentThread().getName()
-                + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                + ": received a task offer for moving " + event.getObstacle().getLabel()
-                + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
-
-        EventBusService.getEventBus().post(
-                new MoveObstacleEstimationEvent(agent, obstacle, path, false)
+        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                path,
+                obstacle
         );
+
+        if (successful) {
+            int totalSteps = BDIService.getInstance().getIntention(obstacle.getLabel()).getApproximateSteps();
+
+            System.err.println(Thread.currentThread().getName()
+                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                    + ": received a task offer for moving " + event.getObstacle().getLabel()
+                    + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
+
+            EventBusService.getEventBus().post(
+                    new MoveObstacleEstimationEvent(agent, obstacle, path, false)
+            );
+        }
+        else {
+            // WHAAAAA
+        }
     }
 
     /**

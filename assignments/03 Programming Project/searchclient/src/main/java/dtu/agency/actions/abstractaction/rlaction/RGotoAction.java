@@ -20,7 +20,8 @@ public class RGotoAction extends RLAction {
         this.boxAtDestination = box;
         this.agentDestination = agentDestination;
         if (agentDestination == null) throw new AssertionError("Constructing RGotoAction without destination");
-        if (box == null) throw new AssertionError("Constructing RGotoAction with null box");}
+        if (box == null) throw new AssertionError("Constructing RGotoAction with null box");
+    }
 
     public RGotoAction(RGotoAction other) {
         this.boxAtDestination = new Box(other.getBox());

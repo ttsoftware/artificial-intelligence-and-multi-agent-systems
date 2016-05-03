@@ -13,43 +13,41 @@ public class GoalIntention extends Intention {
     // (top level) Intentions are really SolveGoalSuperActions()
     // but could also be other orders issued by TheAgency
     private final Goal goal; // Goal to be solved
-    private final Box targetBox;  // Box that solves the goal
-    private final LinkedList<Position> agentPseudoPath;           // agent's core path, ordered without duplicates
-    private final LinkedList<Position> agentBoxPseudoPath;           // agent's core path, ordered without duplicates
 
     public GoalIntention(GoalIntention other) {
         super(
+                other.getTargetBox(),
                 new PrimitivePlan(other.pseudoPlan),
+                other.getAgentPseudoPath(),
+                other.getAgentBoxPseudoPath(),
                 new LinkedList<>(other.obstaclePositions),
                 other.getReachableObstacles(),
                 other.getUnreachableObstacles()
         );
         this.goal = new Goal(other.goal);
-        this.targetBox = new Box(other.targetBox);
-        this.agentPseudoPath = new LinkedList<>(other.agentPseudoPath);
-        this.agentBoxPseudoPath = new LinkedList<>(other.agentPseudoPath);
     }
 
     public GoalIntention(Goal target,
                          Box box,
                          PrimitivePlan plan,
-                         LinkedList<Position> agentPath,
-                         LinkedList<Position> agentBoxPath,
+                         LinkedList<Position> agentPseudoPath,
+                         LinkedList<Position> agentBoxPseudoPath,
                          LinkedList<Position> obstacles,
                          int reachable,
                          int unreachable) {
         super(
+                box,
                 plan,
+                agentPseudoPath,
+                agentBoxPseudoPath,
                 obstacles,
                 reachable,
                 unreachable
         );
         goal = target;
-        targetBox = box;
-        agentPseudoPath = agentPath;
-        agentBoxPseudoPath = agentBoxPath;
     }
 
+    @Override
     public int getApproximateSteps() {
         // TODO : WEIGHTS SHOULD BE CONFIGURED CENTRAL LOCATION
         int weightPathLength = 1;  // Weight for length of path
@@ -76,21 +74,5 @@ public class GoalIntention extends Intention {
 
     public Goal getGoal() {
         return goal;
-    }
-
-    public Box getTargetBox() {
-        return targetBox;
-    }
-
-    public LinkedList<Position> getAgentBoxPseudoPath() {
-        return agentBoxPseudoPath;
-    }
-
-    public LinkedList<Position> getAgentBoxPseudoPathClone() {
-        return new LinkedList<>(agentBoxPseudoPath);
-    }
-
-    public LinkedList<Position> getAgentPseudoPath() {
-        return new LinkedList<>(agentPseudoPath);
     }
 }
