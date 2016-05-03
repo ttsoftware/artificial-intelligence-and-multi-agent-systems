@@ -37,14 +37,30 @@ public class HLPlanner {
             throw new RuntimeException("How can the intention be null?");
         }
 
-        ListIterator obstacles = intention.obstaclePositions.listIterator();
-        int remainingObstacles = intention.obstaclePositions.size();
+        LinkedList<Position> obstacles = intention.obstaclePositions;
+        LinkedList<Position> noAgentObstacles = new LinkedList<>();
+
+        for (Position obstaclePosition : obstacles) {
+            BoardObject boardObject = pls.getObject(obstaclePosition);
+            if (boardObject.getType() == BoardCell.AGENT_GOAL
+                    || boardObject.getType() == BoardCell.AGENT) {
+                // there is an agent in our path - ask it to move
+                // ignore it for now, it might move on its own
+                // if it does not move on its own, we are gonna have to ask it to move
+            }
+            else {
+                noAgentObstacles.addLast(obstaclePosition);
+            }
+        }
+
+        ListIterator obstaclesIterator = noAgentObstacles.listIterator();
+        int remainingObstacles = noAgentObstacles.size();
         LinkedList<Position> removedObstacles = new LinkedList<>();
 
-        while (obstacles.hasNext()) {
+        while (obstaclesIterator.hasNext()) {
             Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
 
-            Position obstacleOrigin = (Position) obstacles.next();
+            Position obstacleOrigin = (Position) obstaclesIterator.next();
             BoardObject boardObject = pls.getObject(obstacleOrigin);
 
             Box box;
@@ -59,13 +75,6 @@ public class HLPlanner {
             } else if (boardObject.getType() == BoardCell.BOX) {
                 // there is a box in our path
                 box = (Box) boardObject;
-            } else if (boardObject.getType() == BoardCell.AGENT_GOAL
-                    || boardObject.getType() == BoardCell.AGENT) {
-                // there is an agent in our path - ask it to move
-                // ignore it for now, it might move on its own
-                // if it does not move on its own, we are gonna have to ask it to move
-                remainingObstacles--;
-                continue;
             } else {
                 throw new AssertionError("What boardObject is this?: " + boardObject.getClass().getName());
             }
@@ -92,7 +101,7 @@ public class HLPlanner {
                 }
             }
 
-            if (box.equals(intention.targetBox) && obstacles.hasNext()) {
+            if (box.equals(intention.targetBox) && obstaclesIterator.hasNext()) {
                 // move goal box to free position and try re-planning from there (recurse once)
                 Position neighbour = pls.getFreeNeighbour(
                         intention.getAgentAndBoxPseudoPath(),
