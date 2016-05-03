@@ -14,6 +14,7 @@ import dtu.agency.planners.htn.HTNPlanner;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.plans.PrimitivePlan;
+import jdk.nashorn.internal.objects.Global;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -121,7 +122,7 @@ public class ConflictService {
                         Position newPushBoxPosition = GlobalLevelService.getInstance().getAdjacentPositionInDirection(newPushAgentPosition,
                                 pushAction.getBoxMovingDirection());
 
-                        if (!seer.containsKey(newPushAgentPosition)) {
+                        if (!seer.containsKey(newPushBoxPosition)) {
                             // If the seer doesn't know the new position, it is not (yet) in Conflict
 
                             // Tell seer about current and new positions of both agent and box
@@ -134,8 +135,8 @@ public class ConflictService {
                             // Add the conflicting agents to the conflictingAgents list
                             conflictingAgents.add(
                                     new Conflict(
-                                            seer.get(newPushAgentPosition),
-                                            currentPlans.get(seer.get(newPushAgentPosition)),
+                                            seer.get(newPushBoxPosition),
+                                            currentPlans.get(seer.get(newPushBoxPosition)),
                                             agentNumber,
                                             concretePlan
                                     )
@@ -190,18 +191,32 @@ public class ConflictService {
          */
 
         // Save the conflicting action
-        ConcreteAction conflictingAction = conflict.getInitiatorPlan().getActions().get(0);
+        boolean pushOrPull;
+        ConcreteAction conflictingAction;
 
-        // Determine if the conflicting action is of type Push or Pull
-        boolean pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
-                conflictingAction.getType() == ConcreteActionType.PULL);
+        if(!conflict.getInitiatorPlan().getActions().isEmpty()) {
+            conflictingAction = conflict.getInitiatorPlan().getActions().get(0);
+
+            // Determine if the conflicting action is of type Push or Pull
+            pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
+                    conflictingAction.getType() == ConcreteActionType.PULL);
+        }
+
+        else {
+            conflictingAction = conflict.getConcederPlan().getActions().get(0);
+            pushOrPull = false;
+        }
 
         List<Position> parkingSpaces = getParkingPositions(conflict, pushOrPull);
 
         // If we actually found parking spaces
         if (!parkingSpaces.isEmpty()) {
-            return getResolveConflictForConcederAndConflictingAction(false, conflictingAction, conflict,
-                    pushOrPull, parkingSpaces);
+            return getResolveConflictForConcederAndConflictingAction(
+                    ((MoveBoxConcreteAction) conflictingAction).getBox(),
+                    conflict,
+                    pushOrPull,
+                    parkingSpaces
+            );
         } else {
             // TODO: Try again with initiator and conceder switched
 
@@ -217,7 +232,7 @@ public class ConflictService {
             parkingSpaces = getParkingPositions(conflict, pushOrPull);
 
             if (!parkingSpaces.isEmpty()) {
-                return getResolveConflictForConcederAndConflictingAction(true, conflictingAction, conflict,
+                return getResolveConflictForConcederAndConflictingAction(((MoveBoxConcreteAction) conflictingAction).getBox(), conflict,
                         pushOrPull, parkingSpaces);
             }
         }
@@ -272,15 +287,13 @@ public class ConflictService {
     }
 
 
-    public ResolvedConflict getResolveConflictForConcederAndConflictingAction(boolean switchConcederAndInitiator,
-                                                                              ConcreteAction conflictingAction,
+    public ResolvedConflict getResolveConflictForConcederAndConflictingAction(Box box,
                                                                               Conflict conflict,
                                                                               boolean pushOrPull,
                                                                               List<Position> parkingSpaces) {
 
         if (pushOrPull) {
-            return getResolvedConflictForAgentAndBox(conflict, parkingSpaces,
-                    ((MoveBoxConcreteAction) conflictingAction).getBox());
+            return getResolvedConflictForAgentAndBox(conflict, parkingSpaces, box);
         } else {
             return getResolvedConflictForAgent(conflict, parkingSpaces);
         }

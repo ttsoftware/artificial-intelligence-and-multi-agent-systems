@@ -2,6 +2,7 @@ package dtu.agency.conflicts;
 
 import dtu.agency.board.Agent;
 import dtu.agency.planners.plans.ConcretePlan;
+import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.GlobalLevelService;
 
 public class Conflict {
@@ -29,7 +30,17 @@ public class Conflict {
 
     public Conflict(Integer agentOne, ConcretePlan agentOnePlan, Integer agentTwo, ConcretePlan agentTwoPlan) {
 
-        if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
+        if (agentOnePlan == null) {
+            conceder = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            concederPlan = agentTwoPlan;
+            initiator = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            initiatorPlan = new PrimitivePlan();
+        } else if (agentTwoPlan == null) {
+            conceder = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            concederPlan = agentOnePlan;
+            initiator = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            initiatorPlan = new PrimitivePlan();
+        } else if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
             conceder = GlobalLevelService.getInstance().getAgent(agentOne.toString());
             concederPlan = agentOnePlan;
             initiator = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
