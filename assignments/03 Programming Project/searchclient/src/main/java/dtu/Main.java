@@ -20,7 +20,8 @@ public class Main {
                 // "levels/MAmultiagentSort.lvl", // TODO: Does not work
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
-                "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
+                // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
+                "levels/MA_help_henning.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
                 // "levels/friendofDFS.lvl",

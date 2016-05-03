@@ -9,7 +9,8 @@ import java.util.LinkedList;
 
 public class MoveBoxFromPathIntention extends Intention {
 
-    private final LinkedList<Position> path;
+    private final LinkedList<Position> originPath;
+    private final LinkedList<Position> combinedPath;
 
     public MoveBoxFromPathIntention(MoveBoxFromPathIntention other) {
         super(
@@ -21,7 +22,8 @@ public class MoveBoxFromPathIntention extends Intention {
                 other.getReachableObstacles(),
                 other.getUnreachableObstacles()
         );
-        path = other.getPath();
+        originPath = other.getOriginalPath();
+        combinedPath = other.getCombinedPath();
     }
 
     public MoveBoxFromPathIntention(Box box,
@@ -31,7 +33,7 @@ public class MoveBoxFromPathIntention extends Intention {
                                     LinkedList<Position> obstacles,
                                     int reachable,
                                     int unreachable,
-                                    LinkedList<Position> path) {
+                                    LinkedList<Position> originPath) {
         super(
                 box,
                 plan,
@@ -41,16 +43,36 @@ public class MoveBoxFromPathIntention extends Intention {
                 reachable,
                 unreachable
         );
-        this.path = path;
+        this.originPath = originPath;
+        this.combinedPath = mergePaths(agentBoxPseudoPath, originPath);
     }
 
-    public LinkedList<Position> getPath() {
-        return path;
+    private LinkedList<Position> mergePaths(LinkedList<Position> pathA,
+                                            LinkedList<Position> pathB) {
+        boolean success = pathA.addAll(pathB);
+
+        if (success) {
+            return pathA;
+        }
+        throw new RuntimeException("Could not merge paths");
+    }
+
+    public LinkedList<Position> getOriginalPath() {
+        return originPath;
+    }
+
+    /**
+     * TODO: This path might fuck up the neighbour finding
+     * Combined originPath = original originPath + agentBoxPseudoPath
+     * @return
+     */
+    public LinkedList<Position> getCombinedPath() {
+        return combinedPath;
     }
 
     @Override
     public int getApproximateSteps() {
-        // TODO: Punish bad paths
-        return path.size();
+        // TODO: Punish paths with many obstacles
+        return originPath.size();
     }
 }

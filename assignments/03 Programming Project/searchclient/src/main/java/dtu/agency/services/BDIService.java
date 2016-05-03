@@ -269,17 +269,22 @@ public class BDIService {
 
     /**
      * @param path
-     * @param obstacle
+     * @param box
      * @return
      */
-    public boolean solveMoveObstacle(LinkedList<Position> path, BoardObject obstacle) {
+    public boolean solveMoveBox(LinkedList<Position> path, Box box) {
 
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
+        Intention intention = intentions.get(box.getLabel());
+        HLPlanner planner = new HLPlanner(intention, pls);
+        HLPlan hlPlan = planner.plan();
 
-        //HLPlanner planner = new HLPlanner(intention, pls);
-        //HLPlan hlPlan = planner.plan();
-
+        // Check the result of this planning phase, and return success
+        if (hlPlan != null) {
+            currentHLPlan = hlPlan;
+            return true;
+        }
         return false;
     }
 

@@ -3,6 +3,7 @@ package dtu.agency.agent;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.agent.bdi.Ideas;
+import dtu.agency.agent.bdi.Intention;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Goal;
@@ -51,6 +52,12 @@ public class AgentThread implements Runnable {
         if (!successful) {
             // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
             // We cannot solve this goal, so we return a ridiculously high estimate
+
+            System.err.println(Thread.currentThread().getName()
+                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                    + ": received a goaloffer " + goal.getLabel()
+                    + " event but is not the right colour");
+
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
         }
         else {
@@ -117,7 +124,6 @@ public class AgentThread implements Runnable {
      * @param event
      */
     @Subscribe
-    @AllowConcurrentEvents
     public void moveObstacleOfferEventSubscriber(MoveObstacleOfferEvent event) {
 
         // update BDI level
@@ -129,25 +135,26 @@ public class AgentThread implements Runnable {
         LinkedList<Position> path = event.getPath();
         Box obstacle = (Box) event.getObstacle();
 
-        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
-                path,
-                obstacle
-        );
+        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
 
         if (successful) {
-            int totalSteps = BDIService.getInstance().getIntention(obstacle.getLabel()).getApproximateSteps();
+            Intention intention = BDIService.getInstance().getIntention(obstacle.getLabel());
+            int totalSteps = intention.getApproximateSteps();
 
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": received a task offer for moving " + event.getObstacle().getLabel()
                     + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
+            boolean hasObstacles = intention.getObstacleCount() > 0;
+
             EventBusService.getEventBus().post(
-                    new MoveObstacleEstimationEvent(agent, obstacle, path, false)
+                    new MoveObstacleEstimationEvent(agent, obstacle, path, hasObstacles)
             );
         }
         else {
-            // WHAAAAA
+            // TODO: Separate worlds?
+            throw new RuntimeException("Something is wrong and you should feel wrong.");
         }
     }
 
@@ -167,17 +174,30 @@ public class AgentThread implements Runnable {
             // setup local variables
             Agent agent = BDIService.getInstance().getAgent();
 
-            // TODO: Think of ideas for moving this obstacle
-            //Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            //boolean successful = BDIService.getInstance().filterIdeas(ideas, goal);
+            LinkedList<Position> path = event.getPath();
+            Box obstacle = (Box) event.getObstacle();
 
-            // Create plan for moving object
-            BDIService.getInstance().solveMoveObstacle(event.getPath(), event.getObstacle());
+            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding moving box: " + obstacle);
 
-            // retrieve the list of primitive actions to execute (blindly)
-            PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
+            boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
 
-            event.setResponse(plan);
+            if (successful) {
+                // Create plan for moving object
+                successful &= BDIService.getInstance().solveMoveBox(path, obstacle);
+
+                if (successful) {
+                    // retrieve the list of primitive actions to execute (blindly)
+                    PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
+
+                    event.setResponse(plan);
+                }
+                else {
+                    throw new RuntimeException("We could not make a plan for something we could estimate?");
+                }
+            }
+            else {
+                throw new RuntimeException("We could not make an intention after estimating, which requires an intention?");
+            }
         }
     }
 }
