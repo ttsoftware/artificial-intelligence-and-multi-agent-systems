@@ -89,7 +89,6 @@ public class HTNPlanner {
         this.agentDestination = null;
     }
 
-
     /**
      * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
      *
@@ -112,7 +111,6 @@ public class HTNPlanner {
         this.initialNode = new HTNNode(initialState, this.originalAction, pls);
     }
 
-
     /**
      * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
      *
@@ -130,7 +128,6 @@ public class HTNPlanner {
         HTNState initialState = new HTNState(agentOrigin, boxOrigin, pls, mode);
         this.initialNode = new HTNNode(initialState, this.originalAction, pls);
     }
-
 
     private HTNNode getInitialNode() {
         return new HTNNode(initialNode);
@@ -158,14 +155,12 @@ public class HTNPlanner {
         return aStarHTNNodeComparator.h(initialNode);
     }
 
-
     /**
      * Finds the concrete plan (provided an (initial) node)
      * This is the actual graph building phase in HTNPlanner
      */
     public PrimitivePlan plan() {
         // PlanningLevelService assuming responsibility over agent and current box
-        System.err.println("" + originalAction.getBox());
         pls.startTracking(originalAction.getBox());
 
         Strategy strategy = new BestFirstStrategy(aStarHTNNodeComparator);

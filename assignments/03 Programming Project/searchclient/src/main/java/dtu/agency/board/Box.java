@@ -22,5 +22,16 @@ public class Box extends BoardObject {
         return false;
     }
 
+    public String getColor() {
+        return label.substring(0, label.length() - 2);
+    }
+
+    public boolean canSolveGoal(Goal goal) {
+        if (label.substring(label.length() - 2, label.length() -1).toLowerCase()
+                .equals(goal.getLabel().substring(0, 1))) {
+            return true;
+        }
+        return false;
+    }
 }
 

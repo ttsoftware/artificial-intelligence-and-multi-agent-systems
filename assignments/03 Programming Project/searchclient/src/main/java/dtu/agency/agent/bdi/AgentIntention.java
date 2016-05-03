@@ -15,7 +15,8 @@ public class AgentIntention {
     public final Goal goal; // Goal to be solved
     public final Box targetBox;  // Box that solves the goal
     public final PrimitivePlan pseudoPlan;
-    public final LinkedList<Position> pseudoPath;           // agent's core path, ordered without duplicates
+    public final LinkedList<Position> agentPseudoPath;           // agent's core path, ordered without duplicates
+    public final LinkedList<Position> agentBoxPseudoPath;           // agent's core path, ordered without duplicates
     public final LinkedList<Position> obstaclePositions;    // ordered position of obstacles encountered
     private final int reachableObstacles;   // obstacles placed so that the agent may move them without moving the target box first (including the target box, ordered by distance from agent)
     private final int unreachableObstacles; // obstacles placed so that the agent cannot move them before moving the target box
@@ -24,17 +25,26 @@ public class AgentIntention {
         this.goal = new Goal(other.goal);
         this.targetBox = new Box(other.targetBox);
         this.pseudoPlan = new PrimitivePlan(other.pseudoPlan);
-        this.pseudoPath = new LinkedList<>(other.pseudoPath);
+        this.agentPseudoPath = new LinkedList<>(other.agentPseudoPath);
+        this.agentBoxPseudoPath = new LinkedList<>(other.agentPseudoPath);
         this.obstaclePositions = new LinkedList<>(other.obstaclePositions);
         this.reachableObstacles = other.reachableObstacles;
         this.unreachableObstacles = other.unreachableObstacles;
     }
 
-    public AgentIntention(Goal target, Box box, PrimitivePlan plan, LinkedList<Position> path, LinkedList<Position> obstacles, int reachable, int unreachable ) {
+    public AgentIntention(Goal target,
+                          Box box,
+                          PrimitivePlan plan,
+                          LinkedList<Position> agentPath,
+                          LinkedList<Position> agentBoxPath,
+                          LinkedList<Position> obstacles,
+                          int reachable,
+                          int unreachable) {
         goal = target;
         targetBox = box;
         pseudoPlan = plan;
-        pseudoPath = path;
+        agentPseudoPath = agentPath;
+        agentBoxPseudoPath = agentBoxPath;
         obstaclePositions = obstacles;
         reachableObstacles = reachable;
         unreachableObstacles = unreachable;
@@ -42,24 +52,24 @@ public class AgentIntention {
 
     public int getApproximateSteps() {
         // TODO : WEIGHTS SHOULD BE CONFIGURED CENTRAL LOCATION
-        int weightPathLength  = 1;  // Weight for length of path
-        int weightReachable   = 2;  // Weight for reachable boxes
+        int weightPathLength = 1;  // Weight for length of path
+        int weightReachable = 2;  // Weight for reachable boxes
         int weightUnreachable = 12; // Weight for unreachable boxes
-        if (pseudoPath == null) {
+        if (agentPseudoPath == null) {
             return Integer.MAX_VALUE;
         } else {
-            return pseudoPath.size() * weightPathLength
+            return agentPseudoPath.size() * weightPathLength
                     + unreachableObstacles * weightUnreachable
-                    + ((reachableObstacles>0) ? unreachableObstacles-1 : 0) * weightReachable; // -1 for eliminating the target box itself from punishment
+                    + ((reachableObstacles > 0) ? unreachableObstacles - 1 : 0) * weightReachable; // -1 for eliminating the target box itself from punishment
         }
     }
 
     @Override
     public String toString() {
         return "AgentIntention: Agent " + BDIService.getInstance().getAgent()
-                + " intends to solve goal "+goal+" using box " +targetBox+ "\n"
-                + "using a path of length " +pseudoPath.size() + " with "
-                + reachableObstacles + "/" +unreachableObstacles
+                + " intends to solve goal " + goal + " using box " + targetBox + "\n"
+                + "using a path of length " + agentPseudoPath.size() + " with "
+                + reachableObstacles + "/" + unreachableObstacles
                 + "reachable/unreachable obstacles in path";
 
     }
@@ -68,7 +78,10 @@ public class AgentIntention {
         return reachableObstacles + unreachableObstacles;
     }
 
-    public LinkedList<Position> getPseudoPath() {
-        return new LinkedList<>(pseudoPath);
+    public LinkedList<Position> getAgentAndBoxPseudoPath() {
+        return new LinkedList<>(agentBoxPseudoPath);
+    }
+    public LinkedList<Position> getAgentPseudoPath() {
+        return new LinkedList<>(agentPseudoPath);
     }
 }
