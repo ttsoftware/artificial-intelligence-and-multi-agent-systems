@@ -1,8 +1,5 @@
 package dtu.agency.agent;
 
-import dtu.agency.services.AgentService;
-import dtu.agency.services.BDIService;
-
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -51,9 +48,11 @@ public class AgentThreadPoolExecutor extends ThreadPoolExecutor {
         super.afterExecute(r, t);
 
         // Add agent back into queue
+        /*
         AgentService.getInstance().addAgent(
                 BDIService.getInstance().getAgent(),
                 BDIService.getInstance()
         );
+        */
     }
 }

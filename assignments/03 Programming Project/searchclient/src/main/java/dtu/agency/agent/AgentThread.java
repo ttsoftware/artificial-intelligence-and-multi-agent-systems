@@ -23,10 +23,10 @@ import java.util.LinkedList;
 
 public class AgentThread implements Runnable {
 
-    private final Agent agent;
+    private Agent agent;
 
     public AgentThread(Agent agent) {
-        this.agent = agent;
+        // this.agent = agent;
     }
 
     @Override
@@ -35,17 +35,32 @@ public class AgentThread implements Runnable {
         // register all events handled by this class
         EventBusService.register(this);
         System.err.println(Thread.currentThread().getName() + ": Started agent: " + BDIService.getInstance().getAgent().getLabel());
+        finishSubscriber();
     }
 
     /**
-     * Prepare for incoming requests
+     * Prepare the BDIService for incoming events
      */
-    public void prepareSubscriber() {
-        // get the threadlocal instance
+    private void prepareSubscriber() {
+        try {
+            // get the current agent
+            agent = AgentService.getInstance().take();
+        } catch (InterruptedException e) {
+            e.printStackTrace(System.err);
+        }
+        // get the threadLocal instance
         BDIService bdiService = AgentService.getInstance().getBDIServiceInstance(agent);
         BDIService.setInstance(bdiService);
         // update BDI level
         BDIService.getInstance().updateBDILevelService();
+    }
+
+    private void finishSubscriber() {
+        // add the agent and BDI back
+        AgentService.getInstance().addAgent(
+                agent,
+                BDIService.getInstance()
+        );
     }
 
     /**
@@ -86,6 +101,8 @@ public class AgentThread implements Runnable {
 
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, totalSteps));
         }
+
+        finishSubscriber();
     }
 
     /**
@@ -126,6 +143,8 @@ public class AgentThread implements Runnable {
                 event.setResponse(plan);
             }
         }
+
+        finishSubscriber();
     }
 
     /**
@@ -165,6 +184,8 @@ public class AgentThread implements Runnable {
                 throw new RuntimeException("Something is wrong and you should feel wrong.");
             }
         }
+
+        finishSubscriber();
     }
 
     /**
@@ -203,5 +224,7 @@ public class AgentThread implements Runnable {
                 throw new RuntimeException("We could not make an intention after estimating, which requires an intention?");
             }
         }
+
+        finishSubscriber();
     }
 }
