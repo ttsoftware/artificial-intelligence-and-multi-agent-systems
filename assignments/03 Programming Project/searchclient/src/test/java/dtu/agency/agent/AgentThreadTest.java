@@ -29,8 +29,8 @@ public class AgentThreadTest {
         Agent agent1 = new Agent("0");
         Agent agent2 = new Agent("1");
 
-        Thread t1 = new Thread(new AgentThread());
-        Thread t2 = new Thread(new AgentThread());
+        Thread t1 = new Thread(new AgentThread(agent1));
+        Thread t2 = new Thread(new AgentThread(agent2));
         t1.start();
         t2.start();
 
@@ -39,6 +39,7 @@ public class AgentThreadTest {
         GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, 2);
         EventBusService.register(goalEstimationEventSubscriber);
 
+        EventBusService.post(new GoalOfferEvent(goal));
         EventBusService.post(new GoalOfferEvent(goal));
 
         // System.out.println("Agency recieved estimation for agency " + estimationEvent.getAgentLabel() + ": " + Integer.toString(estimationEvent.getSteps()));

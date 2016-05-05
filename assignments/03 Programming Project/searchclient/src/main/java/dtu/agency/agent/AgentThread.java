@@ -15,6 +15,7 @@ import dtu.agency.events.agency.MoveObstacleOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.planners.plans.PrimitivePlan;
+import dtu.agency.services.AgentService;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
 
@@ -22,11 +23,29 @@ import java.util.LinkedList;
 
 public class AgentThread implements Runnable {
 
+    private final Agent agent;
+
+    public AgentThread(Agent agent) {
+        this.agent = agent;
+    }
+
     @Override
     public void run() {
+        prepareSubscriber();
         // register all events handled by this class
         EventBusService.register(this);
         System.err.println(Thread.currentThread().getName() + ": Started agent: " + BDIService.getInstance().getAgent().getLabel());
+    }
+
+    /**
+     * Prepare for incoming requests
+     */
+    public void prepareSubscriber() {
+        // get the threadlocal instance
+        BDIService bdiService = AgentService.getInstance().getBDIServiceInstance(agent);
+        BDIService.setInstance(bdiService);
+        // update BDI level
+        BDIService.getInstance().updateBDILevelService();
     }
 
     /**
@@ -35,12 +54,9 @@ public class AgentThread implements Runnable {
      * @param event
      */
     @Subscribe
+    @AllowConcurrentEvents
     public void goalOfferEventSubscriber(GoalOfferEvent event) {
-        // update BDI level
-        BDIService.getInstance().updateBDILevelService();
-
-        // setup local variables
-        Agent agent = BDIService.getInstance().getAgent();
+        prepareSubscriber();
 
         // calculate the best bid of solving this goal
         Goal goal = event.getGoal();
@@ -59,8 +75,7 @@ public class AgentThread implements Runnable {
                     + " event but is not the right colour");
 
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
-        }
-        else {
+        } else {
             // We return the approximate steps for this goal only
             int totalSteps = BDIService.getInstance().getIntention(goal.getLabel()).getApproximateSteps();
 
@@ -81,14 +96,9 @@ public class AgentThread implements Runnable {
     @Subscribe
     @AllowConcurrentEvents
     public void goalAssignmentEventSubscriber(GoalAssignmentEvent event) {
-        if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
+        prepareSubscriber();
 
-            // update BDI level
-            BDIService.getInstance().updateBDILevelService();
-
-            // setup local variables
-            Agent agent = BDIService.getInstance().getAgent();
-
+        if (event.getAgent().equals(BDIService.getInstance().getAgent())) {
             // We won the bid for this goal!
             Goal goal = event.getGoal();
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
@@ -103,8 +113,7 @@ public class AgentThread implements Runnable {
             if (!successful) {
                 // TODO: We post a planning error event
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
-            }
-            else {
+            } else {
                 // retrieves the list of primitive actions to execute (blindly)
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
@@ -121,58 +130,55 @@ public class AgentThread implements Runnable {
 
     /**
      * Provide an estimation of how many steps we need for moving the obstacle
+     *
      * @param event
      */
     @Subscribe
+    @AllowConcurrentEvents
     public void moveObstacleOfferEventSubscriber(MoveObstacleOfferEvent event) {
+        prepareSubscriber();
 
-        // update BDI level
-        BDIService.getInstance().updateBDILevelService();
+        if (event.getAgent().equals(BDIService.getInstance().getAgent())) {
 
-        // setup local variables
-        Agent agent = BDIService.getInstance().getAgent();
+            // setup local variables
+            LinkedList<Position> path = event.getPath();
+            Box obstacle = (Box) event.getObstacle();
 
-        LinkedList<Position> path = event.getPath();
-        Box obstacle = (Box) event.getObstacle();
+            boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
 
-        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+            if (successful) {
+                Intention intention = BDIService.getInstance().getIntention(obstacle.getLabel());
+                int totalSteps = intention.getApproximateSteps();
 
-        if (successful) {
-            Intention intention = BDIService.getInstance().getIntention(obstacle.getLabel());
-            int totalSteps = intention.getApproximateSteps();
+                System.err.println(Thread.currentThread().getName()
+                        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                        + ": received a task offer for moving " + event.getObstacle().getLabel()
+                        + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
-            System.err.println(Thread.currentThread().getName()
-                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                    + ": received a task offer for moving " + event.getObstacle().getLabel()
-                    + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
+                boolean hasObstacles = intention.getObstacleCount() > 0;
 
-            boolean hasObstacles = intention.getObstacleCount() > 0;
-
-            EventBusService.getEventBus().post(
-                    new MoveObstacleEstimationEvent(agent, obstacle, path, hasObstacles)
-            );
-        }
-        else {
-            // TODO: Separate worlds?
-            throw new RuntimeException("Something is wrong and you should feel wrong.");
+                EventBusService.getEventBus().post(
+                        new MoveObstacleEstimationEvent(agent, obstacle, path, hasObstacles)
+                );
+            } else {
+                // TODO: Separate worlds?
+                throw new RuntimeException("Something is wrong and you should feel wrong.");
+            }
         }
     }
 
     /**
      * Create a plan for moving the obstacle
+     *
      * @param event
      */
     @Subscribe
     @AllowConcurrentEvents
     public void moveObstacleAssignmentEventSubscriber(MoveObstacleAssignmentEvent event) {
-        if (event.getAgent().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
+        prepareSubscriber();
+
+        if (event.getAgent().equals(BDIService.getInstance().getAgent())) {
             // We have been assigned the task of moving this obstacle
-
-            // update BDI level
-            BDIService.getInstance().updateBDILevelService();
-
-            // setup local variables
-            Agent agent = BDIService.getInstance().getAgent();
 
             LinkedList<Position> path = event.getPath();
             Box obstacle = (Box) event.getObstacle();
@@ -190,12 +196,10 @@ public class AgentThread implements Runnable {
                     PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
                     event.setResponse(plan);
-                }
-                else {
+                } else {
                     throw new RuntimeException("We could not make a plan for something we could estimate?");
                 }
-            }
-            else {
+            } else {
                 throw new RuntimeException("We could not make an intention after estimating, which requires an intention?");
             }
         }

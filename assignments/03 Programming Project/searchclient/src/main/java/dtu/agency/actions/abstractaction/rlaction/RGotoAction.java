@@ -65,5 +65,4 @@ public class RGotoAction extends RLAction {
     public int approximateSteps(PlanningLevelService pls) {
         return pls.getPosition(agent).manhattanDist(agentDestination);
     }
-
  }

@@ -29,10 +29,11 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class Agency implements Runnable {
 
     private int numberOfAgents;
+    private List<Agent> agents;
 
     @Override
     public void run() {
-        List<Agent> agents = GlobalLevelService.getInstance().getLevel().getAgents();
+        agents = GlobalLevelService.getInstance().getLevel().getAgents();
 
         numberOfAgents = agents.size();
 
@@ -42,7 +43,7 @@ public class Agency implements Runnable {
             System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
-            ThreadService.execute(new AgentThread());
+            ThreadService.execute(new AgentThread(agent));
         });
 
         // Register for self-handled events
@@ -124,6 +125,7 @@ public class Agency implements Runnable {
 
     /**
      * Offer plans to the PlannerClient
+     *
      * @param event
      */
     @Subscribe
@@ -137,6 +139,7 @@ public class Agency implements Runnable {
     /**
      * An agent needs help moving an obstacle
      * We first ask other agents for estimations, subsequently assign them the task of moving the obstacle
+     *
      * @param event
      */
     @Subscribe
@@ -152,7 +155,16 @@ public class Agency implements Runnable {
         EventBusService.register(obstacleEstimationSubscriber);
 
         // Ask agents to bid for obstacle
-        EventBusService.post(new MoveObstacleOfferEvent(event.getPath(), event.getObstacle()));
+        agents.forEach(agent -> {
+
+            System.err.println("Agency asking " + agent + " for help");
+
+            EventBusService.post(new MoveObstacleOfferEvent(
+                    agent,
+                    event.getPath(),
+                    event.getObstacle()
+            ));
+        });
 
         // Get the move obstacle estimations (blocks current thread)
         PriorityBlockingQueue<MoveObstacleEstimationEvent> agentEstimations
@@ -173,8 +185,7 @@ public class Agency implements Runnable {
         if (badAgentPaths.size() == numberOfAgents) {
             // no agents can move our obstacle without help
             event.setResponse(badAgentPaths);
-        }
-        else {
+        } else {
             // Assign the task of moving the obstacle to the best agent
             MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
                     estimation.getAgent(),
@@ -207,6 +218,7 @@ public class Agency implements Runnable {
     /**
      * We re-post dead events until someone responds to them
      * Maybe we should only re-post a certain number of times?
+     *
      * @param event
      */
     @Subscribe

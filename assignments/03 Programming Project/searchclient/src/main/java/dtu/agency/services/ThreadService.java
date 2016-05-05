@@ -24,8 +24,8 @@ public class ThreadService {
 
     public static void setNumberOfAgents(int numberOfAgents) {
         agentThreadExecutor = new AgentThreadPoolExecutor(
-                // (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfAgents, Thread::new)
-                (ThreadPoolExecutor) Executors.newCachedThreadPool(Thread::new)
+                (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfAgents, Thread::new)
+                // (ThreadPoolExecutor) Executors.newCachedThreadPool(Thread::new)
         );
     }
 }
