@@ -60,7 +60,7 @@ public class PlannerClientThreadTest {
         // String path = resourcesDirectory.getAbsolutePath() + "/SAhlplan_old.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi_simple.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/obstaclePathTestLevel.lvl";
-        String path = resourcesDirectory.getAbsolutePath() + "/MAconflicts_simple.lvl";
+        String path = resourcesDirectory.getAbsolutePath() + "/MAconflicts_simple2.lvl";
         FileInputStream inputStream = new FileInputStream(path);
 
         System.setIn(inputStream);

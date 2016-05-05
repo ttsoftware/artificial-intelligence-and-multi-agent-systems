@@ -31,24 +31,24 @@ public class Conflict {
     public Conflict(Integer agentOne, ConcretePlan agentOnePlan, Integer agentTwo, ConcretePlan agentTwoPlan) {
 
         if (agentOnePlan == null) {
-            conceder = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            conceder = GlobalLevelService.getInstance().getAgent(agentTwo);
             concederPlan = agentTwoPlan;
-            initiator = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            initiator = GlobalLevelService.getInstance().getAgent(agentOne);
             initiatorPlan = new PrimitivePlan();
         } else if (agentTwoPlan == null) {
-            conceder = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            conceder = GlobalLevelService.getInstance().getAgent(agentOne);
             concederPlan = agentOnePlan;
-            initiator = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            initiator = GlobalLevelService.getInstance().getAgent(agentTwo);
             initiatorPlan = new PrimitivePlan();
         } else if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
-            conceder = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            conceder = GlobalLevelService.getInstance().getAgent(agentOne);
             concederPlan = agentOnePlan;
-            initiator = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            initiator = GlobalLevelService.getInstance().getAgent(agentTwo);
             initiatorPlan = agentTwoPlan;
         } else {
-            conceder = GlobalLevelService.getInstance().getAgent(agentTwo.toString());
+            conceder = GlobalLevelService.getInstance().getAgent(agentTwo);
             concederPlan = agentTwoPlan;
-            initiator = GlobalLevelService.getInstance().getAgent(agentOne.toString());
+            initiator = GlobalLevelService.getInstance().getAgent(agentOne);
             initiatorPlan = agentOnePlan;
         }
     }

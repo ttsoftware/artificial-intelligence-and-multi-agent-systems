@@ -6,7 +6,9 @@ import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Level;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
+import dtu.agency.events.Event;
 import dtu.agency.events.agency.ProblemSolvedEvent;
+import dtu.agency.events.client.ConflictResolutionEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.pop.GotoPOP;
@@ -31,7 +33,7 @@ public class PlannerClientThread implements Runnable {
     private ArrayBlockingQueue<SendServerActionsEvent> sendServerActionsQueue;
 
     // Thread for communicating with the server
-    private Thread sendActionsThread= new Thread(this::sendActions);;
+    private Thread sendActionsThread = new Thread(this::sendActions);;
 
     @Override
     public void run() {
@@ -140,16 +142,47 @@ public class PlannerClientThread implements Runnable {
         if (!conflictingAgents.isEmpty()) {
 
             conflictingAgents.forEach(conflict -> {
-                ResolvedConflict resolvedConflict = conflictService.resolveConflict(conflict);
+                ConflictResolutionEvent conflictResolutionEvent = new ConflictResolutionEvent(conflict);
+                EventBusService.post(conflictResolutionEvent);
+
+                ResolvedConflict resolvedConflict = conflictResolutionEvent.getResponse();
+
+                if (resolvedConflict == null) {
+                    Conflict switchedConflict = conflictService.switchConcederAndInitiator(conflict);
+
+                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(switchedConflict);
+
+                    EventBusService.post(switchedConflictResolutionEvent);
+
+                    resolvedConflict = conflictResolutionEvent.getResponse();
+                }
+
+//                ResolvedConflict resolvedConflict = conflictService.resolveConflict(conflict);
 
                 currentPlans.put(
-                        Integer.valueOf(conflict.getConceder().getLabel()),
-                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getConceder().getLabel()))
+                        conflict.getConceder().getNumber(),
+                        resolvedConflict.getConflictPlans().get(conflict.getConceder().getNumber())
                 );
 
                 currentPlans.put(
-                        Integer.valueOf(conflict.getInitiator().getLabel()),
-                        resolvedConflict.getConflictPlans().get(Integer.valueOf(conflict.getInitiator().getLabel()))
+                        conflict.getInitiator().getNumber(),
+                        resolvedConflict.getConflictPlans().get(conflict.getInitiator().getNumber())
+                );
+
+                currentSendServerActionsEvents.put(
+                        conflict.getConceder().getNumber(),
+                        new SendServerActionsEvent(
+                                conflict.getConceder(),
+                                conflict.getConcederPlan()
+                        )
+                );
+
+                currentSendServerActionsEvents.put(
+                        conflict.getInitiator().getNumber(),
+                        new SendServerActionsEvent(
+                                conflict.getInitiator(),
+                                conflict.getInitiatorPlan()
+                        )
                 );
             });
         }

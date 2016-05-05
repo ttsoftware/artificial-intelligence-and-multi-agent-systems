@@ -36,7 +36,8 @@ public class Main {
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
-                "levels/MAconflicts_simple.lvl",
+                // "levels/MAconflicts_simple.lvl", // WOOOORKS
+                "levels/MAconflicts_simple2.lvl",
                 "-g",
                 "200",
                 "-t",

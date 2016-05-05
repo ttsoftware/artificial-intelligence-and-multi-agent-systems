@@ -7,14 +7,17 @@ import dtu.agency.board.Agent;
 import dtu.agency.board.BoardObject;
 import dtu.agency.board.Goal;
 import dtu.agency.board.Position;
+import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
 import dtu.agency.events.agency.MoveObstacleAssignmentEvent;
 import dtu.agency.events.agency.MoveObstacleOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
+import dtu.agency.events.client.ConflictResolutionEvent;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
+import dtu.agency.services.ConflictService;
 import dtu.agency.services.EventBusService;
 
 import java.util.LinkedList;
@@ -177,6 +180,18 @@ public class AgentThread implements Runnable {
             PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
             event.setResponse(plan);
+        }
+    }
+
+    @Subscribe
+    @AllowConcurrentEvents
+    public void conflictResolutionEventSubscriber(ConflictResolutionEvent event) {
+        if (event.getConflict().getInitiator().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
+            ConflictService conflictService = new ConflictService();
+
+            ResolvedConflict resolvedConflict = conflictService.resolveConflict(event.getConflict());
+
+            event.setResponse(resolvedConflict);
         }
     }
 }
