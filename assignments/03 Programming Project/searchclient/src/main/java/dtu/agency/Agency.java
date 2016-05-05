@@ -6,9 +6,7 @@ import com.google.common.eventbus.Subscribe;
 import de.jkeylockmanager.manager.KeyLockManager;
 import de.jkeylockmanager.manager.KeyLockManagers;
 import dtu.agency.agent.AgentThread;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Goal;
-import dtu.agency.board.Position;
+import dtu.agency.board.*;
 import dtu.agency.events.agency.*;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
@@ -43,7 +41,7 @@ public class Agency implements Runnable {
             System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
-            ThreadService.execute(new AgentThread(agent));
+            ThreadService.execute(new AgentThread());
         });
 
         // Register for self-handled events
@@ -83,6 +81,20 @@ public class Agency implements Runnable {
 
                     // wait for the plan to finish executing
                     boolean isFinished = sendActionsEvent.getResponse();
+
+                    // We need to check if the goal has actually been solve
+                    Position goalPosition = GlobalLevelService.getInstance().getPosition(goal);
+                    BoardObject objectAtGoalPosition = GlobalLevelService.getInstance().getObject(goalPosition);
+
+                    switch (objectAtGoalPosition.getType()) {
+                        case BOX_GOAL:
+                            if (!((BoxAndGoal) objectAtGoalPosition).isSolved()) {
+                                // We need to re-assign goal task
+                                throw new RuntimeException("We should add this goal back to the PriorityQueue whence it came.");
+                            }
+                            break;
+                        default:
+                    }
 
                     System.err.println("The plan for goal: " + goal + " finished.");
                 });
@@ -155,16 +167,10 @@ public class Agency implements Runnable {
         EventBusService.register(obstacleEstimationSubscriber);
 
         // Ask agents to bid for obstacle
-        agents.forEach(agent -> {
-
-            System.err.println("Agency asking " + agent + " for help");
-
-            EventBusService.post(new MoveObstacleOfferEvent(
-                    agent,
-                    event.getPath(),
-                    event.getObstacle()
-            ));
-        });
+        EventBusService.post(new MoveObstacleOfferEvent(
+                event.getPath(),
+                event.getObstacle()
+        ));
 
         // Get the move obstacle estimations (blocks current thread)
         PriorityBlockingQueue<MoveObstacleEstimationEvent> agentEstimations

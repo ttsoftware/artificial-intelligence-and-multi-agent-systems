@@ -123,8 +123,7 @@ public class HLPlanner {
                 );
                 removedObstacles.add(obstacleOrigin);
                 return plan;
-            }
-            else {
+            } else {
                 // next obstacle is in the path - move box to free position
                 Position neighbour = pls.getFreeNeighbour(
                         moveBoxFromPathIntention.getCombinedPath(),
@@ -146,7 +145,7 @@ public class HLPlanner {
                 moveBoxFromPathIntention.getCombinedPath(),
                 agentPosition,
                 obstacleOrigin,
-                remainingObstacles+1 // we also need a space for the agent
+                remainingObstacles + 1 // we also need a space for the agent
         );
 
         Position neighbourForAgent = pls.getFreeNeighbour(
@@ -184,6 +183,7 @@ public class HLPlanner {
                 // there is a box in our path
                 BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
                 if (boxGoal.isSolved()) {
+                    // TODO: can we go around ??
                     throw new RuntimeException("I cannot un-solve a solved goal");
                 } else {
                     box = ((BoxAndGoal) boardObject).getBox();
@@ -204,9 +204,10 @@ public class HLPlanner {
 
             // see if this agent can actually move this box/obstacle
             if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
-                // we need help
+                // TODO: can we go around ??
+                // Not our color - we need help
 
-                System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: "  + box);
+                System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + box);
 
                 HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
                         goalIntention.getAgentBoxPseudoPathClone(),
@@ -217,9 +218,28 @@ public class HLPlanner {
                 // wait until someone moved the obstacle - blocks this thread for at most 2^32-1 milliseconds
                 List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
 
+                // find first obstacle in our original path
+                Position firstObstaclePosition = goalIntention.getObstaclePositions().peekFirst();
+                Box firstObstacle = (Box) pls.getObject(firstObstaclePosition);
+
                 for (LinkedList<Position> failedPath : failedPaths) {
                     // failedPath is a path to move this obstacle, which has obstacles of its own
-                    // TODO: Routine for moving obstacle out of this path
+                    if (failedPath.contains(firstObstaclePosition)) {
+                        // we can help this path by moving firstObstacle out of it
+                        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                                failedPath,
+                                firstObstacle
+                        );
+                        if (successful) {
+                            // Create plan for moving obstacle
+                            successful &= BDIService.getInstance().solveMoveBox(failedPath, firstObstacle);
+
+                            if (successful) {
+                                // retrieve the list of primitive actions to execute (blindly)
+                                return BDIService.getInstance().getCurrentHLPlan();
+                            }
+                        }
+                    }
                 }
 
                 remainingObstacles--;

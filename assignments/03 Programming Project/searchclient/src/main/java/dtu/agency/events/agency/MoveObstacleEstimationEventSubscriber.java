@@ -40,7 +40,7 @@ public class MoveObstacleEstimationEventSubscriber implements EventSubscriber<Mo
     @Subscribe
     @AllowConcurrentEvents
     public void changeSubscriber(MoveObstacleEstimationEvent event) {
-        if (event.getObstacle().getLabel().equals(obstacle.getLabel())) {
+        if (event.getObstacle().equals(obstacle)) {
             // The estimation is for this given obstacle
             agentEstimations.offer(event);
             // notify obstacleEstimationsThread to see if all agents have estimated

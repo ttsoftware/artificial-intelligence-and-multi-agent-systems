@@ -302,6 +302,10 @@ public class BDIService {
         return plan;
     }
 
+    public HLPlan getCurrentHLPlan() {
+        return currentHLPlan;
+    }
+
     /**
      * Private thought routines - Memory I/O, etc.
      */
