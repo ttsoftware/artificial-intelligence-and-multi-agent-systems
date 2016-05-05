@@ -61,81 +61,68 @@ public class HLPlanner {
             Position obstacleOrigin = (Position) obstacles.next();
             BoardObject boardObject = pls.getObject(obstacleOrigin);
 
-            Box box;
-            if (boardObject.getType() == BoardCell.BOX_GOAL) {
-                // there is a box in our path
-                BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
-                if (boxGoal.isSolved()) {
-                    throw new RuntimeException("I cannot un-solve a solved goal");
-                } else {
-                    box = ((BoxAndGoal) boardObject).getBox();
-                }
-            } else if (boardObject.getType() == BoardCell.BOX) {
-                // there is a box in our path
-                box = (Box) boardObject;
-            } else if (boardObject.getType() == BoardCell.AGENT_GOAL
+            if (boardObject.getType() == BoardCell.AGENT_GOAL
                     || boardObject.getType() == BoardCell.AGENT) {
                 // there is an agent in our path - ask it to move
                 // ignore it for now, it might move on its own
                 // if it does not move on its own, we are gonna have to ask it to move
                 remainingObstacles--;
-                continue;
             } else {
-                throw new AssertionError("What boardObject is this?: " + boardObject.getClass().getName());
+                Box box = extractBox(boardObject);
+
+                // see if this agent can actually move this box/obstacle
+                if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
+                    // we need help
+                    // we are already helping someone.
+                    // we must fail
+                    throw new RuntimeException("We (" + BDIService.getInstance().getAgent() + ") are already helping someone, so who should help us?");
+                }
+
+                if (box.equals(moveBoxFromPathIntention.getTargetBox()) && obstacles.hasNext()) {
+                    // move goal box to free position and try re-planning from there (recurse once)
+                    Position neighbour = pls.getFreeNeighbour(
+                            moveBoxFromPathIntention.getCombinedPath(),
+                            agentPosition,
+                            obstacleOrigin,
+                            remainingObstacles
+                    );
+                    moveBoxInPlanner(box, neighbour, obstacleOrigin);
+                    removedObstacles.add(obstacleOrigin);
+                    moveBoxFromPathIntention.getObstaclePositions().removeAll(removedObstacles);
+
+                    System.err.println("RECURSION");
+                    return planMoveBoxFromPathIntention(moveBoxFromPathIntention); // Recursive behavior max depth is 1 :-)
+                } else if (box.equals(moveBoxFromPathIntention.getTargetBox())) {
+                    // only 'obstacle' left in path is target box - move it into a free neighbour position
+
+                    Position neighbour = pls.getFreeNeighbour(
+                            moveBoxFromPathIntention.getCombinedPath(),
+                            agentPosition,
+                            obstacleOrigin,
+                            remainingObstacles
+                    );
+
+                    moveBoxInPlanner(
+                            box,
+                            neighbour,
+                            moveBoxFromPathIntention.getAgentPseudoPath().peekLast()
+                    );
+                    removedObstacles.add(obstacleOrigin);
+                    return plan;
+                } else {
+                    // next obstacle is in the path - move box to free position
+                    Position neighbour = pls.getFreeNeighbour(
+                            moveBoxFromPathIntention.getCombinedPath(),
+                            agentPosition,
+                            obstacleOrigin,
+                            remainingObstacles
+                    );
+
+                    moveBoxInPlanner(box, neighbour, obstacleOrigin);
+                    removedObstacles.add(obstacleOrigin);
+                }
+                remainingObstacles--;
             }
-
-            // see if this agent can actually move this box/obstacle
-            if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
-                // we need help
-                // we are already helping someone.
-                // we must fail
-                throw new RuntimeException("We (" + BDIService.getInstance().getAgent() + ") are already helping someone, so who should help us?");
-            }
-
-            if (box.equals(moveBoxFromPathIntention.getTargetBox()) && obstacles.hasNext()) {
-                // move goal box to free position and try re-planning from there (recurse once)
-                Position neighbour = pls.getFreeNeighbour(
-                        moveBoxFromPathIntention.getCombinedPath(),
-                        agentPosition,
-                        obstacleOrigin,
-                        remainingObstacles
-                );
-                moveBoxInPlanner(box, neighbour, obstacleOrigin);
-                removedObstacles.add(obstacleOrigin);
-                moveBoxFromPathIntention.getObstaclePositions().removeAll(removedObstacles);
-
-                System.err.println("RECURSION");
-                return planMoveBoxFromPathIntention(moveBoxFromPathIntention); // Recursive behavior max depth is 1 :-)
-            } else if (box.equals(moveBoxFromPathIntention.getTargetBox())) {
-                // only 'obstacle' left in path is target box - move it into a free neighbour position
-
-                Position neighbour = pls.getFreeNeighbour(
-                        moveBoxFromPathIntention.getCombinedPath(),
-                        agentPosition,
-                        obstacleOrigin,
-                        remainingObstacles
-                );
-
-                moveBoxInPlanner(
-                        box,
-                        neighbour,
-                        moveBoxFromPathIntention.getAgentPseudoPath().peekLast()
-                );
-                removedObstacles.add(obstacleOrigin);
-                return plan;
-            } else {
-                // next obstacle is in the path - move box to free position
-                Position neighbour = pls.getFreeNeighbour(
-                        moveBoxFromPathIntention.getCombinedPath(),
-                        agentPosition,
-                        obstacleOrigin,
-                        remainingObstacles
-                );
-
-                moveBoxInPlanner(box, neighbour, obstacleOrigin);
-                removedObstacles.add(obstacleOrigin);
-            }
-            remainingObstacles--;
         }
 
         Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
@@ -168,7 +155,7 @@ public class HLPlanner {
 
     private HLPlan planGoalIntention(GoalIntention goalIntention) {
 
-        ListIterator obstacles = goalIntention.getObstaclePositions().listIterator();
+        ListIterator<Position> obstacles = goalIntention.getObstaclePositions().listIterator();
         int remainingObstacles = goalIntention.getObstacleCount();
         LinkedList<Position> removedObstacles = new LinkedList<>();
 
@@ -178,110 +165,96 @@ public class HLPlanner {
             Position obstacleOrigin = (Position) obstacles.next();
             BoardObject boardObject = pls.getObject(obstacleOrigin);
 
-            Box box;
-            if (boardObject.getType() == BoardCell.BOX_GOAL) {
-                // there is a box in our path
-                BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
-                if (boxGoal.isSolved()) {
-                    // TODO: can we go around ??
-                    throw new RuntimeException("I cannot un-solve a solved goal");
-                } else {
-                    box = ((BoxAndGoal) boardObject).getBox();
-                }
-            } else if (boardObject.getType() == BoardCell.BOX) {
-                // there is a box in our path
-                box = (Box) boardObject;
-            } else if (boardObject.getType() == BoardCell.AGENT_GOAL
+            if (boardObject.getType() == BoardCell.AGENT_GOAL
                     || boardObject.getType() == BoardCell.AGENT) {
                 // there is an agent in our path - ask it to move
                 // ignore it for now, it might move on its own
                 // if it does not move on its own, we are gonna have to ask it to move
                 remainingObstacles--;
-                continue;
             } else {
-                throw new AssertionError("What boardObject is this?: " + boardObject.getClass().getName());
-            }
+                Box box = extractBox(boardObject);
 
-            // see if this agent can actually move this box/obstacle
-            if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
-                // TODO: can we go around ??
-                // Not our color - we need help
+                // see if this agent can actually move this box/obstacle
+                if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
+                    // TODO: can we go around ??
+                    // Not our color - we need help
 
-                System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + box);
+                    System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + box);
 
-                HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
-                        goalIntention.getAgentBoxPseudoPathClone(),
-                        box
-                );
-                EventBusService.post(helpMeEvent);
+                    HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
+                            goalIntention.getAgentBoxPseudoPathClone(),
+                            box
+                    );
+                    EventBusService.post(helpMeEvent);
 
-                // wait until someone moved the obstacle - blocks this thread for at most 2^32-1 milliseconds
-                List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
+                    // wait until someone moved the obstacle - blocks this thread for at most 2^32-1 milliseconds
+                    List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
 
-                // find first obstacle in our original path
-                Position firstObstaclePosition = goalIntention.getObstaclePositions().peekFirst();
-                Box firstObstacle = (Box) pls.getObject(firstObstaclePosition);
+                    // find first obstacle in our original path
+                    Position firstObstaclePosition = goalIntention.getObstaclePositions().peekFirst();
+                    Box firstObstacle = (Box) pls.getObject(firstObstaclePosition);
 
-                for (LinkedList<Position> failedPath : failedPaths) {
-                    // failedPath is a path to move this obstacle, which has obstacles of its own
-                    if (failedPath.contains(firstObstaclePosition)) {
-                        // we can help this path by moving firstObstacle out of it
-                        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
-                                failedPath,
-                                firstObstacle
-                        );
-                        if (successful) {
-                            // Create plan for moving obstacle
-                            successful &= BDIService.getInstance().solveMoveBox(failedPath, firstObstacle);
-
+                    for (LinkedList<Position> failedPath : failedPaths) {
+                        // failedPath is a path to move this obstacle, which has obstacles of its own
+                        if (failedPath.contains(firstObstaclePosition)) {
+                            // we can help this path by moving firstObstacle out of it
+                            boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                                    failedPath,
+                                    firstObstacle
+                            );
                             if (successful) {
-                                // retrieve the list of primitive actions to execute (blindly)
-                                return BDIService.getInstance().getCurrentHLPlan();
+                                // Create plan for moving obstacle
+                                successful &= BDIService.getInstance().solveMoveBox(failedPath, firstObstacle);
+
+                                if (successful) {
+                                    // retrieve the list of primitive actions to execute (blindly)
+                                    return BDIService.getInstance().getCurrentHLPlan();
+                                }
                             }
                         }
                     }
+
+                    remainingObstacles--;
+                    continue;
                 }
 
+                if (box.equals(goalIntention.getTargetBox()) && obstacles.hasNext()) {
+                    // move goal box to free position and try re-planning from there (recurse once)
+                    Position neighbour = pls.getFreeNeighbour(
+                            goalIntention.getAgentBoxPseudoPathClone(),
+                            agentPosition,
+                            obstacleOrigin,
+                            remainingObstacles
+                    );
+                    moveBoxInPlanner(box, neighbour, obstacleOrigin);
+                    removedObstacles.add(obstacleOrigin);
+                    goalIntention.getObstaclePositions().removeAll(removedObstacles);
+
+                    System.err.println("RECURSION");
+                    return planGoalIntention(goalIntention); // Recursive behavior max depth is 1 :-)
+                } else if (box.equals(goalIntention.getTargetBox())) {
+                    // only 'obstacle' left in path is goal box - move it into goal position
+                    moveBoxInPlanner(
+                            box,
+                            pls.getPosition(goalIntention.getGoal()),
+                            intention.getAgentPseudoPath().peekLast()
+                    );
+                    removedObstacles.add(obstacleOrigin);
+                    return plan;
+                } else {
+                    // next obstacle is in the path - move box to free position
+                    Position neighbour = pls.getFreeNeighbour(
+                            goalIntention.getAgentBoxPseudoPathClone(),
+                            agentPosition,
+                            obstacleOrigin,
+                            remainingObstacles
+                    );
+
+                    moveBoxInPlanner(box, neighbour, obstacleOrigin);
+                    removedObstacles.add(obstacleOrigin);
+                }
                 remainingObstacles--;
-                continue;
             }
-
-            if (box.equals(goalIntention.getTargetBox()) && obstacles.hasNext()) {
-                // move goal box to free position and try re-planning from there (recurse once)
-                Position neighbour = pls.getFreeNeighbour(
-                        goalIntention.getAgentBoxPseudoPathClone(),
-                        agentPosition,
-                        obstacleOrigin,
-                        remainingObstacles
-                );
-                moveBoxInPlanner(box, neighbour, obstacleOrigin);
-                removedObstacles.add(obstacleOrigin);
-                goalIntention.getObstaclePositions().removeAll(removedObstacles);
-
-                System.err.println("RECURSION");
-                return planGoalIntention(goalIntention); // Recursive behavior max depth is 1 :-)
-            } else if (box.equals(goalIntention.getTargetBox())) {
-                // only 'obstacle' left in path is goal box - move it into goal position
-                moveBoxInPlanner(
-                        box,
-                        pls.getPosition(goalIntention.getGoal()),
-                        intention.getAgentPseudoPath().peekLast()
-                );
-                removedObstacles.add(obstacleOrigin);
-                return plan;
-            } else {
-                // next obstacle is in the path - move box to free position
-                Position neighbour = pls.getFreeNeighbour(
-                        goalIntention.getAgentBoxPseudoPathClone(),
-                        agentPosition,
-                        obstacleOrigin,
-                        remainingObstacles
-                );
-
-                moveBoxInPlanner(box, neighbour, obstacleOrigin);
-                removedObstacles.add(obstacleOrigin);
-            }
-            remainingObstacles--;
         }
 
         // no more obstacles - and the goal box was not among the obstacles
@@ -295,8 +268,34 @@ public class HLPlanner {
         return plan;
     }
 
+    private Box extractBox(BoardObject boardObject) {
+        if (boardObject.getType() == BoardCell.BOX_GOAL) {
+            // there is a box in our path
+            BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
+            if (boxGoal.isSolved()) {
+                // TODO: can we go around ??
+                throw new RuntimeException("I cannot un-solve a solved goal");
+            } else {
+                return ((BoxAndGoal) boardObject).getBox();
+            }
+        }
+        if (boardObject.getType() == BoardCell.BOX) {
+            // there is a box in our path
+            return (Box) boardObject;
+        }
+
+        throw new RuntimeException("BoardObject is not of type Box");
+    }
+
+    private void handleObstacle(Box box) {
+
+    }
+
+    private void handleObstacle(Agent agent) {
+
+    }
+
     private void moveBoxInPlanner(Box box, Position boxDestination, Position agentDestination) {
-        Agent agent = BDIService.getInstance().getAgent();
         HMoveBoxAction moveBoxAction = new HMoveBoxAction(
                 box,
                 boxDestination,
