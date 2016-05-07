@@ -27,7 +27,9 @@ public class Goal extends BoardObject implements Comparable<Goal> {
         return position;
     }
 
-    public boolean equals(Goal otherGoal) { return this.position.equals(otherGoal.position) && this.label.equals(otherGoal.label); }
+    public boolean equals(Goal otherGoal) {
+        return super.equals(otherGoal) && position.equals(otherGoal.getPosition());
+    }
 
     @Override
     public int compareTo(Goal otherGoal) {

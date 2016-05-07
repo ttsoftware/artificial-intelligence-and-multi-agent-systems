@@ -878,7 +878,7 @@ public abstract class LevelService {
         List<Goal> goals = new ArrayList<>();
 
         level.getGoalQueues().forEach(goalQueue -> {
-            Goal goal = goalQueue.poll();
+            Goal goal = goalQueue.peek();
             if (goal != null) {
                 goals.add(goal);
             }
@@ -887,6 +887,18 @@ public abstract class LevelService {
         return goals;
     }
 
+    /**
+     * Removes this goal from the queue in which it exists
+     * @param goal
+     */
+    public synchronized void removeGoalFromQueue(Goal goal) {
+        level.getGoalQueues().forEach(goalQueue -> {
+            if (goalQueue.contains(goal)) {
+                // remove this goal from the queue
+                goalQueue.remove(goal);
+            }
+        });
+    }
     /**
      * @param position
      * @return A list of adjacent cells containing a box or an agent

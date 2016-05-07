@@ -54,7 +54,6 @@ public class Agency implements Runnable {
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
             // Assign goals to the best agents and wait for plans to finish
-
             offerGoals(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
 
                 Goal goal = goalAgentEntry.getKey();
@@ -89,18 +88,19 @@ public class Agency implements Runnable {
                     switch (objectAtGoalPosition.getType()) {
                         case GOAL:
                             // We need to re-assign goal task
-                            throw new RuntimeException("We should add this goal back to the PriorityQueue whence it came.");
+                            break;
                         case BOX_GOAL:
                             if (!((BoxAndGoal) objectAtGoalPosition).isSolved()) {
                                 // We need to re-assign goal task
-                                throw new RuntimeException("We should add this goal back to the PriorityQueue whence it came.");
                             }
                             break;
                         default:
+                            System.err.println("The plan for goal: " + goal + " finished.");
+                            // this goal completed, so we can remove it from it's queue
+                            GlobalLevelService.getInstance().removeGoalFromQueue(goal);
                             break;
                     }
-
-                    System.err.println("The plan for goal: " + goal + " finished.");
+                    return;
                 });
             });
         }
