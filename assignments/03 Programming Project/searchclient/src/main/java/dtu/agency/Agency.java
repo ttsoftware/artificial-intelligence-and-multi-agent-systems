@@ -87,6 +87,9 @@ public class Agency implements Runnable {
                     BoardObject objectAtGoalPosition = GlobalLevelService.getInstance().getObject(goalPosition);
 
                     switch (objectAtGoalPosition.getType()) {
+                        case GOAL:
+                            // We need to re-assign goal task
+                            throw new RuntimeException("We should add this goal back to the PriorityQueue whence it came.");
                         case BOX_GOAL:
                             if (!((BoxAndGoal) objectAtGoalPosition).isSolved()) {
                                 // We need to re-assign goal task
@@ -94,6 +97,7 @@ public class Agency implements Runnable {
                             }
                             break;
                         default:
+                            break;
                     }
 
                     System.err.println("The plan for goal: " + goal + " finished.");

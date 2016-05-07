@@ -199,7 +199,7 @@ public class AgentThread implements Runnable {
 
             if (successful) {
                 // Create plan for moving object
-                successful &= BDIService.getInstance().solveMoveBox(path, obstacle);
+                successful &= BDIService.getInstance().solveMoveBox(obstacle);
 
                 if (successful) {
                     // retrieve the list of primitive actions to execute (blindly)

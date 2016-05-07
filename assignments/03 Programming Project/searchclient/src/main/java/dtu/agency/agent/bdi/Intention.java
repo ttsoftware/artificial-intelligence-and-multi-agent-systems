@@ -22,6 +22,9 @@ public abstract class Intention {
     // ordered position of obstacles encountered
     protected final LinkedList<Position> obstaclePositions;
 
+    // ordered position of obstacles encountered
+    protected LinkedList<Position> removedObstacles;
+
     // obstacles placed so that the agent may move them without moving the target box first (including the target box, ordered by distance from agent)
     protected final int reachableObstacles;
     // obstacles placed so that the agent cannot move them before moving the target box
@@ -39,6 +42,7 @@ public abstract class Intention {
         this.agentPseudoPath = agentPseudoPath;
         this.agentBoxPseudoPath = agentBoxPseudoPath;
         this.obstaclePositions = obstaclePositions;
+        this.removedObstacles = new LinkedList<>();
         this.reachableObstacles = reachableObstacles;
         this.unreachableObstacles = unreachableObstacles;
     }
@@ -77,6 +81,15 @@ public abstract class Intention {
 
     public LinkedList<Position> getObstaclePositionsClone() {
         return new LinkedList<>(obstaclePositions);
+    }
+
+    public LinkedList<Position> getRemovedObstacles() {
+        return removedObstacles;
+    }
+
+    public void removeObstacle(Position obstaclePosition) {
+        removedObstacles.add(obstaclePosition);
+        obstaclePositions.remove(obstaclePosition);
     }
 
     public int getReachableObstacles() {

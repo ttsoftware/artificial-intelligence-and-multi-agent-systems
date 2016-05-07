@@ -215,7 +215,7 @@ public class BDIService {
         // Move agent next to the boc
         RLAction moveAgentAction = new RGotoAction(
                 targetBox,
-                pls.getPosition(targetBox)
+                targetBoxPosition
         );
 
         HTNPlanner htn = new HTNPlanner(pls, moveAgentAction, RelaxationMode.NoAgentsNoBoxes);
@@ -257,7 +257,6 @@ public class BDIService {
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
-        // HLPlan hlPlan = planner.plan();
 
         HLPlan hlPlan = planner.plan(
                 intention,
@@ -273,17 +272,20 @@ public class BDIService {
     }
 
     /**
-     * @param path
      * @param box
      * @return
      */
-    public boolean solveMoveBox(LinkedList<Position> path, Box box) {
+    public boolean solveMoveBox(Box box) {
 
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         Intention intention = intentions.get(box.getLabel());
         HLPlanner planner = new HLPlanner(intention, pls);
-        HLPlan hlPlan = planner.plan();
+
+        HLPlan hlPlan = planner.plan(
+                intention,
+                new HLPlan()
+        );
 
         // Check the result of this planning phase, and return success
         if (hlPlan != null) {
