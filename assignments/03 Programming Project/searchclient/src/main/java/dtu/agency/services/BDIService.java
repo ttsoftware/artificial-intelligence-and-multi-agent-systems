@@ -257,7 +257,12 @@ public class BDIService {
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
-        HLPlan hlPlan = planner.plan();
+        // HLPlan hlPlan = planner.plan();
+
+        HLPlan hlPlan = planner.plan(
+                intention,
+                new HLPlan()
+        );
 
         // Check the result of this planning phase, and return success
         if (hlPlan != null) {

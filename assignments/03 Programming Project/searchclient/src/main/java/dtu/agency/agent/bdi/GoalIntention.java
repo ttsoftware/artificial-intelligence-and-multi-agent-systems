@@ -18,7 +18,7 @@ public class GoalIntention extends Intention {
         super(
                 other.getTargetBox(),
                 new PrimitivePlan(other.pseudoPlan),
-                other.getAgentPseudoPath(),
+                other.getAgentPseudoPathClone(),
                 other.getAgentBoxPseudoPath(),
                 new LinkedList<>(other.obstaclePositions),
                 other.getReachableObstacles(),

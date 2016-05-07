@@ -34,6 +34,237 @@ public class HLPlanner {
         this.plan = new HLPlan();
     }
 
+    /**
+     * Recursively generate a high-level plan
+     *
+     * @param intention
+     * @param plan
+     * @return
+     */
+    public HLPlan plan(Intention intention,
+                       HLPlan plan) {
+
+        List<Position> obstacles = intention.getObstaclePositionsClone();
+        int remainingObstacles = obstacles.size();
+
+        if (remainingObstacles == 0) {
+            plan = addLastAction(intention, plan, remainingObstacles);
+
+            return plan;
+        }
+        else {
+            // solve obstacles
+
+            Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
+            Position obstaclePosition = obstacles.get(0);
+            BoardObject boardObject = pls.getObject(obstaclePosition);
+
+            if (boardObject.getType() == BoardCell.AGENT_GOAL
+                    || boardObject.getType() == BoardCell.AGENT) {
+                // there is an agent in our path - ask it to move
+                // ignore it for now, it might move on its own
+                // if it does not move on its own, we are gonna have to ask it to move
+            } else {
+                Box box = extractBox(boardObject);
+
+                // see if this agent can actually move this box/obstacle
+                if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
+                    // should this update the plan?
+                    plan = helpMoveObstacle(box);
+                } else {
+                    plan = moveObstacle(
+                            agentPosition,
+                            obstaclePosition,
+                            box,
+                            remainingObstacles--,
+                            plan
+                    );
+                }
+            }
+
+            // recursively solve next obstacle
+            return plan(intention, plan);
+        }
+    }
+
+    private HLPlan addLastAction(Intention intention,
+                                 HLPlan plan,
+                                 int remainingObstacles) {
+
+        if (intention instanceof GoalIntention) {
+            // ask for help
+            return addLastAction((GoalIntention) intention, plan, remainingObstacles);
+        }
+        if (intention instanceof MoveBoxFromPathIntention) {
+            // we need help we are already helping someone. We must fail
+            return addLastAction((MoveBoxFromPathIntention) intention, plan, remainingObstacles);
+        }
+
+        throw new RuntimeException("Invalid intention");
+    }
+
+    private HLPlan addLastAction(GoalIntention intention,
+                                 HLPlan plan,
+                                 int remainingObstacles) {
+
+        // no more obstacles - and the goal box was not among the obstacles
+        // move it to the goal position
+        return moveBoxInPlanner(
+                intention.getTargetBox(),
+                pls.getPosition(intention.getGoal()),
+                intention.getAgentPseudoPathClone().peekLast(),
+                plan
+        );
+    }
+
+    private HLPlan addLastAction(MoveBoxFromPathIntention intention,
+                                 HLPlan plan,
+                                 int remainingObstacles) {
+
+        Position agentPosition = pls.getPosition(BDIService.getInstance().getAgent());
+        Position obstacleOrigin = pls.getPosition(intention.getTargetBox());
+
+        Position neighbourForBox = pls.getFreeNeighbour(
+                intention.getCombinedPath(),
+                agentPosition,
+                obstacleOrigin,
+                remainingObstacles + 1 // we also need a space for the agent
+        );
+
+        Position neighbourForAgent = pls.getFreeNeighbour(
+                intention.getCombinedPath(),
+                agentPosition,
+                obstacleOrigin,
+                remainingObstacles
+        );
+
+        // no more obstacles - and the goal box was not among the obstacles
+        // move it to the goal position
+        return moveBoxInPlanner(
+                intention.getTargetBox(),
+                neighbourForBox,
+                neighbourForAgent,
+                plan
+        );
+    }
+
+    private HLPlan helpMoveObstacle(Box box) {
+
+        if (intention instanceof GoalIntention) {
+            // ask for help
+            // TODO: can we go around ??
+            System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + box);
+
+            HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
+                    intention.getAgentBoxPseudoPathClone(),
+                    box
+            );
+            EventBusService.post(helpMeEvent);
+
+            // wait until someone moved the obstacle - blocks this thread for at most 2^32-1 milliseconds
+            List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
+
+            // find first obstacle in our original path
+            Position firstObstaclePosition = intention.getObstaclePositions().peekFirst();
+            Box firstObstacle = (Box) pls.getObject(firstObstaclePosition);
+
+            for (LinkedList<Position> failedPath : failedPaths) {
+                // failedPath is a path to move this obstacle, which has obstacles of its own
+                if (failedPath.contains(firstObstaclePosition)) {
+                    // we can help this path by moving firstObstacle out of it
+                    boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                            failedPath,
+                            firstObstacle
+                    );
+                    if (successful) {
+                        // Create plan for moving obstacle
+                        successful &= BDIService.getInstance().solveMoveBox(failedPath, firstObstacle);
+
+                        if (successful) {
+                            // retrieve the list of primitive actions to execute (blindly)
+                            return BDIService.getInstance().getCurrentHLPlan();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (intention instanceof MoveBoxFromPathIntention) {
+            // we need help we are already helping someone. We must fail
+            throw new RuntimeException("We (" + BDIService.getInstance().getAgent() + ") are already helping someone, so who should help us?");
+        }
+
+        throw new RuntimeException("invalid intention");
+    }
+
+    private HLPlan moveObstacle(Position agentPosition,
+                                Position obstaclePosition,
+                                Box box,
+                                int remainingObstacles,
+                                HLPlan plan) {
+
+        LinkedList<Position> intentionPath = null;
+        LinkedList<Position> intentionPathIncludingBox = null;
+        Position obstacleGoalPosition = null;
+
+        if (intention instanceof GoalIntention) {
+            // ask for help
+            intentionPath = intention.getAgentPseudoPathClone();
+            intentionPathIncludingBox = intention.getAgentBoxPseudoPathClone();
+            obstacleGoalPosition = pls.getPosition(((GoalIntention) intention).getGoal());
+        }
+        if (intention instanceof MoveBoxFromPathIntention) {
+            // we need help we are already helping someone. We must fail
+            intentionPath = ((MoveBoxFromPathIntention) intention).getCombinedPath();
+            intentionPathIncludingBox = ((MoveBoxFromPathIntention) intention).getCombinedPath();
+
+            obstacleGoalPosition = pls.getFreeNeighbour(
+                    intentionPath,
+                    agentPosition,
+                    obstaclePosition,
+                    remainingObstacles
+            );
+        }
+
+        if (box.equals(intention.getTargetBox()) && remainingObstacles > 1) {
+            // move goal box to free position and try re-planning from there (recurse once)
+            Position neighbour = pls.getFreeNeighbour(
+                    intentionPathIncludingBox,
+                    agentPosition,
+                    obstaclePosition,
+                    remainingObstacles
+            );
+            plan = moveBoxInPlanner(box, neighbour, obstaclePosition, plan);
+            intention.getObstaclePositions().remove(obstaclePosition);
+
+            System.err.println("RECURSION");
+            // recursively re-plan
+            return plan(intention, plan);
+        } else if (box.equals(intention.getTargetBox())) {
+            // only 'obstacle' left in path is target box - move it into a free neighbour position
+            plan = moveBoxInPlanner(
+                    box,
+                    obstacleGoalPosition,
+                    intentionPath.peekLast(),
+                    plan
+            );
+        } else {
+            // next obstacle is in the path - move box to free position
+            Position neighbour = pls.getFreeNeighbour(
+                    intentionPathIncludingBox,
+                    agentPosition,
+                    obstaclePosition,
+                    remainingObstacles
+            );
+
+            plan = moveBoxInPlanner(box, neighbour, obstaclePosition, plan);
+        }
+
+        intention.getObstaclePositions().remove(obstaclePosition);
+        return plan;
+    }
+
+
     public HLPlan plan() {
 
         if (intention == null) {
@@ -105,7 +336,7 @@ public class HLPlanner {
                     moveBoxInPlanner(
                             box,
                             neighbour,
-                            moveBoxFromPathIntention.getAgentPseudoPath().peekLast()
+                            moveBoxFromPathIntention.getAgentPseudoPathClone().peekLast()
                     );
                     removedObstacles.add(obstacleOrigin);
                     return plan;
@@ -237,7 +468,7 @@ public class HLPlanner {
                     moveBoxInPlanner(
                             box,
                             pls.getPosition(goalIntention.getGoal()),
-                            intention.getAgentPseudoPath().peekLast()
+                            intention.getAgentPseudoPathClone().peekLast()
                     );
                     removedObstacles.add(obstacleOrigin);
                     return plan;
@@ -262,7 +493,7 @@ public class HLPlanner {
         moveBoxInPlanner(
                 goalIntention.getTargetBox(),
                 pls.getPosition(goalIntention.getGoal()),
-                goalIntention.getAgentPseudoPath().peekLast()
+                goalIntention.getAgentPseudoPathClone().peekLast()
         );
 
         return plan;
@@ -303,5 +534,20 @@ public class HLPlanner {
         );
         plan.append(moveBoxAction);
         pls.apply(moveBoxAction);
+    }
+
+    private HLPlan moveBoxInPlanner(Box box,
+                                    Position boxDestination,
+                                    Position agentDestination,
+                                    HLPlan plan) {
+        HMoveBoxAction moveBoxAction = new HMoveBoxAction(
+                box,
+                boxDestination,
+                agentDestination
+        );
+        plan.append(moveBoxAction);
+        pls.apply(moveBoxAction);
+
+        return plan;
     }
 }

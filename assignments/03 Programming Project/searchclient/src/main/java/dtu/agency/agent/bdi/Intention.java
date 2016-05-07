@@ -64,11 +64,19 @@ public abstract class Intention {
     }
 
     public LinkedList<Position> getAgentPseudoPath() {
+        return agentPseudoPath;
+    }
+
+    public LinkedList<Position> getAgentPseudoPathClone() {
         return new LinkedList<>(agentPseudoPath);
     }
 
     public LinkedList<Position> getObstaclePositions() {
         return obstaclePositions;
+    }
+
+    public LinkedList<Position> getObstaclePositionsClone() {
+        return new LinkedList<>(obstaclePositions);
     }
 
     public int getReachableObstacles() {
