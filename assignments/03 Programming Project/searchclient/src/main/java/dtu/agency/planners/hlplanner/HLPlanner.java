@@ -165,52 +165,47 @@ public class HLPlanner {
                 for (LinkedList<Position> failedPath : failedPaths) {
                     // failedPath is a path to move the foreign obstacle, which has obstacles of its own
 
-                    // check if we have already move objects from the failedPath
-                    if (intention.getRemovedObstacles().size() > 0) {
-                        LinkedList<Position> failedPathObstacles = pls.getObstaclePositions(failedPath);
+                    LinkedList<Position> failedPathObstacles = pls.getObstaclePositions(failedPath);
 
-                        for (Position failedPathObstaclePosition : failedPathObstacles) {
-                            if (intention.getRemovedObstacles().contains(failedPathObstaclePosition)) {
-                                // this obstacle has already been moved
-                            } else {
-                                // we can help this failed path by moving failedPathObstacle out of it
-                                Box failedPathBox = (Box) pls.getObject(failedPathObstaclePosition);
+                    for (Position failedPathObstaclePosition : failedPathObstacles) {
+                        if (intention.getRemovedObstacles().contains(failedPathObstaclePosition)) {
+                            // this obstacle has already been moved
+                        } else {
+                            // we can help this failed path by moving failedPathObstacle out of it
+                            Box failedPathBox = (Box) pls.getObject(failedPathObstaclePosition);
 
-                                if (failedPathBox == box) {
-                                    // this obstacle is the one we could not move in the first pace
-                                    continue;
+                            if (failedPathBox == box) {
+                                // this obstacle is the one we could not move in the first pace
+                                continue;
+                            }
+
+                            // lets try moving this obstacle
+                            boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                                    failedPath,
+                                    failedPathBox
+                            );
+
+                            if (successful) {
+                                // Create plan for moving obstacle
+                                try {
+                                    successful &= BDIService.getInstance().solveMoveBox(failedPathBox);
+                                } catch (RecursiveHelpException e) {
+                                    // e.printStackTrace(System.err);
+                                    // we cannot ask for help while asking for help
+                                    successful = false;
                                 }
-
-                                // lets try moving this obstacle
-                                boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
-                                        failedPath,
-                                        failedPathBox
-                                );
 
                                 if (successful) {
-                                    // Create plan for moving obstacle
-                                    try {
-                                        successful &= BDIService.getInstance().solveMoveBox(failedPathBox);
-                                    } catch (RecursiveHelpException e) {
-                                        // e.printStackTrace(System.err);
-                                        // we cannot ask for help while asking for help
-                                        successful = false;
-                                    }
-
-                                    if (successful) {
-                                        // retrieve the list of primitive actions to execute (blindly)
-                                        HLPlan movingFailedObstaclePlan =  BDIService.getInstance().getCurrentHLPlan();
-                                        // "remove" all remaining obstacles, in order to return this plan
-                                        intention.getObstaclePositions().forEach(intention::removeObstacle);
-                                        return movingFailedObstaclePlan;
-                                    }
-                                    else {
-                                        // we cannot move failedPathObstacle - it is probably a different color
-                                    }
-                                }
-                                else {
+                                    // retrieve the list of primitive actions to execute (blindly)
+                                    HLPlan movingFailedObstaclePlan = BDIService.getInstance().getCurrentHLPlan();
+                                    // "remove" all remaining obstacles, in order to return this plan
+                                    intention.getObstaclePositions().forEach(intention::removeObstacle);
+                                    return movingFailedObstaclePlan;
+                                } else {
                                     // we cannot move failedPathObstacle - it is probably a different color
                                 }
+                            } else {
+                                // we cannot move failedPathObstacle - it is probably a different color
                             }
                         }
                     }
@@ -219,8 +214,7 @@ public class HLPlanner {
                 // "remove" all remaining obstacles, in order to return this plan
                 intention.getObstaclePositions().forEach(intention::removeObstacle);
                 return plan;
-            }
-            else {
+            } else {
                 // someone moved the obstacle!
                 intention.removeObstacle(boxPosition);
                 return plan;
@@ -274,10 +268,7 @@ public class HLPlanner {
             );
             plan = moveBoxInPlanner(box, neighbour, obstaclePosition, plan);
             intention.removeObstacle(obstaclePosition);
-
-            System.err.println("RECURSION");
-            // recursively re-plan
-            // return plan(intention, plan);
+            // finish this plan and re-estimate
             return plan;
         } else if (box.equals(intention.getTargetBox())) {
             // only 'obstacle' left in path is target box - move it into a free neighbour position

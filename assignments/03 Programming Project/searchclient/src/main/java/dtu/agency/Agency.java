@@ -90,8 +90,10 @@ public class Agency implements Runnable {
                             // We need to re-assign goal task
                             break;
                         case BOX_GOAL:
-                            if (!((BoxAndGoal) objectAtGoalPosition).isSolved()) {
-                                // We need to re-assign goal task
+                            if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {
+                                System.err.println("The plan for goal: " + goal + " finished.");
+                                // this goal completed, so we can remove it from it's queue
+                                GlobalLevelService.getInstance().removeGoalFromQueue(goal);
                             }
                             break;
                         default:

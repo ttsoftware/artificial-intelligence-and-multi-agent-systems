@@ -92,6 +92,11 @@ public class PlannerClientThreadTest {
 
     @Test
     public void test4() throws Exception {
+        testLevel("SAboxesOfHanoi.lvl");
+    }
+
+    @Test
+    public void test4_1() throws Exception {
         testLevel("SAboxesOfHanoi_simple.lvl");
     }
 
