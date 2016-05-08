@@ -13,6 +13,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AgentThreadTest {
     private static Level twoAgents;
@@ -29,6 +31,10 @@ public class AgentThreadTest {
         Agent agent1 = new Agent("0");
         Agent agent2 = new Agent("1");
 
+        List<Agent> agents = new ArrayList<>();
+        agents.add(agent1);
+        agents.add(agent2);
+
         Thread t1 = new Thread(new AgentThread());
         Thread t2 = new Thread(new AgentThread());
         t1.start();
@@ -36,7 +42,7 @@ public class AgentThreadTest {
 
         Goal goal = new Goal("A", new Position(0, 0), 0);
 
-        GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, 2);
+        GoalEstimationEventSubscriber goalEstimationEventSubscriber = new GoalEstimationEventSubscriber(goal, agents);
         EventBusService.register(goalEstimationEventSubscriber);
 
         EventBusService.post(new GoalOfferEvent(goal));

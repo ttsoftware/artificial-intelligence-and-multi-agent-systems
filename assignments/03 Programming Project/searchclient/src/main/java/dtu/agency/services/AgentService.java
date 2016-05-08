@@ -28,7 +28,7 @@ public class AgentService {
      */
     public void addAgent(Agent agent, BDIService bdiService) {
         synchronized (bdiServices) {
-            availableAgents.add(agent);
+            // availableAgents.add(agent);
             bdiServices.put(agent.getLabel(), bdiService);
             bdiServices.notifyAll();
         }

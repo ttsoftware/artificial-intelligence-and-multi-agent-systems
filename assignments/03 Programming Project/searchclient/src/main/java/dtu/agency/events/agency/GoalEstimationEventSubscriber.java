@@ -1,61 +1,16 @@
 package dtu.agency.events.agency;
 
-import com.google.common.eventbus.AllowConcurrentEvents;
-import com.google.common.eventbus.Subscribe;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
-import dtu.agency.events.EventSubscriber;
+import dtu.agency.events.EstimationEventSubscriber;
 import dtu.agency.events.agent.GoalEstimationEvent;
 
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.List;
 
-public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstimationEvent> {
+public class GoalEstimationEventSubscriber extends EstimationEventSubscriber<GoalEstimationEvent> {
 
-    private GoalEstimationEvent lowestEstimation;
-
-    private final Goal goal;
-    private final int numberOfAgents;
-
-    private final Thread estimationsThread;
-
-    private PriorityBlockingQueue<GoalEstimationEvent> agentEstimations = new PriorityBlockingQueue<>();
-
-    public GoalEstimationEventSubscriber(Goal goal, int numberOfAgents) {
-        this.goal = goal;
-        this.numberOfAgents = numberOfAgents;
-
-        // Initialize thread for synchronizing steps
-        estimationsThread = new Thread(() -> {
-            try {
-                synchronized (goal) {
-                    // Wait for all agents to finish
-                    while (agentEstimations.size() != numberOfAgents) {
-                        goal.wait();
-                    }
-                    lowestEstimation = agentEstimations.take();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-            }
-        });
-        estimationsThread.start();
-    }
-
-    @Subscribe
-    @AllowConcurrentEvents
-    public void changeSubscriber(GoalEstimationEvent event) {
-        if (event.getGoal().getLabel().equals(goal.getLabel())) {
-            // The estimation is for this given goal
-            agentEstimations.offer(event);
-            // notify estimationsThread to see if all agents have estimated
-            synchronized (goal) {
-                goal.notify();
-            }
-        }
-    }
-
-    public Goal getGoal() {
-        return goal;
+    public GoalEstimationEventSubscriber(Goal goal, List<Agent> agents) {
+        super(goal, agents);
     }
 
     /**
@@ -67,9 +22,9 @@ public class GoalEstimationEventSubscriber implements EventSubscriber<GoalEstima
         try {
             // Wait for the value lowest estimation to be assigned
             estimationsThread.join();
+            return agentEstimations.take().getAgent();
         } catch (InterruptedException e) {
-            e.printStackTrace(System.err);
+            throw new RuntimeException(e);
         }
-        return lowestEstimation.getAgent();
     }
 }

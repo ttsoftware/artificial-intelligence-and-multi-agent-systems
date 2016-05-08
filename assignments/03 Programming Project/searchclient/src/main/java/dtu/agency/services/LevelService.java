@@ -856,13 +856,12 @@ public abstract class LevelService {
         LinkedList<Position> obstacles = new LinkedList<>();
 
         Iterator<Position> positions = path.iterator();
-        Position agentPosition = positions.next();
 
         while (positions.hasNext()) {
             Position next = positions.next();
             if (!isFree(next)) {
-                // TODO: This should also finds agents. Maybe. Who knows?
-                if (!next.equals(agentPosition) && !obstacles.contains(next)) {
+                if (getCell(next) != BoardCell.AGENT
+                        && !obstacles.contains(next)) {
                     obstacles.add(next);
                 }
             }
@@ -889,6 +888,7 @@ public abstract class LevelService {
 
     /**
      * Removes this goal from the queue in which it exists
+     *
      * @param goal
      */
     public synchronized void removeGoalFromQueue(Goal goal) {
@@ -899,6 +899,7 @@ public abstract class LevelService {
             }
         });
     }
+
     /**
      * @param position
      * @return A list of adjacent cells containing a box or an agent
@@ -1174,6 +1175,9 @@ public abstract class LevelService {
                     subPath.addLast(position);
                 } else if (position.equals(agentPosition)) {
                     // this is the agent we are operating from
+                    subPath.addLast(position);
+                } else if (getCell(position) == BoardCell.AGENT) {
+                    // this is another agent - we ignore it and expect conflict resolution to handle it
                     subPath.addLast(position);
                 } else {
                     // we ignore all positions until we find this position again

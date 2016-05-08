@@ -150,6 +150,7 @@ public class HLPlanner {
             System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + box);
 
             HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
+                    BDIService.getInstance().getAgent(),
                     intention.getAgentBoxPseudoPathClone(),
                     box
             );
@@ -276,7 +277,8 @@ public class HLPlanner {
 
             System.err.println("RECURSION");
             // recursively re-plan
-            return plan(intention, plan);
+            // return plan(intention, plan);
+            return plan;
         } else if (box.equals(intention.getTargetBox())) {
             // only 'obstacle' left in path is target box - move it into a free neighbour position
             plan = moveBoxInPlanner(

@@ -41,7 +41,7 @@ public class Agency implements Runnable {
             System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
-            ThreadService.execute(new AgentThread());
+            ThreadService.execute(new AgentThread(agent));
         });
 
         // Register for self-handled events
@@ -124,7 +124,7 @@ public class Agency implements Runnable {
         goals.forEach(goal -> {
 
             // Register for incoming goal estimations
-            GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, numberOfAgents);
+            GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, agents);
             EventBusService.register(goalEstimationSubscriber);
 
             // offer the goal
@@ -162,10 +162,13 @@ public class Agency implements Runnable {
     @AllowConcurrentEvents
     public void helpMoveObstacleEventSubscriber(HelpMoveObstacleEvent event) {
 
+        List<Agent> agentsWithoutVictim = new ArrayList<>(agents);
+        agentsWithoutVictim.remove(event.getAgent());
+
         // Subscribe to move obstacle estimations
         MoveObstacleEstimationEventSubscriber obstacleEstimationSubscriber = new MoveObstacleEstimationEventSubscriber(
                 event.getObstacle(),
-                numberOfAgents
+                agentsWithoutVictim
         );
 
         EventBusService.register(obstacleEstimationSubscriber);
@@ -184,7 +187,7 @@ public class Agency implements Runnable {
         List<LinkedList<Position>> badAgentPaths = new ArrayList<>();
         MoveObstacleEstimationEvent estimation;
         while ((estimation = agentEstimations.poll()) != null) {
-            if (estimation.isSolvesObstacle()) {
+            if (estimation.isSolvedObstacle()) {
                 // an agent can move the obstacle! Wohoo!
                 break;
             }
@@ -192,7 +195,7 @@ public class Agency implements Runnable {
             badAgentPaths.add(estimation.getPath());
         }
 
-        if (badAgentPaths.size() == numberOfAgents) {
+        if (badAgentPaths.size() == agentsWithoutVictim.size()) {
             // no agents can move our obstacle without help
             event.setResponse(badAgentPaths);
         } else {

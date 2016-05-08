@@ -24,6 +24,13 @@ public class AgentThread implements Runnable {
 
     private Agent agent;
 
+    public AgentThread() {
+    }
+
+    public AgentThread(Agent agent) {
+        this.agent = agent;
+    }
+
     @Override
     public void run() {
         prepareSubscriber();
@@ -37,12 +44,12 @@ public class AgentThread implements Runnable {
      * Prepare the BDIService for incoming events
      */
     private void prepareSubscriber() {
-        try {
+        /*try {
             // get the current agent
             agent = AgentService.getInstance().take();
         } catch (InterruptedException e) {
             e.printStackTrace(System.err);
-        }
+        }*/
         // get the threadLocal instance
         BDIService bdiService = AgentService.getInstance().getBDIServiceInstance(agent);
         BDIService.setInstance(bdiService);
@@ -56,6 +63,7 @@ public class AgentThread implements Runnable {
                 agent,
                 BDIService.getInstance()
         );
+        // agent = null;
     }
 
     /**
@@ -90,8 +98,8 @@ public class AgentThread implements Runnable {
 
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                    + ": received a goaloffer " + goal.getLabel()
-                    + " event and returned approximation: " + Integer.toString(totalSteps) + " steps");
+                    + ": received a goaloffer for " + goal.getLabel()
+                    + " and returned " + Integer.toString(totalSteps) + " steps");
 
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, totalSteps));
         }
@@ -168,7 +176,12 @@ public class AgentThread implements Runnable {
             boolean hasObstacles = intention.getObstacleCount() > 0;
 
             EventBusService.getEventBus().post(
-                    new MoveObstacleEstimationEvent(agent, obstacle, path, !hasObstacles)
+                    new MoveObstacleEstimationEvent(
+                            agent,
+                            obstacle,
+                            intention.getAgentBoxPseudoPath(),
+                            !hasObstacles
+                    )
             );
         } else {
             // TODO: Separate worlds?
