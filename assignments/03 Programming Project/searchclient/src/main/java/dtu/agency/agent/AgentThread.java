@@ -129,7 +129,6 @@ public class AgentThread implements Runnable {
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
 
             if (!successful) {
-                // TODO: We post a planning error event
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
                 event.setResponse(new PrimitivePlan());
             } else {
@@ -173,8 +172,7 @@ public class AgentThread implements Runnable {
                     + ": received a task offer for moving " + event.getObstacle().getLabel()
                     + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
-            // TODO: These should be obstacles of not our own color
-            boolean hasObstacles = intention.getObstacleCount() > 0;
+            boolean hasObstacles = intention.getObstaclePositions().size() > 0;
 
             EventBusService.getEventBus().post(
                     new MoveObstacleEstimationEvent(

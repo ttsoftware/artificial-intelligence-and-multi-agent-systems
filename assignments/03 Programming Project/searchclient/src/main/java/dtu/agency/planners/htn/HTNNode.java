@@ -11,8 +11,6 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 
 /**
  * Node for building a graph using the Hierarchical Task Network method
@@ -20,7 +18,6 @@ import java.util.Random;
  */
 public class HTNNode {
 
-    private static Random rnd = new Random(1);
     private final HTNNode parent;
     private final ConcreteAction concreteAction;   // primitive concreteAction represented by this node
     private final HTNState state;                  // status of the relevant board features after applying the concreteAction of this node
@@ -154,7 +151,6 @@ public class HTNNode {
             }
         }
 
-        Collections.shuffle(refinementNodes, rnd);
         return refinementNodes;
     }
 

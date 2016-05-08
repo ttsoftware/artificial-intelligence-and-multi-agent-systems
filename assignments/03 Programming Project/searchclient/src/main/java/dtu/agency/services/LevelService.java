@@ -527,12 +527,17 @@ public abstract class LevelService {
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
 
-        switch (cell) {       // update the cell where the agent is now located
+        // update the cell where the agent is now located
+        switch (cell) {
             case FREE_CELL:
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             case GOAL:
                 boardState[row][column] = BoardCell.AGENT_GOAL;
+                break;
+            case AGENT:
+                // TODO: Some other agent is standing here
+                boardState[row][column] = BoardCell.AGENT;
                 break;
             default:
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");

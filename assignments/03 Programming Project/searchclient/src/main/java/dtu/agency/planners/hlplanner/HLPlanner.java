@@ -41,6 +41,7 @@ public class HLPlanner {
     public HLPlan plan(Intention intention,
                        HLPlan plan) {
 
+        // TODO: Ask for help if more than 1 obstacle
         List<Position> obstacles = intention.getObstaclePositionsClone();
         int remainingObstacles = obstacles.size();
 

@@ -43,7 +43,7 @@ public class BDIService {
         threadLocal.set(bdiService);
     }
 
-    public static BDIService getInstance() {
+    public static synchronized BDIService getInstance() {
         return threadLocal.get();
     }
 

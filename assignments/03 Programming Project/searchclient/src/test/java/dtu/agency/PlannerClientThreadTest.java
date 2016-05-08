@@ -135,6 +135,17 @@ public class PlannerClientThreadTest {
         testLevel("MA_help_henning_3.lvl");
     }
 
+    @Test
+    public void test12() throws Exception {
+        testLevel("recursion_and_friends.lvl");
+    }
+
+
+    @Test
+    public void test13() throws Exception {
+        testLevel("recursion_and_friends_color.lvl");
+    }
+
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;
