@@ -64,7 +64,11 @@ public class HLPlanner {
                 // see if this agent can actually move this box/obstacle
                 if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
                     // should this update the plan?
-                    return helpMoveObstacle(box, obstaclePosition, plan);
+                    HLPlan helpMovePlan = helpMoveObstacle(box, obstaclePosition, plan);
+                    if (helpMovePlan.isEmpty()) {
+                        return null;
+                    }
+                    return helpMovePlan;
                 } else {
                     plan = moveObstacle(
                             agentPosition,

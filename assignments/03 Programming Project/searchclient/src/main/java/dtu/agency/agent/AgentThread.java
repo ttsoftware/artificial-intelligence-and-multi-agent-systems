@@ -131,6 +131,7 @@ public class AgentThread implements Runnable {
             if (!successful) {
                 // TODO: We post a planning error event
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
+                event.setResponse(new PrimitivePlan());
             } else {
                 // retrieves the list of primitive actions to execute (blindly)
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();

@@ -88,6 +88,7 @@ public class Agency implements Runnable {
                     switch (objectAtGoalPosition.getType()) {
                         case GOAL:
                             // We need to re-assign goal task
+                            System.err.println("We must re-offer: " + goal);
                             break;
                         case BOX_GOAL:
                             if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {

@@ -11,7 +11,7 @@ public class Main {
                 "-l",
                 // "levels/recursion_and_friends.lvl", // TODO: Does not work
                 // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
-                // "levels/MAsimple5.lvl", // TODO: Does not work - Class cast exception
+                // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
                 // "levels/MAsimple2.lvl", // TODO: Why do agents wait for each other to finish?
