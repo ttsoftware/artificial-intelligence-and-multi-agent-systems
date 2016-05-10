@@ -136,6 +136,11 @@ public class PlannerClientThreadTest {
     }
 
     @Test
+    public void test11_1() throws Exception {
+        testLevel("MA_help_henning_4.lvl");
+    }
+
+    @Test
     public void test12() throws Exception {
         testLevel("recursion_and_friends.lvl");
     }
