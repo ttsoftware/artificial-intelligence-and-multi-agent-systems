@@ -248,16 +248,20 @@ public class ConflictService {
                 (PrimitivePlan) conflict.getConcederPlan()
         );
 
-        MoveBoxConcreteAction moveBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(1);
-        if(moveBoxConcreteAction.getBox() != null) {
-            orderedPath.addFirst(planningLevelService.getPosition(
+        ConcreteActionType actionType = ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0).getType();
+        MoveBoxConcreteAction moveBoxConcreteAction = null;
+        if(actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
+            moveBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0);
+
+            orderedPath.addFirst(GlobalLevelService.getInstance().getPosition(
                     moveBoxConcreteAction.getBox()
             ));
 
             planningLevelService.removeBox(moveBoxConcreteAction.getBox());
         }
 
-        orderedPath.addFirst(planningLevelService.getPosition(conflict.getConceder()));
+
+        orderedPath.addFirst(GlobalLevelService.getInstance().getPosition(conflict.getConceder()));
 
         planningLevelService.removeAgent(conflict.getConceder());
 
@@ -272,19 +276,21 @@ public class ConflictService {
         );
 
         // Find parking spaces
-        if (pushOrPull) {
+        if(pushOrPull) {
             parkingSpaces.add(
-                    planningLevelService.getFreeNeighbour(
+                    GlobalLevelService.getInstance().getFreeNeighbour(
                             orderedPath,
-                            planningLevelService.getPosition(conflict.getInitiator()),
-                            planningLevelService.getPosition(((MoveBoxConcreteAction) conflict.getConcederPlan()
-                                    .getActions().get(0)).getBox()),
+                            GlobalLevelService.getInstance().getPosition(conflict.getInitiator()),
+                            GlobalLevelService.getInstance().getPosition(conflict.getConceder()),
+//                            GlobalLevelService.getInstance().getPosition(
+//                                    ((MoveBoxConcreteAction) conflict.getConcederPlan().getActions().get(0)).getBox()
+//                            ),
                             2
                     )
             );
         }
 
-        if(moveBoxConcreteAction.getBox() != null) {
+        if(actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
             planningLevelService.insertBox(moveBoxConcreteAction.getBox(),
                     BDIService.getInstance().getBDILevelService().getPosition(moveBoxConcreteAction.getBox()));
         }
@@ -339,7 +345,7 @@ public class ConflictService {
                         BDIService.getInstance().getBDILevelService().getLevel()
                 ),
                 outOfTheWayAction,
-                RelaxationMode.None
+                RelaxationMode.NoAgentsNoBoxes
         );
 
         PrimitivePlan moveBackPlan = new PrimitivePlan();

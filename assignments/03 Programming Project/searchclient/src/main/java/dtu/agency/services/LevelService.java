@@ -840,9 +840,11 @@ public abstract class LevelService {
 
         for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
-            Position next = new Position(previous, action.getAgentDirection());
-            path.addLast(new Position(next));
-            previous = next;
+            if(!action.getType().equals(ConcreteActionType.NONE)) {
+                Position next = new Position(previous, action.getAgentDirection());
+                path.addLast(new Position(next));
+                previous = next;
+            }
         }
         return path;
     }
