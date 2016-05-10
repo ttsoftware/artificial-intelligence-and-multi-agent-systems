@@ -92,27 +92,62 @@ public class PlannerClientThreadTest {
 
     @Test
     public void test4() throws Exception {
+        testLevel("SAboxesOfHanoi.lvl");
+    }
+
+    @Test
+    public void test4_1() throws Exception {
         testLevel("SAboxesOfHanoi_simple.lvl");
     }
 
     @Test
     public void test5() throws Exception {
-        testLevel("SAhlplan_old.lvl");
+        testLevel("SAhlplan.lvl");
     }
 
     @Test
     public void test6() throws Exception {
-        testLevel("MAsimple1.lvl");
+        testLevel("SAhlplan_old.lvl");
     }
 
     @Test
     public void test7() throws Exception {
-        testLevel("MAchallenge.lvl");
+        testLevel("MAsimple1.lvl");
     }
 
     @Test
     public void test8() throws Exception {
+        testLevel("MAchallenge.lvl");
+    }
+
+    @Test
+    public void test9() throws Exception {
         testLevel("MA_out_of_my_way_Henning.lvl");
+    }
+
+    @Test
+    public void test10() throws Exception {
+        testLevel("MA_help_henning.lvl");
+    }
+
+    @Test
+    public void test11() throws Exception {
+        testLevel("MA_help_henning_3.lvl");
+    }
+
+    @Test
+    public void test12() throws Exception {
+        testLevel("recursion_and_friends.lvl");
+    }
+
+    @Test
+    public void test13() throws Exception {
+        testLevel("recursion_and_friends_color.lvl");
+    }
+
+    @Test
+    public void test14() throws Exception {
+        testLevel("friendofDFS.lvl");
     }
 
     public void testLevel(String level) throws Exception {

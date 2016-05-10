@@ -92,28 +92,6 @@ public class HTNPlanner {
     /**
      * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
      *
-     * @param solveGoalAction
-     * @param mode
-     */
-    public void reload(SolveGoalAction solveGoalAction, RelaxationMode mode) {
-        agentDestination = null;
-        this.originalAction = new HMoveBoxAction(
-                solveGoalAction.getBox(),
-                solveGoalAction.getBoxDestination(),
-                solveGoalAction.getAgentDestination(pls)
-        );
-        Position agentOrigin = pls.getPosition(agent);
-        Position boxOrigin = agentOrigin;
-        if (originalAction.getBox() != null) {
-            boxOrigin = pls.getPosition(originalAction.getBox());
-        }
-        HTNState initialState = new HTNState(agentOrigin, boxOrigin, pls, mode);
-        this.initialNode = new HTNNode(initialState, this.originalAction, pls);
-    }
-
-    /**
-     * Make the HTNPlanner ready to run again with new Action / Relaxation parameters
-     *
      * @param action
      * @param mode
      */

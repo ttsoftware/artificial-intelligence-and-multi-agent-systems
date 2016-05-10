@@ -527,12 +527,17 @@ public abstract class LevelService {
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
 
-        switch (cell) {       // update the cell where the agent is now located
+        // update the cell where the agent is now located
+        switch (cell) {
             case FREE_CELL:
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             case GOAL:
                 boardState[row][column] = BoardCell.AGENT_GOAL;
+                break;
+            case AGENT:
+                // TODO: Some other agent is standing here
+                boardState[row][column] = BoardCell.AGENT;
                 break;
             default:
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
@@ -560,6 +565,22 @@ public abstract class LevelService {
         } else {
             boardObjects[row][column] = agent;
         }
+        level.setBoardObjects(boardObjects);
+    }
+
+    /**
+     * @WARNING: Removes anything from this position!
+     * We have no way of knowing what was removed, so we cannot put it back
+     * @param position
+     */
+    protected synchronized void clearPosition(Position position) {
+        BoardCell[][] boardState = level.getBoardState();
+        BoardObject[][] boardObjects = level.getBoardObjects();
+
+        boardState[position.getRow()][position.getColumn()] = BoardCell.FREE_CELL;
+        boardObjects[position.getRow()][position.getColumn()] = new Empty(" ");
+
+        level.setBoardState(boardState);
         level.setBoardObjects(boardObjects);
     }
 
@@ -856,13 +877,13 @@ public abstract class LevelService {
         LinkedList<Position> obstacles = new LinkedList<>();
 
         Iterator<Position> positions = path.iterator();
-        Position agentPosition = positions.next();
 
         while (positions.hasNext()) {
             Position next = positions.next();
             if (!isFree(next)) {
-                // TODO: This should also finds agents. Maybe. Who knows?
-                if (!next.equals(agentPosition) && !obstacles.contains(next)) {
+                if (getCell(next) != BoardCell.AGENT
+                        && getCell(next) != BoardCell.AGENT_GOAL
+                        && !obstacles.contains(next)) {
                     obstacles.add(next);
                 }
             }
@@ -878,13 +899,27 @@ public abstract class LevelService {
         List<Goal> goals = new ArrayList<>();
 
         level.getGoalQueues().forEach(goalQueue -> {
-            Goal goal = goalQueue.poll();
+            Goal goal = goalQueue.peek();
             if (goal != null) {
                 goals.add(goal);
             }
         });
 
         return goals;
+    }
+
+    /**
+     * Removes this goal from the queue in which it exists
+     *
+     * @param goal
+     */
+    public synchronized void removeGoalFromQueue(Goal goal) {
+        level.getGoalQueues().forEach(goalQueue -> {
+            if (goalQueue.contains(goal)) {
+                // remove this goal from the queue
+                goalQueue.remove(goal);
+            }
+        });
     }
 
     /**
@@ -1162,6 +1197,9 @@ public abstract class LevelService {
                     subPath.addLast(position);
                 } else if (position.equals(agentPosition)) {
                     // this is the agent we are operating from
+                    subPath.addLast(position);
+                } else if (getCell(position) == BoardCell.AGENT) {
+                    // this is another agent - we ignore it and expect conflict resolution to handle it
                     subPath.addLast(position);
                 } else {
                     // we ignore all positions until we find this position again

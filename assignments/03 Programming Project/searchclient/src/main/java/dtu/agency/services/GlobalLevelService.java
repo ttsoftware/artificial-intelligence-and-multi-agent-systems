@@ -12,7 +12,7 @@ public class GlobalLevelService extends LevelService {
      *
      * @return GlobalLevelService
      */
-    public static GlobalLevelService getInstance() {
+    public static synchronized GlobalLevelService getInstance() {
         if (instance == null) {
             // Creating an instance must be synchronized
             synchronized (GlobalLevelService.class) {

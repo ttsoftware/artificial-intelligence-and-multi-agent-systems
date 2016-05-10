@@ -2,34 +2,30 @@ package dtu.agency.events.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.BoardObject;
-import dtu.agency.events.Event;
+import dtu.agency.board.Position;
+import dtu.agency.events.EstimationEvent;
 
-public class MoveObstacleEstimationEvent extends Event implements Comparable<MoveObstacleEstimationEvent> {
+import java.util.LinkedList;
 
-    private final Agent agent;
-    private final BoardObject obstacle;
-    private final int steps;
+public class MoveObstacleEstimationEvent extends EstimationEvent {
 
-    public MoveObstacleEstimationEvent(Agent agent, BoardObject obstacle, int steps) {
-        this.agent = agent;
-        this.obstacle = obstacle;
-        this.steps = steps;
+    private final LinkedList<Position> path;
+    private final boolean solvesObstacle;
+
+    public MoveObstacleEstimationEvent(Agent agent,
+                                       BoardObject obstacle,
+                                       LinkedList<Position> path,
+                                       boolean solvesObstacle) {
+        super(obstacle, agent, path.size());
+        this.solvesObstacle = solvesObstacle;
+        this.path = path;
     }
 
-    public int getSteps() {
-        return steps;
+    public LinkedList<Position> getPath() {
+        return path;
     }
 
-    public Agent getAgent() {
-        return agent;
-    }
-
-    public BoardObject getObstacle() {
-        return obstacle;
-    }
-
-    @Override
-    public int compareTo(MoveObstacleEstimationEvent otherEvent) {
-        return steps - otherEvent.getSteps();
+    public boolean isSolvedObstacle() {
+        return solvesObstacle;
     }
 }

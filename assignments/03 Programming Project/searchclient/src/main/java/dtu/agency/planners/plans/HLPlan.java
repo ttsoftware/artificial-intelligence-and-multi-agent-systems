@@ -8,7 +8,6 @@ import dtu.agency.services.PlanningLevelService;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * High Level Plan stores a list of high level actions
@@ -19,19 +18,6 @@ public class HLPlan implements AbstractPlan {
 
     public HLPlan() {
         this.plan = new LinkedList<>();
-    }
-
-    public HLPlan(HLAction action) {
-        this.plan = new LinkedList<>();
-        this.plan.add(action);
-    }
-
-    public HLPlan(Queue<HLAction> plan) {
-        this.plan = new LinkedList<>(plan);
-    }
-
-    public HLPlan(HLPlan other) {
-        this.plan = new LinkedList<>(other.plan);
     }
 
     public HLAction poll() {
@@ -54,12 +40,10 @@ public class HLPlan implements AbstractPlan {
         return plan.isEmpty();
     }
 
-
     @Override
     public LinkedList<? extends AbstractAction> getActions() {
         return new LinkedList<>(plan);
     }
-
 
     /**
      * @param pls PlanningLevelService in state right before executing this plan (will not affected)
@@ -72,9 +56,6 @@ public class HLPlan implements AbstractPlan {
             approximateSteps += action.approximateSteps(pls);
             pls.apply(action);
         }
-
-        // return pls and plan to the state before this method
-        // pls.revertLast(plan.size());
 
         return approximateSteps;
     }
@@ -94,7 +75,6 @@ public class HLPlan implements AbstractPlan {
             return null;
         }
         htn.commitPlan();
-        // int actionsCommitted = 1;
 
         Iterator actions = getActions().iterator();
         while (actions.hasNext()) {
@@ -109,12 +89,10 @@ public class HLPlan implements AbstractPlan {
             }
             plan.appendActions(primitives);
             htn.commitPlan();
-            // actionsCommitted += 1;
         }
 
         // return pls and plan to the state before this method
         prepend(first);
-        // pls.revertLast(actionsCommitted);
         return plan;
     }
 

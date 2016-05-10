@@ -76,20 +76,27 @@ public class PlannerClientThread implements Runnable {
 
     @Subscribe
     public void sendServerActionsEventSubscriber(SendServerActionsEvent event) {
-        System.err.println("Received a plan from Agency with " + event.getConcretePlan().getActions().size() + " actions.");
 
-        try {
-            sendServerActionsQueue.add(event);
-        } catch (IllegalStateException e) {
-            // We are trying to add more Stacks than agents
-            e.printStackTrace(System.err);
+        int actionCount = event.getConcretePlan().getActions().size();
+        System.err.println("Received a plan from Agency with " + actionCount + " actions.");
+
+        if (actionCount > 0) {
+            try {
+                sendServerActionsQueue.add(event);
+            } catch (IllegalStateException e) {
+                // We are trying to add more Stacks than agents
+                e.printStackTrace(System.err);
+            }
+        }
+        else {
+            event.setResponse(true);
         }
     }
 
     @Subscribe
     public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
 
-        System.err.println("We solved the entire goal!");
+        System.err.println("We solved the entire level!");
 
         // Join when problem has been solved
         try {

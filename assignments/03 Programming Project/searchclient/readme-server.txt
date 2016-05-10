@@ -7,7 +7,7 @@
     The following describes the various options for starting the server using provided example clients.
     Inspection of the source code for the example clients may yield useful information regarding the implementation of your own client.
     The commands below must be executed from the directory containing this readme file.
-    It is required that the Java runtime environment binaries are available in your system path for the commands below to work.
+    It is required that the Java runtime environment binaries are available in your system originPath for the commands below to work.
     
     Compile the provided sample clients with:
         $ javac searchclient.sampleclients/*.java
@@ -17,7 +17,7 @@
     
     The server takes the following arguments:
         -c <command>
-        -l <level path>
+        -l <level originPath>
         -g [<milliseconds>]
         -p
         -t <seconds>
@@ -25,7 +25,7 @@
     
     The -c <command> argument specifies the command to run your client, as you would write it if you ran it from command line (including arguments to your client).
     
-    The -l <level path> argument specifies the level to run the client on.
+    The -l <level originPath> argument specifies the level to run the client on.
     
     The -g [<milliseconds>] argument enables the server's graphical interface.
     The GUI will execute an concreteAction every <milliseconds> (default 150), though at least every 30 milliseconds.
@@ -38,7 +38,7 @@
     The -o <directory> specifies a directory where to save a log of the current run with the -c and -l arguments.
     
     Basic usage for the server is either of:
-        $ java -jar server.jar -c <command> -l <level path> <arguments>
+        $ java -jar server.jar -c <command> -l <level originPath> <arguments>
         $ java -jar server.jar -o <file>
     
     * Important for Unix systems *

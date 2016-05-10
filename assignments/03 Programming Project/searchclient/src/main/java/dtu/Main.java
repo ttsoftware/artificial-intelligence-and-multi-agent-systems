@@ -9,9 +9,9 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                // "levels/recursion_and_friends.lvl", // TODO: Does not work
+                // "levels/recursion_and_friends.lvl",
                 // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
-                // "levels/MAsimple5.lvl", // TODO: Does not work - Class cast exception
+                // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
                 // "levels/MAsimple2.lvl", // TODO: Why do agents wait for each other to finish?
@@ -20,10 +20,12 @@ public class Main {
                 // "levels/MAmultiagentSort.lvl", // TODO: Does not work
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
-                "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
+                // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
+                // "levels/MA_help_henning.lvl", // TODO: Does not work
+                "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
-                // "levels/friendofDFS.lvl",
+                // "levels/friendofDFS.lvl", // TODO: Does not work
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",

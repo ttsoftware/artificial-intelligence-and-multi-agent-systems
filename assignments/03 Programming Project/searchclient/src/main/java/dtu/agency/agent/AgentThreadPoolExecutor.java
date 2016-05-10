@@ -1,9 +1,5 @@
 package dtu.agency.agent;
 
-import dtu.agency.board.Agent;
-import dtu.agency.services.AgentService;
-import dtu.agency.services.BDIService;
-
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +13,7 @@ public class AgentThreadPoolExecutor extends ThreadPoolExecutor {
         super(
                 threadPoolExecutor.getCorePoolSize(),
                 threadPoolExecutor.getMaximumPoolSize(),
-                60,
+                1,
                 TimeUnit.SECONDS,
                 threadPoolExecutor.getQueue(),
                 threadPoolExecutor.getThreadFactory(),
@@ -27,8 +23,11 @@ public class AgentThreadPoolExecutor extends ThreadPoolExecutor {
 
     @Override
     protected void beforeExecute(Thread t, Runnable r) {
+        // invoke parent implementation
+        super.beforeExecute(t, r);
 
         // get an available agent
+        /*
         Agent agent = null;
         try {
             agent = AgentService.getInstance().take();
@@ -40,21 +39,20 @@ public class AgentThreadPoolExecutor extends ThreadPoolExecutor {
 
         // Instantiate ThreadLocal inside BDIService
         BDIService.setInstance(bdiService);
-
-        // invoke parent implementation
-        super.beforeExecute(t, r);
+        */
     }
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
+        // invoke parent implementation
+        super.afterExecute(r, t);
 
         // Add agent back into queue
+        /*
         AgentService.getInstance().addAgent(
                 BDIService.getInstance().getAgent(),
                 BDIService.getInstance()
         );
-
-        // invoke parent implementation
-        super.afterExecute(r, t);
+        */
     }
 }
