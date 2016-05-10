@@ -66,6 +66,6 @@ public class MoveBoxFromPathIntention extends Intention {
     @Override
     public int getApproximateSteps() {
         // TODO: Punish paths with many obstacles
-        return originPath.size();
+        return agentBoxPseudoPath.size();
     }
 }

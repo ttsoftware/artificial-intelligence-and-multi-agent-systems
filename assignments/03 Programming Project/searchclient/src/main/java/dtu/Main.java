@@ -10,7 +10,7 @@ public class Main {
         String[] serverArgs = {
                 "-l",
                 // "levels/recursion_and_friends.lvl",
-                "levels/recursion_and_friends_color.lvl", // TODO: Does not work
+                // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
                 // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
@@ -26,7 +26,7 @@ public class Main {
                 // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
-                // "levels/friendofDFS.lvl", // TODO: Does not work
+                "levels/friendofDFS.lvl", // TODO: Does not work
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
