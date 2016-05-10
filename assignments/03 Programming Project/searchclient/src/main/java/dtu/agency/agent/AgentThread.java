@@ -266,6 +266,8 @@ public class AgentThread implements Runnable {
 
     @Subscribe
     public void conflictResolutionEventSubscriber(ConflictResolutionEvent event) {
+        prepareSubscriber();
+
         if (event.getConflict().getInitiator().equals(BDIService.getInstance().getAgent())) {
             ConflictService conflictService = new ConflictService();
 
@@ -273,5 +275,7 @@ public class AgentThread implements Runnable {
 
             event.setResponse(resolvedConflict);
         }
+
+        finishSubscriber();
     }
 }

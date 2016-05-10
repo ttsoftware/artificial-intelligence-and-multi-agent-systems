@@ -807,31 +807,33 @@ public abstract class LevelService {
         bigPath.add(new Position(previous));
 
         for (ConcreteAction action : plan.getActionsClone()) {
-            // the agents next position
-            Position next = new Position(previous, action.getAgentDirection());
+            if(!action.getType().equals(ConcreteActionType.NONE)) {
+                // the agents next position
+                Position next = new Position(previous, action.getAgentDirection());
 
-            if (action instanceof MoveBoxConcreteAction) {
-                // we also need to add the box' position to the path
-                Position nextBox = null;
-                switch (action.getType()) {
-                    case PUSH:
-                        // if we are pushing, the box should end up in front of the agent
-                        bigPath.addLast(new Position(next));
-                        nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
-                        bigPath.addLast(nextBox);
-                        break;
-                    case PULL:
-                        // if we are pulling, the box should end up in the agents' previous position
-                        nextBox = new Position(previous);
-                        bigPath.addLast(nextBox);
-                        bigPath.addLast(new Position(next));
-                        break;
+                if (action instanceof MoveBoxConcreteAction) {
+                    // we also need to add the box' position to the path
+                    Position nextBox = null;
+                    switch (action.getType()) {
+                        case PUSH:
+                            // if we are pushing, the box should end up in front of the agent
+                            bigPath.addLast(new Position(next));
+                            nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
+                            bigPath.addLast(nextBox);
+                            break;
+                        case PULL:
+                            // if we are pulling, the box should end up in the agents' previous position
+                            nextBox = new Position(previous);
+                            bigPath.addLast(nextBox);
+                            bigPath.addLast(new Position(next));
+                            break;
+                    }
+                } else {
+                    bigPath.addLast(new Position(next));
                 }
-            } else {
-                bigPath.addLast(new Position(next));
-            }
 
-            previous = next;
+                previous = next;
+            }
         }
 
         LinkedList<Position> path = new LinkedList<>();
@@ -861,12 +863,18 @@ public abstract class LevelService {
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        for (ConcreteAction action : plan.getActionsClone()) {
-            // the agents next position
-            if(!action.getType().equals(ConcreteActionType.NONE)) {
-                Position next = new Position(previous, action.getAgentDirection());
-                path.addLast(new Position(next));
-                previous = next;
+        if(plan != null) {
+            LinkedList<ConcreteAction> actionsClone = plan.getActionsClone();
+
+            if (actionsClone != null) {
+                for (ConcreteAction action : actionsClone) {
+                    // the agents next position
+                    if (!action.getType().equals(ConcreteActionType.NONE)) {
+                        Position next = new Position(previous, action.getAgentDirection());
+                        path.addLast(new Position(next));
+                        previous = next;
+                    }
+                }
             }
         }
         return path;
@@ -884,6 +892,14 @@ public abstract class LevelService {
         LinkedList<Position> newPathReversed = reversePath(newPath);
 
         PlanningLevelService pls = new PlanningLevelService(getLevelClone());
+
+        if (originPath.isEmpty()) {
+            return newPath;
+        }
+
+        if (newPath.isEmpty()) {
+            return originPath;
+        }
 
         // Move agent to the last position in its path
         pls.moveAgent(originPath.peekLast());

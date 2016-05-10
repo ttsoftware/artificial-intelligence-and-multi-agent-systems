@@ -3,6 +3,7 @@ package dtu.agency;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
+import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
@@ -19,6 +20,7 @@ import dtu.agency.services.ThreadService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
@@ -30,6 +32,7 @@ public class PlannerClientThread implements Runnable {
     private BufferedReader serverMessages;
     private int numberOfAgents;
     private ArrayBlockingQueue<SendServerActionsEvent> sendServerActionsQueue;
+    private List<ResolvedConflict> resolvedConflicts = new ArrayList<>();
 
     // Thread for communicating with the server
     private Thread sendActionsThread = new Thread(this::sendActions);;
@@ -115,7 +118,7 @@ public class PlannerClientThread implements Runnable {
     /**
      * Interact with the server. Pop the next stack of actions.
      */
-    public void sendActions() {
+    public boolean sendActions() {
 
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
         HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
@@ -148,6 +151,20 @@ public class PlannerClientThread implements Runnable {
         if (!conflicts.isEmpty()) {
 
             conflicts.forEach(conflict -> {
+                if (resolvedConflicts.contains(conflict)) {
+                    ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(conflict));
+                    if (conflict.getInitiator().equals(resolvedConflict.getInitiator())) {
+                        Agent initiator = conflict.getInitiator();
+                        ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
+
+                        conflict.setInitiator(conflict.getConceder());
+                        conflict.setConceder(initiator);
+
+                        conflict.setInitiatorPlan(conflict.getConcederPlan());
+                        conflict.setConcederPlan(initiatorPlan);
+                    }
+                }
+
                 ConflictResolutionEvent conflictResolutionEvent = new ConflictResolutionEvent(conflict);
                 EventBusService.post(conflictResolutionEvent);
 
@@ -166,34 +183,32 @@ public class PlannerClientThread implements Runnable {
                     }
                 }
 
+                resolvedConflicts.add(resolvedConflict);
+
                 // add the plan for resolving the conflict to the two agents plans
                 currentPlans.put(
                         conflict.getConceder().getNumber(),
-                        resolvedConflict.getConflictPlans().get(conflict.getConceder().getNumber())
+                        resolvedConflict.getConcederPlan()
                 );
 
                 currentPlans.put(
                         conflict.getInitiator().getNumber(),
-                        resolvedConflict.getConflictPlans().get(conflict.getInitiator().getNumber())
+                        resolvedConflict.getInitiatorPlan()
                 );
 
                 // add 'fake' SendServerActionsEvents containing the new plans
-                currentSendServerActionsEvents.put(
-                        conflict.getConceder().getNumber(),
-                        new SendServerActionsEvent(
-                                conflict.getConceder(),
-                                conflict.getConcederPlan()
-                        )
-                );
+                sendServerActionsQueue.add(new SendServerActionsEvent(
+                        resolvedConflict.getConceder(),
+                        resolvedConflict.getConcederPlan()
+                ));
 
-                currentSendServerActionsEvents.put(
-                        conflict.getInitiator().getNumber(),
-                        new SendServerActionsEvent(
-                                conflict.getInitiator(),
-                                conflict.getInitiatorPlan()
-                        )
-                );
+                sendServerActionsQueue.add(new SendServerActionsEvent(
+                        resolvedConflict.getInitiator(),
+                        resolvedConflict.getInitiatorPlan()
+                ));
             });
+
+            return sendActions();
         }
 
         // we should now have emptied the queue
@@ -225,7 +240,7 @@ public class PlannerClientThread implements Runnable {
         });
 
         // Send the next set of actions
-        sendActions();
+        return sendActions();
     }
 
     public void send(String toServer) {

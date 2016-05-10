@@ -22,7 +22,7 @@ public class Main {
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/MA_help_henning.lvl", // TODO: Does not work
-                "levels/MA_help_henning_3.lvl", // TODO: Does not work
+                // "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
                 // "levels/friendofDFS.lvl", // TODO: Does not work
@@ -41,6 +41,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/MAconflicts_simple.lvl", // WOOOORKS
                 // "levels/MAconflicts_simple2.lvl",
+                "levels/MAconflicts_simple3.lvl",
                 "-g",
                 "200",
                 "-t",
