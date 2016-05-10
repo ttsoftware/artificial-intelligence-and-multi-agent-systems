@@ -29,6 +29,10 @@ public class PrimitivePlan implements ConcretePlan {
         return concreteActions.pollFirst();
     }
 
+    public void removeLast() {
+        concreteActions.removeLast();
+    }
+
     @Override
     public int approximateSteps(Position agentInitialPosition) {
         return concreteActions.size();

@@ -9,7 +9,7 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                "levels/recursion_and_friends.lvl",
+                // "levels/recursion_and_friends.lvl",
                 // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
                 // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
@@ -22,7 +22,7 @@ public class Main {
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/MA_help_henning.lvl", // TODO: Does not work
-                // "levels/MA_help_henning_3.lvl", // TODO: Does not work
+                "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
                 // "levels/friendofDFS.lvl", // TODO: Does not work

@@ -24,7 +24,11 @@ public class RGotoAction extends RLAction {
     }
 
     public RGotoAction(RGotoAction other) {
-        this.boxAtDestination = new Box(other.getBox());
+        if (other.getBox() != null) {
+            this.boxAtDestination = new Box(other.getBox());
+        } else {
+            this.boxAtDestination = null;
+        }
         agentDestination = new Position(other.getAgentDestination());
     }
 

@@ -1,6 +1,8 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
+import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.Intention;
 import dtu.agency.board.Agent;
@@ -18,6 +20,7 @@ import dtu.agency.services.AgentService;
 import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class AgentThread implements Runnable {
@@ -135,10 +138,13 @@ public class AgentThread implements Runnable {
                 // retrieves the list of primitive actions to execute (blindly)
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
+                plan = removeGoBack(plan);
+
                 // print status and communicate with agency
                 System.err.println(Thread.currentThread().getName()
                         + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                         + ": Using Concrete Plan: " + plan.toString());
+
 
                 // Send the response back
                 event.setResponse(plan);
@@ -217,6 +223,8 @@ public class AgentThread implements Runnable {
                     // retrieve the list of primitive actions to execute (blindly)
                     PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
+                    plan = removeGoBack(plan);
+
                     event.setResponse(plan);
                 } else {
                     // we probably need help helping
@@ -227,5 +235,29 @@ public class AgentThread implements Runnable {
         }
 
         finishSubscriber();
+    }
+
+    /**
+     * Removes the last part of the plan, where the agent tries to move back into the box' position
+     * @param plan
+     * @return
+     */
+    private PrimitivePlan removeGoBack(PrimitivePlan plan) {
+
+        PrimitivePlan newPlan = new PrimitivePlan(plan);
+
+        Iterator<ConcreteAction> actionIterator = plan.getActions().descendingIterator();
+        while (actionIterator.hasNext()) {
+            ConcreteAction action = actionIterator.next();
+            if (action.getType().equals(ConcreteActionType.MOVE)) {
+                newPlan.removeLast();
+            }
+            else {
+                // break as soon as we see an action which is not move
+                break;
+            }
+        }
+
+        return newPlan;
     }
 }

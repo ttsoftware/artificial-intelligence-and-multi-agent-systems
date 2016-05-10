@@ -569,6 +569,22 @@ public abstract class LevelService {
     }
 
     /**
+     * @WARNING: Removes anything from this position!
+     * We have no way of knowing what was removed, so we cannot put it back
+     * @param position
+     */
+    protected synchronized void clearPosition(Position position) {
+        BoardCell[][] boardState = level.getBoardState();
+        BoardObject[][] boardObjects = level.getBoardObjects();
+
+        boardState[position.getRow()][position.getColumn()] = BoardCell.FREE_CELL;
+        boardObjects[position.getRow()][position.getColumn()] = new Empty(" ");
+
+        level.setBoardState(boardState);
+        level.setBoardObjects(boardObjects);
+    }
+
+    /**
      * Removing a box from a level
      * Usage: when assuming control and responsibility for that box in the level
      *
@@ -866,6 +882,7 @@ public abstract class LevelService {
             Position next = positions.next();
             if (!isFree(next)) {
                 if (getCell(next) != BoardCell.AGENT
+                        && getCell(next) != BoardCell.AGENT_GOAL
                         && !obstacles.contains(next)) {
                     obstacles.add(next);
                 }

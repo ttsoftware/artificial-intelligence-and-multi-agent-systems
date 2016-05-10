@@ -140,10 +140,14 @@ public class PlannerClientThreadTest {
         testLevel("recursion_and_friends.lvl");
     }
 
-
     @Test
     public void test13() throws Exception {
         testLevel("recursion_and_friends_color.lvl");
+    }
+
+    @Test
+    public void test14() throws Exception {
+        testLevel("friendofDFS.lvl");
     }
 
     public void testLevel(String level) throws Exception {
