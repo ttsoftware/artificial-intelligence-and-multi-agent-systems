@@ -1,9 +1,11 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.*;
-import dtu.agency.conflicts.ParkingSpace;
+import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;
@@ -871,6 +873,59 @@ public abstract class LevelService {
     }
 
     /**
+     * Merge two paths such that they have a an unbroken traversable connection
+     * @param newPath
+     * @param originPath
+     * @return
+     */
+    public synchronized LinkedList<Position> mergePaths(LinkedList<Position> newPath,
+                                            LinkedList<Position> originPath) {
+
+        LinkedList<Position> newPathReversed = reversePath(newPath);
+
+        PlanningLevelService pls = new PlanningLevelService(getLevelClone());
+
+        // Move agent to the last position in its path
+        pls.moveAgent(originPath.peekLast());
+
+        // Plan for moving agent from its last position, to newPathReversed's first position
+        RGotoAction extendPathAction = new RGotoAction(newPathReversed.peekFirst());
+
+        HTNPlanner htn = new HTNPlanner(pls, extendPathAction, RelaxationMode.NoAgentsNoBoxes);
+        PrimitivePlan pseudoPlan = htn.plan();
+
+        // path going from originPath's last position, to newPathReversed's first position
+        LinkedList<Position> connectingPath = pls.getOrderedPath(pseudoPlan);
+        if (connectingPath.size() > 0) {
+            connectingPath.removeFirst();
+        }
+        if (connectingPath.size() > 0) {
+            connectingPath.removeLast();
+        }
+
+        // combine the two paths into originPath
+        originPath.addAll(connectingPath);
+        originPath.addAll(newPathReversed);
+
+        return originPath;
+    }
+
+    /**
+     * Reverse all actions in given path
+     * @param path
+     * @return
+     */
+    public synchronized LinkedList<Position> reversePath(LinkedList<Position> path) {
+        LinkedList<Position> newPath = new LinkedList<>();
+
+        for (Position position : path) {
+            newPath.addFirst(position);
+        }
+
+        return newPath;
+    }
+
+    /**
      * Finds an ordered list of obstacles in a path
      *
      * @param path
@@ -927,76 +982,6 @@ public abstract class LevelService {
 
     /**
      * @param position
-     * @return A list of adjacent cells containing a box or an agent
-     */
-    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isMoveable(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isMoveable(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isMoveable(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isMoveable(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
      * @return A list of free cells adjacent to @position that are not goals
      */
     public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
@@ -1030,43 +1015,6 @@ public abstract class LevelService {
         return neighbours;
     }
 
-    /**
-     * @param position
-     * @param objectsToIgnore
-     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
-     * if any of them exists
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
     public HashSet<Position> getFreeNeighbourSet(Position position) {
         HashSet<Position> freeNeighbours = new HashSet<>();
         Position n = new Position(position, Direction.NORTH);
@@ -1078,30 +1026,6 @@ public abstract class LevelService {
         if (isFree(e)) freeNeighbours.add(e);
         if (isFree(w)) freeNeighbours.add(w);
         return freeNeighbours;
-    }
-
-    /**
-     * Finding a list of sets of unique positions, by dilating the path given
-     * until enough free positions is found to absorb *size* obstacles.
-     *
-     * @param path is the set of positions the agent must travel
-     * @param size is the number of free neighboring locations we must discover (max 2)
-     * @return
-     */
-    public List<ParkingSpace> getParkingSpaces(LinkedList<Position> path, int size) {
-        List<ParkingSpace> parkingSpaces = new ArrayList<>();
-
-        for(int i = path.size() - 1; i >= 0 && size != 0; i--)
-        {
-            List<Neighbour> neighbours = getFreeNeighbours(path.get(i));
-
-            if(neighbours.size() > 0) {
-                parkingSpaces.add(new ParkingSpace(neighbours.get(0).getPosition(), i));
-                size--;
-            }
-        }
-
-        return parkingSpaces;
     }
 
     /**
