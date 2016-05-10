@@ -54,10 +54,13 @@ public class PlannerClientThreadTest {
         // String path = resourcesDirectory.getAbsolutePath() + "/SApushing.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SApushing_2.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi_1_agent_wins.lvl";
+        // String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi.lvl";
+        // String path = resourcesDirectory.getAbsolutePath() + "/SAD1_multi_conflict.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAhlplan_old.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi_simple.lvl";
-        String path = resourcesDirectory.getAbsolutePath() + "/obstaclePathTestLevel.lvl";
+        // String path = resourcesDirectory.getAbsolutePath() + "/obstaclePathTestLevel.lvl";
+        String path = resourcesDirectory.getAbsolutePath() + "/MAconflicts_simple3.lvl";
         FileInputStream inputStream = new FileInputStream(path);
 
         System.setIn(inputStream);

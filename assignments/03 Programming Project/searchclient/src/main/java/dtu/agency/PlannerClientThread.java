@@ -4,10 +4,14 @@ import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Level;
+import dtu.agency.conflicts.Conflict;
+import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.ProblemSolvedEvent;
+import dtu.agency.events.client.ConflictResolutionEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
 import dtu.agency.planners.pop.GotoPOP;
+import dtu.agency.services.ConflictService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
@@ -16,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.IntStream;
@@ -27,7 +32,7 @@ public class PlannerClientThread implements Runnable {
     private ArrayBlockingQueue<SendServerActionsEvent> sendServerActionsQueue;
 
     // Thread for communicating with the server
-    private Thread sendActionsThread= new Thread(this::sendActions);;
+    private Thread sendActionsThread = new Thread(this::sendActions);;
 
     @Override
     public void run() {
@@ -115,6 +120,7 @@ public class PlannerClientThread implements Runnable {
         HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
         HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
         SendServerActionsEvent sendActionsEvent = null;
+        ConflictService conflictService = new ConflictService();
 
         try {
             // .take() will call Thread.wait() until an element (Stack) becomes available
@@ -138,8 +144,59 @@ public class PlannerClientThread implements Runnable {
             sendActionsEvent = sendServerActionsQueue.poll();
         }
 
-        // we should now have emptied the queue
+        List<Conflict> conflicts = conflictService.detectConflicts(currentPlans);
+        if (!conflicts.isEmpty()) {
 
+            conflicts.forEach(conflict -> {
+                ConflictResolutionEvent conflictResolutionEvent = new ConflictResolutionEvent(conflict);
+                EventBusService.post(conflictResolutionEvent);
+
+                ResolvedConflict resolvedConflict = conflictResolutionEvent.getResponse();
+
+                if (resolvedConflict == null) {
+                    // if the first Agent could not resolve the conflict
+                    Conflict switchedConflict = conflictService.switchConcederAndInitiator(conflict);
+                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(switchedConflict);
+
+                    EventBusService.post(switchedConflictResolutionEvent);
+                    resolvedConflict = conflictResolutionEvent.getResponse();
+
+                    if (resolvedConflict == null) {
+                        throw new RuntimeException("No one can solve this conflict");
+                    }
+                }
+
+                // add the plan for resolving the conflict to the two agents plans
+                currentPlans.put(
+                        conflict.getConceder().getNumber(),
+                        resolvedConflict.getConflictPlans().get(conflict.getConceder().getNumber())
+                );
+
+                currentPlans.put(
+                        conflict.getInitiator().getNumber(),
+                        resolvedConflict.getConflictPlans().get(conflict.getInitiator().getNumber())
+                );
+
+                // add 'fake' SendServerActionsEvents containing the new plans
+                currentSendServerActionsEvents.put(
+                        conflict.getConceder().getNumber(),
+                        new SendServerActionsEvent(
+                                conflict.getConceder(),
+                                conflict.getConcederPlan()
+                        )
+                );
+
+                currentSendServerActionsEvents.put(
+                        conflict.getInitiator().getNumber(),
+                        new SendServerActionsEvent(
+                                conflict.getInitiator(),
+                                conflict.getInitiatorPlan()
+                        )
+                );
+            });
+        }
+
+        // we should now have emptied the queue
         HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
         // pop the next action from each plan
         currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));

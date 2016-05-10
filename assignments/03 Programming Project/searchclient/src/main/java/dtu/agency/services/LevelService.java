@@ -1,8 +1,11 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.*;
+import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;
@@ -860,11 +863,66 @@ public abstract class LevelService {
 
         for (ConcreteAction action : plan.getActionsClone()) {
             // the agents next position
-            Position next = new Position(previous, action.getAgentDirection());
-            path.addLast(new Position(next));
-            previous = next;
+            if(!action.getType().equals(ConcreteActionType.NONE)) {
+                Position next = new Position(previous, action.getAgentDirection());
+                path.addLast(new Position(next));
+                previous = next;
+            }
         }
         return path;
+    }
+
+    /**
+     * Merge two paths such that they have a an unbroken traversable connection
+     * @param newPath
+     * @param originPath
+     * @return
+     */
+    public synchronized LinkedList<Position> mergePaths(LinkedList<Position> newPath,
+                                            LinkedList<Position> originPath) {
+
+        LinkedList<Position> newPathReversed = reversePath(newPath);
+
+        PlanningLevelService pls = new PlanningLevelService(getLevelClone());
+
+        // Move agent to the last position in its path
+        pls.moveAgent(originPath.peekLast());
+
+        // Plan for moving agent from its last position, to newPathReversed's first position
+        RGotoAction extendPathAction = new RGotoAction(newPathReversed.peekFirst());
+
+        HTNPlanner htn = new HTNPlanner(pls, extendPathAction, RelaxationMode.NoAgentsNoBoxes);
+        PrimitivePlan pseudoPlan = htn.plan();
+
+        // path going from originPath's last position, to newPathReversed's first position
+        LinkedList<Position> connectingPath = pls.getOrderedPath(pseudoPlan);
+        if (connectingPath.size() > 0) {
+            connectingPath.removeFirst();
+        }
+        if (connectingPath.size() > 0) {
+            connectingPath.removeLast();
+        }
+
+        // combine the two paths into originPath
+        originPath.addAll(connectingPath);
+        originPath.addAll(newPathReversed);
+
+        return originPath;
+    }
+
+    /**
+     * Reverse all actions in given path
+     * @param path
+     * @return
+     */
+    public synchronized LinkedList<Position> reversePath(LinkedList<Position> path) {
+        LinkedList<Position> newPath = new LinkedList<>();
+
+        for (Position position : path) {
+            newPath.addFirst(position);
+        }
+
+        return newPath;
     }
 
     /**
@@ -924,76 +982,6 @@ public abstract class LevelService {
 
     /**
      * @param position
-     * @return A list of adjacent cells containing a box or an agent
-     */
-    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isMoveable(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isMoveable(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isMoveable(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isMoveable(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
      * @return A list of free cells adjacent to @position that are not goals
      */
     public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
@@ -1018,43 +1006,6 @@ public abstract class LevelService {
             ));
         }
         if (isFreeOfGoals(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @param objectsToIgnore
-     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
-     * if any of them exists
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
