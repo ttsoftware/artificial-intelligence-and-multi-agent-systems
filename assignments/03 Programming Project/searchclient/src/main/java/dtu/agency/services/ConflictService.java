@@ -315,7 +315,6 @@ public class ConflictService {
         return conflict;
     }
 
-
     public ResolvedConflict getResolveConflictForConcederAndConflictingAction(Box box,
                                                                               Conflict conflict,
                                                                               boolean pushOrPull,

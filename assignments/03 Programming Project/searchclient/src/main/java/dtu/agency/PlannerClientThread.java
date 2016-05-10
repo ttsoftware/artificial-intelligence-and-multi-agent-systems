@@ -6,7 +6,6 @@ import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Level;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
-import dtu.agency.events.Event;
 import dtu.agency.events.agency.ProblemSolvedEvent;
 import dtu.agency.events.client.ConflictResolutionEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
@@ -145,27 +144,29 @@ public class PlannerClientThread implements Runnable {
             sendActionsEvent = sendServerActionsQueue.poll();
         }
 
-        List<Conflict> conflictingAgents = conflictService.detectConflicts(currentPlans);
-        if (!conflictingAgents.isEmpty()) {
+        List<Conflict> conflicts = conflictService.detectConflicts(currentPlans);
+        if (!conflicts.isEmpty()) {
 
-            conflictingAgents.forEach(conflict -> {
+            conflicts.forEach(conflict -> {
                 ConflictResolutionEvent conflictResolutionEvent = new ConflictResolutionEvent(conflict);
                 EventBusService.post(conflictResolutionEvent);
 
                 ResolvedConflict resolvedConflict = conflictResolutionEvent.getResponse();
 
                 if (resolvedConflict == null) {
+                    // if the first Agent could not resolve the conflict
                     Conflict switchedConflict = conflictService.switchConcederAndInitiator(conflict);
-
                     ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(switchedConflict);
 
                     EventBusService.post(switchedConflictResolutionEvent);
-
                     resolvedConflict = conflictResolutionEvent.getResponse();
+
+                    if (resolvedConflict == null) {
+                        throw new RuntimeException("No one can solve this conflict");
+                    }
                 }
 
-//                ResolvedConflict resolvedConflict = conflictService.resolveConflict(conflict);
-
+                // add the plan for resolving the conflict to the two agents plans
                 currentPlans.put(
                         conflict.getConceder().getNumber(),
                         resolvedConflict.getConflictPlans().get(conflict.getConceder().getNumber())
@@ -176,6 +177,7 @@ public class PlannerClientThread implements Runnable {
                         resolvedConflict.getConflictPlans().get(conflict.getInitiator().getNumber())
                 );
 
+                // add 'fake' SendServerActionsEvents containing the new plans
                 currentSendServerActionsEvents.put(
                         conflict.getConceder().getNumber(),
                         new SendServerActionsEvent(

@@ -265,9 +265,8 @@ public class AgentThread implements Runnable {
     }
 
     @Subscribe
-    @AllowConcurrentEvents
     public void conflictResolutionEventSubscriber(ConflictResolutionEvent event) {
-        if (event.getConflict().getInitiator().getLabel().equals(BDIService.getInstance().getAgent().getLabel())) {
+        if (event.getConflict().getInitiator().equals(BDIService.getInstance().getAgent())) {
             ConflictService conflictService = new ConflictService();
 
             ResolvedConflict resolvedConflict = conflictService.resolveConflict(event.getConflict());

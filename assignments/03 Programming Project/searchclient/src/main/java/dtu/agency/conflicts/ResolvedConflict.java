@@ -2,7 +2,6 @@ package dtu.agency.conflicts;
 
 import dtu.agency.board.Agent;
 import dtu.agency.planners.plans.ConcretePlan;
-import dtu.agency.services.GlobalLevelService;
 
 import java.util.HashMap;
 
