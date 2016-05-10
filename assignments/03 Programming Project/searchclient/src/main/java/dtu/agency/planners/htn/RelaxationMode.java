@@ -7,5 +7,6 @@ package dtu.agency.planners.htn;
 public enum RelaxationMode {
     None,            // All board objects are considered
     NoAgents,        // Boxes and Walls are considered
+    NoAgentsOnlyForeignBoxes,  // Only Walls and boxes with different colors are considered
     NoAgentsNoBoxes  // Only Walls are considered
 }

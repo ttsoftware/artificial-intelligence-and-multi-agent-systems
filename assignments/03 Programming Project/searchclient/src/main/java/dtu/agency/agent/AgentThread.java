@@ -17,6 +17,7 @@ import dtu.agency.events.agency.MoveObstacleOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.client.ConflictResolutionEvent;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.AgentService;
 import dtu.agency.services.BDIService;
@@ -84,9 +85,15 @@ public class AgentThread implements Runnable {
         // calculate the best bid of solving this goal
         Goal goal = event.getGoal();
 
-        // use agents mind to calculate bid
+        // use agents mind to calculate bid - at first without stepping through boxes with other colors
         Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-        boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal); // the intention are automatically stored in BDIService
+        boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsOnlyForeignBoxes); // the intention are automatically stored in BDIService
+
+        if (!successful) {
+            // calculate a bid, going through boxes of other colors... which is more difficult
+            ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes); // the intention are automatically stored in BDIService
+        }
 
         if (!successful) {
             // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
@@ -98,7 +105,8 @@ public class AgentThread implements Runnable {
                     + " event but is not the right colour");
 
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
-        } else {
+        }
+        else {
             // We return the approximate steps for this goal only
             int totalSteps = BDIService.getInstance().getIntention(goal.getLabel()).getApproximateSteps();
 
@@ -129,7 +137,13 @@ public class AgentThread implements Runnable {
 
             // the intention are automatically stored in BDIService
             Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal);
+            boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsOnlyForeignBoxes);
+
+            if (!successful) {
+                // calculate a bid, going through boxes of other colors... which is more difficult
+                ideas = BDIService.getInstance().thinkOfIdeas(goal);
+                successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes); // the intention are automatically stored in BDIService
+            }
 
             // use the agent's mind / BDI Service to solve the task
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
@@ -170,7 +184,14 @@ public class AgentThread implements Runnable {
         LinkedList<Position> path = event.getPath();
         Box obstacle = (Box) event.getObstacle();
 
-        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+        boolean successful;
+
+        if (!obstacle.getColor().equals(agent.getColor())) {
+            successful = false;
+        }
+        else {
+            successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+        }
 
         if (successful) {
             Intention intention = BDIService.getInstance().getIntention(obstacle.getLabel());
@@ -192,8 +213,21 @@ public class AgentThread implements Runnable {
                     )
             );
         } else {
-            // TODO: Separate worlds?
-            throw new RuntimeException("Something is wrong and you should feel wrong.");
+
+            System.err.println(Thread.currentThread().getName()
+                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                    + ": received a move offer for " + obstacle.getLabel()
+                    + " event but is not the right colour");
+
+            // submit empty path to signify that we cannot move this box due to color problems
+            EventBusService.getEventBus().post(
+                    new MoveObstacleEstimationEvent(
+                            agent,
+                            obstacle,
+                            new LinkedList<>(),
+                            false
+                    )
+            );
         }
 
         finishSubscriber();
@@ -240,6 +274,21 @@ public class AgentThread implements Runnable {
         finishSubscriber();
     }
 
+    @Subscribe
+    public void conflictResolutionEventSubscriber(ConflictResolutionEvent event) {
+        prepareSubscriber();
+
+        if (event.getConflict().getInitiator().equals(BDIService.getInstance().getAgent())) {
+            ConflictService conflictService = new ConflictService();
+
+            ResolvedConflict resolvedConflict = conflictService.resolveConflict(event.getConflict());
+
+            event.setResponse(resolvedConflict);
+        }
+
+        finishSubscriber();
+    }
+
     /**
      * Removes the last part of the plan, where the agent tries to move back into the box' position
      * @param plan
@@ -262,16 +311,5 @@ public class AgentThread implements Runnable {
         }
 
         return newPlan;
-    }
-
-    @Subscribe
-    public void conflictResolutionEventSubscriber(ConflictResolutionEvent event) {
-        if (event.getConflict().getInitiator().equals(BDIService.getInstance().getAgent())) {
-            ConflictService conflictService = new ConflictService();
-
-            ResolvedConflict resolvedConflict = conflictService.resolveConflict(event.getConflict());
-
-            event.setResponse(resolvedConflict);
-        }
     }
 }

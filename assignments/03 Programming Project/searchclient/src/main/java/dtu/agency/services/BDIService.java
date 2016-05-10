@@ -132,7 +132,7 @@ public class BDIService {
     /**
      * Select the best idea from the top five ideas, and evolve it into a desire
      */
-    public boolean findGoalIntention(Ideas ideas, Goal goal) { // Belief is handled internally by pls
+    public boolean findGoalIntention(Ideas ideas, Goal goal, RelaxationMode relaxationMode) { // Belief is handled internally by pls
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
         GoalIntention bestIntention = null;
         int bestApproximation = Integer.MAX_VALUE;
@@ -156,7 +156,7 @@ public class BDIService {
                 }
             }
 
-            HTNPlanner htn = new HTNPlanner(pls, idea, RelaxationMode.NoAgentsNoBoxes);
+            HTNPlanner htn = new HTNPlanner(pls, idea, relaxationMode);
             PrimitivePlan pseudoPlan = htn.plan();
             if (pseudoPlan == null) {
                 continue;
@@ -196,9 +196,11 @@ public class BDIService {
             }
         }
         if (bestIntention != null) {
+            // when all (practical) ideas has been tried, store the best intention
             getIntentions().put(goal.getLabel(), bestIntention);
             return true;
         }
+        // No intention has been found browsing all the ideas
         return false;
     }
 
@@ -212,14 +214,18 @@ public class BDIService {
 
         Position targetBoxPosition = pls.getPosition(targetBox);
 
-        // Move agent next to the boc
+        // Move agent next to the box
         RLAction moveAgentAction = new RGotoAction(
                 targetBox,
                 targetBoxPosition
         );
 
-        HTNPlanner htn = new HTNPlanner(pls, moveAgentAction, RelaxationMode.NoAgentsNoBoxes);
+        HTNPlanner htn = new HTNPlanner(pls, moveAgentAction, RelaxationMode.NoAgentsOnlyForeignBoxes);
         PrimitivePlan pseudoPlan = htn.plan();
+
+        if (pseudoPlan == null) {
+            return false;
+        }
 
         // the positions of the cells that the agent is going to step on top of
         LinkedList<Position> agentPseudoPath = pls.getOrderedPath(pseudoPlan);

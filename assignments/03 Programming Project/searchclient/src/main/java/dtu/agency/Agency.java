@@ -167,6 +167,8 @@ public class Agency implements Runnable {
 
         List<Agent> agentsWithoutVictim = new ArrayList<>(agents);
         agentsWithoutVictim.remove(event.getAgent());
+        // the number of bad paths we wait for before we give up
+        int maximumBadAgents = agentsWithoutVictim.size();
 
         // Subscribe to move obstacle estimations
         MoveObstacleEstimationEventSubscriber obstacleEstimationSubscriber = new MoveObstacleEstimationEventSubscriber(
@@ -194,11 +196,17 @@ public class Agency implements Runnable {
                 // an agent can move the obstacle! Wohoo!
                 break;
             }
-            // this agent has an obstacle in its path for solving our obstacle
-            badAgentPaths.add(estimation.getPath());
+            if (estimation.getPath().isEmpty()) {
+                // this agent cannot move this box
+                maximumBadAgents--;
+            }
+            else {
+                // this agent has an obstacle in its path for solving our obstacle
+                badAgentPaths.add(estimation.getPath());
+            }
         }
 
-        if (badAgentPaths.size() == agentsWithoutVictim.size()) {
+        if (badAgentPaths.size() == maximumBadAgents) {
             // no agents can move our obstacle without help
             event.setResponse(badAgentPaths);
         } else {
