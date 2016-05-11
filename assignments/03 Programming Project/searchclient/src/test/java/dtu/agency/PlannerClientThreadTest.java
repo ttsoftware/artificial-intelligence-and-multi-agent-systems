@@ -153,6 +153,11 @@ public class PlannerClientThreadTest {
         testLevel("friendofDFS.lvl");
     }
 
+    @Test
+    public void test15() throws Exception {
+        testLevel("MAconflicts_simple3.lvl");
+    }
+
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;
