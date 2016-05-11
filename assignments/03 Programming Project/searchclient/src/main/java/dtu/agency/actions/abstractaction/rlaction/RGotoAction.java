@@ -13,7 +13,9 @@ public class RGotoAction extends RLAction {
     public RGotoAction(Position agentDestination) {
         this.boxAtDestination = null;
         this.agentDestination = agentDestination;
-        if (agentDestination == null) throw new AssertionError("Constructing RGotoAction without destination");
+        if (agentDestination == null) {
+            throw new AssertionError("Constructing RGotoAction without destination");
+        }
     }
 
     public RGotoAction(Box box, Position agentDestination) {
