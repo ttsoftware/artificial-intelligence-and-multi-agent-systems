@@ -175,8 +175,8 @@ public class PlannerClientThread implements Runnable {
 
                 if (resolvedConflict == null) {
                     // if the first Agent could not resolve the conflict
-                    Conflict switchedConflict = conflictService.switchConcederAndInitiator(conflict);
-                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(switchedConflict);
+                    conflict.swap();
+                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(conflict);
 
                     EventBusService.post(switchedConflictResolutionEvent);
                     resolvedConflict = conflictResolutionEvent.getResponse();

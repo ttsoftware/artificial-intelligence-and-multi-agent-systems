@@ -26,7 +26,7 @@ public class Main {
                 // "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
-                "levels/Crunch.lvl", // TODO: Independent goals are not independent
+                // "levels/Crunch.lvl", // TODO: Independent goals are not independent
                 // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
@@ -43,7 +43,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/MAconflicts_simple.lvl",
                 // "levels/MAconflicts_simple2.lvl",
-                // "levels/MAconflicts_simple3.lvl",
+                "levels/MAconflicts_simple3.lvl",
                 "-g",
                 "200",
                 "-t",
