@@ -1062,7 +1062,7 @@ public abstract class LevelService {
             }
         }
 
-        throw new RuntimeException("We cannot find a free neighbour for this obstacle");
+        throw new RuntimeException("We cannot find a free neighbour for this obstacle: " + obstaclePosition);
     }
 
     /**

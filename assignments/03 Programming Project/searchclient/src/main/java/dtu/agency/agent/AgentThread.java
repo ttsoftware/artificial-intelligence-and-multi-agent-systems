@@ -153,7 +153,7 @@ public class AgentThread implements Runnable {
 
             // use the agent's mind / BDI Service to solve the task
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
- 
+
             if (!successful) {
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
                 event.setResponse(new PrimitivePlan());
@@ -167,7 +167,6 @@ public class AgentThread implements Runnable {
                 System.err.println(Thread.currentThread().getName()
                         + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                         + ": Using Concrete Plan: " + plan.toString());
-
 
                 // Send the response back
                 event.setResponse(plan);

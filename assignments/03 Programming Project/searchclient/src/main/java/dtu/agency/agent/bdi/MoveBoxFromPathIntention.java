@@ -37,18 +37,18 @@ public class MoveBoxFromPathIntention extends Intention {
                                     int unreachable,
                                     LinkedList<Position> originPath) {
         super(
-                box,
-                plan,
-                agentPseudoPath,
-                agentBoxPseudoPath,
-                obstacles,
+                new Box(box),
+                new PrimitivePlan(plan),
+                new LinkedList<>(agentPseudoPath),
+                new LinkedList<>(agentBoxPseudoPath),
+                new LinkedList<>(obstacles),
                 reachable,
                 unreachable
         );
-        this.originPath = originPath;
+        this.originPath = new LinkedList<>(originPath);
         this.combinedPath = BDIService.getInstance()
                 .getBDILevelService()
-                .mergePaths(agentBoxPseudoPath, originPath);
+                .mergePaths(this.agentBoxPseudoPath, this.originPath);
     }
 
     public LinkedList<Position> getOriginalPath() {

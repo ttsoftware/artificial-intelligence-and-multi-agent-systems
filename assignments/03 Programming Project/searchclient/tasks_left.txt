@@ -2,9 +2,9 @@ Task overview
 
 Time and Solution Critical:
 Conflict resolution
-Ask for help
-Heuristics
-Pull failures
+Ask for help *
+Heuristics *
+Pull failures (maybe done?)
 Level Testing / bug fixing
 
 Time Critical Solution Non-Critical
