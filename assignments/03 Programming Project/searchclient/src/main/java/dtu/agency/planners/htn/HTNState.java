@@ -372,7 +372,8 @@ public class HTNState {
 
                 // check preconditions !!! THIS IS PULL
                 // NOT same directions (would be push)
-                valid &= !pullAction.getAgentDirection().getInverse().equals(pullAction.getBoxMovingDirection());
+                // old - valid &= !pullAction.getAgentDirection().getInverse().equals(pullAction.getBoxMovingDirection());
+                valid &= !pullAction.getAgentDirection().equals(pullAction.getBoxDirection());
                 // post conditions
                 // Pull: box follows agent
                 valid &= newBoxPos.equals(oldAgentPos);
