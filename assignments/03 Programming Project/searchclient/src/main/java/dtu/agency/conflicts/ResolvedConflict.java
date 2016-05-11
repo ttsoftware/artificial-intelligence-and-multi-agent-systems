@@ -34,6 +34,9 @@ public class ResolvedConflict {
         if(object instanceof ResolvedConflict) {
             ResolvedConflict conflict = (ResolvedConflict) object;
 
+
+            // if you check for positions in the global level service it will always be equal.
+            // have to save the position in the resolved conflicts.
             if (conflict.getInitiator().equals(initiator) && conflict.getConceder().equals(conceder)) {
                 if (GlobalLevelService.getInstance().getPosition(initiator)
                         .equals(GlobalLevelService.getInstance().getPosition(conflict.getInitiator()))

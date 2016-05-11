@@ -6,6 +6,7 @@ import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
+import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
@@ -348,23 +349,52 @@ public class ConflictService {
 //                            ),
                     2
             ));
-            if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
-                planningLevelService.insertBox(moveInitiatorsBoxConcreteAction.getBox(), parkingSpaces.get(0));
+//            if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
+//                planningLevelService.insertBox(moveInitiatorsBoxConcreteAction.getBox(), parkingSpaces.get(0));
+//            }
+//
+//            // Find parking spaces
+//            parkingSpaces.add(
+//                    planningLevelService.getFreeNeighbour(
+//                            orderedPath,
+//                            initiatorPosition,
+//                            initiatorPosition,
+//                            1
+//                    )
+//            );
+
+            HashSet<Position> potentialParkingSpaces = planningLevelService.getFreeNeighbourSet(parkingSpaces.get(0));
+
+            Iterator potentialParkingSpacesIterator = potentialParkingSpaces.iterator();
+            boolean foundParkingSpace = false;
+
+            while(potentialParkingSpacesIterator.hasNext() && !foundParkingSpace) {
+                Position potentialParkingSpace = (Position) potentialParkingSpacesIterator.next();
+                if(!orderedPath.contains(potentialParkingSpace)) {
+                    for(Position pathPosition : orderedPath) {
+                        if(pathPosition.isAdjacentTo(potentialParkingSpace)) {
+                            parkingSpaces.add(potentialParkingSpace);
+                            foundParkingSpace = true;
+                            break;
+                        }
+                    }
+                }
             }
 
-            // Find parking spaces
-            parkingSpaces.add(
-                    planningLevelService.getFreeNeighbour(
-                            orderedPath,
-                            initiatorPosition,
-                            initiatorPosition,
-                            1
-                    )
-            );
+            if(!foundParkingSpace) {
+                parkingSpaces.add(
+                        planningLevelService.getFreeNeighbour(
+                                orderedPath,
+                                initiatorPosition,
+                                initiatorPosition,
+                                1
+                        )
+                );
+            }
 
-            if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
+            /*if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
                 planningLevelService.removeBox(moveInitiatorsBoxConcreteAction.getBox());
-            }
+            }*/
         } else {
             // Find parking spaces
             parkingSpaces.add(
@@ -378,7 +408,7 @@ public class ConflictService {
         }
 
 
-        if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
+        /*if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
             if(indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
                 planningLevelService.insertBox(moveConcedersBoxConcreteAction.getBox(),
                         BDIService.getInstance().getBDILevelService().getPosition(moveConcedersBoxConcreteAction.getBox()));
@@ -396,7 +426,7 @@ public class ConflictService {
                 BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
 
         planningLevelService.insertAgent(conflict.getInitiator(),
-                BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()));
+                BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()));*/
 
         return parkingSpaces;
     }
@@ -440,19 +470,18 @@ public class ConflictService {
         // Find plan for moving out of the way
         PrimitivePlan outOfTheWayPlan = htnPlanner.plan();
 
-        if (!conflict.getInitiatorPlan().getActions().isEmpty()) {
-            // Construct HTNPlanner for moveBackAction
-            htnPlanner = new HTNPlanner(
-                    new PlanningLevelService(
-                            BDIService.getInstance().getBDILevelService().getLevelClone()
-                    ),
-                    moveBackAction,
-                    RelaxationMode.None
-            );
+        // Construct HTNPlanner for moveBackAction
+        htnPlanner = new HTNPlanner(
+                new PlanningLevelService(
+                        BDIService.getInstance().getBDILevelService().getLevelClone()
+                ),
+                moveBackAction,
+                RelaxationMode.None
+        );
 
-            // Find plan for moving back to original position
-            moveBackPlan = htnPlanner.plan();
-        }
+        // Find plan for moving back to original position
+        moveBackPlan = htnPlanner.plan();
+
 
 
         return getResolvedConflict(parkingSpaces, outOfTheWayPlan, moveBackPlan, conflict);
@@ -551,12 +580,15 @@ public class ConflictService {
             outOfTheWayPlan.addAction(new NoConcreteAction())
         );*/
 
-        IntStream.range(0, 2).forEach((number) ->
-                outOfTheWayPlan.addAction(new NoConcreteAction())
-        );
 
-        // Append moveBackPlan
-        outOfTheWayPlan.appendActions(moveBackPlan);
+        if (!conflict.getInitiatorPlan().getActions().isEmpty()) {
+            IntStream.range(0, 2).forEach((number) ->
+                    outOfTheWayPlan.addAction(new NoConcreteAction())
+            );
+
+            // Append moveBackPlan
+            outOfTheWayPlan.appendActions(moveBackPlan);
+        }
 
         // Initialize concederPlan
         PrimitivePlan concederPlan = new PrimitivePlan();

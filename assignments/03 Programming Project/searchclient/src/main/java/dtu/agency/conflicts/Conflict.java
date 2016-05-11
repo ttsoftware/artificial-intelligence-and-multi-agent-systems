@@ -30,12 +30,12 @@ public class Conflict {
 
     public Conflict(Integer agentOne, ConcretePlan agentOnePlan, Integer agentTwo, ConcretePlan agentTwoPlan) {
 
-        if (agentOnePlan == null) {
+        if (agentOnePlan == null || agentOnePlan.getActions().isEmpty()) {
             conceder = GlobalLevelService.getInstance().getAgent(agentTwo);
             concederPlan = agentTwoPlan;
             initiator = GlobalLevelService.getInstance().getAgent(agentOne);
             initiatorPlan = new PrimitivePlan();
-        } else if (agentTwoPlan == null) {
+        } else if (agentTwoPlan == null || agentTwoPlan.getActions().isEmpty()) {
             conceder = GlobalLevelService.getInstance().getAgent(agentOne);
             concederPlan = agentOnePlan;
             initiator = GlobalLevelService.getInstance().getAgent(agentTwo);

@@ -1103,6 +1103,7 @@ public abstract class LevelService {
                 Neighbour neighbour = recursiveNeighbour(
                         new Neighbour(weightedPosition, numberOfNeighbours),
                         previouslySeen,
+                        0,
                         numberOfNeighbours
                 );
 
@@ -1130,22 +1131,27 @@ public abstract class LevelService {
      * @return
      */
     private Neighbour recursiveNeighbour(Neighbour neighbour,
-                                        HashSet<Position> previouslyDiscovered,
-                                        int numberOfNeighbours) {
-        if (numberOfNeighbours == 0) {
+                                         HashSet<Position> previouslyDiscovered,
+                                         int reachedDepth,
+                                         int numberOfNeighbours) {
+        if (reachedDepth == numberOfNeighbours) {
             // end recursion if number of neighbours is reached
             return neighbour;
         }
 
         if (hasUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered)) {
             // recursively find neighbours
-            numberOfNeighbours--;
+
+            reachedDepth++;
+
             Neighbour nextNeighbour = new Neighbour(
                     getUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered),
-                    numberOfNeighbours
+                    reachedDepth
             );
+
+
             previouslyDiscovered.add(neighbour.getPosition());
-            return recursiveNeighbour(nextNeighbour, previouslyDiscovered, numberOfNeighbours);
+            return recursiveNeighbour(nextNeighbour, previouslyDiscovered, reachedDepth, numberOfNeighbours);
         }
 
         // return this position if no free neighbours
