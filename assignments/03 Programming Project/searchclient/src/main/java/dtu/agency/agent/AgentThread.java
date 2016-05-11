@@ -5,10 +5,7 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.Intention;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Goal;
-import dtu.agency.board.Position;
+import dtu.agency.board.*;
 import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
@@ -19,10 +16,7 @@ import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.client.ConflictResolutionEvent;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
-import dtu.agency.services.AgentService;
-import dtu.agency.services.BDIService;
-import dtu.agency.services.ConflictService;
-import dtu.agency.services.EventBusService;
+import dtu.agency.services.*;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -135,6 +129,18 @@ public class AgentThread implements Runnable {
             Goal goal = event.getGoal();
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
 
+            // We need to check if the goal has actually been solved
+            Position goalPosition = BDIService.getInstance().getBDILevelService().getPosition(goal);
+            BoardObject objectAtGoalPosition = BDIService.getInstance().getBDILevelService().getObject(goalPosition);
+            if (objectAtGoalPosition.getType() == BoardCell.BOX_GOAL) {
+                if (((BoxAndGoal)objectAtGoalPosition).isSolved()) {
+                    System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": The goal " + goal + " was already solved");
+                    event.setResponse(new PrimitivePlan());
+                    finishSubscriber();
+                    return;
+                }
+            }
+
             // the intention are automatically stored in BDIService
             Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
             boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsOnlyForeignBoxes);
@@ -147,7 +153,7 @@ public class AgentThread implements Runnable {
 
             // use the agent's mind / BDI Service to solve the task
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
-
+ 
             if (!successful) {
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
                 event.setResponse(new PrimitivePlan());
@@ -155,7 +161,7 @@ public class AgentThread implements Runnable {
                 // retrieves the list of primitive actions to execute (blindly)
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
-                plan = removeGoBack(plan);
+                plan = plan.removeGoBack();
 
                 // print status and communicate with agency
                 System.err.println(Thread.currentThread().getName()
@@ -260,7 +266,7 @@ public class AgentThread implements Runnable {
                     // retrieve the list of primitive actions to execute (blindly)
                     PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
-                    plan = removeGoBack(plan);
+                    plan = plan.removeGoBack();
 
                     event.setResponse(plan);
                 } else {
@@ -287,29 +293,5 @@ public class AgentThread implements Runnable {
         }
 
         finishSubscriber();
-    }
-
-    /**
-     * Removes the last part of the plan, where the agent tries to move back into the box' position
-     * @param plan
-     * @return
-     */
-    private PrimitivePlan removeGoBack(PrimitivePlan plan) {
-
-        PrimitivePlan newPlan = new PrimitivePlan(plan);
-
-        Iterator<ConcreteAction> actionIterator = plan.getActions().descendingIterator();
-        while (actionIterator.hasNext()) {
-            ConcreteAction action = actionIterator.next();
-            if (action.getType().equals(ConcreteActionType.MOVE)) {
-                newPlan.removeLast();
-            }
-            else {
-                // break as soon as we see an action which is not move
-                break;
-            }
-        }
-
-        return newPlan;
     }
 }

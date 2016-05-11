@@ -50,26 +50,13 @@ public class GoalIntention extends Intention {
 
     @Override
     public int getApproximateSteps() {
-        // TODO : WEIGHTS SHOULD BE CONFIGURED CENTRAL LOCATION
-        int weightPathLength = 1;  // Weight for length of path
-        int weightReachable = 2;  // Weight for reachable boxes
-        int weightUnreachable = 12; // Weight for unreachable boxes
-        int weightBoxesWrongColors = 24; // Weight for obstacles this agent cannot move
-
-        // count of obstacles with different color
-        int wrongColorObstacleCount = obstaclePositions.stream().filter(position -> {
-            Box box = (Box) BDIService.getInstance().getBDILevelService().getObject(position);
-            return !box.getColor().equals(BDIService.getInstance().getAgent().getColor());
-        }).collect(Collectors.toList()).size();
-
-        if (agentPseudoPath == null) {
-            return Integer.MAX_VALUE;
-        } else {
-            return agentPseudoPath.size() * weightPathLength
-                    + unreachableObstacles * weightUnreachable
-                    + ((reachableObstacles > 0) ? unreachableObstacles - 1 : 0) * weightReachable // -1 for eliminating the target box itself from punishment
-                    + wrongColorObstacleCount * weightBoxesWrongColors;
-        }
+        int approximation = getApproximateStepsWithWeights(
+                1,
+                6,
+                12,
+                24
+        );
+        return approximation;
     }
 
     @Override

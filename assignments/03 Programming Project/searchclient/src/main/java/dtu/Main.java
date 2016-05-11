@@ -24,9 +24,9 @@ public class Main {
                 // "levels/MA_help_henning.lvl", // TODO: Does not work
                 // "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/MA_help_henning_4.lvl",
-                // "levels/Firefly.lvl",
+                "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
-                "levels/friendofDFS.lvl", // TODO: Does not work
+                // "levels/friendofDFS.lvl", // TODO: Does not work
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",

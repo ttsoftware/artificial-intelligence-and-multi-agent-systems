@@ -7,7 +7,9 @@ import de.jkeylockmanager.manager.KeyLockManager;
 import de.jkeylockmanager.manager.KeyLockManagers;
 import dtu.agency.agent.AgentThread;
 import dtu.agency.board.*;
+import dtu.agency.events.EstimationEvent;
 import dtu.agency.events.agency.*;
+import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
@@ -18,11 +20,10 @@ import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Agency implements Runnable {
 
@@ -53,8 +54,27 @@ public class Agency implements Runnable {
 
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
+            // offer all goals to agents
+            HashMap<Goal, Agent> goalOffers = offerGoals(nextIndependentGoals);
+
+            // create goal offer stream
+            Stream<Map.Entry<Goal, Agent>> goalStream = goalOffers
+                    .entrySet()
+                    .stream()
+                    .sorted(new Comparator<Map.Entry<Goal, Agent>>() {
+                        @Override
+                        public int compare(Map.Entry<Goal, Agent> entryA, Map.Entry<Goal, Agent> entryB) {
+                            return entryA.getKey().getEstimatedSteps() - entryB.getKey().getEstimatedSteps();
+                        }
+                    });
+
+            if (numberOfAgents > 1) {
+                // Parallelizing goal assigning if more than 1 agent
+                goalStream = goalStream.parallel();
+            }
+
             // Assign goals to the best agents and wait for plans to finish
-            offerGoals(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
+            goalStream.forEach(goalAgentEntry -> {
 
                 Goal goal = goalAgentEntry.getKey();
                 Agent bestAgent = goalAgentEntry.getValue();
@@ -81,7 +101,7 @@ public class Agency implements Runnable {
                     // wait for the plan to finish executing
                     boolean isFinished = sendActionsEvent.getResponse();
 
-                    // We need to check if the goal has actually been solve
+                    // We need to check if the goal has actually been solved
                     Position goalPosition = GlobalLevelService.getInstance().getPosition(goal);
                     BoardObject objectAtGoalPosition = GlobalLevelService.getInstance().getObject(goalPosition);
 
@@ -135,8 +155,19 @@ public class Agency implements Runnable {
 
             EventBusService.post(new GoalOfferEvent(goal));
 
+            goal.setEstimatedSteps(
+                    goalEstimationSubscriber
+                            .getEstimations()
+                            .stream()
+                            .mapToInt(EstimationEvent::getSteps)
+                            .min()
+                            .getAsInt()
+            );
+
             // Get the goal estimations (blocks current thread)
-            bestAgents.put(goal, goalEstimationSubscriber.getBestAgent());
+            Agent bestAgent = goalEstimationSubscriber.getBestAgent();
+
+            bestAgents.put(goal, bestAgent);
         });
 
         return bestAgents;

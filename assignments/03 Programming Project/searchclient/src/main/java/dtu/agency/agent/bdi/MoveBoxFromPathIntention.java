@@ -7,6 +7,7 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class MoveBoxFromPathIntention extends Intention {
 
@@ -65,7 +66,11 @@ public class MoveBoxFromPathIntention extends Intention {
 
     @Override
     public int getApproximateSteps() {
-        // TODO: Punish paths with many obstacles
-        return agentBoxPseudoPath.size();
+        return getApproximateStepsWithWeights(
+                1,
+                12,
+                0,
+                24
+        );
     }
 }
