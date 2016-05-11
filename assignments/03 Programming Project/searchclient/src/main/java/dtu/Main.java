@@ -9,8 +9,9 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                // "levels/recursion_and_friends.lvl", // TODO: Does not work - need conflict resolution
-                // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
+                // MULTI AGENT LEVELS
+                // "levels/MArecursion_and_friends.lvl", // TODO: Does not work - need conflict resolution
+                // "levels/MArecursion_and_friends_color.lvl", // TODO: Does not work
                 // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
@@ -22,13 +23,18 @@ public class Main {
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
-                "levels/MA_help_henning.lvl", // TODO: Does not work - not right colour? so, red != red??
+                // "levels/MA_help_henning.lvl", // TODO: Does not work - not right colour? so, red != red??
                 // "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/MA_help_henning_4.lvl",
-                // "levels/Firefly.lvl",
-                // "levels/Crunch.lvl", // TODO: Independent goals are not independent
-                // "levels/friendofDFS.lvl",
-                // "levels/friendofBFS.lvl",
+                // "levels/MAconflicts_simple.lvl", // TODO: no longer works
+                // "levels/MAconflicts_simple2.lvl", // TODO: does not work
+                // "levels/MAconflicts_simple3.lvl",  // TODO: does not work
+                // SINGLE AGENT LEVELS
+                // "levels/SAFirefly.lvl",
+                // "levels/SACrunch.lvl", // TODO: Independent goals are not independent
+                // "levels/SAfriendofDFS.lvl",
+                // "levels/SAfriendofBFS.lvl",
+                "levels/SAsokobanLevel96.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
                 // "levels/SAD1_multi.lvl",
@@ -36,14 +42,11 @@ public class Main {
                 // "levels/SAD1_multi_1_agent_wins.lvl",
                 // "levels/SAhlplan.lvl",
                 // "levels/SAhlplan_old.lvl",
-                // "levels/ClearPathTest.lvl",
-                // "levels/obstaclePathTestLevel.lvl",
+                // "levels/SAClearPathTest.lvl",
+                // "levels/SAobstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
-                // "levels/MAconflicts_simple.lvl", // TODO: no longer works
-                // "levels/MAconflicts_simple2.lvl", // TODO: does not work
-                // "levels/MAconflicts_simple3.lvl",  // TODO: does not work
                 "-g",
                 "200",
                 "-t",

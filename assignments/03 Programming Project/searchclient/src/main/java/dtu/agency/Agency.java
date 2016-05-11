@@ -9,7 +9,6 @@ import dtu.agency.agent.AgentThread;
 import dtu.agency.board.*;
 import dtu.agency.events.EstimationEvent;
 import dtu.agency.events.agency.*;
-import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
@@ -22,7 +21,6 @@ import dtu.agency.services.ThreadService;
 
 import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Agency implements Runnable {
