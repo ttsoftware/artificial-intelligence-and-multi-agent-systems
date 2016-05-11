@@ -6,6 +6,7 @@ import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
+import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
@@ -300,71 +301,95 @@ public class ConflictService {
         LinkedList<Position> orderedPath = BDIService.getInstance().getBDILevelService().mergePaths(orderedConcederPath, orderedInitiatorPath);
 
         ConcreteActionType actionType = null;
-        MoveBoxConcreteAction moveBoxConcreteAction = null;
+        MoveBoxConcreteAction moveConcedersBoxConcreteAction = null;
+        MoveBoxConcreteAction moveInitiatorsBoxConcreteAction = null;
+
+        int indexOfFirstPushOrPullOfConceder = getIndexOfFirstPushOrPull((PrimitivePlan) conflict.getConcederPlan());
+        int indexOfFirstPushOrPullOfInitiator = getIndexOfFirstPushOrPull((PrimitivePlan) conflict.getInitiatorPlan());
+
+        if(!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
+            if(indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
+                moveInitiatorsBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getInitiatorPlan())
+                        .getActions().get(indexOfFirstPushOrPullOfInitiator);
+
+                planningLevelService.removeBox(moveInitiatorsBoxConcreteAction.getBox());
+            }
+        }
 
         if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            actionType = ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0).getType();
+            if(indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
+                moveConcedersBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan())
+                        .getActions().get(indexOfFirstPushOrPullOfConceder);
 
-            if (actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
-                moveBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0);
+                planningLevelService.removeBox(moveConcedersBoxConcreteAction.getBox());
+            }
 
 //                orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(
 //                        moveBoxConcreteAction.getBox()
 //                ));
-
-                planningLevelService.removeBox(moveBoxConcreteAction.getBox());
-            }
         }
 
 
         // orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
 
+        Position initiatorPosition = planningLevelService.getPosition(conflict.getInitiator());
+
         planningLevelService.removeAgent(conflict.getConceder());
 
-        int initiatorPlanSize = conflict.getInitiatorPlan().getActions().size();
-
-        int i;
-        for(i = 0; i < initiatorPlanSize &&
-                !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PUSH) ||
-                !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PULL);
-            i++);
-
-        // Find parking spaces
-        parkingSpaces.add(
-                planningLevelService.getFreeNeighbour(
-                        orderedPath,
-                        planningLevelService.getPosition(conflict.getInitiator()),
-                        planningLevelService.getPosition(
-                                ((MoveBoxConcreteAction)conflict.getInitiatorPlan().getActions().get(i)).getBox()
-                        ),
-                        1
-                )
-        );
+        planningLevelService.removeAgent(conflict.getInitiator());
 
         // Find parking spaces
         if(pushOrPull) {
+            parkingSpaces.add(planningLevelService.getFreeNeighbour(
+                    orderedPath,
+                    BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
+                    BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
+                    2
+            ));
+
+            HashSet<Position> potentialParkingSpaces = planningLevelService.getFreeNeighbourSet(parkingSpaces.get(0));
+
+            Iterator potentialParkingSpacesIterator = potentialParkingSpaces.iterator();
+            boolean foundParkingSpace = false;
+
+            while(potentialParkingSpacesIterator.hasNext() && !foundParkingSpace) {
+                Position potentialParkingSpace = (Position) potentialParkingSpacesIterator.next();
+                if(!orderedConcederPath.contains(potentialParkingSpace)) {
+                    for(Position pathPosition : orderedPath) {
+                        if(pathPosition.isAdjacentTo(potentialParkingSpace)) {
+                            parkingSpaces.add(potentialParkingSpace);
+                            foundParkingSpace = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(!foundParkingSpace) {
+                parkingSpaces.add(
+                        planningLevelService.getFreeNeighbour(
+                                orderedPath,
+                                initiatorPosition,
+                                initiatorPosition,
+                                1
+                        )
+                );
+            }
+
+            /*if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
+                planningLevelService.removeBox(moveInitiatorsBoxConcreteAction.getBox());
+            }*/
+        } else {
+            // Find parking spaces
             parkingSpaces.add(
-                    BDIService.getInstance().getBDILevelService().getFreeNeighbour(
+                    planningLevelService.getFreeNeighbour(
                             orderedPath,
-                            BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
-                            BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()),
-//                            BDIService.getInstance().getBDILevelService().getPosition(
-//                                    ((MoveBoxConcreteAction) conflict.getConcederPlan().getActions().get(0)).getBox()
-//                            ),
-                            2
+                            initiatorPosition,
+                            initiatorPosition,
+                            1
                     )
             );
         }
-
-        if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            if (actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
-                planningLevelService.insertBox(moveBoxConcreteAction.getBox(),
-                        BDIService.getInstance().getBDILevelService().getPosition(moveBoxConcreteAction.getBox()));
-            }
-        }
-
-        planningLevelService.insertAgent(conflict.getConceder(),
-                BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
 
         return parkingSpaces;
     }
@@ -408,19 +433,21 @@ public class ConflictService {
         // Find plan for moving out of the way
         PrimitivePlan outOfTheWayPlan = htnPlanner.plan();
 
-        if (!conflict.getInitiatorPlan().getActions().isEmpty()) {
-            // Construct HTNPlanner for moveBackAction
-            htnPlanner = new HTNPlanner(
-                    new PlanningLevelService(
-                            BDIService.getInstance().getBDILevelService().getLevelClone()
-                    ),
-                    moveBackAction,
-                    RelaxationMode.None
-            );
+        // Move the initiator to its new position so it can plan a way back.
+        PlanningLevelService moveBackPlanningLevelService = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevelClone());
+        moveBackPlanningLevelService.removeAgent(conflict.getInitiator());
+        moveBackPlanningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(0));
 
-            // Find plan for moving back to original position
-            moveBackPlan = htnPlanner.plan();
-        }
+        // Construct HTNPlanner for moveBackAction
+        htnPlanner = new HTNPlanner(
+                moveBackPlanningLevelService,
+                moveBackAction,
+                RelaxationMode.NoAgentsNoBoxes
+        );
+
+        // Find plan for moving back to original position
+        moveBackPlan = htnPlanner.plan();
+
 
 
         return getResolvedConflict(parkingSpaces, outOfTheWayPlan, moveBackPlan, conflict);
@@ -440,26 +467,62 @@ public class ConflictService {
         Position boxPositionBeforeConflict = BDIService.getInstance().getBDILevelService().
                 getPosition(box);
 
-        PrimitivePlan moveBoxAndAgentOutOfTheWayPlan = getPlanToMoveBoxAndAgent(
-                box,
-                parkingSpaces.get(0),
-                parkingSpaces.get(1)
+        PlanningLevelService planningLevelService = new PlanningLevelService(
+                BDIService.getInstance().getBDILevelService().getLevelClone()
         );
 
-        moveBoxAndAgentOutOfTheWayPlan.getActions().stream().forEach(action -> {
-            BDIService.getInstance().getBDILevelService().applyAction(conflict.getInitiator(), action);
-        });
+        PrimitivePlan moveBoxAndAgentOutOfTheWayPlan1 = getPlanToMoveBoxAndAgent(
+                box,
+                parkingSpaces.get(0),
+                parkingSpaces.get(1),
+                planningLevelService
+        );
+
+        PrimitivePlan moveBoxAndAgentOutOfTheWayPlan2 = getPlanToMoveBoxAndAgent(
+                box,
+                parkingSpaces.get(1),
+                parkingSpaces.get(0),
+                planningLevelService
+        );
+
+        PrimitivePlan moveBoxAndAgentOutOfTheWayPlan;
+
+        planningLevelService.removeAgent(conflict.getInitiator());
+        planningLevelService.removeBox(box);
+
+        if (moveBoxAndAgentOutOfTheWayPlan1 == null) {
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(0));
+            planningLevelService.insertBox(box, parkingSpaces.get(1));
+
+            moveBoxAndAgentOutOfTheWayPlan = new PrimitivePlan(moveBoxAndAgentOutOfTheWayPlan2);
+        } else if (moveBoxAndAgentOutOfTheWayPlan2 == null) {
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(1));
+            planningLevelService.insertBox(box, parkingSpaces.get(0));
+
+            moveBoxAndAgentOutOfTheWayPlan = new PrimitivePlan(moveBoxAndAgentOutOfTheWayPlan1);
+        } else if (moveBoxAndAgentOutOfTheWayPlan1.size() < moveBoxAndAgentOutOfTheWayPlan2.size()) {
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(1));
+            planningLevelService.insertBox(box, parkingSpaces.get(0));
+
+            moveBoxAndAgentOutOfTheWayPlan = new PrimitivePlan(moveBoxAndAgentOutOfTheWayPlan1);
+        } else {
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(0));
+            planningLevelService.insertBox(box, parkingSpaces.get(1));
+
+            moveBoxAndAgentOutOfTheWayPlan = new PrimitivePlan(moveBoxAndAgentOutOfTheWayPlan2);
+        }
 
         PrimitivePlan moveBoxAndAgentBackPlan = getPlanToMoveBoxAndAgent(
-               box,
+                box,
                 boxPositionBeforeConflict,
-                agentPositionBeforeConflict
+                agentPositionBeforeConflict,
+                planningLevelService
         );
 
         return getResolvedConflict(parkingSpaces, moveBoxAndAgentOutOfTheWayPlan, moveBoxAndAgentBackPlan, conflict);
     }
 
-    public PrimitivePlan getPlanToMoveBoxAndAgent(Box box, Position boxDestination, Position agentDestination) {
+    public PrimitivePlan getPlanToMoveBoxAndAgent(Box box, Position boxDestination, Position agentDestination, PlanningLevelService planningLevelService) {
         HMoveBoxAction moveBoxOutOfTheWayAction = new HMoveBoxAction(
                 box,
                 boxDestination,
@@ -467,9 +530,7 @@ public class ConflictService {
         );
 
         HTNPlanner htnPlanner = new HTNPlanner(
-                new PlanningLevelService(
-                        BDIService.getInstance().getBDILevelService().getLevelClone()
-                ),
+                planningLevelService,
                 moveBoxOutOfTheWayAction,
                 RelaxationMode.None
         );
@@ -488,12 +549,15 @@ public class ConflictService {
             outOfTheWayPlan.addAction(new NoConcreteAction())
         );*/
 
-        IntStream.range(0, 2).forEach((number) ->
-                outOfTheWayPlan.addAction(new NoConcreteAction())
-        );
 
-        // Append moveBackPlan
-        outOfTheWayPlan.appendActions(moveBackPlan);
+        if (!conflict.getInitiatorPlan().getActions().isEmpty()) {
+            IntStream.range(0, 2).forEach((number) ->
+                    outOfTheWayPlan.addAction(new NoConcreteAction())
+            );
+
+            // Append moveBackPlan
+            outOfTheWayPlan.appendActions(moveBackPlan);
+        }
 
         // Initialize concederPlan
         PrimitivePlan concederPlan = new PrimitivePlan();
@@ -517,8 +581,28 @@ public class ConflictService {
         return new ResolvedConflict(
                 conflict.getInitiator(),
                 outOfTheWayPlan,
+                BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
                 conflict.getConceder(),
-                concederPlan
+                concederPlan,
+                BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder())
         );
+    }
+
+    public int getIndexOfFirstPushOrPull(PrimitivePlan plan) {
+        int initiatorPlanSize = plan.getActions().size();
+
+        boolean foundPushOrPull = false;
+        int i = 0 ;
+        while(i < initiatorPlanSize && !foundPushOrPull) {
+            if(plan.getActions().get(i).getType().equals(ConcreteActionType.PUSH) ||
+                    plan.getActions().get(i).getType().equals(ConcreteActionType.PULL)) {
+                foundPushOrPull = true;
+            }
+            else {
+                i++;
+            }
+        }
+
+        return i;
     }
 }

@@ -5,6 +5,7 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
+import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.ProblemSolvedEvent;
@@ -152,18 +153,18 @@ public class PlannerClientThread implements Runnable {
 
             conflicts.forEach(conflict -> {
                 ResolvedConflict fakeResolvedConflict = new ResolvedConflict(
-                        conflict.getInitiator(), conflict.getInitiatorPlan(), conflict.getConceder(), conflict.getConcederPlan());
+                        conflict.getInitiator(),
+                        conflict.getInitiatorPlan(),
+                        conflict.getInitiatorPosition(),
+                        conflict.getConceder(),
+                        conflict.getConcederPlan(),
+                        conflict.getConcederPosition()
+                );
+
                 if (resolvedConflicts.contains(fakeResolvedConflict)) {
                     ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(fakeResolvedConflict));
                     if (conflict.getInitiator().equals(resolvedConflict.getInitiator())) {
-                        Agent initiator = conflict.getInitiator();
-                        ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
-
-                        conflict.setInitiator(conflict.getConceder());
-                        conflict.setConceder(initiator);
-
-                        conflict.setInitiatorPlan(conflict.getConcederPlan());
-                        conflict.setConcederPlan(initiatorPlan);
+                        conflict.swap();
                     }
                 }
 

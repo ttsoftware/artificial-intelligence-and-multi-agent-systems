@@ -1078,7 +1078,10 @@ public abstract class LevelService {
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized Position getFreeNeighbour(final LinkedList<Position> path, Position agentPosition, Position obstaclePosition, int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
+                                                  Position agentPosition,
+                                                  Position obstaclePosition,
+                                                  int numberOfNeighbours) {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
@@ -1094,15 +1097,40 @@ public abstract class LevelService {
         // previously seen positions
         HashSet<Position> previouslySeen = new HashSet<>(obstacleFreePath);
 
+        List<Neighbour> neighbours = new ArrayList<>();
+
         Position weightedPosition;
         // iterate in weighted order
         while ((weightedPosition = weightSubPath.poll()) != null) {
             if (hasUnseenFreeNeighbour(weightedPosition, previouslySeen)) {
-                return recursiveNeighbour(weightedPosition, previouslySeen, numberOfNeighbours);
+                Neighbour neighbour = recursiveNeighbour(
+                        new Neighbour(weightedPosition, numberOfNeighbours),
+                        previouslySeen,
+                        0,
+                        numberOfNeighbours
+                );
+
+                neighbours.add(neighbour);
             }
         }
 
-        throw new RuntimeException("We cannot find a free neighbour for this obstacle: " + obstaclePosition);
+        // sum of neighbour depths
+        int sumOfDepths = neighbours.stream().mapToInt(Neighbour::getDepth).sum();
+
+        if (sumOfDepths >= numberOfNeighbours) {
+            // if there are more or enough neighbours, choose the closest one
+            return neighbours.get(0).getPosition();
+        }
+
+        // sort the neighbours by depth - highest depth first
+        List<Neighbour> sortedNeighbours = neighbours.stream().sorted(new Comparator<Neighbour>() {
+            @Override
+            public int compare(Neighbour neighbourA, Neighbour neighbourB) {
+                return neighbourB.getDepth() - neighbourA.getDepth();
+            }
+        }).collect(Collectors.toList());
+
+        return neighbours.get(0).getPosition();
     }
 
     /**
@@ -1110,23 +1138,32 @@ public abstract class LevelService {
      *
      * @return
      */
-    private Position recursiveNeighbour(Position position,
-                                        HashSet<Position> previouslyDiscovered,
-                                        int numberOfNeighbours) {
-        if (numberOfNeighbours == 0) {
+    private Neighbour recursiveNeighbour(Neighbour neighbour,
+                                         HashSet<Position> previouslyDiscovered,
+                                         int reachedDepth,
+                                         int numberOfNeighbours) {
+        if (reachedDepth == numberOfNeighbours) {
             // end recursion if number of neighbours is reached
-            return position;
+            return neighbour;
         }
 
-        if (hasUnseenFreeNeighbour(position, previouslyDiscovered)) {
+        if (hasUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered)) {
             // recursively find neighbours
-            Position neighbour = getUnseenFreeNeighbour(position, previouslyDiscovered);
-            previouslyDiscovered.add(position);
-            return recursiveNeighbour(neighbour, previouslyDiscovered, --numberOfNeighbours);
+
+            reachedDepth++;
+
+            Neighbour nextNeighbour = new Neighbour(
+                    getUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered),
+                    reachedDepth
+            );
+
+
+            previouslyDiscovered.add(neighbour.getPosition());
+            return recursiveNeighbour(nextNeighbour, previouslyDiscovered, reachedDepth, numberOfNeighbours);
         }
 
         // return this position if no free neighbours
-        return position;
+        return neighbour;
     }
 
     /**
