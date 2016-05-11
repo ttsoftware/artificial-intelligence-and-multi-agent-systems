@@ -300,71 +300,103 @@ public class ConflictService {
         LinkedList<Position> orderedPath = BDIService.getInstance().getBDILevelService().mergePaths(orderedConcederPath, orderedInitiatorPath);
 
         ConcreteActionType actionType = null;
-        MoveBoxConcreteAction moveBoxConcreteAction = null;
+        MoveBoxConcreteAction moveConcedersBoxConcreteAction = null;
+        MoveBoxConcreteAction moveInitiatorsBoxConcreteAction = null;
+
+        int indexOfFirstPushOrPullOfConceder = getIndexOfFirstPushOrPull((PrimitivePlan) conflict.getConcederPlan());
+        int indexOfFirstPushOrPullOfInitiator = getIndexOfFirstPushOrPull((PrimitivePlan) conflict.getInitiatorPlan());
+
+        if(!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
+            if(indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
+                moveInitiatorsBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getInitiatorPlan())
+                        .getActions().get(indexOfFirstPushOrPullOfInitiator);
+
+                planningLevelService.removeBox(moveInitiatorsBoxConcreteAction.getBox());
+            }
+        }
 
         if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            actionType = ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0).getType();
+            if(indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
+                moveConcedersBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan())
+                        .getActions().get(indexOfFirstPushOrPullOfConceder);
 
-            if (actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
-                moveBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0);
+                planningLevelService.removeBox(moveConcedersBoxConcreteAction.getBox());
+            }
 
 //                orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(
 //                        moveBoxConcreteAction.getBox()
 //                ));
-
-                planningLevelService.removeBox(moveBoxConcreteAction.getBox());
-            }
         }
 
 
         // orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
 
+        Position initiatorPosition = planningLevelService.getPosition(conflict.getInitiator());
+
         planningLevelService.removeAgent(conflict.getConceder());
 
-        int initiatorPlanSize = conflict.getInitiatorPlan().getActions().size();
-
-        int i;
-        for(i = 0; i < initiatorPlanSize &&
-                !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PUSH) ||
-                !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PULL);
-            i++);
-
-        // Find parking spaces
-        parkingSpaces.add(
-                planningLevelService.getFreeNeighbour(
-                        orderedPath,
-                        planningLevelService.getPosition(conflict.getInitiator()),
-                        planningLevelService.getPosition(
-                                ((MoveBoxConcreteAction)conflict.getInitiatorPlan().getActions().get(i)).getBox()
-                        ),
-                        1
-                )
-        );
+        planningLevelService.removeAgent(conflict.getInitiator());
 
         // Find parking spaces
         if(pushOrPull) {
-            parkingSpaces.add(
-                    BDIService.getInstance().getBDILevelService().getFreeNeighbour(
-                            orderedPath,
-                            BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
-                            BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()),
+            parkingSpaces.add(planningLevelService.getFreeNeighbour(
+                    orderedPath,
+                    BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
+                    BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
 //                            BDIService.getInstance().getBDILevelService().getPosition(
 //                                    ((MoveBoxConcreteAction) conflict.getConcederPlan().getActions().get(0)).getBox()
 //                            ),
-                            2
+                    2
+            ));
+            if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
+                planningLevelService.insertBox(moveInitiatorsBoxConcreteAction.getBox(), parkingSpaces.get(0));
+            }
+
+            // Find parking spaces
+            parkingSpaces.add(
+                    planningLevelService.getFreeNeighbour(
+                            orderedPath,
+                            initiatorPosition,
+                            initiatorPosition,
+                            1
+                    )
+            );
+
+            if(indexOfFirstPushOrPullOfInitiator < conflict.getConcederPlan().getActions().size()) {
+                planningLevelService.removeBox(moveInitiatorsBoxConcreteAction.getBox());
+            }
+        } else {
+            // Find parking spaces
+            parkingSpaces.add(
+                    planningLevelService.getFreeNeighbour(
+                            orderedPath,
+                            initiatorPosition,
+                            initiatorPosition,
+                            1
                     )
             );
         }
 
+
         if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            if (actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
-                planningLevelService.insertBox(moveBoxConcreteAction.getBox(),
-                        BDIService.getInstance().getBDILevelService().getPosition(moveBoxConcreteAction.getBox()));
+            if(indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
+                planningLevelService.insertBox(moveConcedersBoxConcreteAction.getBox(),
+                        BDIService.getInstance().getBDILevelService().getPosition(moveConcedersBoxConcreteAction.getBox()));
+            }
+        }
+
+        if(!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
+            if(indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
+                planningLevelService.insertBox(moveInitiatorsBoxConcreteAction.getBox(),
+                        BDIService.getInstance().getBDILevelService().getPosition(moveInitiatorsBoxConcreteAction.getBox()));
             }
         }
 
         planningLevelService.insertAgent(conflict.getConceder(),
                 BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
+
+        planningLevelService.insertAgent(conflict.getInitiator(),
+                BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()));
 
         return parkingSpaces;
     }
@@ -385,7 +417,7 @@ public class ConflictService {
 
     public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<Position> parkingSpaces)
     {
-        // Construct action for moving the initiator away
+    // Construct action for moving the initiator away
         RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0));
         // Construct action for moving the initiator back to his original position
         RGotoAction moveBackAction = new RGotoAction(
@@ -439,6 +471,37 @@ public class ConflictService {
                 getPosition(conflict.getInitiator().getLabel());
         Position boxPositionBeforeConflict = BDIService.getInstance().getBDILevelService().
                 getPosition(box);
+
+        /*if(parkingSpaces.get(1).equals(parkingSpaces.get(0))) {
+
+            int initiatorPlanSize = conflict.getInitiatorPlan().getActions().size();
+
+            boolean foundPushOrPull = false;
+            int i = 0 ;
+            while(i < initiatorPlanSize && !foundPushOrPull) {
+                if(conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PUSH) ||
+                        !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PULL)) {
+                    foundPushOrPull = true;
+                }
+                else {
+                    i++;
+                }
+            }
+
+            if(conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PUSH)) {
+                if(parkingSpaces.get(1).isAdjacentTo(BDIService.getInstance().getBDILevelService().getPosition(
+                        ((MoveBoxConcreteAction)conflict.getInitiatorPlan().getActions().get(i)).getBox()
+                ))) {
+                    parkingSpaces.add(BDIService.getInstance().getBDILevelService().getPosition(
+                            ((MoveBoxConcreteAction) conflict.getInitiatorPlan().getActions().get(i)).getBox()
+                    ));
+                }
+            } else {
+                if(parkingSpaces.get(1).isAdjacentTo(BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()))) {
+                    parkingSpaces.add(BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()));
+                }
+            }
+        }*/
 
         PrimitivePlan moveBoxAndAgentOutOfTheWayPlan = getPlanToMoveBoxAndAgent(
                 box,
@@ -520,5 +583,23 @@ public class ConflictService {
                 conflict.getConceder(),
                 concederPlan
         );
+    }
+
+    public int getIndexOfFirstPushOrPull(PrimitivePlan plan) {
+        int initiatorPlanSize = plan.getActions().size();
+
+        boolean foundPushOrPull = false;
+        int i = 0 ;
+        while(i < initiatorPlanSize && !foundPushOrPull) {
+            if(plan.getActions().get(i).getType().equals(ConcreteActionType.PUSH) ||
+                    plan.getActions().get(i).getType().equals(ConcreteActionType.PULL)) {
+                foundPushOrPull = true;
+            }
+            else {
+                i++;
+            }
+        }
+
+        return i;
     }
 }

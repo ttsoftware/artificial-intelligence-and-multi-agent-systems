@@ -1094,15 +1094,34 @@ public abstract class LevelService {
         // previously seen positions
         HashSet<Position> previouslySeen = new HashSet<>(obstacleFreePath);
 
+        List<Neighbour> neighbours = new ArrayList<>();
+
         Position weightedPosition;
         // iterate in weighted order
         while ((weightedPosition = weightSubPath.poll()) != null) {
             if (hasUnseenFreeNeighbour(weightedPosition, previouslySeen)) {
-                return recursiveNeighbour(weightedPosition, previouslySeen, numberOfNeighbours);
+                Neighbour neighbour = recursiveNeighbour(
+                        new Neighbour(weightedPosition, numberOfNeighbours),
+                        previouslySeen,
+                        numberOfNeighbours
+                );
+
+                if (neighbour.getDepth() == numberOfNeighbours) {
+                    return neighbour.getPosition();
+                }
+
+                neighbours.add(neighbour);
             }
         }
 
-        throw new RuntimeException("We cannot find a free neighbour for this obstacle");
+        List<Neighbour> sortedNeighbours = neighbours.stream().sorted(new Comparator<Neighbour>() {
+            @Override
+            public int compare(Neighbour o1, Neighbour o2) {
+                return o1.getDepth() - o2.getDepth();
+            }
+        }).collect(Collectors.toList());
+
+        return sortedNeighbours.get(0).getPosition();
     }
 
     /**
@@ -1110,23 +1129,27 @@ public abstract class LevelService {
      *
      * @return
      */
-    private Position recursiveNeighbour(Position position,
+    private Neighbour recursiveNeighbour(Neighbour neighbour,
                                         HashSet<Position> previouslyDiscovered,
                                         int numberOfNeighbours) {
         if (numberOfNeighbours == 0) {
             // end recursion if number of neighbours is reached
-            return position;
+            return neighbour;
         }
 
-        if (hasUnseenFreeNeighbour(position, previouslyDiscovered)) {
+        if (hasUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered)) {
             // recursively find neighbours
-            Position neighbour = getUnseenFreeNeighbour(position, previouslyDiscovered);
-            previouslyDiscovered.add(position);
-            return recursiveNeighbour(neighbour, previouslyDiscovered, --numberOfNeighbours);
+            numberOfNeighbours--;
+            Neighbour nextNeighbour = new Neighbour(
+                    getUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered),
+                    numberOfNeighbours
+            );
+            previouslyDiscovered.add(neighbour.getPosition());
+            return recursiveNeighbour(nextNeighbour, previouslyDiscovered, numberOfNeighbours);
         }
 
         // return this position if no free neighbours
-        return position;
+        return neighbour;
     }
 
     /**
