@@ -8,6 +8,7 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class GoalIntention extends Intention {
     // (top level) Intentions are really SolveGoalSuperActions()
@@ -32,7 +33,7 @@ public class GoalIntention extends Intention {
                          PrimitivePlan plan,
                          LinkedList<Position> agentPseudoPath,
                          LinkedList<Position> agentBoxPseudoPath,
-                         LinkedList<Position> obstacles,
+                         LinkedList<Position> obstaclePositions,
                          int reachable,
                          int unreachable) {
         super(
@@ -40,7 +41,7 @@ public class GoalIntention extends Intention {
                 plan,
                 agentPseudoPath,
                 agentBoxPseudoPath,
-                obstacles,
+                obstaclePositions,
                 reachable,
                 unreachable
         );
@@ -49,17 +50,13 @@ public class GoalIntention extends Intention {
 
     @Override
     public int getApproximateSteps() {
-        // TODO : WEIGHTS SHOULD BE CONFIGURED CENTRAL LOCATION
-        int weightPathLength = 1;  // Weight for length of path
-        int weightReachable = 2;  // Weight for reachable boxes
-        int weightUnreachable = 12; // Weight for unreachable boxes
-        if (agentPseudoPath == null) {
-            return Integer.MAX_VALUE;
-        } else {
-            return agentPseudoPath.size() * weightPathLength
-                    + unreachableObstacles * weightUnreachable
-                    + ((reachableObstacles > 0) ? unreachableObstacles - 1 : 0) * weightReachable; // -1 for eliminating the target box itself from punishment
-        }
+        int approximation = getApproximateStepsWithWeights(
+                1,
+                6,
+                12,
+                24
+        );
+        return approximation;
     }
 
     @Override

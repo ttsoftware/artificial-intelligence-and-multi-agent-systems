@@ -3,6 +3,7 @@ package dtu.agency.board;
 public class Goal extends BoardObject implements Comparable<Goal> {
 
     private int weight;
+    private int estimatedSteps;
     private final Position position;
 
     public Goal(String label, Position position, int weight) {
@@ -22,6 +23,14 @@ public class Goal extends BoardObject implements Comparable<Goal> {
     }
 
     public void setWeight(int weight) { this.weight = weight; }
+
+    public int getEstimatedSteps() {
+        return estimatedSteps;
+    }
+
+    public void setEstimatedSteps(int estimatedSteps) {
+        this.estimatedSteps = estimatedSteps;
+    }
 
     public Position getPosition() {
         return position;

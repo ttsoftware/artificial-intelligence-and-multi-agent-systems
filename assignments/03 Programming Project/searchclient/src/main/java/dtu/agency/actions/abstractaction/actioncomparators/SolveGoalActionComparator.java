@@ -19,6 +19,6 @@ public class SolveGoalActionComparator implements Comparator<SolveGoalAction>{
 
     @Override
     public int compare(SolveGoalAction o1, SolveGoalAction o2) {
-        return o2.approximateSteps(pls) - o1.approximateSteps(pls);
+        return o1.approximateSteps(pls)- o2.approximateSteps(pls);
     }
 }

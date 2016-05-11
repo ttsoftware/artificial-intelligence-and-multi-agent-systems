@@ -5,10 +5,7 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.Intention;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Box;
-import dtu.agency.board.Goal;
-import dtu.agency.board.Position;
+import dtu.agency.board.*;
 import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.GoalAssignmentEvent;
 import dtu.agency.events.agency.GoalOfferEvent;
@@ -17,11 +14,9 @@ import dtu.agency.events.agency.MoveObstacleOfferEvent;
 import dtu.agency.events.agent.GoalEstimationEvent;
 import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.client.ConflictResolutionEvent;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
-import dtu.agency.services.AgentService;
-import dtu.agency.services.BDIService;
-import dtu.agency.services.ConflictService;
-import dtu.agency.services.EventBusService;
+import dtu.agency.services.*;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -84,9 +79,15 @@ public class AgentThread implements Runnable {
         // calculate the best bid of solving this goal
         Goal goal = event.getGoal();
 
-        // use agents mind to calculate bid
+        // use agents mind to calculate bid - at first without stepping through boxes with other colors
         Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-        boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal); // the intention are automatically stored in BDIService
+        boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsOnlyForeignBoxes); // the intention are automatically stored in BDIService
+
+        if (!successful) {
+            // calculate a bid, going through boxes of other colors... which is more difficult
+            ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes); // the intention are automatically stored in BDIService
+        }
 
         if (!successful) {
             // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
@@ -98,7 +99,8 @@ public class AgentThread implements Runnable {
                     + " event but is not the right colour");
 
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
-        } else {
+        }
+        else {
             // We return the approximate steps for this goal only
             int totalSteps = BDIService.getInstance().getIntention(goal.getLabel()).getApproximateSteps();
 
@@ -127,9 +129,27 @@ public class AgentThread implements Runnable {
             Goal goal = event.getGoal();
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
 
+            // We need to check if the goal has actually been solved
+            Position goalPosition = BDIService.getInstance().getBDILevelService().getPosition(goal);
+            BoardObject objectAtGoalPosition = BDIService.getInstance().getBDILevelService().getObject(goalPosition);
+            if (objectAtGoalPosition.getType() == BoardCell.BOX_GOAL) {
+                if (((BoxAndGoal)objectAtGoalPosition).isSolved()) {
+                    System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": The goal " + goal + " was already solved");
+                    event.setResponse(new PrimitivePlan());
+                    finishSubscriber();
+                    return;
+                }
+            }
+
             // the intention are automatically stored in BDIService
             Ideas ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal);
+            boolean successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsOnlyForeignBoxes);
+
+            if (!successful) {
+                // calculate a bid, going through boxes of other colors... which is more difficult
+                ideas = BDIService.getInstance().thinkOfIdeas(goal);
+                successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes); // the intention are automatically stored in BDIService
+            }
 
             // use the agent's mind / BDI Service to solve the task
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
@@ -141,13 +161,12 @@ public class AgentThread implements Runnable {
                 // retrieves the list of primitive actions to execute (blindly)
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
-                plan = removeGoBack(plan);
+                plan = plan.removeGoBack();
 
                 // print status and communicate with agency
                 System.err.println(Thread.currentThread().getName()
                         + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                         + ": Using Concrete Plan: " + plan.toString());
-
 
                 // Send the response back
                 event.setResponse(plan);
@@ -170,7 +189,14 @@ public class AgentThread implements Runnable {
         LinkedList<Position> path = event.getPath();
         Box obstacle = (Box) event.getObstacle();
 
-        boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+        boolean successful;
+
+        if (!obstacle.getColor().equals(agent.getColor())) {
+            successful = false;
+        }
+        else {
+            successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+        }
 
         if (successful) {
             Intention intention = BDIService.getInstance().getIntention(obstacle.getLabel());
@@ -192,8 +218,21 @@ public class AgentThread implements Runnable {
                     )
             );
         } else {
-            // TODO: Separate worlds?
-            throw new RuntimeException("Something is wrong and you should feel wrong.");
+
+            System.err.println(Thread.currentThread().getName()
+                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                    + ": received a move offer for " + obstacle.getLabel()
+                    + " event but is not the right colour");
+
+            // submit empty path to signify that we cannot move this box due to color problems
+            EventBusService.getEventBus().post(
+                    new MoveObstacleEstimationEvent(
+                            agent,
+                            obstacle,
+                            new LinkedList<>(),
+                            false
+                    )
+            );
         }
 
         finishSubscriber();
@@ -226,7 +265,7 @@ public class AgentThread implements Runnable {
                     // retrieve the list of primitive actions to execute (blindly)
                     PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
 
-                    plan = removeGoBack(plan);
+                    plan = plan.removeGoBack();
 
                     event.setResponse(plan);
                 } else {
@@ -240,32 +279,10 @@ public class AgentThread implements Runnable {
         finishSubscriber();
     }
 
-    /**
-     * Removes the last part of the plan, where the agent tries to move back into the box' position
-     * @param plan
-     * @return
-     */
-    private PrimitivePlan removeGoBack(PrimitivePlan plan) {
-
-        PrimitivePlan newPlan = new PrimitivePlan(plan);
-
-        Iterator<ConcreteAction> actionIterator = plan.getActions().descendingIterator();
-        while (actionIterator.hasNext()) {
-            ConcreteAction action = actionIterator.next();
-            if (action.getType().equals(ConcreteActionType.MOVE)) {
-                newPlan.removeLast();
-            }
-            else {
-                // break as soon as we see an action which is not move
-                break;
-            }
-        }
-
-        return newPlan;
-    }
-
     @Subscribe
     public void conflictResolutionEventSubscriber(ConflictResolutionEvent event) {
+        prepareSubscriber();
+
         if (event.getConflict().getInitiator().equals(BDIService.getInstance().getAgent())) {
             ConflictService conflictService = new ConflictService();
 
@@ -273,5 +290,7 @@ public class AgentThread implements Runnable {
 
             event.setResponse(resolvedConflict);
         }
+
+        finishSubscriber();
     }
 }

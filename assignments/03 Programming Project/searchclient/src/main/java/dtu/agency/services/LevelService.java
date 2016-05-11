@@ -907,7 +907,7 @@ public abstract class LevelService {
         originPath.addAll(connectingPath);
         originPath.addAll(newPathReversed);
 
-        return originPath;
+        return reversePath(originPath);
     }
 
     /**
@@ -919,7 +919,7 @@ public abstract class LevelService {
         LinkedList<Position> newPath = new LinkedList<>();
 
         for (Position position : path) {
-            newPath.addFirst(position);
+            newPath.addFirst(new Position(position));
         }
 
         return newPath;
@@ -1062,7 +1062,7 @@ public abstract class LevelService {
             }
         }
 
-        throw new RuntimeException("We cannot find a free neighbour for this obstacle");
+        throw new RuntimeException("We cannot find a free neighbour for this obstacle: " + obstaclePosition);
     }
 
     /**

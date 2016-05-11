@@ -7,6 +7,7 @@ import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
 
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public class MoveBoxFromPathIntention extends Intention {
 
@@ -36,18 +37,18 @@ public class MoveBoxFromPathIntention extends Intention {
                                     int unreachable,
                                     LinkedList<Position> originPath) {
         super(
-                box,
-                plan,
-                agentPseudoPath,
-                agentBoxPseudoPath,
-                obstacles,
+                new Box(box),
+                new PrimitivePlan(plan),
+                new LinkedList<>(agentPseudoPath),
+                new LinkedList<>(agentBoxPseudoPath),
+                new LinkedList<>(obstacles),
                 reachable,
                 unreachable
         );
-        this.originPath = originPath;
+        this.originPath = new LinkedList<>(originPath);
         this.combinedPath = BDIService.getInstance()
                 .getBDILevelService()
-                .mergePaths(agentBoxPseudoPath, originPath);
+                .mergePaths(this.agentBoxPseudoPath, this.originPath);
     }
 
     public LinkedList<Position> getOriginalPath() {
@@ -65,7 +66,11 @@ public class MoveBoxFromPathIntention extends Intention {
 
     @Override
     public int getApproximateSteps() {
-        // TODO: Punish paths with many obstacles
-        return originPath.size();
+        return getApproximateStepsWithWeights(
+                1,
+                12,
+                0,
+                24
+        );
     }
 }

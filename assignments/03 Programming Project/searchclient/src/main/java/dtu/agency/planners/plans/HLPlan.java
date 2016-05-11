@@ -14,45 +14,49 @@ import java.util.LinkedList;
  */
 public class HLPlan implements AbstractPlan {
 
-    private final LinkedList<HLAction> plan;
+    private final LinkedList<HLAction> hlActions;
 
     public HLPlan() {
-        this.plan = new LinkedList<>();
+        this.hlActions = new LinkedList<>();
+    }
+
+    public HLPlan(HLPlan other) {
+        this.hlActions = new LinkedList<>(other.hlActions);
     }
 
     public HLAction poll() {
-        return plan.pollFirst();
+        return hlActions.pollFirst();
     }
 
     public HLAction peek() {
-        return plan.peekFirst();
+        return hlActions.peekFirst();
     }
 
     public void prepend(HLAction action) {
-        plan.addFirst(action);
+        hlActions.addFirst(action);
     }
 
     public void append(HLAction action) {
-        plan.addLast(action);
+        hlActions.addLast(action);
     }
 
     public boolean isEmpty() {
-        return plan.isEmpty();
+        return hlActions.isEmpty();
     }
 
     @Override
     public LinkedList<? extends AbstractAction> getActions() {
-        return new LinkedList<>(plan);
+        return new LinkedList<>(hlActions);
     }
 
     /**
-     * @param pls PlanningLevelService in state right before executing this plan (will not affected)
-     * @return Return the approximate number of primitive actions this high level plan is going to take
+     * @param pls PlanningLevelService in state right before executing this hlActions (will not affected)
+     * @return Return the approximate number of primitive actions this high level hlActions is going to take
      */
     public int approximateSteps(PlanningLevelService pls) {
         int approximateSteps = 0;
 
-        for (HLAction action : plan) {
+        for (HLAction action : hlActions) {
             approximateSteps += action.approximateSteps(pls);
             pls.apply(action);
         }
@@ -61,8 +65,8 @@ public class HLPlan implements AbstractPlan {
     }
 
     /**
-     * @param pls PlanningLevelService in state right before executing this plan (will not affected)
-     * @return the PrimitiveSteps that will turn this plan into reality
+     * @param pls PlanningLevelService in state right before executing this hlActions (will not affected)
+     * @return the PrimitiveSteps that will turn this hlActions into reality
      */
     public PrimitivePlan evolve(PlanningLevelService pls) {
         RelaxationMode noAgents = RelaxationMode.NoAgents;
@@ -84,14 +88,13 @@ public class HLPlan implements AbstractPlan {
             PrimitivePlan primitives = htn.plan();
             if (primitives==null) {
                 prepend(first);
-                // pls.revertLast(actionsCommitted);
                 return null;
             }
             plan.appendActions(primitives);
             htn.commitPlan();
         }
 
-        // return pls and plan to the state before this method
+        // return pls and hlActions to the state before this method
         prepend(first);
         return plan;
     }
@@ -105,7 +108,11 @@ public class HLPlan implements AbstractPlan {
         Iterator actions = hlPlan.getActions().listIterator();
         while (actions.hasNext()) {
             HLAction action = (HLAction) actions.next();
-            plan.addLast(action);
+            hlActions.addLast(action);
         }
+    }
+
+    public LinkedList<HLAction> getHlActions() {
+        return hlActions;
     }
 }

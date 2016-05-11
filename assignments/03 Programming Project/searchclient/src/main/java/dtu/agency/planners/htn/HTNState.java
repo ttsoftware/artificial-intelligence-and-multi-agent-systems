@@ -12,10 +12,9 @@ import dtu.agency.actions.concreteaction.Direction;
 import dtu.agency.actions.concreteaction.MoveConcreteAction;
 import dtu.agency.actions.concreteaction.PullConcreteAction;
 import dtu.agency.actions.concreteaction.PushConcreteAction;
-import dtu.agency.board.BoardCell;
-import dtu.agency.board.BoxAndGoal;
-import dtu.agency.board.Position;
+import dtu.agency.board.*;
 import dtu.agency.planners.plans.MixedPlan;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -106,6 +105,12 @@ public class HTNState {
                 legal &= (!solvedGoalConflict());
                 break;
 
+            case NoAgentsOnlyForeignBoxes: // Only Walls and boxes with different colors are considered conflicts
+                legal &= (!wallConflict());
+                legal &= (!solvedGoalConflict());
+                legal &= (!foreignBoxConflict());
+                break;
+
             case NoAgentsNoBoxes: // Only Walls are considered
                 legal &= (!wallConflict());
                 legal &= (!solvedGoalConflict());
@@ -179,6 +184,39 @@ public class HTNState {
             BoardCell cell = pls.getLevel().getBoardState()[pos.getRow()][pos.getColumn()];
             if (cell == BoardCell.BOX || cell == BoardCell.BOX_GOAL) {
                 conflict = true;
+            }
+        }
+        return conflict;
+    }
+
+    /**
+     * detects if this state will conflict with a foreign box
+     */
+    private boolean foreignBoxConflict() {
+        boolean conflict = false;
+        conflict |= foreignBoxConflict(agentPosition);
+        conflict |= foreignBoxConflict(boxPosition);
+        return conflict;
+    }
+
+    private boolean foreignBoxConflict(Position position) {
+        Agent agent = BDIService.getInstance().getAgent();
+        boolean conflict = false;
+        if (!pls.isFree(position)) {
+            BoardCell cell = pls.getLevel().getBoardState()[position.getRow()][position.getColumn()];
+            if (cell == BoardCell.BOX
+                    || cell == BoardCell.BOX_GOAL) {
+                Box box = null;
+                if (cell == BoardCell.BOX) {
+                    box = (Box) pls.getObject(position);
+                }
+                if (cell == BoardCell.BOX_GOAL) {
+                    box = ((BoxAndGoal) pls.getObject(position)).getBox();
+                }
+
+                if (!box.getColor().equals(agent.getColor())) {
+                    conflict = true;
+                }
             }
         }
         return conflict;
@@ -272,6 +310,7 @@ public class HTNState {
                     break;
             }
         }
+
         return refinements;
     }
 
@@ -283,6 +322,7 @@ public class HTNState {
      * @return a new HTNState instance with @concreteAction applied to it
      */
     public HTNState applyConcreteAction(ConcreteAction concreteAction) {
+
         Position oldAgentPos = getAgentPosition();
         Position oldBoxPos = getBoxPosition();
         RelaxationMode mode = getRelaxationMode();

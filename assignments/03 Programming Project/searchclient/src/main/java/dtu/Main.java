@@ -22,10 +22,11 @@ public class Main {
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
                 // "levels/MA_help_henning.lvl", // TODO: Does not work
-                "levels/MA_help_henning_3.lvl", // TODO: Does not work
+                // "levels/MA_help_henning_3.lvl", // TODO: Does not work
+                // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl",
-                // "levels/friendofDFS.lvl", // TODO: Does not work
+                // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
@@ -35,7 +36,7 @@ public class Main {
                 // "levels/SAhlplan.lvl",
                 // "levels/SAhlplan_old.lvl",
                 // "levels/ClearPathTest.lvl",
-                // "levels/obstaclePathTestLevel.lvl",
+                "levels/obstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
