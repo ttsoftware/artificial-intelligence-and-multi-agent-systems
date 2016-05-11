@@ -155,7 +155,7 @@ public class PlannerClientThreadTest {
 
     @Test
     public void test15() throws Exception {
-        testLevel("MAconflict_simple3.lvl");
+        testLevel("MAconflicts_simple3.lvl");
     }
 
     public void testLevel(String level) throws Exception {

@@ -1078,7 +1078,10 @@ public abstract class LevelService {
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized Position getFreeNeighbour(final LinkedList<Position> path, Position agentPosition, Position obstaclePosition, int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
+                                                  Position agentPosition,
+                                                  Position obstaclePosition,
+                                                  int numberOfNeighbours) {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
@@ -1107,22 +1110,27 @@ public abstract class LevelService {
                         numberOfNeighbours
                 );
 
-                if (neighbour.getDepth() == numberOfNeighbours) {
-                    return neighbour.getPosition();
-                }
-
                 neighbours.add(neighbour);
             }
         }
 
+        // sum of neighbour depths
+        int sumOfDepths = neighbours.stream().mapToInt(Neighbour::getDepth).sum();
+
+        if (sumOfDepths >= numberOfNeighbours) {
+            // if there are more or enough neighbours, choose the closest one
+            return neighbours.get(0).getPosition();
+        }
+
+        // sort the neighbours by depth - highest depth first
         List<Neighbour> sortedNeighbours = neighbours.stream().sorted(new Comparator<Neighbour>() {
             @Override
-            public int compare(Neighbour o1, Neighbour o2) {
-                return o1.getDepth() - o2.getDepth();
+            public int compare(Neighbour neighbourA, Neighbour neighbourB) {
+                return neighbourB.getDepth() - neighbourA.getDepth();
             }
         }).collect(Collectors.toList());
 
-        return sortedNeighbours.get(0).getPosition();
+        return neighbours.get(0).getPosition();
     }
 
     /**

@@ -292,7 +292,7 @@ public class LevelServiceTest {
                 path,
                 BDIService.getInstance().getBDILevelService().getPosition(agent),
                 obstacleAPosition,
-                3
+                4
         );
 
         assertEquals(new Position(1, 6), freeNeighbourA);
@@ -339,7 +339,7 @@ public class LevelServiceTest {
                 2
         );
 
-        assertEquals(new Position(8, 11), freeNeighbourD);
+        assertEquals(new Position(3, 14), freeNeighbourD);
 
         GlobalLevelService.getInstance().removeBox(boxD);
         GlobalLevelService.getInstance().insertBox(boxD, new Position(3, 14));
