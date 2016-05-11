@@ -67,15 +67,15 @@ public class HMoveBoxAction extends HLAction {
 
     @Override
     public int approximateSteps(PlanningLevelService pls) {
+
         Position boxPosition = pls.getPosition(box);
         Position agentPosition = pls.getPosition(agent);
 
         int approximation = 0;
         approximation += agentPosition.manhattanDist(boxPosition) -1;
         approximation += boxPosition.manhattanDist(boxDestination);
-        approximation += boxDestination.manhattanDist(agentDestination);
+        // approximation += boxDestination.manhattanDist(agentDestination);
 
         return approximation;
     }
-
 }

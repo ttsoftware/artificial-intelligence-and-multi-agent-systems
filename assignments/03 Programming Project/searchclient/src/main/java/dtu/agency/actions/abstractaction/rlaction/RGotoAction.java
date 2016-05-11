@@ -69,6 +69,6 @@ public class RGotoAction extends RLAction {
 
     @Override
     public int approximateSteps(PlanningLevelService pls) {
-        return pls.getPosition(agent).manhattanDist(agentDestination);
+        return pls.getPosition(agent).manhattanDist(agentDestination) - 1;
     }
  }
