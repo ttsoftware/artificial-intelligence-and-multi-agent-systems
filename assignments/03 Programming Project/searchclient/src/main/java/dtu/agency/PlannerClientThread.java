@@ -151,8 +151,10 @@ public class PlannerClientThread implements Runnable {
         if (!conflicts.isEmpty()) {
 
             conflicts.forEach(conflict -> {
-                if (resolvedConflicts.contains(conflict)) {
-                    ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(conflict));
+                ResolvedConflict fakeResolvedConflict = new ResolvedConflict(
+                        conflict.getInitiator(), conflict.getInitiatorPlan(), conflict.getConceder(), conflict.getConcederPlan());
+                if (resolvedConflicts.contains(fakeResolvedConflict)) {
+                    ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(fakeResolvedConflict));
                     if (conflict.getInitiator().equals(resolvedConflict.getInitiator())) {
                         Agent initiator = conflict.getInitiator();
                         ConcretePlan initiatorPlan = conflict.getInitiatorPlan();

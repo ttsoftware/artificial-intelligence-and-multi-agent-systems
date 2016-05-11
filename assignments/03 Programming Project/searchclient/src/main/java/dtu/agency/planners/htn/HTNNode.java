@@ -181,7 +181,8 @@ public class HTNNode {
         ConcreteAction previous;
         while (!node.isInitialNode()) {
             previous = node.getConcreteAction();
-            if ((previous != null) && !(previous instanceof NoConcreteAction)) plan.pushAction(previous);
+            if ((previous != null) && !(previous instanceof NoConcreteAction))
+                plan.pushAction(previous);
             node = node.getParent();
         }
         return plan;

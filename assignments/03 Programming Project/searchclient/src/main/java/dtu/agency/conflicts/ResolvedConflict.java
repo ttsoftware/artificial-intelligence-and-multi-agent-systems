@@ -29,29 +29,40 @@ public class ResolvedConflict {
         return conflictPlans;
     }
 
-    public boolean equals(Conflict conflict) {
+    @Override
+    public boolean equals(Object object) {
+        if(object instanceof ResolvedConflict) {
+            ResolvedConflict conflict = (ResolvedConflict) object;
 
-        if (conflict.getInitiator().equals(initiator) && conflict.getConceder().equals(conceder)) {
-            if(GlobalLevelService.getInstance().getPosition(initiator)
-                    .equals(GlobalLevelService.getInstance().getPosition(conflict.getInitiator()))
-                    && GlobalLevelService.getInstance().getPosition(conceder)
-                    .equals(GlobalLevelService.getInstance().getPosition(conflict.getConceder()))
-            ) {
-                return true;
+            if (conflict.getInitiator().equals(initiator) && conflict.getConceder().equals(conceder)) {
+                if (GlobalLevelService.getInstance().getPosition(initiator)
+                        .equals(GlobalLevelService.getInstance().getPosition(conflict.getInitiator()))
+                        && GlobalLevelService.getInstance().getPosition(conceder)
+                        .equals(GlobalLevelService.getInstance().getPosition(conflict.getConceder()))
+                        ) {
+                    return true;
+                }
             }
-        }
 
-        if(conflict.getConceder().equals(initiator) && conflict.getInitiator().equals(conceder)) {
-            if(GlobalLevelService.getInstance().getPosition(conceder)
-                    .equals(GlobalLevelService.getInstance().getPosition(conflict.getInitiator()))
-                    && GlobalLevelService.getInstance().getPosition(initiator)
-                    .equals(GlobalLevelService.getInstance().getPosition(conflict.getConceder()))
-                    ) {
-                return true;
+            if (conflict.getConceder().equals(initiator) && conflict.getInitiator().equals(conceder)) {
+                if (GlobalLevelService.getInstance().getPosition(conceder)
+                        .equals(GlobalLevelService.getInstance().getPosition(conflict.getInitiator()))
+                        && GlobalLevelService.getInstance().getPosition(initiator)
+                        .equals(GlobalLevelService.getInstance().getPosition(conflict.getConceder()))
+                        ) {
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return (initiator.getNumber() > conceder.getNumber() ?
+                String.format("%d%d", conceder.getNumber(), initiator.getNumber()) :
+                String.format("%d%d", initiator.getNumber(), conceder.getNumber())).hashCode();
     }
 
     public Agent getInitiator() {

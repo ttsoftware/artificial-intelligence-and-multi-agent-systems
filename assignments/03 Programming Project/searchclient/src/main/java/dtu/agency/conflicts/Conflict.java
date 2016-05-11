@@ -15,7 +15,7 @@ public class Conflict {
 
     public Conflict(Agent agentOne, ConcretePlan agentOnePlan, Agent agentTwo, ConcretePlan agentTwoPlan) {
 
-        if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
+        if (agentOnePlan.getActions().size() > agentTwoPlan.getActions().size()) {
             conceder = agentOne;
             concederPlan = agentOnePlan;
             initiator = agentTwo;
@@ -40,7 +40,7 @@ public class Conflict {
             concederPlan = agentOnePlan;
             initiator = GlobalLevelService.getInstance().getAgent(agentTwo);
             initiatorPlan = new PrimitivePlan();
-        } else if (agentOnePlan.getActions().size() < agentTwoPlan.getActions().size()) {
+        } else if (agentOnePlan.getActions().size() > agentTwoPlan.getActions().size()) {
             conceder = GlobalLevelService.getInstance().getAgent(agentOne);
             concederPlan = agentOnePlan;
             initiator = GlobalLevelService.getInstance().getAgent(agentTwo);

@@ -795,16 +795,31 @@ public abstract class LevelService {
     }
 
     /**
+     * Under influence of an agent, this takes a PrimitivePlan
+     * and turns it into an ordered list of positions, visited by that agent and its box, without duplicates.
+     *
+     * @return
+     */
+    public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan, Agent agent) {
+        return getPath(plan, getPosition(agent));
+    }
+
+    /**
      * Under influence of an agent BDIService, this takes a PrimitivePlan
      * and turns it into an ordered list of positions, visited by that agent and its box, without duplicates.
      *
      * @return
      */
     public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan) {
-        LinkedList<Position> bigPath = new LinkedList<>();
+        return getPath(plan, getPosition(BDIService.getInstance().getAgent()));
+    }
 
-        Position previous = getPosition(BDIService.getInstance().getAgent());
-        bigPath.add(new Position(previous));
+    public LinkedList<Position> getPath(PrimitivePlan plan, Position agentPosition)
+    {
+        LinkedList<Position> bigPath = new LinkedList<>();
+        bigPath.add(new Position(agentPosition));
+
+        Position previous = agentPosition;
 
         for (ConcreteAction action : plan.getActionsClone()) {
             if(!action.getType().equals(ConcreteActionType.NONE)) {
@@ -845,6 +860,15 @@ public abstract class LevelService {
                 path.addLast(previousPosition);
             }
             previousPosition = nextPosition;
+        }
+
+        if(!path.isEmpty()) {
+            if (!path.getLast().equals(previousPosition)) {
+                path.addLast(previousPosition);
+            }
+        }
+        else {
+            path.add(previousPosition);
         }
 
         return path;
