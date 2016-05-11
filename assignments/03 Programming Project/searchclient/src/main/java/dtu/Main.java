@@ -22,11 +22,11 @@ public class Main {
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
-                // "levels/MA_help_henning.lvl", // TODO: Does not work - not right colour? so, red != red??
+                "levels/MA_help_henning.lvl", // TODO: Does not work - not right colour? so, red != red??
                 // "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
-                "levels/Crunch.lvl", // TODO: Does not work - Wants to pull! - INDEPENDANT GOALS!?
+                // "levels/Crunch.lvl", // TODO: Independent goals are not independent
                 // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
@@ -37,7 +37,7 @@ public class Main {
                 // "levels/SAhlplan.lvl",
                 // "levels/SAhlplan_old.lvl",
                 // "levels/ClearPathTest.lvl",
-                // "levels/obstaclePathTestLevel.lvl", // TODO: Does no longer work
+                // "levels/obstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",

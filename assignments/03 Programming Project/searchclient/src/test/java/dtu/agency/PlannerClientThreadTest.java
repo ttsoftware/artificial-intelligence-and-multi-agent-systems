@@ -163,6 +163,11 @@ public class PlannerClientThreadTest {
         testLevel("Firefly.lvl");
     }
 
+    @Test
+    public void test16() throws Exception {
+        testLevel("Crunch.lvl");
+    }
+
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;
