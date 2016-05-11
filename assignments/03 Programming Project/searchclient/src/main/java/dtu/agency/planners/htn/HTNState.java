@@ -338,7 +338,12 @@ public class HTNState {
 
                 result = new HTNState(newAgentPos, oldBoxPos, pls, mode);
 
-                if (result.isLegal()) {
+                // check with the box, which is not in the PlanningLevelService
+                valid &= !(oldBoxPos.equals(newAgentPos)); // NEW CHECK
+
+                // check with the rest of the level
+                valid &= result.isLegal();
+                if (valid) {
                     return result;
                 }
                 return null;

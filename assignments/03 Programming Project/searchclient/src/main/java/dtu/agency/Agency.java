@@ -74,7 +74,7 @@ public class Agency implements Runnable {
             }
 
             // Assign goals to the best agents and wait for plans to finish
-            goalStream.forEach(goalAgentEntry -> {
+            goalStream.parallel().forEach(goalAgentEntry -> {
 
                 Goal goal = goalAgentEntry.getKey();
                 Agent bestAgent = goalAgentEntry.getValue();
