@@ -195,11 +195,11 @@ public class ConflictService {
 
         System.err.print("I am " + BDIService.getInstance().getAgent() + ", and we are in conflict resolution!\n");
 
-        // Save the conflicting action
         boolean pushOrPull;
         List<ConcreteAction> actions = conflict.getInitiatorPlan().getActions();
         ConcreteAction conflictingAction;
 
+        // Check if the initiator is carrying a box (next non-NoOp action is a push or pull
         if (!actions.isEmpty()) {
             conflictingAction = actions.get(0);
 
@@ -215,7 +215,7 @@ public class ConflictService {
             pushOrPull = false;
         }
 
-
+        // Find parking spaces
         List<Position> parkingSpaces = getParkingPositions(conflict, pushOrPull);
 
         // If we actually found parking spaces
@@ -232,6 +232,7 @@ public class ConflictService {
             }
         }
 
+        // There are no parking spaces. Can't solve conflict
         return null;
     }
 
@@ -301,43 +302,43 @@ public class ConflictService {
             }
         }
 
-
-        // orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
-
+        // Save the initiator's original position
         Position initiatorPosition = planningLevelService.getPosition(conflict.getInitiator());
 
+        // Remove initiator and conceder from the planningLevelService
         planningLevelService.removeAgent(conflict.getConceder());
         planningLevelService.removeAgent(conflict.getInitiator());
 
         // Find parking spaces
         if (pushOrPull) {
+            // If pushOrPull, we find a parking space of depth 2
             parkingSpaces.add(planningLevelService.getFreeNeighbour(
                     orderedPath,
                     BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
                     2
             ));
 
+            // Find all potential parking spaces neighbouring the parking space we found before
             HashSet<Position> potentialParkingSpaces = planningLevelService.getFreeNeighbourSet(parkingSpaces.get(0));
 
-            Iterator potentialParkingSpacesIterator = potentialParkingSpaces.iterator();
-            boolean foundParkingSpace = false;
+            // Find the second parking space that is adjacent to, but not on conceder's path
+            for (Position potentialParkingSpace : parkingSpaces) {
 
-            while (potentialParkingSpacesIterator.hasNext() && !foundParkingSpace) {
-                Position potentialParkingSpace = (Position) potentialParkingSpacesIterator.next();
-                if (!orderedConcederPath.contains(potentialParkingSpace)) {
+                if (!orderedConcederPath.contains(potentialParkingSpaces)) {
 
-                    for (Position pathPosition : orderedPath) {
+                    for (Position pathPosition : orderedConcederPath) {
 
                         if (pathPosition.isAdjacentTo(potentialParkingSpace)) {
+
                             parkingSpaces.add(potentialParkingSpace);
-                            foundParkingSpace = true;
                             break;
                         }
                     }
                 }
             }
 
-            if (!foundParkingSpace) {
+            // If we haven't found a second parking space near the first one, find any other parking space
+            if (parkingSpaces.size() < 2) {
                 parkingSpaces.add(
                         planningLevelService.getFreeNeighbour(
                                 orderedPath,
@@ -347,7 +348,7 @@ public class ConflictService {
                 );
             }
         } else {
-            // Find parking spaces
+            // we only need one parking space
             parkingSpaces.add(
                     planningLevelService.getFreeNeighbour(
                             orderedPath,
