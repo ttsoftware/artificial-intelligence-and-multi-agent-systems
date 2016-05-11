@@ -35,8 +35,8 @@ public class HTNPlannerTest {
         lvl005 = marshall("/005.lvl"); // placeholder - implement level first
         lvl006 = marshall("/006.lvl"); // placeholder - implement level first
         lvl007 = marshall("/007.lvl"); // placeholder - implement level first
-        lvl008 = marshall("/008.lvl"); // placeholder - implement level first
-        lvl009 = marshall("/009.lvl"); // placeholder - implement level first
+        lvl008 = marshall("/SALabyrinth.lvl"); // placeholder - implement level first
+        lvl009 = marshall("/SAHateful_eight.lvl"); // placeholder - implement level first
     }
 
     private static Level marshall(String path) throws IOException {
