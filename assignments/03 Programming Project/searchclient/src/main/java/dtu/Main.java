@@ -9,14 +9,14 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                // "levels/recursion_and_friends.lvl", // TODO: Does not work - need conflict resolution
-                // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
-                // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
-                // "levels/MAsimple4.lvl", // TODO: Does not work
-                // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
+                "levels/recursion_and_friends.lvl",
+                // "levels/recursion_and_friends_color.lvl",
+                // "levels/MAsimple5.lvl", // TODO: Does not work - planner error
+                // "levels/MAsimple4.lvl", // TODO: Does not work - planner error
+                // "levels/MAsimple3.lvl", // TODO: Does not work - Independent goals are not independent?
                 // "levels/MAsimple2.lvl", // TODO: Why do agents wait for each other to finish?
                 // "levels/MAsimple1.lvl", // TODO: Why do agents wait for each other to finish?
-                // "levels/MApacman.lvl", // TODO: Does not work
+                // "levels/MApacman.lvl", // TODO: Agents do not go back to old plans after resolving conflict!
                 // "levels/MApacman_easy.lvl",
                 // "levels/MAmultiagentSort.lvl", // TODO: Does not work - null pointer in planner
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
@@ -26,13 +26,13 @@ public class Main {
                 // "levels/MA_help_henning_3.lvl", // TODO: Does not work
                 // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
-                // "levels/Crunch.lvl", // TODO: Independent goals are not independent
+                // "levels/Crunch.lvl", // TODO: Independent goals are not independent?
                 // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
                 // "levels/SAD1_multi.lvl",
-                // "levels/SAD1_multi_conflict.lvl",
+                // "levels/SAD1_multi_conflict.lvl", // TODO: Nullpointer exception in planner
                 // "levels/SAD1_multi_1_agent_wins.lvl",
                 // "levels/SAhlplan.lvl",
                 // "levels/SAhlplan_old.lvl",
@@ -43,7 +43,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/MAconflicts_simple.lvl",
                 // "levels/MAconflicts_simple2.lvl",
-                "levels/MAconflicts_simple3.lvl",
+                // "levels/MAconflicts_simple3.lvl",
                 "-g",
                 "200",
                 "-t",

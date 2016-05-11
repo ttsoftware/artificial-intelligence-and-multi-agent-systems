@@ -7,7 +7,6 @@ import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
-import dtu.agency.board.Neighbour;
 import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
@@ -34,10 +33,10 @@ public class ConflictService {
         List<Conflict> conflictingAgents = new ArrayList<>();
 
         GlobalLevelService.getInstance().getLevel().getAgents().stream().forEach((agent) ->
-            occupiedPositions.put(
-                    GlobalLevelService.getInstance().getPosition(agent),
-                    agent.getNumber()
-            )
+                occupiedPositions.put(
+                        GlobalLevelService.getInstance().getPosition(agent),
+                        agent.getNumber()
+                )
         );
         currentPlans.forEach((agentNumber, concretePlan) -> {
             List<ConcreteAction> actions = concretePlan.getActions();
@@ -47,11 +46,11 @@ public class ConflictService {
                         GlobalLevelService.getInstance().getAgent(agentNumber)
                 );
 
-                for(int i = 1; i < actions.size() && action.getType().equals(ConcreteActionType.NONE); i++) {
+                for (int i = 1; i < actions.size() && action.getType().equals(ConcreteActionType.NONE); i++) {
                     action = actions.get(i);
                 }
 
-                if(action != null) {
+                if (action != null) {
                     if (action.getType().equals(ConcreteActionType.PUSH)) {
                         occupiedPositions.put(
                                 GlobalLevelService.getInstance().getAdjacentPositionInDirection(
@@ -103,12 +102,12 @@ public class ConflictService {
 
                             // Add the conflicting agents to the conflictingAgents list
                             conflictingAgents.add(
-                                new Conflict(
-                                    occupiedPositions.get(newMoveAgentPosition),
-                                    currentPlans.get(occupiedPositions.get(newMoveAgentPosition)),
-                                    agentNumber,
-                                    concretePlan
-                                )
+                                    new Conflict(
+                                            occupiedPositions.get(newMoveAgentPosition),
+                                            currentPlans.get(occupiedPositions.get(newMoveAgentPosition)),
+                                            agentNumber,
+                                            concretePlan
+                                    )
                             );
                         }
                         break;
@@ -282,8 +281,8 @@ public class ConflictService {
 
         // If initiator's plan is NOT empty, and it contains a push or pull action,
         // we extract the box and removes it from the level
-        if(!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
-            if(indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
+        if (!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
+            if (indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
                 moveInitiatorsBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getInitiatorPlan())
                         .getActions().get(indexOfFirstPushOrPullOfInitiator);
 
@@ -293,8 +292,8 @@ public class ConflictService {
 
         // If conceder's plan is NOT empty, and it contains a push or pull action,
         // we extract the box and removes it from the level
-        if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            if(indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
+        if (!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
+            if (indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
                 moveConcedersBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan())
                         .getActions().get(indexOfFirstPushOrPullOfConceder);
 
@@ -308,14 +307,12 @@ public class ConflictService {
         Position initiatorPosition = planningLevelService.getPosition(conflict.getInitiator());
 
         planningLevelService.removeAgent(conflict.getConceder());
-
         planningLevelService.removeAgent(conflict.getInitiator());
 
         // Find parking spaces
-        if(pushOrPull) {
+        if (pushOrPull) {
             parkingSpaces.add(planningLevelService.getFreeNeighbour(
                     orderedPath,
-                    BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
                     BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
                     2
             ));
@@ -325,11 +322,13 @@ public class ConflictService {
             Iterator potentialParkingSpacesIterator = potentialParkingSpaces.iterator();
             boolean foundParkingSpace = false;
 
-            while(potentialParkingSpacesIterator.hasNext() && !foundParkingSpace) {
+            while (potentialParkingSpacesIterator.hasNext() && !foundParkingSpace) {
                 Position potentialParkingSpace = (Position) potentialParkingSpacesIterator.next();
-                if(!orderedConcederPath.contains(potentialParkingSpace)) {
-                    for(Position pathPosition : orderedPath) {
-                        if(pathPosition.isAdjacentTo(potentialParkingSpace)) {
+                if (!orderedConcederPath.contains(potentialParkingSpace)) {
+
+                    for (Position pathPosition : orderedPath) {
+
+                        if (pathPosition.isAdjacentTo(potentialParkingSpace)) {
                             parkingSpaces.add(potentialParkingSpace);
                             foundParkingSpace = true;
                             break;
@@ -338,11 +337,10 @@ public class ConflictService {
                 }
             }
 
-            if(!foundParkingSpace) {
+            if (!foundParkingSpace) {
                 parkingSpaces.add(
                         planningLevelService.getFreeNeighbour(
                                 orderedPath,
-                                initiatorPosition,
                                 initiatorPosition,
                                 1
                         )
@@ -353,7 +351,6 @@ public class ConflictService {
             parkingSpaces.add(
                     planningLevelService.getFreeNeighbour(
                             orderedPath,
-                            initiatorPosition,
                             initiatorPosition,
                             1
                     )
@@ -370,8 +367,7 @@ public class ConflictService {
      * @param parkingSpaces
      * @return
      */
-    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<Position> parkingSpaces)
-    {
+    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<Position> parkingSpaces) {
         // Construct RGotoAction for moving the initiator away
         RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0));
 
@@ -427,7 +423,7 @@ public class ConflictService {
      * @param box
      * @return ResolvedConflict
      */
-    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<Position> parkingSpaces, Box box){
+    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<Position> parkingSpaces, Box box) {
 
         // Save the original position of the agent
         Position agentPositionOrigin = BDIService.getInstance().getBDILevelService().
