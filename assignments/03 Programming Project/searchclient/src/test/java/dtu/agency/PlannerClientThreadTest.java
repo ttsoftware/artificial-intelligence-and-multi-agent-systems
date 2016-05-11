@@ -139,6 +139,11 @@ public class PlannerClientThreadTest {
     }
 
     @Test
+    public void test11_1() throws Exception {
+        testLevel("MA_help_henning_4.lvl");
+    }
+
+    @Test
     public void test12() throws Exception {
         testLevel("recursion_and_friends.lvl");
     }
@@ -155,6 +160,16 @@ public class PlannerClientThreadTest {
 
     @Test
     public void test15() throws Exception {
+        testLevel("Firefly.lvl");
+    }
+
+    @Test
+    public void test16() throws Exception {
+        testLevel("Crunch.lvl");
+    }
+
+    @Test
+    public void test17() throws Exception {
         testLevel("MAconflicts_simple3.lvl");
     }
 

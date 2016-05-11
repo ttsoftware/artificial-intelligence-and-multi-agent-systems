@@ -9,7 +9,7 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                // "levels/recursion_and_friends.lvl",
+                // "levels/recursion_and_friends.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/recursion_and_friends_color.lvl", // TODO: Does not work
                 // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
@@ -17,15 +17,17 @@ public class Main {
                 // "levels/MAsimple2.lvl", // TODO: Why do agents wait for each other to finish?
                 // "levels/MAsimple1.lvl", // TODO: Why do agents wait for each other to finish?
                 // "levels/MApacman.lvl", // TODO: Does not work
-                // "levels/MAmultiagentSort.lvl", // TODO: Does not work
+                // "levels/MApacman_easy.lvl",
+                // "levels/MAmultiagentSort.lvl", // TODO: Does not work - null pointer in planner
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
-                // "levels/MA_help_henning.lvl", // TODO: Does not work
+                // "levels/MA_help_henning.lvl", // TODO: Does not work - not right colour? so, red != red??
                 // "levels/MA_help_henning_3.lvl", // TODO: Does not work
+                // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
-                // "levels/Crunch.lvl",
-                // "levels/friendofDFS.lvl", // TODO: Does not work
+                // "levels/Crunch.lvl", // TODO: Independent goals are not independent
+                // "levels/friendofDFS.lvl",
                 // "levels/friendofBFS.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",

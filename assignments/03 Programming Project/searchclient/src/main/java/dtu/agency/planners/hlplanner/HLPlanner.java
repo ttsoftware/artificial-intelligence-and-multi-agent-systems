@@ -11,6 +11,7 @@ import dtu.agency.services.BDIService;
 import dtu.agency.services.EventBusService;
 import dtu.agency.services.PlanningLevelService;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +30,57 @@ public class HLPlanner {
     public HLPlanner(Intention intention, PlanningLevelService pls) {
         this.pls = pls;
         this.intention = intention;
+
+        if (intention instanceof GoalIntention) {
+
+            List<Position> obstacles = intention.getObstaclePositionsClone();
+            int remainingObstacles = obstacles.size();
+
+            if (remainingObstacles > 2) {
+                // we want to remove the first obstacle ourselves
+                obstacles.remove(0);
+
+                List<Position> obstaclesClone = new ArrayList<>();
+                obstacles.forEach(obstaclePosition -> obstaclesClone.add(new Position(obstaclePosition)));
+
+                // obstacles to remove from the intention
+                List<HelpMoveObstacleEvent> helpMoveObstaclesEvents = new ArrayList<>();
+
+                // create stream
+                obstaclesClone.forEach(obstaclePosition -> {
+                    Box obstacle = extractBox(pls.getObject(obstaclePosition));
+
+                    if (!obstacle.equals(intention.getTargetBox())) {
+                        // we do not need help moving the goal box
+                        helpMoveObstaclesEvents.add(helpMoveObstacle(obstacle));
+                    }
+                });
+
+                List<Box> removedObstacles = new ArrayList<>();
+
+                helpMoveObstaclesEvents.parallelStream().forEach(helpMeEvent -> {
+
+                    // wait until someone moved the obstacle - blocks this thread for at most 2^32-1 milliseconds
+                    List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
+
+                    if (failedPaths.size() == 0) {
+                        removedObstacles.add((Box) helpMeEvent.getObstacle());
+                    }
+                });
+
+                if (removedObstacles.size() == 0) {
+                    System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": FINT!");
+                }
+                else {
+                    removedObstacles.forEach(box -> {
+                        intention.removeObstacle(pls.getPosition(box));
+                    });
+
+                    // update the BDI to reflect moved obstacles
+                    BDIService.getInstance().updateBDILevelService();
+                }
+            }
+        }
     }
 
     /**
@@ -41,7 +93,6 @@ public class HLPlanner {
     public HLPlan plan(Intention intention,
                        HLPlan plan) {
 
-        // TODO: Ask for help if more than 1 obstacle
         List<Position> obstacles = intention.getObstaclePositionsClone();
         int remainingObstacles = obstacles.size();
 
@@ -60,12 +111,12 @@ public class HLPlanner {
                 // ignore it for now, it might move on its own
                 // if it does not move on its own, we are gonna have to ask it to move
             } else {
-                Box box = extractBox(boardObject);
+                Box obstacle = extractBox(boardObject);
 
                 // see if this agent can actually move this box/obstacle
-                if (!box.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
+                if (!obstacle.getColor().equals(BDIService.getInstance().getAgent().getColor())) {
                     // should this update the plan?
-                    HLPlan helpMovePlan = helpMoveObstacle(box, obstaclePosition, plan);
+                    HLPlan helpMovePlan = helpMoveForeignObstacle(obstacle, obstaclePosition, plan);
                     if (helpMovePlan.isEmpty()) {
                         return null;
                     }
@@ -74,7 +125,7 @@ public class HLPlanner {
                     plan = moveObstacle(
                             agentPosition,
                             obstaclePosition,
-                            box,
+                            obstacle,
                             remainingObstacles--,
                             plan
                     );
@@ -147,17 +198,34 @@ public class HLPlanner {
         );
     }
 
-    private HLPlan helpMoveObstacle(Box box, Position boxPosition, HLPlan plan) {
-
+    private HelpMoveObstacleEvent helpMoveObstacle(Box obstacle) {
         if (intention instanceof GoalIntention) {
-            // ask for help
-            // TODO: can we go around ??
-            System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + box);
+            System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
 
             HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
                     BDIService.getInstance().getAgent(),
                     intention.getAgentBoxPseudoPathClone(),
-                    box
+                    obstacle
+            );
+            EventBusService.post(helpMeEvent);
+
+            return helpMeEvent;
+        }
+
+        throw new RuntimeException("invalid intention");
+    }
+
+    private HLPlan helpMoveForeignObstacle(Box obstacle, Position obstaclePosition, HLPlan plan) {
+
+        if (intention instanceof GoalIntention) {
+            // ask for help
+            // TODO: can we go around ??
+            System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
+
+            HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
+                    BDIService.getInstance().getAgent(),
+                    intention.getAgentBoxPseudoPathClone(),
+                    obstacle
             );
             EventBusService.post(helpMeEvent);
 
@@ -165,7 +233,7 @@ public class HLPlanner {
             List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
 
             if (failedPaths.size() > 0) {
-                System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": No-one could move my obstacle: " + box);
+                System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": No-one could move my obstacle: " + obstacle);
 
                 for (LinkedList<Position> failedPath : failedPaths) {
                     // failedPath is a path to move the foreign obstacle, which has obstacles of its own
@@ -179,7 +247,7 @@ public class HLPlanner {
                             // we can help this failed path by moving failedPathObstacle out of it
                             Box failedPathBox = (Box) pls.getObject(failedPathObstaclePosition);
 
-                            if (failedPathBox == box) {
+                            if (failedPathBox == obstacle) {
                                 // this obstacle is the one we could not move in the first pace
                                 continue;
                             }
@@ -221,14 +289,14 @@ public class HLPlanner {
                 return plan;
             } else {
                 // someone moved the obstacle!
-                intention.removeObstacle(boxPosition);
+                intention.removeObstacle(obstaclePosition);
                 return plan;
             }
         }
 
         if (intention instanceof MoveBoxFromPathIntention) {
             // we need help we are already helping someone. We must fail
-            throw new RecursiveHelpException("We (" + BDIService.getInstance().getAgent() + ") are already helping someone, so who should help us move " + box + "?");
+            throw new RecursiveHelpException("We (" + BDIService.getInstance().getAgent() + ") are already helping someone, so who should help us move " + obstacle + "?");
         }
 
         throw new RuntimeException("invalid intention");

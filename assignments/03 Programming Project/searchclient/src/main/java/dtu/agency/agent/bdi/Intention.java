@@ -3,8 +3,11 @@ package dtu.agency.agent.bdi;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.PrimitivePlan;
+import dtu.agency.services.BDIService;
+import dtu.agency.services.GlobalLevelService;
 
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 public abstract class Intention {
 
@@ -101,4 +104,24 @@ public abstract class Intention {
     }
 
     public abstract int getApproximateSteps();
+
+    protected int getApproximateStepsWithWeights(int weightPathLength,
+                                              int weightReachable,
+                                              int weightUnreachable,
+                                              int weightBoxesWrongColors) {
+        // count of obstacles with different color
+        int wrongColorObstacleCount = obstaclePositions.stream().filter(position -> {
+            Box box = (Box) BDIService.getInstance().getBDILevelService().getObject(position);
+            return !box.getColor().equals(BDIService.getInstance().getAgent().getColor());
+        }).collect(Collectors.toList()).size();
+
+        if (agentPseudoPath == null) {
+            return Integer.MAX_VALUE;
+        } else {
+            return pseudoPlan.removeGoBack().getActions().size() * weightPathLength
+                    + unreachableObstacles * weightUnreachable
+                    + ((reachableObstacles > 0) ? unreachableObstacles - 1 : 0) * weightReachable // -1 for eliminating the target box itself from punishment
+                    + wrongColorObstacleCount * weightBoxesWrongColors;
+        }
+    }
 }

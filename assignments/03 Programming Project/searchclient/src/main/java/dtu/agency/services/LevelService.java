@@ -947,7 +947,7 @@ public abstract class LevelService {
         originPath.addAll(connectingPath);
         originPath.addAll(newPathReversed);
 
-        return originPath;
+        return reversePath(originPath);
     }
 
     /**
@@ -959,7 +959,7 @@ public abstract class LevelService {
         LinkedList<Position> newPath = new LinkedList<>();
 
         for (Position position : path) {
-            newPath.addFirst(position);
+            newPath.addFirst(new Position(position));
         }
 
         return newPath;
