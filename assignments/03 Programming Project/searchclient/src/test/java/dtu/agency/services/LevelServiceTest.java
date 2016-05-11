@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -281,11 +280,6 @@ public class LevelServiceTest {
         expectedASubPath.addLast(new Position(4, 5));
 
         assertEquals(expectedASubPath, obstacleAFreePath);
-
-        PriorityQueue<Position> weightSubPath = GlobalLevelService.getInstance()
-                .weightedObstacleSubPath(obstacleAFreePath, obstacleAPosition);
-
-        assertEquals(obstacleAPosition, weightSubPath.poll());
 
         // free neighbour for A
         Position freeNeighbourA = GlobalLevelService.getInstance().getFreeNeighbour(
