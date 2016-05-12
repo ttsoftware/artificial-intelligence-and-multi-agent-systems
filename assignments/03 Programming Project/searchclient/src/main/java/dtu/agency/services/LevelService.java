@@ -1,10 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.concreteaction.Direction;
-import dtu.agency.actions.concreteaction.MoveConcreteAction;
-import dtu.agency.actions.concreteaction.PullConcreteAction;
-import dtu.agency.actions.concreteaction.PushConcreteAction;
+import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.*;
 import dtu.agency.planners.plans.PrimitivePlan;
 
@@ -218,80 +215,12 @@ public abstract class LevelService {
         return level.getAgentsMap().get(label);
     }
 
-    /**
-     * @param position
-     * @return A list of adjacent cells containing a box or an agent
-     */
     public Agent getAgent(Integer agentNumber) {
         // There should only be 1 agent with this number
         return level.getAgents()
                 .stream()
                 .filter(agent -> agent.getNumber() == agentNumber)
                 .collect(Collectors.toList()).get(0);
-    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isMoveable(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isMoveable(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isMoveable(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isMoveable(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
     }
 
     public synchronized List<Neighbour> getGoalFreeNeighbours(Position position)
@@ -323,78 +252,6 @@ public abstract class LevelService {
 
         if(level.getBoardState()[position.getRow() + 1][position.getColumn()].equals(BoardCell.GOAL))
         {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position that are not goals
-     */
-    public synchronized List<Neighbour> getNonGoalFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFreeOfGoals(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFreeOfGoals(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFreeOfGoals(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFreeOfGoals(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @param objectsToIgnore
-     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
-     * if any of them exists
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
