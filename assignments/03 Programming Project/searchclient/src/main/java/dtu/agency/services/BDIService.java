@@ -260,6 +260,11 @@ public class BDIService {
     public boolean solveGoal(Goal goal) {
         // Continue solving this goal, using the Intention found in the bidding round
         GoalIntention intention = (GoalIntention) intentions.get(goal.getLabel());
+
+        if (intention == null) {
+            return false;
+        }
+
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);

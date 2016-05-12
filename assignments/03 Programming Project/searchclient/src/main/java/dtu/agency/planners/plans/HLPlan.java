@@ -71,6 +71,10 @@ public class HLPlan implements AbstractPlan {
     public PrimitivePlan evolve(PlanningLevelService pls) {
         RelaxationMode noAgents = RelaxationMode.NoAgents;
 
+        if (isEmpty()) {
+            return null;
+        }
+
         HLAction first = poll();
         HTNPlanner htn = new HTNPlanner(pls, first, noAgents);
         PrimitivePlan plan = htn.plan();
