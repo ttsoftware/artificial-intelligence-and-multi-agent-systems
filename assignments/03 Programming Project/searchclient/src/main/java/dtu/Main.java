@@ -37,7 +37,7 @@ public class Main {
                 // "levels/SAsokobanLevel96.lvl",
                 // "levels/SAHateful_Three.lvl",
                 // "levels/SAHateful_Eight.lvl",
-                // "levels/SALongJourney.lvl", // TODO: Does not work
+                "levels/SALongJourney.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
                 // "levels/SAD1_multi.lvl",
@@ -48,7 +48,7 @@ public class Main {
                 // "levels/SAClearPathTest.lvl",
                 // "levels/SAobstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
-                "levels/SAboxesOfHanoi.lvl",
+                // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 "-g",
                 "200",
