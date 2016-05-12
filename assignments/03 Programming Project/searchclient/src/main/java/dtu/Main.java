@@ -9,7 +9,7 @@ public class Main {
         // Run the server.jar with the following arguments
         String[] serverArgs = {
                 "-l",
-                "levels/recursion_and_friends.lvl",
+                // "levels/recursion_and_friends.lvl",
                 // "levels/recursion_and_friends_color.lvl",
                 // "levels/MAsimple5.lvl", // TODO: Does not work - planner error
                 // "levels/MAsimple4.lvl", // TODO: Does not work - planner error
@@ -22,8 +22,8 @@ public class Main {
                 // "levels/MAchallenge.lvl", // TODO: Does not work - Many different reasons
                 // "levels/MAtest.lvl",
                 // "levels/MA_out_of_my_way_Henning.lvl", // TODO: Does not work
-                // "levels/MA_help_henning.lvl", // TODO: Does not work - not right colour? so, red != red??
-                // "levels/MA_help_henning_3.lvl", // TODO: Does not work
+                // "levels/MA_help_henning.lvl",
+                // "levels/MA_help_henning_3.lvl",
                 // "levels/MA_help_henning_4.lvl",
                 // "levels/Firefly.lvl",
                 // "levels/Crunch.lvl", // TODO: Independent goals are not independent?
@@ -43,7 +43,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 // "levels/MAconflicts_simple.lvl",
                 // "levels/MAconflicts_simple2.lvl",
-                // "levels/MAconflicts_simple3.lvl",
+                "levels/MAconflicts_simple3.lvl",
                 "-g",
                 "200",
                 "-t",

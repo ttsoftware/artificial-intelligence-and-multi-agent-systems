@@ -140,7 +140,7 @@ public class LevelServiceTest {
                 3
         );
 
-        assertEquals(new Position(4, 8), freeNeighbour);
+        assertEquals(new Position(2, 8), freeNeighbour);
     }
 
     @Test

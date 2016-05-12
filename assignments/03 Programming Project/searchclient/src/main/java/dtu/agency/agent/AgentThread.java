@@ -1,8 +1,6 @@
 package dtu.agency.agent;
 
 import com.google.common.eventbus.Subscribe;
-import dtu.agency.actions.ConcreteAction;
-import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.agent.bdi.Ideas;
 import dtu.agency.agent.bdi.Intention;
 import dtu.agency.board.*;
@@ -16,9 +14,11 @@ import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.client.ConflictResolutionEvent;
 import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
-import dtu.agency.services.*;
+import dtu.agency.services.AgentService;
+import dtu.agency.services.BDIService;
+import dtu.agency.services.ConflictService;
+import dtu.agency.services.EventBusService;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class AgentThread implements Runnable {
@@ -195,7 +195,11 @@ public class AgentThread implements Runnable {
             successful = false;
         }
         else {
-            successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+            successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                    path,
+                    obstacle,
+                    RelaxationMode.NoAgentsNoBoxes
+            );
         }
 
         if (successful) {
@@ -255,7 +259,11 @@ public class AgentThread implements Runnable {
 
             System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bid for moving box: " + obstacle);
 
-            boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(path, obstacle);
+            boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
+                    path,
+                    obstacle,
+                    RelaxationMode.NoAgentsNoBoxes
+            );
 
             if (successful) {
                 // Create plan for moving object
