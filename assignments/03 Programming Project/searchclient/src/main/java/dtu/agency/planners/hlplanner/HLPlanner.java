@@ -117,7 +117,7 @@ public class HLPlanner {
                     // should this update the plan?
                     HLPlan helpMovePlan = helpMoveForeignObstacle(obstacle, obstaclePosition, plan);
                     if (helpMovePlan.isEmpty()) {
-                        return null;
+                        return new HLPlan();
                     }
                     return helpMovePlan;
                 } else {
@@ -158,12 +158,13 @@ public class HLPlanner {
 
         // no more obstacles - and the goal box was not among the obstacles
         // move it to the goal position
-        return moveBoxInPlanner(
+        /*return moveBoxInPlanner(
                 intention.getTargetBox(),
                 pls.getPosition(intention.getGoal()),
                 intention.getAgentPseudoPathClone().peekLast(),
                 plan
-        );
+        );*/
+        return plan;
     }
 
     private HLPlan addLastAction(MoveBoxFromPathIntention intention,
@@ -344,12 +345,15 @@ public class HLPlanner {
             return plan;
         } else if (box.equals(intention.getTargetBox())) {
             // only 'obstacle' left in path is target box - move it into the goal
-            plan = moveBoxInPlanner(
-                    box,
-                    obstacleGoalPosition,
-                    intentionPath.peekLast(),
-                    plan
-            );
+            if (pls.isFree(obstacleGoalPosition)) {
+                // the goal is free
+                plan = moveBoxInPlanner(
+                        box,
+                        obstacleGoalPosition,
+                        intentionPath.peekLast(),
+                        plan
+                );
+            }
         } else {
             // next obstacle is in the path - move box to free position
             Position neighbour = pls.getFreeNeighbour(

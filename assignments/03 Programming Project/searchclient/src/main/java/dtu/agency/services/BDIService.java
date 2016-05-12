@@ -266,6 +266,11 @@ public class BDIService {
     public boolean solveGoal(Goal goal) {
         // Continue solving this goal, using the Intention found in the bidding round
         GoalIntention intention = (GoalIntention) intentions.get(goal.getLabel());
+
+        if (intention == null) {
+            return false;
+        }
+
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
         HLPlanner planner = new HLPlanner(intention, pls);
@@ -313,9 +318,7 @@ public class BDIService {
      */
     public PrimitivePlan getPrimitivePlan() {
 
-        PrimitivePlan plan = new PrimitivePlan();
-        plan.appendActions(currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone())));
-
+        PrimitivePlan plan = currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone()));
         currentHLPlan.getActions().clear();
 
         return plan;

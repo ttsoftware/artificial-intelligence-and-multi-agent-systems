@@ -1,6 +1,8 @@
 package dtu.agency.agent.bdi;
 
+import dtu.agency.board.BoardCell;
 import dtu.agency.board.Box;
+import dtu.agency.board.BoxAndGoal;
 import dtu.agency.board.Position;
 import dtu.agency.planners.plans.PrimitivePlan;
 import dtu.agency.services.BDIService;
@@ -111,7 +113,18 @@ public abstract class Intention {
                                               int weightBoxesWrongColors) {
         // count of obstacles with different color
         int wrongColorObstacleCount = obstaclePositions.stream().filter(position -> {
-            Box box = (Box) BDIService.getInstance().getBDILevelService().getObject(position);
+            BoardCell cell = BDIService.getInstance().getBDILevelService().getCell(position);
+            Box box;
+            switch (cell) {
+                case BOX:
+                    box = (Box) BDIService.getInstance().getBDILevelService().getObject(position);
+                    break;
+                case BOX_GOAL:
+                    box = ((BoxAndGoal) BDIService.getInstance().getBDILevelService().getObject(position)).getBox();
+                    break;
+                default:
+                    throw new RuntimeException("object is not box??");
+            }
             return !box.getColor().equals(BDIService.getInstance().getAgent().getColor());
         }).collect(Collectors.toList()).size();
 

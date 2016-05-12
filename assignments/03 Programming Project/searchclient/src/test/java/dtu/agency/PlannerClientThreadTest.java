@@ -59,7 +59,7 @@ public class PlannerClientThreadTest {
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAhlplan_old.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi_simple.lvl";
-        // String path = resourcesDirectory.getAbsolutePath() + "/obstaclePathTestLevel.lvl";
+        // String path = resourcesDirectory.getAbsolutePath() + "/SAobstaclePathTestLevel.lvl";
         String path = resourcesDirectory.getAbsolutePath() + "/MAconflicts_simple3.lvl";
         FileInputStream inputStream = new FileInputStream(path);
 
@@ -170,6 +170,21 @@ public class PlannerClientThreadTest {
 
     @Test
     public void test17() throws Exception {
+        testLevel("SALongJourney.lvl");
+    }
+
+    @Test
+    public void test18() throws Exception {
+        testLevel("SAHateful_Eight.lvl");
+    }
+
+    @Test
+    public void test19() throws Exception {
+        testLevel("SAHateful_Three.lvl");
+    }
+
+    @Test
+    public void test20() throws Exception {
         testLevel("MAconflicts_simple3.lvl");
     }
 
