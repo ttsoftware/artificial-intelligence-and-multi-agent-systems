@@ -3,9 +3,7 @@ package dtu.agency;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
-import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
 import dtu.agency.events.agency.ProblemSolvedEvent;
@@ -175,8 +173,8 @@ public class PlannerClientThread implements Runnable {
 
                 if (resolvedConflict == null) {
                     // if the first Agent could not resolve the conflict
-                    Conflict switchedConflict = conflictService.switchConcederAndInitiator(conflict);
-                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(switchedConflict);
+                    conflict.swap();
+                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(conflict);
 
                     EventBusService.post(switchedConflictResolutionEvent);
                     resolvedConflict = conflictResolutionEvent.getResponse();
@@ -261,7 +259,7 @@ public class PlannerClientThread implements Runnable {
             // System.exit(1);
         } else if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
-            // throw new RuntimeException("We are trying an illegal move.");
+            throw new RuntimeException("We are trying an illegal move.");
         } else if (response.equals("success")) {
             // Pretend problem is solved
             EventBusService.post(new ProblemSolvedEvent());

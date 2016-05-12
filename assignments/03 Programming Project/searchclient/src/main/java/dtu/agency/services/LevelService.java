@@ -572,9 +572,9 @@ public abstract class LevelService {
     }
 
     /**
+     * @param position
      * @WARNING: Removes anything from this position!
      * We have no way of knowing what was removed, so we cannot put it back
-     * @param position
      */
     protected synchronized void clearPosition(Position position) {
         BoardCell[][] boardState = level.getBoardState();
@@ -814,15 +814,26 @@ public abstract class LevelService {
         return getPath(plan, getPosition(BDIService.getInstance().getAgent()));
     }
 
-    public LinkedList<Position> getPath(PrimitivePlan plan, Position agentPosition)
-    {
+    public LinkedList<Position> getPath(PrimitivePlan plan, Position agentPosition) {
         LinkedList<Position> bigPath = new LinkedList<>();
-        bigPath.add(new Position(agentPosition));
 
-        Position previous = agentPosition;
+        Position previous;
+        if (!plan.getActions().isEmpty()
+                && plan.getActions().getFirst().getType().equals(ConcreteActionType.PULL)) {
+            // if it is a pull action, the agents position is not the first one
+            previous = new Position(
+                    agentPosition,
+                    plan.getActions().getFirst().getAgentDirection().getInverse()
+            );
+        }
+        else {
+            previous = agentPosition;
+        }
+
+        bigPath.add(previous);
 
         for (ConcreteAction action : plan.getActionsClone()) {
-            if(!action.getType().equals(ConcreteActionType.NONE)) {
+            if (!action.getType().equals(ConcreteActionType.NONE)) {
                 // the agents next position
                 Position next = new Position(previous, action.getAgentDirection());
 
@@ -862,12 +873,11 @@ public abstract class LevelService {
             previousPosition = nextPosition;
         }
 
-        if(!path.isEmpty()) {
+        if (!path.isEmpty()) {
             if (!path.getLast().equals(previousPosition)) {
                 path.addLast(previousPosition);
             }
-        }
-        else {
+        } else {
             path.add(previousPosition);
         }
 
@@ -887,7 +897,7 @@ public abstract class LevelService {
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        if(plan != null) {
+        if (plan != null) {
             LinkedList<ConcreteAction> actionsClone = plan.getActionsClone();
 
             if (actionsClone != null) {
@@ -906,12 +916,13 @@ public abstract class LevelService {
 
     /**
      * Merge two paths such that they have a an unbroken traversable connection
+     *
      * @param newPath
      * @param originPath
      * @return
      */
     public synchronized LinkedList<Position> mergePaths(LinkedList<Position> newPath,
-                                            LinkedList<Position> originPath) {
+                                                        LinkedList<Position> originPath) {
 
         LinkedList<Position> newPathReversed = reversePath(newPath);
 
@@ -952,6 +963,7 @@ public abstract class LevelService {
 
     /**
      * Reverse all actions in given path
+     *
      * @param path
      * @return
      */
@@ -1069,19 +1081,17 @@ public abstract class LevelService {
     }
 
     /**
-     * Returns a SortedSet of free neighbouring positions, ordered by their distance to the path.
-     * These free positions may be adjacent to the path, or adjacent to free positions adjacent to the path and so on...
-     * <p>
-     * This function is roughly O(N), where N is the set of all cells in the level
-     *
+     * If we care about the agents position we must create an obstacle-free-path for the agent.
      * @param path
+     * @param agentPosition
+     * @param obstaclePosition
      * @param numberOfNeighbours
      * @return
      */
     public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
-                                                  Position agentPosition,
-                                                  Position obstaclePosition,
-                                                  int numberOfNeighbours) {
+                                                         Position agentPosition,
+                                                         Position obstaclePosition,
+                                                         int numberOfNeighbours) {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
@@ -1090,21 +1100,35 @@ public abstract class LevelService {
                 obstaclePosition
         );
 
-        // find weighted sub path
-        PriorityQueue<Position> weightSubPath = weightedObstacleSubPath(obstacleFreePath, obstaclePosition);
+        return getFreeNeighbour(
+                obstacleFreePath,
+                obstaclePosition,
+                numberOfNeighbours
+        );
+    }
+
+    /**
+     * Returns the closest / deepest free neighbour to the given {@code path} of maximum depth {@code numberOfNeighbours}
+     * @param path
+     * @param obstaclePosition
+     * @param numberOfNeighbours
+     * @return
+     */
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
+                                                  Position obstaclePosition,
+                                                  int numberOfNeighbours) {
+
 
         // as the list is now prioritized, we want to find the first neighbor, at numberOfNeighbours or shallower
         // previously seen positions
-        HashSet<Position> previouslySeen = new HashSet<>(obstacleFreePath);
+        HashSet<Position> previouslySeen = new HashSet<>(path);
 
         List<Neighbour> neighbours = new ArrayList<>();
 
-        Position weightedPosition;
-        // iterate in weighted order
-        while ((weightedPosition = weightSubPath.poll()) != null) {
-            if (hasUnseenFreeNeighbour(weightedPosition, previouslySeen)) {
+        for (Position position : path) {
+            if (hasUnseenFreeNeighbour(position, previouslySeen)) {
                 Neighbour neighbour = recursiveNeighbour(
-                        new Neighbour(weightedPosition, numberOfNeighbours),
+                        new Neighbour(position, numberOfNeighbours),
                         previouslySeen,
                         0,
                         numberOfNeighbours
@@ -1119,18 +1143,27 @@ public abstract class LevelService {
 
         if (sumOfDepths >= numberOfNeighbours) {
             // if there are more or enough neighbours, choose the closest one
-            return neighbours.get(0).getPosition();
+
+            List<Neighbour> neighboursSortedByDistance = neighbours.stream().sorted(new Comparator<Neighbour>() {
+                @Override
+                public int compare(Neighbour neighbourA, Neighbour neighbourB) {
+                    return neighbourA.getPosition().manhattanDist(obstaclePosition)
+                            - neighbourB.getPosition().manhattanDist(obstaclePosition);
+                }
+            }).collect(Collectors.toList());
+
+            return neighboursSortedByDistance.get(0).getPosition();
         }
 
         // sort the neighbours by depth - highest depth first
-        List<Neighbour> sortedNeighbours = neighbours.stream().sorted(new Comparator<Neighbour>() {
+        List<Neighbour> neighboursSortedByDepth = neighbours.stream().sorted(new Comparator<Neighbour>() {
             @Override
             public int compare(Neighbour neighbourA, Neighbour neighbourB) {
                 return neighbourB.getDepth() - neighbourA.getDepth();
             }
         }).collect(Collectors.toList());
 
-        return neighbours.get(0).getPosition();
+        return neighboursSortedByDepth.get(0).getPosition();
     }
 
     /**
@@ -1245,28 +1278,5 @@ public abstract class LevelService {
             }
         }
         return subPath;
-    }
-
-    /**
-     * Returns the weighted {@code subPath} of given {@code obstaclePosition}.
-     * Positions in {@code subPath} are weighted by distance from {@code obstaclePosition}
-     *
-     * @param subPath
-     * @param obstaclePosition
-     * @return
-     */
-    public PriorityQueue<Position> weightedObstacleSubPath(LinkedList<Position> subPath,
-                                                           Position obstaclePosition) {
-        PriorityQueue<Position> weightedSubPath = new PriorityQueue<>(new Comparator<Position>() {
-            @Override
-            public int compare(Position a, Position b) {
-                // Order by distance form obstacle
-                return a.manhattanDist(obstaclePosition) - b.manhattanDist(obstaclePosition);
-            }
-        });
-
-        weightedSubPath.addAll(subPath);
-
-        return weightedSubPath;
     }
 }
