@@ -28,6 +28,10 @@ public class ConflictService {
      */
     public List<Conflict> detectConflicts(HashMap<Integer, ConcretePlan> currentPlans) {
 
+        if (GlobalLevelService.getInstance().getLevel().getAgents().size() == 1) {
+            return new ArrayList<>();
+        }
+
         // The seer keeps track of which future positions are occupied.
         HashMap<Position, Integer> occupiedPositions = new HashMap<>();
         List<Conflict> conflictingAgents = new ArrayList<>();

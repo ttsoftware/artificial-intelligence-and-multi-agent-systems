@@ -8,6 +8,7 @@ import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
 import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
 import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
+import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -51,6 +52,14 @@ public class HTNNode {
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
         this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
+        /*if ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) {
+            this.generation = parent.getGeneration();
+        } else if (!BDIService.getInstance().getBDILevelService().isFree(initialEffects.getBoxPosition())) {
+            // try and punish for moving through boxes in planning
+            this.generation = parent.getGeneration() + 3;
+        } else {
+            this.generation = parent.getGeneration() + 1;
+        }*/
         this.nodeComparator = parent.nodeComparator;
     }
 
@@ -123,8 +132,8 @@ public class HTNNode {
         MixedPlan followingActions = getRemainingPlan();
         Action nextAction = followingActions.removeFirst();
 
-
-        if (nextAction instanceof ConcreteAction) { // case the concreteAction is primitive, add it as only node,
+        if (nextAction instanceof ConcreteAction) {
+            // case the concreteAction is primitive, add it as only node,
             ConcreteAction primitive = (ConcreteAction) nextAction;
             HTNNode only = childNode( primitive, followingActions);
             if (only != null) { refinementNodes.add(only);}
