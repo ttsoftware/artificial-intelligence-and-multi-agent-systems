@@ -3,7 +3,6 @@ package dtu.agency;
 import com.google.common.eventbus.Subscribe;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.concreteaction.NoConcreteAction;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Level;
 import dtu.agency.conflicts.Conflict;
 import dtu.agency.conflicts.ResolvedConflict;
@@ -152,18 +151,18 @@ public class PlannerClientThread implements Runnable {
 
             conflicts.forEach(conflict -> {
                 ResolvedConflict fakeResolvedConflict = new ResolvedConflict(
-                        conflict.getInitiator(), conflict.getInitiatorPlan(), conflict.getConceder(), conflict.getConcederPlan());
+                        conflict.getInitiator(),
+                        conflict.getInitiatorPlan(),
+                        conflict.getInitiatorPosition(),
+                        conflict.getConceder(),
+                        conflict.getConcederPlan(),
+                        conflict.getConcederPosition()
+                );
+
                 if (resolvedConflicts.contains(fakeResolvedConflict)) {
                     ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(fakeResolvedConflict));
                     if (conflict.getInitiator().equals(resolvedConflict.getInitiator())) {
-                        Agent initiator = conflict.getInitiator();
-                        ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
-
-                        conflict.setInitiator(conflict.getConceder());
-                        conflict.setConceder(initiator);
-
-                        conflict.setInitiatorPlan(conflict.getConcederPlan());
-                        conflict.setConcederPlan(initiatorPlan);
+                        conflict.swap();
                     }
                 }
 
@@ -174,8 +173,8 @@ public class PlannerClientThread implements Runnable {
 
                 if (resolvedConflict == null) {
                     // if the first Agent could not resolve the conflict
-                    Conflict switchedConflict = conflictService.switchConcederAndInitiator(conflict);
-                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(switchedConflict);
+                    conflict.swap();
+                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(conflict);
 
                     EventBusService.post(switchedConflictResolutionEvent);
                     resolvedConflict = conflictResolutionEvent.getResponse();
@@ -260,7 +259,7 @@ public class PlannerClientThread implements Runnable {
             // System.exit(1);
         } else if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
-            // throw new RuntimeException("We are trying an illegal move.");
+            throw new RuntimeException("We are trying an illegal move.");
         } else if (response.equals("success")) {
             // Pretend problem is solved
             EventBusService.post(new ProblemSolvedEvent());

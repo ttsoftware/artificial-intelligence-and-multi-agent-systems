@@ -204,11 +204,17 @@ public class BDIService {
         return false;
     }
 
-    /**
-     * Create MoveBoxFromPathIntention
-     */
     public boolean findMoveBoxFromPathIntention(LinkedList<Position> path,
                                                 Box targetBox) {
+        return findMoveBoxFromPathIntention(path, targetBox, RelaxationMode.NoAgentsOnlyForeignBoxes);
+    }
+
+        /**
+         * Create MoveBoxFromPathIntention
+         */
+    public boolean findMoveBoxFromPathIntention(LinkedList<Position> path,
+                                                Box targetBox,
+                                                RelaxationMode relaxationMode) {
 
         PlanningLevelService pls = new PlanningLevelService(bdiLevelService.getLevelClone());
 
@@ -220,7 +226,7 @@ public class BDIService {
                 targetBoxPosition
         );
 
-        HTNPlanner htn = new HTNPlanner(pls, moveAgentAction, RelaxationMode.NoAgentsOnlyForeignBoxes);
+        HTNPlanner htn = new HTNPlanner(pls, moveAgentAction, relaxationMode);
         PrimitivePlan pseudoPlan = htn.plan();
 
         if (pseudoPlan == null) {

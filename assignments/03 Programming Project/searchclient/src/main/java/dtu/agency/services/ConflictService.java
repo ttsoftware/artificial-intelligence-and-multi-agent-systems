@@ -1,5 +1,6 @@
 package dtu.agency.services;
 
+import dtu.agency.actions.Action;
 import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
@@ -32,10 +33,10 @@ public class ConflictService {
         List<Conflict> conflictingAgents = new ArrayList<>();
 
         GlobalLevelService.getInstance().getLevel().getAgents().stream().forEach((agent) ->
-            occupiedPositions.put(
-                    GlobalLevelService.getInstance().getPosition(agent),
-                    agent.getNumber()
-            )
+                occupiedPositions.put(
+                        GlobalLevelService.getInstance().getPosition(agent),
+                        agent.getNumber()
+                )
         );
         currentPlans.forEach((agentNumber, concretePlan) -> {
             List<ConcreteAction> actions = concretePlan.getActions();
@@ -45,11 +46,11 @@ public class ConflictService {
                         GlobalLevelService.getInstance().getAgent(agentNumber)
                 );
 
-                for(int i = 1; i < actions.size() && action.getType().equals(ConcreteActionType.NONE); i++) {
+                for (int i = 1; i < actions.size() && action.getType().equals(ConcreteActionType.NONE); i++) {
                     action = actions.get(i);
                 }
 
-                if(action != null) {
+                if (action != null) {
                     if (action.getType().equals(ConcreteActionType.PUSH)) {
                         occupiedPositions.put(
                                 GlobalLevelService.getInstance().getAdjacentPositionInDirection(
@@ -101,12 +102,12 @@ public class ConflictService {
 
                             // Add the conflicting agents to the conflictingAgents list
                             conflictingAgents.add(
-                                new Conflict(
-                                    occupiedPositions.get(newMoveAgentPosition),
-                                    currentPlans.get(occupiedPositions.get(newMoveAgentPosition)),
-                                    agentNumber,
-                                    concretePlan
-                                )
+                                    new Conflict(
+                                            occupiedPositions.get(newMoveAgentPosition),
+                                            currentPlans.get(occupiedPositions.get(newMoveAgentPosition)),
+                                            agentNumber,
+                                            concretePlan
+                                    )
                             );
                         }
                         break;
@@ -192,42 +193,13 @@ public class ConflictService {
      */
     public ResolvedConflict resolveConflict(Conflict conflict) {
 
-        /* TODO actually resolve conflict
-         *
-         * The "fastest" agent (The one with the shortest plan) is the
-         * conceder. It will concede the conflict handling to the "slowest"
-         * agent, being the initiator.
-         *
-         * The initiator looks one by one at the positions in the conceder's path,
-         * trying to find spots next to the path, where it can park, while
-         * the conceder walks past the initiator.
-         *
-         * parkingSpotsNeeded <- 1
-         * if initiator.lastAction is push/pull:
-         *      parkingSpotsNeeded <- 2
-         * Foreach position in concederPath:
-         *      parkingSpots <- findFreeNeighbours(position)
-         *      parkingSpot1 <- parkingSpots.get(0)
-         *
-         *      if parkingSpotsNeeded is 2:
-         *          foreach parkingSpot in parkingSpots:
-         *              additionalParkingSpots <- findFreeNeighbours(parkingSpot) (can not be position where it came from)
-         *              if additionalParkingSpots is not empty:
-         *                  parkingSpot1 <- parkingSpot
-         *                  parkingSpot2 <- additionalParkingSpots
-         *                  break
-         *
-         *       conflictPlan <- initiator.makePlan(GOTO(parkingSpot1, parkingSpot2)
-         *       resetPlan <- initiator.makePlan(GOBACK(conflictPlan))
-         */
-
         System.err.print("I am " + BDIService.getInstance().getAgent() + ", and we are in conflict resolution!\n");
 
-        // Save the conflicting action
         boolean pushOrPull;
         List<ConcreteAction> actions = conflict.getInitiatorPlan().getActions();
         ConcreteAction conflictingAction;
 
+        // Check if the initiator is carrying a box (next non-NoOp action is a push or pull
         if (!actions.isEmpty()) {
             conflictingAction = actions.get(0);
 
@@ -243,7 +215,7 @@ public class ConflictService {
             pushOrPull = false;
         }
 
-
+        // Find parking spaces
         List<Position> parkingSpaces = getParkingPositions(conflict, pushOrPull);
 
         // If we actually found parking spaces
@@ -258,136 +230,149 @@ public class ConflictService {
             } else {
                 return getResolvedConflictForAgent(conflict, parkingSpaces);
             }
-        } else {
-            // TODO: Try again with initiator and conceder switched
-
-//            // Switch conceder and initiator
-//            conflict = switchConcederAndInitiator(conflict);
-//
-//            conflictingAction = conflict.getConcederPlan().getActions().get(0);
-//
-//            // Determine if the conflicting action is of type Push or Pull
-//            pushOrPull = (conflictingAction.getType() == ConcreteActionType.PUSH ||
-//                    conflictingAction.getType() == ConcreteActionType.PULL);
-//
-//            parkingSpaces = getParkingPositions(conflict, pushOrPull);
-//
-//            if (!parkingSpaces.isEmpty()) {
-//                return getResolveConflictForConcederAndConflictingAction(((MoveBoxConcreteAction) conflictingAction).getBox(), conflict,
-//                        pushOrPull, parkingSpaces);
-//            }
-
         }
 
+        // There are no parking spaces. Can't solve conflict
         return null;
     }
 
+    /**
+     *
+     *
+     * @param conflict
+     * @param pushOrPull
+     * @return
+     */
     public List<Position> getParkingPositions (Conflict conflict, boolean pushOrPull) {
+
+        // Initializes list of parking spaces
         List<Position> parkingSpaces = new ArrayList<>();
 
-        PlanningLevelService planningLevelService = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevelClone());
+        // Initializees new PlanningLevelService
+        PlanningLevelService planningLevelService = new PlanningLevelService(
+                BDIService.getInstance().getBDILevelService().getLevelClone()
+        );
 
+        // Finds the conceder's ordered path with box
         LinkedList<Position> orderedConcederPath = planningLevelService.getOrderedPathWithBox(
                 (PrimitivePlan) conflict.getConcederPlan(),
                 conflict.getConceder()
         );
 
+        // Finds the initiator's ordered path with box
         LinkedList<Position> orderedInitiatorPath = planningLevelService.getOrderedPathWithBox(
                 (PrimitivePlan) conflict.getInitiatorPlan(),
                 conflict.getInitiator()
         );
 
-        LinkedList<Position> orderedPath = BDIService.getInstance().getBDILevelService().mergePaths(orderedConcederPath, orderedInitiatorPath);
 
-        ConcreteActionType actionType = null;
-        MoveBoxConcreteAction moveBoxConcreteAction = null;
+        // Merges the conceder's path with the initiator's path
+        LinkedList<Position> orderedPath = BDIService.getInstance().getBDILevelService().mergePaths(
+                orderedConcederPath,
+                orderedInitiatorPath
+        );
 
-        if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            actionType = ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0).getType();
+        // Initializes MoveBoxActions for conceder and initiator
+        MoveBoxConcreteAction moveConcedersBoxConcreteAction;
+        MoveBoxConcreteAction moveInitiatorsBoxConcreteAction;
 
-            if (actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
-                moveBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan()).getActions().get(0);
+        // Finds the index of the first push or pull action for both conceder and initiator
+        int indexOfFirstPushOrPullOfConceder = getIndexOfFirstPushOrPull((PrimitivePlan) conflict.getConcederPlan());
+        int indexOfFirstPushOrPullOfInitiator = getIndexOfFirstPushOrPull((PrimitivePlan) conflict.getInitiatorPlan());
 
-//                orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(
-//                        moveBoxConcreteAction.getBox()
-//                ));
+        // If initiator's plan is NOT empty, and it contains a push or pull action,
+        // we extract the box and removes it from the level
+        if (!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
+            if (indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
+                moveInitiatorsBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getInitiatorPlan())
+                        .getActions().get(indexOfFirstPushOrPullOfInitiator);
 
-                planningLevelService.removeBox(moveBoxConcreteAction.getBox());
+                planningLevelService.removeBox(moveInitiatorsBoxConcreteAction.getBox());
             }
         }
 
+        // If conceder's plan is NOT empty, and it contains a push or pull action,
+        // we extract the box and removes it from the level
+        if (!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
+            if (indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
+                moveConcedersBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan())
+                        .getActions().get(indexOfFirstPushOrPullOfConceder);
 
-        // orderedPath.addFirst(BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
+                planningLevelService.removeBox(moveConcedersBoxConcreteAction.getBox());
+            }
+        }
 
+        // Save the initiator's original position
+        Position initiatorPosition = planningLevelService.getPosition(conflict.getInitiator());
+
+        // Remove initiator and conceder from the planningLevelService
         planningLevelService.removeAgent(conflict.getConceder());
-
-        int initiatorPlanSize = conflict.getInitiatorPlan().getActions().size();
-
-        int i;
-        for(i = 0; i < initiatorPlanSize &&
-                !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PUSH) ||
-                !conflict.getInitiatorPlan().getActions().get(i).getType().equals(ConcreteActionType.PULL);
-            i++);
+        planningLevelService.removeAgent(conflict.getInitiator());
 
         // Find parking spaces
-        parkingSpaces.add(
-                planningLevelService.getFreeNeighbour(
-                        orderedPath,
-                        planningLevelService.getPosition(conflict.getInitiator()),
-                        planningLevelService.getPosition(
-                                ((MoveBoxConcreteAction)conflict.getInitiatorPlan().getActions().get(i)).getBox()
-                        ),
-                        1
-                )
-        );
+        if (pushOrPull) {
+            // If pushOrPull, we find a parking space of depth 2
+            parkingSpaces.add(planningLevelService.getFreeNeighbour(
+                    orderedPath,
+                    BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
+                    2
+            ));
 
-        // Find parking spaces
-        if(pushOrPull) {
+            // Find all potential parking spaces neighbouring the parking space we found before
+            HashSet<Position> potentialParkingSpaces = planningLevelService.getFreeNeighbourSet(parkingSpaces.get(0));
+
+            // Find the second parking space that is adjacent to, but not on conceder's path
+            for (Position potentialParkingSpace : parkingSpaces) {
+
+                if (!orderedConcederPath.contains(potentialParkingSpaces)) {
+
+                    for (Position pathPosition : orderedConcederPath) {
+
+                        if (pathPosition.isAdjacentTo(potentialParkingSpace)) {
+
+                            parkingSpaces.add(potentialParkingSpace);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // If we haven't found a second parking space near the first one, find any other parking space
+            if (parkingSpaces.size() < 2) {
+                parkingSpaces.add(
+                        planningLevelService.getFreeNeighbour(
+                                orderedPath,
+                                initiatorPosition,
+                                1
+                        )
+                );
+            }
+        } else {
+            // we only need one parking space
             parkingSpaces.add(
-                    BDIService.getInstance().getBDILevelService().getFreeNeighbour(
+                    planningLevelService.getFreeNeighbour(
                             orderedPath,
-                            BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
-                            BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()),
-//                            BDIService.getInstance().getBDILevelService().getPosition(
-//                                    ((MoveBoxConcreteAction) conflict.getConcederPlan().getActions().get(0)).getBox()
-//                            ),
-                            2
+                            initiatorPosition,
+                            1
                     )
             );
         }
 
-        if(!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            if (actionType.equals(ConcreteActionType.PUSH) || actionType.equals(ConcreteActionType.PULL)) {
-                planningLevelService.insertBox(moveBoxConcreteAction.getBox(),
-                        BDIService.getInstance().getBDILevelService().getPosition(moveBoxConcreteAction.getBox()));
-            }
-        }
-
-        planningLevelService.insertAgent(conflict.getConceder(),
-                BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder()));
-
         return parkingSpaces;
     }
 
-    public Conflict switchConcederAndInitiator (Conflict conflict) {
-        Agent conceder = conflict.getConceder();
-        Agent initiator = conflict.getInitiator();
-        ConcretePlan concederPlan = conflict.getConcederPlan();
-        ConcretePlan initiatorPlan = conflict.getInitiatorPlan();
-
-        conflict.setConceder(initiator);
-        conflict.setInitiator(conceder);
-        conflict.setConcederPlan(initiatorPlan);
-        conflict.setInitiatorPlan(concederPlan);
-
-        return conflict;
-    }
-
-    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<Position> parkingSpaces)
-    {
-        // Construct action for moving the initiator away
+    /**
+     * Make plans and construct a ResolvedConflict in the case where the initiator doesn't have a box
+     *
+     * @param conflict
+     * @param parkingSpaces
+     * @return
+     */
+    public ResolvedConflict getResolvedConflictForAgent(Conflict conflict, List<Position> parkingSpaces) {
+        // Construct RGotoAction for moving the initiator away
         RGotoAction outOfTheWayAction = new RGotoAction(parkingSpaces.get(0));
-        // Construct action for moving the initiator back to his original position
+
+        // Construct RGotoAction for moving the initiator back to his original position
         RGotoAction moveBackAction = new RGotoAction(
                 BDIService.getInstance().getBDILevelService().getPosition(
                         conflict.getInitiator().getLabel()
@@ -403,97 +388,179 @@ public class ConflictService {
                 RelaxationMode.NoAgentsNoBoxes
         );
 
-        PrimitivePlan moveBackPlan = new PrimitivePlan();
-
         // Find plan for moving out of the way
         PrimitivePlan outOfTheWayPlan = htnPlanner.plan();
 
-        if (!conflict.getInitiatorPlan().getActions().isEmpty()) {
-            // Construct HTNPlanner for moveBackAction
-            htnPlanner = new HTNPlanner(
-                    new PlanningLevelService(
-                            BDIService.getInstance().getBDILevelService().getLevelClone()
-                    ),
-                    moveBackAction,
-                    RelaxationMode.None
-            );
+        // Move the initiator to its new position so it can plan a way back.
+        PlanningLevelService planningLevelService = new PlanningLevelService(
+                BDIService.getInstance().getBDILevelService().getLevelClone()
+        );
 
-            // Find plan for moving back to original position
-            moveBackPlan = htnPlanner.plan();
-        }
+        // Removes the initiator from the planningLevelService
+        planningLevelService.removeAgent(conflict.getInitiator());
 
+        // Inserts the initiator at its parking space
+        planningLevelService.insertAgent(
+                conflict.getInitiator(),
+                parkingSpaces.get(0)
+        );
 
-        return getResolvedConflict(parkingSpaces, outOfTheWayPlan, moveBackPlan, conflict);
+        // Construct HTNPlanner for moveBackAction
+        htnPlanner = new HTNPlanner(
+                planningLevelService,
+                moveBackAction,
+                RelaxationMode.NoAgentsNoBoxes
+        );
+
+        // return ResolvedConflict
+        return getResolvedConflict(outOfTheWayPlan, htnPlanner.plan(), conflict);
     }
 
-    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<Position> parkingSpaces, Box box){
-        // If the conflicting action was push or pull, we must also move the box out of the way.
+    /**
+     * Make plans and construct a ResolvedConflict for the case where the initiator has a box
+     *
+     * @param conflict
+     * @param parkingSpaces
+     * @param box
+     * @return ResolvedConflict
+     */
+    public ResolvedConflict getResolvedConflictForAgentAndBox(Conflict conflict, List<Position> parkingSpaces, Box box) {
 
-        //We will move the box to the first parking space (which is closest to the place where the conflict
-        //happened). Then the agent will go in the second parking space, s.t. it shortens the path it has to
-        //take in order to resolve the conflict
-
-        //Make the plan for moving the box and the agent out of the way
-
-        Position agentPositionBeforeConflict = BDIService.getInstance().getBDILevelService().
+        // Save the original position of the agent
+        Position agentPositionOrigin = BDIService.getInstance().getBDILevelService().
                 getPosition(conflict.getInitiator().getLabel());
-        Position boxPositionBeforeConflict = BDIService.getInstance().getBDILevelService().
+
+        // Save the original position of the box
+        Position boxPositionOrigin = BDIService.getInstance().getBDILevelService().
                 getPosition(box);
 
-        PrimitivePlan moveBoxAndAgentOutOfTheWayPlan = getPlanToMoveBoxAndAgent(
+        // Initialize a PlanningLevelService
+        PlanningLevelService planningLevelService = new PlanningLevelService(
+                BDIService.getInstance().getBDILevelService().getLevelClone()
+        );
+
+        // Make plan 1 with parking spaces in found order
+        PrimitivePlan outOfTheWayPlan1 = getPlanToMoveBoxAndAgent(
                 box,
-                parkingSpaces.get(0),
-                parkingSpaces.get(1)
+                parkingSpaces.get(0), // boxDestination
+                parkingSpaces.get(1), // agentDestination
+                planningLevelService
         );
 
-        moveBoxAndAgentOutOfTheWayPlan.getActions().stream().forEach(action -> {
-            BDIService.getInstance().getBDILevelService().applyAction(conflict.getInitiator(), action);
-        });
-
-        PrimitivePlan moveBoxAndAgentBackPlan = getPlanToMoveBoxAndAgent(
-               box,
-                boxPositionBeforeConflict,
-                agentPositionBeforeConflict
+        // Make plan 2 with parking spaces in reverse order
+        PrimitivePlan outOfTheWayPlan2 = getPlanToMoveBoxAndAgent(
+                box,
+                parkingSpaces.get(1), // boxDestination
+                parkingSpaces.get(0), // agentDestination
+                planningLevelService
         );
 
-        return getResolvedConflict(parkingSpaces, moveBoxAndAgentOutOfTheWayPlan, moveBoxAndAgentBackPlan, conflict);
+        // Initialize final outOfTheWayPlan
+        PrimitivePlan outOfTheWayPlan;
+
+        // Remove initiator and box from the planningLevelService
+        planningLevelService.removeAgent(conflict.getInitiator());
+        planningLevelService.removeBox(box);
+
+        if (outOfTheWayPlan1 == null) {
+            // If outOfTheWayPlan1 is null, insert initiator and box in the appropriate parking spaces
+            // and set final outOfTheWayPlan to outOfTheWayPlan2
+
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(0));
+            planningLevelService.insertBox(box, parkingSpaces.get(1));
+
+            outOfTheWayPlan = new PrimitivePlan(outOfTheWayPlan2);
+        } else if (outOfTheWayPlan2 == null) {
+            // If outOfTheWayPlan1 is null, insert initiator and box in the appropriate parking spaces
+            // and set final outOfTheWayPlan to outOfTheWayPlan1
+
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(1));
+            planningLevelService.insertBox(box, parkingSpaces.get(0));
+
+            outOfTheWayPlan = new PrimitivePlan(outOfTheWayPlan1);
+        } else if (outOfTheWayPlan1.size() < outOfTheWayPlan2.size()) {
+            // If outOfTheWayPlan1 is smaller then outOfTheWayPlan2, insert initiator and box in the
+            // appropriate parking spaces and set final outOfTheWayPlan to outOfTheWayPlan1
+
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(1));
+            planningLevelService.insertBox(box, parkingSpaces.get(0));
+
+            outOfTheWayPlan = new PrimitivePlan(outOfTheWayPlan1);
+        } else {
+            // If outOfTheWayPlan1 is larger or equal to outOfTheWayPlan2, insert initiator and box in the
+            // appropriate parking spaces and set final outOfTheWayPlan to outOfTheWayPlan2
+
+            planningLevelService.insertAgent(conflict.getInitiator(), parkingSpaces.get(0));
+            planningLevelService.insertBox(box, parkingSpaces.get(1));
+
+            outOfTheWayPlan = new PrimitivePlan(outOfTheWayPlan2);
+        }
+
+        // Make plan for moving the initiator and box back to their original positions
+        PrimitivePlan moveBackPlan = getPlanToMoveBoxAndAgent(
+                box,
+                boxPositionOrigin,
+                agentPositionOrigin,
+                planningLevelService
+        );
+
+        // Return resolvedConflict
+        return getResolvedConflict(outOfTheWayPlan, moveBackPlan, conflict);
     }
 
-    public PrimitivePlan getPlanToMoveBoxAndAgent(Box box, Position boxDestination, Position agentDestination) {
+    /**
+     * Makes a plan to move a box to boxDestionation and the agent to agentDestination
+     *
+     * @param box
+     * @param boxDestination
+     * @param agentDestination
+     * @param planningLevelService
+     * @return PrimitivePlan
+     */
+    public PrimitivePlan getPlanToMoveBoxAndAgent(Box box, Position boxDestination, Position agentDestination, PlanningLevelService planningLevelService) {
+
+        // Initializes a new HMoveBoxAction
         HMoveBoxAction moveBoxOutOfTheWayAction = new HMoveBoxAction(
                 box,
                 boxDestination,
                 agentDestination
         );
 
+        // Initializes a htn planner with the HMoveBoxAction
         HTNPlanner htnPlanner = new HTNPlanner(
-                new PlanningLevelService(
-                        BDIService.getInstance().getBDILevelService().getLevelClone()
-                ),
+                planningLevelService,
                 moveBoxOutOfTheWayAction,
-                RelaxationMode.None
+                RelaxationMode.NoAgentsNoBoxes // We want to be able to plan through boxes and agents
         );
 
-        PrimitivePlan plan = htnPlanner.plan();
-        return plan;
+        // Returns plan
+        return htnPlanner.plan();
     }
 
-    public ResolvedConflict getResolvedConflict(List<Position> parkingSpaces,
-                                                PrimitivePlan outOfTheWayPlan,
-                                                PrimitivePlan moveBackPlan,
-                                                Conflict conflict) {
-        // Append NoOp actions after moving away
-        // I don't think we have to wait that much. It's enough to wait until the conceder has moved past the parking space
-        /*IntStream.range(0, outOfTheWayPlan.size()).forEach((number) ->
-            outOfTheWayPlan.addAction(new NoConcreteAction())
-        );*/
+    /**
+     * Takes the outOfTheWayPlan and appends NoOps and the moveBackPlan if appropriate. Also prepends NoOp to conceder.
+     * Constructs and returns a ResolvedConflict object with the new plans.
+     *
+     * @param outOfTheWayPlan Plan for the initiator to move out of the conceder's path
+     * @param moveBackPlan Plan for the initiator to move back to its original position
+     * @param conflict
+     * @return ResolvedConflict
+     */
+    public ResolvedConflict getResolvedConflict(PrimitivePlan outOfTheWayPlan, PrimitivePlan moveBackPlan, Conflict conflict) {
 
-        IntStream.range(0, 2).forEach((number) ->
-                outOfTheWayPlan.addAction(new NoConcreteAction())
-        );
+        // If the initiators original plan is NOT empty, add NoOps and a moveBackPlan
+        if (!conflict.getInitiatorPlan().getActions().isEmpty()) {
+            // Append 2 NoOps
+            IntStream.range(0, 2).forEach((number) ->
+                    outOfTheWayPlan.addAction(new NoConcreteAction())
+            );
 
-        // Append moveBackPlan
-        outOfTheWayPlan.appendActions(moveBackPlan);
+            // Append moveBackPlan
+            outOfTheWayPlan.appendActions(moveBackPlan);
+        }
+
+        // Append the original initiator plan
+        outOfTheWayPlan.appendActions((PrimitivePlan) conflict.getInitiatorPlan());
 
         // Initialize concederPlan
         PrimitivePlan concederPlan = new PrimitivePlan();
@@ -501,11 +568,8 @@ public class ConflictService {
         // Add NoOp actions so that it waits until the initiator is away
         concederPlan.addAction(new NoConcreteAction());
 
-        // Append the original concederPlan
+        // Append the original conceder Plan
         concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
-
-        // Append the original plan
-        outOfTheWayPlan.appendActions((PrimitivePlan) conflict.getInitiatorPlan());
 
         System.err.println("We have just solved the conflict between agents " + conflict.getInitiator().getLabel()
                 + " and agent " + conflict.getConceder().getLabel());
@@ -517,8 +581,29 @@ public class ConflictService {
         return new ResolvedConflict(
                 conflict.getInitiator(),
                 outOfTheWayPlan,
+                BDIService.getInstance().getBDILevelService().getPosition(conflict.getInitiator()),
                 conflict.getConceder(),
-                concederPlan
+                concederPlan,
+                BDIService.getInstance().getBDILevelService().getPosition(conflict.getConceder())
         );
+    }
+
+    /**
+     * Searches the plan for a PUSH or PULL action and returns its index.
+     *
+     * @param plan
+     * @return Index of first PULL or PUSH action if one exists. Size of plan otherwise.
+     */
+    public int getIndexOfFirstPushOrPull(PrimitivePlan plan) {
+        int i = 0;
+        for (Action action : plan.getActions()) {
+            if (action.getType().equals(ConcreteActionType.PUSH) ||
+                    action.getType().equals(ConcreteActionType.PULL)) {
+                break;
+            }
+            i++;
+        }
+
+        return i;
     }
 }
