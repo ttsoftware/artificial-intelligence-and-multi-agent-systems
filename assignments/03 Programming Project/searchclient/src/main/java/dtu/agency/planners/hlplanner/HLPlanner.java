@@ -117,7 +117,7 @@ public class HLPlanner {
                     // should this update the plan?
                     HLPlan helpMovePlan = helpMoveForeignObstacle(obstacle, obstaclePosition, plan);
                     if (helpMovePlan.isEmpty()) {
-                        return null;
+                        return new HLPlan();
                     }
                     return helpMovePlan;
                 } else {

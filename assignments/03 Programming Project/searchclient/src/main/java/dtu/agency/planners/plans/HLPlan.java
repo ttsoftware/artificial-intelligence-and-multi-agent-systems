@@ -72,7 +72,7 @@ public class HLPlan implements AbstractPlan {
         RelaxationMode noAgents = RelaxationMode.NoAgents;
 
         if (isEmpty()) {
-            return null;
+            return new PrimitivePlan();
         }
 
         HLAction first = poll();

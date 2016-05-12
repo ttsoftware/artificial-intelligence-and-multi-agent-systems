@@ -118,6 +118,11 @@ public class Agency implements Runnable {
                                 GlobalLevelService.getInstance().removeGoalFromQueue(goal);
                             }
                             break;
+                        case AGENT_GOAL:
+                            lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                System.err.println("We must re-offer: " + goal);
+                            });
+                            break;
                         default:
                             System.err.println("The plan for goal: " + goal + " finished.");
                             // this goal completed, so we can remove it from it's queue
