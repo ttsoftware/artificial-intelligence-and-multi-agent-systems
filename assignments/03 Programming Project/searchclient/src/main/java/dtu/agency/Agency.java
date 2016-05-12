@@ -25,14 +25,17 @@ import java.util.stream.Stream;
 
 public class Agency implements Runnable {
 
+    private boolean isGettingHelp;
     private int numberOfAgents;
     private List<Agent> agents;
+
+    private final KeyLockManager lockManager = KeyLockManagers.newLock();
 
     @Override
     public void run() {
         agents = GlobalLevelService.getInstance().getLevel().getAgents();
-
         numberOfAgents = agents.size();
+        isGettingHelp = false;
 
         AgentService.getInstance().addAgents(agents);
 
@@ -47,8 +50,6 @@ public class Agency implements Runnable {
         EventBusService.register(this);
 
         List<Goal> nextIndependentGoals;
-
-        final KeyLockManager lockManager = KeyLockManagers.newLock();
 
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
@@ -106,7 +107,9 @@ public class Agency implements Runnable {
                     switch (objectAtGoalPosition.getType()) {
                         case GOAL:
                             // We need to re-assign goal task
-                            System.err.println("We must re-offer: " + goal);
+                            lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                System.err.println("We must re-offer: " + goal);
+                            });
                             break;
                         case BOX_GOAL:
                             if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {
@@ -205,8 +208,7 @@ public class Agency implements Runnable {
             List<LinkedList<Position>> failedPaths = new ArrayList<>();
             failedPaths.add(failedPath);
             event.setResponse(failedPaths);
-        }
-        else {
+        } else {
 
             // Subscribe to move obstacle estimations
             MoveObstacleEstimationEventSubscriber obstacleEstimationSubscriber = new MoveObstacleEstimationEventSubscriber(
@@ -237,8 +239,7 @@ public class Agency implements Runnable {
                 if (estimation.getPath().isEmpty()) {
                     // this agent cannot move this box
                     maximumBadAgents--;
-                }
-                else {
+                } else {
                     // this agent has an obstacle in its path for solving our obstacle
                     badAgentPaths.add(estimation.getPath());
                 }
@@ -267,13 +268,15 @@ public class Agency implements Runnable {
                 );
                 EventBusService.post(sendActionsEvent);
 
-                // wait for the plan to finish executing
-                boolean isFinished = sendActionsEvent.getResponse();
+                lockManager.executeLocked(event.getAgent().getNumber() + 1000, () -> {
+                    // Allow the agent who is waiting for the obstacle to continue
+                    event.setResponse(new ArrayList<>());
 
-                System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                    // wait for the plan to finish executing
+                    boolean isFinished = sendActionsEvent.getResponse();
 
-                // Allow the agent who is waiting for the obstacle to continue
-                event.setResponse(new ArrayList<>());
+                    System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                });
             }
         }
     }
