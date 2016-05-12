@@ -12,6 +12,7 @@ public class Main {
                 // MULTI AGENT LEVELS
                 // "levels/MArecursion_and_friends.lvl",
                 // "levels/MArecursion_and_friends_color.lvl",
+                "levels/MArecursion_and_friends_color_big.lvl",
                 // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
@@ -37,7 +38,7 @@ public class Main {
                 // "levels/SAsokobanLevel96.lvl",
                 // "levels/SAHateful_Three.lvl",
                 // "levels/SAHateful_Eight.lvl",
-                "levels/SALongJourney.lvl",
+                // "levels/SALongJourney.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
                 // "levels/SAD1_multi.lvl",
