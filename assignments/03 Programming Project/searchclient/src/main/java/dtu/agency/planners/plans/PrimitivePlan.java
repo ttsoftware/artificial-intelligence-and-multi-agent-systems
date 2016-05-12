@@ -58,7 +58,13 @@ public class PrimitivePlan implements ConcretePlan {
     }
 
     public void appendActions(PrimitivePlan other) {
-        concreteActions.addAll(other.getActionsClone());
+        if (other == null) {
+            // appending a failed plan, return without appending anything
+            // eventually the agent will fail and replan
+            return;
+        } else {
+            concreteActions.addAll(other.getActionsClone());
+        }
     }
 
     /**
