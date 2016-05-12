@@ -156,15 +156,18 @@ public class HLPlanner {
                                  HLPlan plan,
                                  int remainingObstacles) {
 
-        // no more obstacles - and the goal box was not among the obstacles
+        Position targetBoxPosition = pls.getPosition(intention.getTargetBox());
+        if (intention.getRemovedObstacles().contains(targetBoxPosition)) {
+            return plan;
+        }
         // move it to the goal position
-        /*return moveBoxInPlanner(
+        // no more obstacles - and the goal box was not among the obstacles
+        return moveBoxInPlanner(
                 intention.getTargetBox(),
                 pls.getPosition(intention.getGoal()),
                 intention.getAgentPseudoPathClone().peekLast(),
                 plan
-        );*/
-        return plan;
+        );
     }
 
     private HLPlan addLastAction(MoveBoxFromPathIntention intention,
@@ -219,7 +222,6 @@ public class HLPlanner {
 
         if (intention instanceof GoalIntention) {
             // ask for help
-            // TODO: can we go around ??
             System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
 
             HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
@@ -345,7 +347,9 @@ public class HLPlanner {
             return plan;
         } else if (box.equals(intention.getTargetBox())) {
             // only 'obstacle' left in path is target box - move it into the goal
-            if (pls.isFree(obstacleGoalPosition)) {
+            if (pls.isFree(obstacleGoalPosition)
+                    || pls.getCell(obstacleGoalPosition).equals(BoardCell.AGENT)
+                    || pls.getCell(obstacleGoalPosition).equals(BoardCell.AGENT_GOAL)) {
                 // the goal is free
                 plan = moveBoxInPlanner(
                         box,
