@@ -158,18 +158,24 @@ public class AgentThread implements Runnable {
                 System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
                 event.setResponse(new PrimitivePlan());
             } else {
+                // found a high level plan
                 // retrieves the list of primitive actions to execute (blindly)
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
+                if (plan == null) {
+                    // high level plan could not be converted to primitive plan
+                    System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
+                    event.setResponse(new PrimitivePlan());
+                } else {
+                    plan = plan.removeGoBack();
+                    // print status and communicate with agency
+                    System.err.println(Thread.currentThread().getName()
+                            + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                            + ": Using Concrete Plan: " + plan.toString());
 
-                plan = plan.removeGoBack();
+                    // Send the response back
+                    event.setResponse(plan);
+                }
 
-                // print status and communicate with agency
-                System.err.println(Thread.currentThread().getName()
-                        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                        + ": Using Concrete Plan: " + plan.toString());
-
-                // Send the response back
-                event.setResponse(plan);
             }
         }
 
