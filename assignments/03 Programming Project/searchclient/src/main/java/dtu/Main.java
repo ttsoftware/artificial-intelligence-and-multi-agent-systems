@@ -35,9 +35,8 @@ public class Main {
                 // "levels/SAfriendofDFS.lvl",
                 // "levels/SAfriendofBFS.lvl",
                 // "levels/SAsokobanLevel96.lvl",
-                "levels/SAHateful_Three.lvl",
+                // "levels/SAHateful_Three.lvl",
                 // "levels/SAHateful_Eight.lvl",
-                // TODO: - WORKS SOMETIMES!?! - but not if a box is parked on top of a goal
                 // "levels/SALongJourney.lvl", // TODO: Does not work
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
@@ -49,7 +48,7 @@ public class Main {
                 // "levels/SAClearPathTest.lvl",
                 // "levels/SAobstaclePathTestLevel.lvl",
                 // "levels/SApushing.lvl",
-                // "levels/SAboxesOfHanoi.lvl",
+                "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
                 "-g",
                 "200",

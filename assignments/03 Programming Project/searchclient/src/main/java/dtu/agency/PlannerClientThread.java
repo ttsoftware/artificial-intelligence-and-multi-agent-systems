@@ -34,7 +34,8 @@ public class PlannerClientThread implements Runnable {
     private List<ResolvedConflict> resolvedConflicts = new ArrayList<>();
 
     // Thread for communicating with the server
-    private Thread sendActionsThread = new Thread(this::sendActions);;
+    private Thread sendActionsThread = new Thread(this::sendActions);
+    ;
 
     @Override
     public void run() {
@@ -94,8 +95,7 @@ public class PlannerClientThread implements Runnable {
                 // We are trying to add more Stacks than agents
                 e.printStackTrace(System.err);
             }
-        }
-        else {
+        } else {
             event.setResponse(true);
         }
     }
@@ -119,129 +119,131 @@ public class PlannerClientThread implements Runnable {
      */
     public boolean sendActions() {
 
-        HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
-        HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
-        SendServerActionsEvent sendActionsEvent = null;
-        ConflictService conflictService = new ConflictService();
+        while (true) {
 
-        try {
-            // .take() will call Thread.wait() until an element (Stack) becomes available
-            sendActionsEvent = sendServerActionsQueue.take();
-        } catch (InterruptedException e) {
-            // we should be able to safely ignore this exception
-        }
+            HashMap<Integer, ConcretePlan> currentPlans = new HashMap<>();
+            HashMap<Integer, SendServerActionsEvent> currentSendServerActionsEvents = new HashMap<>();
+            SendServerActionsEvent sendActionsEvent = null;
+            ConflictService conflictService = new ConflictService();
 
-        // We take the next collection of plans from the queue
-        while (sendActionsEvent != null) {
-            currentPlans.put(
-                    sendActionsEvent.getAgent().getNumber(),
-                    sendActionsEvent.getConcretePlan()
-            );
-            // Add the event to the HashMap, such that we can add it back to the queue later
-            currentSendServerActionsEvents.put(
-                    sendActionsEvent.getAgent().getNumber(),
-                    sendActionsEvent
-            );
-            // poll next element, without waiting
-            sendActionsEvent = sendServerActionsQueue.poll();
-        }
+            try {
+                // .take() will call Thread.wait() until an element (Stack) becomes available
+                sendActionsEvent = sendServerActionsQueue.take();
+            } catch (InterruptedException e) {
+                // we should be able to safely ignore this exception
+            }
 
-        List<Conflict> conflicts = conflictService.detectConflicts(currentPlans);
-        if (!conflicts.isEmpty()) {
-
-            conflicts.forEach(conflict -> {
-                ResolvedConflict fakeResolvedConflict = new ResolvedConflict(
-                        conflict.getInitiator(),
-                        conflict.getInitiatorPlan(),
-                        conflict.getInitiatorPosition(),
-                        conflict.getConceder(),
-                        conflict.getConcederPlan(),
-                        conflict.getConcederPosition()
+            // We take the next collection of plans from the queue
+            while (sendActionsEvent != null) {
+                currentPlans.put(
+                        sendActionsEvent.getAgent().getNumber(),
+                        sendActionsEvent.getConcretePlan()
                 );
+                // Add the event to the HashMap, such that we can add it back to the queue later
+                currentSendServerActionsEvents.put(
+                        sendActionsEvent.getAgent().getNumber(),
+                        sendActionsEvent
+                );
+                // poll next element, without waiting
+                sendActionsEvent = sendServerActionsQueue.poll();
+            }
 
-                if (resolvedConflicts.contains(fakeResolvedConflict)) {
-                    ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(fakeResolvedConflict));
-                    if (conflict.getInitiator().equals(resolvedConflict.getInitiator())) {
-                        conflict.swap();
+            List<Conflict> conflicts = conflictService.detectConflicts(currentPlans);
+            if (!conflicts.isEmpty()) {
+
+                conflicts.forEach(conflict -> {
+                    ResolvedConflict fakeResolvedConflict = new ResolvedConflict(
+                            conflict.getInitiator(),
+                            conflict.getInitiatorPlan(),
+                            conflict.getInitiatorPosition(),
+                            conflict.getConceder(),
+                            conflict.getConcederPlan(),
+                            conflict.getConcederPosition()
+                    );
+
+                    if (resolvedConflicts.contains(fakeResolvedConflict)) {
+                        ResolvedConflict resolvedConflict = resolvedConflicts.get(resolvedConflicts.indexOf(fakeResolvedConflict));
+                        if (conflict.getInitiator().equals(resolvedConflict.getInitiator())) {
+                            conflict.swap();
+                        }
                     }
-                }
 
-                ConflictResolutionEvent conflictResolutionEvent = new ConflictResolutionEvent(conflict);
-                EventBusService.post(conflictResolutionEvent);
+                    ConflictResolutionEvent conflictResolutionEvent = new ConflictResolutionEvent(conflict);
+                    EventBusService.post(conflictResolutionEvent);
 
-                ResolvedConflict resolvedConflict = conflictResolutionEvent.getResponse();
-
-                if (resolvedConflict == null) {
-                    // if the first Agent could not resolve the conflict
-                    conflict.swap();
-                    ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(conflict);
-
-                    EventBusService.post(switchedConflictResolutionEvent);
-                    resolvedConflict = conflictResolutionEvent.getResponse();
+                    ResolvedConflict resolvedConflict = conflictResolutionEvent.getResponse();
 
                     if (resolvedConflict == null) {
-                        throw new RuntimeException("No one can solve this conflict");
+                        // if the first Agent could not resolve the conflict
+                        conflict.swap();
+                        ConflictResolutionEvent switchedConflictResolutionEvent = new ConflictResolutionEvent(conflict);
+
+                        EventBusService.post(switchedConflictResolutionEvent);
+                        resolvedConflict = conflictResolutionEvent.getResponse();
+
+                        if (resolvedConflict == null) {
+                            throw new RuntimeException("No one can solve this conflict");
+                        }
                     }
-                }
 
-                resolvedConflicts.add(resolvedConflict);
+                    resolvedConflicts.add(resolvedConflict);
 
-                // add the plan for resolving the conflict to the two agents plans
-                currentPlans.put(
-                        conflict.getConceder().getNumber(),
-                        resolvedConflict.getConcederPlan()
+                    // add the plan for resolving the conflict to the two agents plans
+                    currentPlans.put(
+                            conflict.getConceder().getNumber(),
+                            resolvedConflict.getConcederPlan()
+                    );
+
+                    currentPlans.put(
+                            conflict.getInitiator().getNumber(),
+                            resolvedConflict.getInitiatorPlan()
+                    );
+
+                    // add 'fake' SendServerActionsEvents containing the new plans
+                    sendServerActionsQueue.add(new SendServerActionsEvent(
+                            resolvedConflict.getConceder(),
+                            resolvedConflict.getConcederPlan()
+                    ));
+
+                    sendServerActionsQueue.add(new SendServerActionsEvent(
+                            resolvedConflict.getInitiator(),
+                            resolvedConflict.getInitiatorPlan()
+                    ));
+                });
+
+                continue;
+            }
+
+            // we should now have emptied the queue
+            HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
+            // pop the next action from each plan
+            currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
+
+            // send actions to server
+            send(buildActionSet(agentsActions));
+
+            // update the GlobalLevelService with this action
+            agentsActions.forEach((agentNumber, concreteAction) -> {
+                GlobalLevelService.getInstance().applyAction(
+                        GlobalLevelService.getInstance().getAgent(agentNumber),
+                        concreteAction
                 );
-
-                currentPlans.put(
-                        conflict.getInitiator().getNumber(),
-                        resolvedConflict.getInitiatorPlan()
-                );
-
-                // add 'fake' SendServerActionsEvents containing the new plans
-                sendServerActionsQueue.add(new SendServerActionsEvent(
-                        resolvedConflict.getConceder(),
-                        resolvedConflict.getConcederPlan()
-                ));
-
-                sendServerActionsQueue.add(new SendServerActionsEvent(
-                        resolvedConflict.getInitiator(),
-                        resolvedConflict.getInitiatorPlan()
-                ));
             });
 
-            return sendActions();
+            // add plans back into the stack - they are now missing an action each
+            currentPlans.forEach((agentNumber, concretePlan) -> {
+                SendServerActionsEvent sendServerActionsEvent = currentSendServerActionsEvents.get(agentNumber);
+                if (concretePlan.getActions().size() != 0) {
+                    // Add plan if it has at least 1 move left
+                    sendServerActionsEvent.setConcretePlan(concretePlan);
+                    sendServerActionsQueue.add(sendServerActionsEvent);
+                } else {
+                    sendServerActionsEvent.setResponse(true);
+                }
+            });
+
+            // Send the next set of actions
         }
-
-        // we should now have emptied the queue
-        HashMap<Integer, ConcreteAction> agentsActions = new HashMap<>();
-        // pop the next action from each plan
-        currentPlans.forEach((integer, concretePlan) -> agentsActions.put(integer, concretePlan.popAction()));
-
-        // send actions to server
-        send(buildActionSet(agentsActions));
-
-        // update the GlobalLevelService with this action
-        agentsActions.forEach((agentNumber, concreteAction) -> {
-            GlobalLevelService.getInstance().applyAction(
-                    GlobalLevelService.getInstance().getAgent(agentNumber),
-                    concreteAction
-            );
-        });
-
-        // add plans back into the stack - they are now missing an action each
-        currentPlans.forEach((agentNumber, concretePlan) -> {
-            SendServerActionsEvent sendServerActionsEvent = currentSendServerActionsEvents.get(agentNumber);
-            if (concretePlan.getActions().size() != 0) {
-                // Add plan if it has at least 1 move left
-                sendServerActionsEvent.setConcretePlan(concretePlan);
-                sendServerActionsQueue.add(sendServerActionsEvent);
-            } else {
-                sendServerActionsEvent.setResponse(true);
-            }
-        });
-
-        // Send the next set of actions
-        return sendActions();
     }
 
     public void send(String toServer) {
