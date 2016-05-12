@@ -8,7 +8,6 @@ import dtu.agency.planners.htn.heuristic.AStarHTNNodeComparator;
 import dtu.agency.planners.htn.heuristic.HTNNodeComparator;
 import dtu.agency.planners.plans.MixedPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
-import dtu.agency.services.BDIService;
 import dtu.agency.services.PlanningLevelService;
 
 import java.util.ArrayList;
@@ -28,9 +27,10 @@ public class HTNNode {
 
     /**
      * Copy constructor
+     *
      * @param other Node to be copied
      */
-    public HTNNode(HTNNode other){
+    public HTNNode(HTNNode other) {
         this.parent = other.parent;
         this.generation = other.getGeneration();
         this.concreteAction = other.getConcreteAction();
@@ -41,6 +41,7 @@ public class HTNNode {
 
     /**
      * The constructor used to create all child nodes in the planning hierarchy
+     *
      * @param parent
      * @param concreteAction
      * @param initialEffects
@@ -51,23 +52,16 @@ public class HTNNode {
         this.concreteAction = concreteAction;
         this.state = initialEffects;
         this.remainingPlan = highLevelPlan;
-        this.generation = ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
-        /*if ((concreteAction==null) || (concreteAction instanceof NoConcreteAction)) {
-            this.generation = parent.getGeneration();
-        } else if (!BDIService.getInstance().getBDILevelService().isFree(initialEffects.getBoxPosition())) {
-            // try and punish for moving through boxes in planning
-            this.generation = parent.getGeneration() + 3;
-        } else {
-            this.generation = parent.getGeneration() + 1;
-        }*/
+        this.generation = ((concreteAction == null) || (concreteAction instanceof NoConcreteAction)) ? parent.generation : (parent.generation + 1);
         this.nodeComparator = parent.nodeComparator;
     }
 
     /**
      * The Constructor used to create an initial node in a planning tree
-     * @param initialState The positions of box and agent prior to planning
+     *
+     * @param initialState    The positions of box and agent prior to planning
      * @param highLevelAction The initial High Level Action
-     * @param pls The PlanningLevelService used for this planner
+     * @param pls             The PlanningLevelService used for this planner
      */
     public HTNNode(HTNState initialState, HLAction highLevelAction, PlanningLevelService pls) {
         this.parent = null;
@@ -96,15 +90,15 @@ public class HTNNode {
 
     public HTNNode getParent(int generation) {
         HTNNode n = this;
-        for (int i = 0 ; i < generation ; i++) {
+        for (int i = 0; i < generation; i++) {
             n = (n.isInitialNode()) ? null : n.getParent();
         }
         return n;
     }
 
     public ConcreteAction getConcreteAction() {
-        if (this.concreteAction==null) {
-             return null;
+        if (this.concreteAction == null) {
+            return null;
         } else {
             return ConcreteAction.cloneConcreteAction(this.concreteAction);
         }
@@ -120,6 +114,7 @@ public class HTNNode {
 
     /**
      * The refinements are a list of branching children into nodes of possible actions from this node/state
+     *
      * @return an ArryList of refinement HTNNodes
      */
     public ArrayList<HTNNode> getRefinementNodes() {
@@ -135,8 +130,10 @@ public class HTNNode {
         if (nextAction instanceof ConcreteAction) {
             // case the concreteAction is primitive, add it as only node,
             ConcreteAction primitive = (ConcreteAction) nextAction;
-            HTNNode only = childNode( primitive, followingActions);
-            if (only != null) { refinementNodes.add(only);}
+            HTNNode only = childNode(primitive, followingActions);
+            if (only != null) {
+                refinementNodes.add(only);
+            }
             return refinementNodes;
         }
 
@@ -165,23 +162,25 @@ public class HTNNode {
 
     /**
      * Creates a new child node of this node
+     *
      * @param primitiveConcreteAction push, pull, or move concrete action
-     * @param remainingActions List of remaining actions
+     * @param remainingActions        List of remaining actions
      * @return A HTNNode which is child of current node
      */
     private HTNNode childNode(ConcreteAction primitiveConcreteAction, MixedPlan remainingActions) {
         HTNState oldState = this.getState();
-        HTNState newState = (primitiveConcreteAction ==null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
-        if (newState.getBoxPosition()==null) {
+        HTNState newState = (primitiveConcreteAction == null) ? oldState : oldState.applyConcreteAction(primitiveConcreteAction);
+        if (newState.getBoxPosition() == null) {
             HLAction nextHLA = (HLAction) remainingActions.getFirst();
         }
-        primitiveConcreteAction = (primitiveConcreteAction ==null) ? new NoConcreteAction() : primitiveConcreteAction;
+        primitiveConcreteAction = (primitiveConcreteAction == null) ? new NoConcreteAction() : primitiveConcreteAction;
         return new HTNNode(this, primitiveConcreteAction, newState, remainingActions);
     }
 
     /**
      * Finds the path up and to the original ancestor, collecting all the concrete actions
      * to a fine concrete plan, excluding 'null' and 'NoOp' actions.
+     *
      * @return Primitive plan of concrete actions
      */
     public PrimitivePlan extractPlan() {
@@ -201,9 +200,9 @@ public class HTNNode {
     public String toString() {
         String s = "HTNNode: {Generation: " + Integer.toString(this.generation);
         s += ", HTNNodeComparator: " + Integer.toString(nodeComparator.h(this));
-        s +=  ", ConcreteAction: " + ((concreteAction !=null) ? concreteAction.toString() : "null");
-        s +=  ", State: " + this.state.toString() + ",\n";
-        s +=  "          RemainingActions: " + this.remainingPlan.toString() + "}";
+        s += ", ConcreteAction: " + ((concreteAction != null) ? concreteAction.toString() : "null");
+        s += ", State: " + this.state.toString() + ",\n";
+        s += "          RemainingActions: " + this.remainingPlan.toString() + "}";
         return s;
     }
 }
