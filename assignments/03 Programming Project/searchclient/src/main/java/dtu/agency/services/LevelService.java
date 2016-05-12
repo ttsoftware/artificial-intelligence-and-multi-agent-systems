@@ -479,7 +479,7 @@ public abstract class LevelService {
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
 
-        // update the cell where the agent is now located
+        // update the cell where the box is now located
         switch (cell) {
             case FREE_CELL:
                 boardState[row][column] = BoardCell.BOX;
@@ -488,6 +488,9 @@ public abstract class LevelService {
                 boardState[row][column] = BoardCell.BOX_GOAL;
                 break;
             default:
+                // we have not been able to find the box
+                // (/agent?) blocking the goal, when looking for obstacles??
+                // agents should move upon conflict resolution.
                 throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);

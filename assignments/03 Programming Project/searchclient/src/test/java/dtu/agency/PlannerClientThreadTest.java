@@ -168,6 +168,16 @@ public class PlannerClientThreadTest {
         testLevel("Crunch.lvl");
     }
 
+    @Test
+    public void test17() throws Exception {
+        testLevel("SALongJourney.lvl");
+    }
+
+    @Test
+    public void test18() throws Exception {
+        testLevel("SAHateful_Eight.lvl");
+    }
+
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;

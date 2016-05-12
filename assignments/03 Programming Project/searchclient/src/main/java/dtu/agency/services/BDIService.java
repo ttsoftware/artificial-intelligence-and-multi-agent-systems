@@ -307,9 +307,7 @@ public class BDIService {
      */
     public PrimitivePlan getPrimitivePlan() {
 
-        PrimitivePlan plan = new PrimitivePlan();
-        plan.appendActions(currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone())));
-
+        PrimitivePlan plan = currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone()));
         currentHLPlan.getActions().clear();
 
         return plan;

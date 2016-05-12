@@ -75,6 +75,7 @@ public class HLPlan implements AbstractPlan {
         HTNPlanner htn = new HTNPlanner(pls, first, noAgents);
         PrimitivePlan plan = htn.plan();
         if (plan == null) {
+            // no plan is found
             prepend(first);
             return null;
         }
@@ -87,6 +88,7 @@ public class HLPlan implements AbstractPlan {
             htn.reload(next, noAgents);
             PrimitivePlan primitives = htn.plan();
             if (primitives==null) {
+                // no plan is found
                 prepend(first);
                 return null;
             }

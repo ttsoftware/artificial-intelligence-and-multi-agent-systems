@@ -35,9 +35,9 @@ public class Main {
                 // "levels/SAfriendofDFS.lvl",
                 // "levels/SAfriendofBFS.lvl",
                 // "levels/SAsokobanLevel96.lvl",
-                // "levels/SAHateful_Eight.lvl", // TODO: Does not work - AssertionError: Cannot insert box on any cell but FREE or GOAL cells
+                "levels/SAHateful_Eight.lvl", // TODO: Does not work - AssertionError: Cannot insert box on any cell but FREE or GOAL cells
                 // TODO: - WORKS SOMETIMES!?! - but not if a box is parked on top of a goal
-                "levels/SALongJourney.lvl",
+                //"levels/SALongJourney.lvl",
                 // "levels/SAD1.lvl",
                 // "levels/SAD2.lvl",
                 // "levels/SAD1_multi.lvl",
