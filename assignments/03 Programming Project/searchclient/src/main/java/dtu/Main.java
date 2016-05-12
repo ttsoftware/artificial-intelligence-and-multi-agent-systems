@@ -53,7 +53,7 @@ public class Main {
                 "-g",
                 "200",
                 "-t",
-                "60",
+                "300",
                 "-c",
                 "java -jar out/artifacts/agency_jar/The_Agency.jar"
         };
