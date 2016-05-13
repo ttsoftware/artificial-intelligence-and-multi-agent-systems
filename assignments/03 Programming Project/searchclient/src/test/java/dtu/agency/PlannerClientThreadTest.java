@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 public class PlannerClientThreadTest {
 
-    private static File resourcesDirectory = new File("src/test/resources");
+    private static File resourcesDirectory = new File("levels");
     private HashMap<Integer, ConcretePlan> agentsPlans = new HashMap<>();
 
     @Before
@@ -48,7 +48,13 @@ public class PlannerClientThreadTest {
         agentsPlans.put(3, plan3);
     }
 
-    @Test
+    @Before
+    public void reset() {
+        agentsPlans = new HashMap<>();
+        // how to reset global levelservice ??
+    }
+
+/*    @Test
     public void testMain() throws Exception {
 
         // String path = resourcesDirectory.getAbsolutePath() + "/SApushing.lvl";
@@ -66,11 +72,33 @@ public class PlannerClientThreadTest {
         System.setIn(inputStream);
 
         PlannerClient.main(new String[]{});
+    }*/
+
+    // PREVIOUSLY SUCCEEDING TESTS
+    @Test
+    public void test01() throws Exception {
+        testLevel("MA_help_henning.lvl");
     }
 
     @Test
+    public void test02() throws Exception {
+        testLevel("MA_help_henning_2.lvl");
+    }
+
+    @Test
+    public void test11() throws Exception {
+        testLevel("MA_help_henning_3.lvl");
+    }
+
+    @Test
+    public void test11_1() throws Exception {
+        testLevel("MA_help_henning_4.lvl");
+    }
+
+
+    @Test
     public void test0() throws Exception {
-        testLevel("obstaclePathTestLevel.lvl");
+        testLevel("SAobstaclePathTestLevel.lvl");
     }
 
     @Test
@@ -119,53 +147,33 @@ public class PlannerClientThreadTest {
     }
 
     @Test
-    public void test8() throws Exception {
-        testLevel("MAchallenge.lvl");
-    }
-
-    @Test
-    public void test9() throws Exception {
-        testLevel("MA_out_of_my_way_Henning.lvl");
-    }
-
-    @Test
-    public void test10() throws Exception {
-        testLevel("MA_help_henning.lvl");
-    }
-
-    @Test
-    public void test11() throws Exception {
-        testLevel("MA_help_henning_3.lvl");
-    }
-
-    @Test
-    public void test11_1() throws Exception {
-        testLevel("MA_help_henning_4.lvl");
+    public void test23() throws Exception {
+        testLevel("MAsimple2.lvl");
     }
 
     @Test
     public void test12() throws Exception {
-        testLevel("recursion_and_friends.lvl");
+        testLevel("MArecursion_and_friends.lvl");
     }
 
     @Test
     public void test13() throws Exception {
-        testLevel("recursion_and_friends_color.lvl");
+        testLevel("MArecursion_and_friends_color.lvl");
+    }
+
+    @Test
+    public void test22() throws Exception {
+        testLevel("MArecursion_and_friends_color_big.lvl");
     }
 
     @Test
     public void test14() throws Exception {
-        testLevel("friendofDFS.lvl");
+        testLevel("SAfriendofDFS.lvl");
     }
 
     @Test
     public void test15() throws Exception {
-        testLevel("Firefly.lvl");
-    }
-
-    @Test
-    public void test16() throws Exception {
-        testLevel("Crunch.lvl");
+        testLevel("SAFirefly.lvl");
     }
 
     @Test
@@ -184,10 +192,104 @@ public class PlannerClientThreadTest {
     }
 
     @Test
+    public void test10() throws Exception {
+        testLevel("MA_help_henning.lvl");
+    }
+
+    @Test
+    public void test09() throws Exception {
+        testLevel("MApacman_easy.lvl");
+    }
+
+    @Test
+    public void test28() throws Exception {
+        testLevel("MAtest.lvl");
+    }
+
+
+    // SPECIAL CASES
+
+    @Test // WORKS IN MAIN - FAILS HERE
+    public void test06() throws Exception {
+        testLevel("MAconflicts_simple.lvl");
+    }
+
+    @Test // WORKS IN MAIN - FAILS HERE
+    public void test07() throws Exception {
+        testLevel("MAconflicts_simple2.lvl");
+    }
+
+
+
+    // PREVIOUSLY FAILING TESTS
+
+    @Test // deadlocks
+    public void test27() throws Exception {
+        testLevel("MAtbsAppartment.lvl");
+    }
+
+    @Test // keeps working
+    public void test26() throws Exception {
+        testLevel("MAsimple5.lvl");
+    }
+
+    @Test // keeps working
+    public void test25() throws Exception {
+        testLevel("MAsimple4.lvl");
+    }
+
+    @Test // conflict resolution null pointer
+    public void test24() throws Exception {
+        testLevel("MAsimple3.lvl");
+    }
+
+    @Test // deadlocks
+    public void test21() throws Exception {
+        testLevel("MApacman.lvl");
+    }
+
+    @Test // Deadlock
+    public void test08() throws Exception {
+        testLevel("MAmultiagentSort.lvl");
+    }
+
+    @Test // RuntimeException: We are trying an illegal move. + nullpointerException
+    public void test03() throws Exception {
+        testLevel("MAbispebjerg.lvl");
+    }
+
+    @Test // Keeps working, but never finishes
+    public void test8() throws Exception {
+        testLevel("MAchallenge.lvl");
+    }
+
+    @Test // Deadlocks
+    public void test04() throws Exception {
+        testLevel("MAconflicts.lvl");
+    }
+
+    @Test // Deadlocks
+    public void test05() throws Exception {
+        testLevel("MAconflicts2.lvl");
+    }
+
+    @Test // Keeps working, but never finishes
     public void test20() throws Exception {
         testLevel("MAconflicts_simple3.lvl");
     }
 
+    @Test // getFreeNeighbour fails with IndexOutOfBoundsException
+    public void test9() throws Exception {
+        testLevel("MA_out_of_my_way_Henning.lvl");
+    }
+
+    @Test // Assumption of independant goal ques not fulfilled - semantic error
+    public void test16() throws Exception {
+        testLevel("SACrunch.lvl");
+    }
+
+
+    // The function making the tests run, checking the results
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;
@@ -211,6 +313,8 @@ public class PlannerClientThreadTest {
         });
     }
 
+
+    /* this fails - but what is this even?? */
     @Test
     public void testBuildActionSet() {
 
@@ -230,4 +334,5 @@ public class PlannerClientThreadTest {
 
         assertEquals(toServer, "[Push(E,E),Move(W),Pull(W,S),Move(S)]");
     }
+
 }

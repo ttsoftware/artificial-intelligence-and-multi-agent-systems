@@ -12,7 +12,8 @@ public class Main {
                 // MULTI AGENT LEVELS
                 // "levels/MArecursion_and_friends.lvl",
                 // "levels/MArecursion_and_friends_color.lvl",
-                "levels/MArecursion_and_friends_color_big.lvl",
+                // "levels/MArecursion_and_friends_color_big.lvl",
+                // "levels/MAbispebjerg.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple5.lvl", // TODO: Does not work - need conflict resolution
                 // "levels/MAsimple4.lvl", // TODO: Does not work
                 // "levels/MAsimple3.lvl", // TODO: Does not work - Agents need to communicate
@@ -27,9 +28,14 @@ public class Main {
                 // "levels/MA_help_henning.lvl",
                 // "levels/MA_help_henning_3.lvl",
                 // "levels/MA_help_henning_4.lvl",
+                // "levels/MAconflicts.lvl", // TODO: deadlock
+                // "levels/MAconflicts2.lvl", // TODO: deadlock
                 // "levels/MAconflicts_simple.lvl",
                 // "levels/MAconflicts_simple2.lvl",
                 // "levels/MAconflicts_simple3.lvl",
+                // "levels/MAmultiagentSort.lvl", // TODO: deadlock
+                "levels/MAtbsAppartment.lvl", // TODO: deadlock
+
                 // SINGLE AGENT LEVELS
                 // "levels/SAFirefly.lvl",
                 // "levels/SACrunch.lvl", // TODO: Independent goals are not independent
