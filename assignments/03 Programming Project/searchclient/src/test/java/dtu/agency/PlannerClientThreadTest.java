@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class PlannerClientThreadTest {
 
     private static File resourcesDirectory = new File("levels");
+    private static File compDirectory = new File("competition_levels");
     private HashMap<Integer, ConcretePlan> agentsPlans = new HashMap<>();
 
     @Before
@@ -285,11 +286,40 @@ public class PlannerClientThreadTest {
         testLevel("SACrunch.lvl");
     }
 
+    @Test
+    public void testMASolo() throws Exception {
+        testCompLevel("multi_agent/MASolo.lvl");
+    }
+
 
     // The function making the tests run, checking the results
     public void testLevel(String level) throws Exception {
 
         String path = resourcesDirectory.getAbsolutePath() + "/" + level;
+        FileInputStream inputStream = new FileInputStream(path);
+
+        System.setIn(inputStream);
+
+        PlannerClient.main(new String[]{});
+
+        List<Goal> goals = GlobalLevelService.getInstance().getLevel().getGoals();
+        goals.forEach(goal -> {
+            Position goalPosition = GlobalLevelService.getInstance().getPosition(goal);
+            BoardObject positionObject = GlobalLevelService.getInstance().getObject(goalPosition);
+            BoardCell positionCell = GlobalLevelService.getInstance().getCell(goalPosition);
+
+            assertEquals(BoardCell.BOX_GOAL, positionCell);
+
+            BoxAndGoal boxAndGoal = (BoxAndGoal) positionObject;
+
+            assertTrue(boxAndGoal.isSolved());
+        });
+    }
+
+    // The function making the tests run, checking the results
+    public void testCompLevel(String level) throws Exception {
+
+        String path = compDirectory.getAbsolutePath() + "/" + level;
         FileInputStream inputStream = new FileInputStream(path);
 
         System.setIn(inputStream);

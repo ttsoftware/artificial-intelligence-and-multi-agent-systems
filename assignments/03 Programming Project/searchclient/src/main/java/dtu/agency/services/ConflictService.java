@@ -326,9 +326,9 @@ public class ConflictService {
             HashSet<Position> potentialParkingSpaces = planningLevelService.getFreeNeighbourSet(parkingSpaces.get(0));
 
             // Find the second parking space that is adjacent to, but not on conceder's path
-            for (Position potentialParkingSpace : parkingSpaces) {
+            for (Position potentialParkingSpace : potentialParkingSpaces) {
 
-                if (!orderedConcederPath.contains(potentialParkingSpaces)) {
+                if (!orderedConcederPath.contains(potentialParkingSpace)) {
 
                     for (Position pathPosition : orderedConcederPath) {
 
