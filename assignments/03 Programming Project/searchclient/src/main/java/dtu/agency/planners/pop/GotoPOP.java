@@ -26,7 +26,7 @@ public class GotoPOP {
         List<PriorityBlockingQueue<Goal>> goalQueueList = new ArrayList<>();
 
         List<Goal> levelGoals = GlobalLevelService.getInstance().getLevel().getGoals();
-        Set<Goal> handledGoals = new HashSet<Goal>();
+        Set<Goal> handledGoals = new HashSet<>();
 
         for (Goal goal : levelGoals) {
             if (!handledGoals.contains(goal)) {
@@ -40,16 +40,7 @@ public class GotoPOP {
                     blockingGoalsList.add(0, goal);
                 }
 
-                List<PriorityBlockingQueue<Goal>> newQueueList = getNonSelfStandingGoalList(blockingGoalsList, goalQueueList, handledGoals);
-                if(newQueueList == null)
-                {
-                    PriorityBlockingQueue<Goal> blockingGoalsPriorityQueue = getPriorityQueueFromList(blockingGoalsList);
-                    goalQueueList.add(blockingGoalsPriorityQueue);
-                }
-                else{
-                    goalQueueList = newQueueList;
-                }
-
+                goalQueueList = mergePriorityQueues(goal, blockingGoalsList, goalQueueList);
 
                 handledGoals.addAll(blockingGoalsList);
             }
@@ -64,60 +55,52 @@ public class GotoPOP {
                 new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false)).getBlockingGoals();
     }
 
-    public List<PriorityBlockingQueue<Goal>> getNonSelfStandingGoalList(List<Goal> currentGoalList, List<PriorityBlockingQueue<Goal>> goalQueuesList, Set<Goal> handledGoals) {
+    public List<PriorityBlockingQueue<Goal>> mergePriorityQueues(Goal blockedGoal, List<Goal> blockingGoals, List<PriorityBlockingQueue<Goal>> priorityQueues)
+    {
+        List<PriorityBlockingQueue<Goal>> finalPriorityQueues = new ArrayList<>();
 
-        for (int i = 0; i < currentGoalList.size(); i++) {
-            Goal goal = currentGoalList.get(i);
-            if (handledGoals.contains(goal)) {
+        PriorityBlockingQueue<Goal> mergedPriorityQueue = new PriorityBlockingQueue<>();
+        mergedPriorityQueue.add(blockedGoal);
 
-                for (PriorityBlockingQueue<Goal> goalQueue : goalQueuesList) {
-                    if (goalQueue.contains(goal)) {
-                        int firstRepetitiveGoalWeight = Integer.MIN_VALUE;
+        for (PriorityBlockingQueue<Goal> priorityQueue : priorityQueues) {
+            boolean disjoint = true;
+            for (int i = 0; i < blockingGoals.size(); i++) {
+                Goal blockingGoal = blockingGoals.get(i);
 
-                        Iterator<Goal> it = goalQueue.iterator();
-                        while (it.hasNext()) {
-                            Goal g = it.next();
-                            if (g.getLabel().equals(goal.getLabel())) {
-                                firstRepetitiveGoalWeight = g.getWeight();
-                                break;
-                            }
-                        }
+                if (priorityQueue.contains(blockingGoal)) {
+                    int weightDifference = i - blockingGoal.getWeight();
 
-                        if (firstRepetitiveGoalWeight != Integer.MIN_VALUE) {
-                            int repetitiveGoalIndex = currentGoalList.indexOf(goal);
-                            int goalWeight = firstRepetitiveGoalWeight - 1;
+                    Iterator<Goal> priorityQueueIterator = priorityQueue.iterator();
 
-                            for (int j = repetitiveGoalIndex - 1; j >= 0; j--) {
-                                Goal goalToBeInserted = currentGoalList.get(j);
-                                goalToBeInserted.setWeight(goalWeight--);
-                                goalQueue.add(goalToBeInserted);
-                            }
-                        }
+                    while (priorityQueueIterator.hasNext()) {
+                        Goal priorityQueueGoal = priorityQueueIterator.next();
 
-                        return goalQueuesList;
+                        priorityQueueGoal.setWeight(weightDifference + priorityQueueGoal.getWeight());
+                        mergedPriorityQueue.add(priorityQueueGoal);
                     }
+
+                    disjoint = false;
+
+                    break;
                 }
+            }
+
+            if(disjoint) {
+                finalPriorityQueues.add(priorityQueue);
             }
         }
 
-        return null;
-    }
-
-
-    public PriorityBlockingQueue<Goal> getPriorityQueueFromList(List<Goal> goals)
-    {
-        PriorityBlockingQueue<Goal> weightedGoals = new PriorityBlockingQueue<>();
-
-        goals.get(0).setWeight(0);
-
-        for(int i = 0; i < goals.size(); i++)
-        {
-            Goal goal = goals.get(i);
-            goal.setWeight(i + 1);
-            weightedGoals.add(goal);
+        for(int i = 0; i < blockingGoals.size(); i++) {
+            Goal blockingGoal = blockingGoals.get(i);
+            if(!mergedPriorityQueue.contains(blockingGoal)) {
+                blockingGoal.setWeight(i);
+                mergedPriorityQueue.add(blockingGoal);
+            }
         }
 
-        return weightedGoals;
+        finalPriorityQueues.add(mergedPriorityQueue);
+
+        return finalPriorityQueues;
     }
 
     /**
@@ -144,6 +127,7 @@ public class GotoPOP {
         PriorityQueue<MoveConcreteAction> stepAdditionalActions = solvePreconditionWithGoals((AgentAtPrecondition) currentPrecondition);
 
         if (stepActions.isEmpty() && !canBacktrack) {
+            stepAdditionalActions = eliminateFirstIncorrectActions(stepAdditionalActions, blockingGoalsAndActions);
             if (!stepAdditionalActions.isEmpty()) {
                 MoveConcreteAction nextAction = stepAdditionalActions.poll();
 
