@@ -10,6 +10,7 @@ public class PullConcreteAction extends MoveBoxConcreteAction {
 
     public PullConcreteAction(PullConcreteAction pull) {
         super(pull);
+
     }
 
     @Override

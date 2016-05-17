@@ -2,34 +2,18 @@ package dtu.agency.events.agent;
 
 import dtu.agency.board.Agent;
 import dtu.agency.board.Goal;
-import dtu.agency.events.Event;
+import dtu.agency.events.EstimationEvent;
 
-public class GoalEstimationEvent extends Event implements Comparable<GoalEstimationEvent> {
+public class GoalEstimationEvent extends EstimationEvent {
 
-    private final Agent agent;
     private final Goal goal;
-    private final int steps;
 
     public GoalEstimationEvent(Agent agent, Goal goal, int steps) {
-        this.agent = agent;
+        super(goal, agent, steps);
         this.goal = goal;
-        this.steps = steps;
-    }
-
-    public int getSteps() {
-        return steps;
-    }
-
-    public Agent getAgent() {
-        return agent;
     }
 
     public Goal getGoal() {
         return goal;
-    }
-
-    @Override
-    public int compareTo(GoalEstimationEvent otherEvent) {
-        return steps - otherEvent.getSteps();
     }
 }

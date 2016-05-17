@@ -52,14 +52,17 @@ public class SolveGoalAction extends AbstractAction {
         Position boxOrigin = pls.getPosition(box);
         Position boxDestination = pls.getPosition(goal);
 
-        approximateSteps += pls.getPosition(agent).manhattanDist(boxOrigin) - 1;
-        approximateSteps += boxOrigin.manhattanDist(boxDestination);
 
         if (boxOrigin.isAdjacentTo(boxDestination)) {
             // ensures that boxes next to the goal is preferred eg in SAD2
             // this mirrors the elimination of risks of other boxes being in this part of the path
-            approximateSteps -= 1;
+            approximateSteps += -1;
         }
+        else {
+            approximateSteps += boxOrigin.manhattanDist(boxDestination);
+        }
+        approximateSteps += pls.getPosition(agent).manhattanDist(boxOrigin) - 1;
+
         return approximateSteps;
     }
 

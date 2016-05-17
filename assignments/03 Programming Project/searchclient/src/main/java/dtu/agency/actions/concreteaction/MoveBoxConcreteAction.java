@@ -7,7 +7,7 @@ public abstract class MoveBoxConcreteAction extends ConcreteAction {
 
     protected final Box box;
     final Direction agentDirection;  // direction to box from agent POV
-    final Direction boxDirection;    // push: direction the box should move - pull: direction to box from agent
+    final Direction boxDirection;    // direction to box from agent
 
     MoveBoxConcreteAction(Box box, Direction agentDirection, Direction boxDirection) {
         this.box = box;
@@ -18,7 +18,7 @@ public abstract class MoveBoxConcreteAction extends ConcreteAction {
     public MoveBoxConcreteAction(MoveBoxConcreteAction other) {
         this.box = new Box(other.getBox());
         this.agentDirection = other.getAgentDirection();
-        this.boxDirection = other.getBoxMovingDirection();
+        this.boxDirection = other.getBoxDirection();
     }
 
     public Box getBox() {
@@ -30,7 +30,9 @@ public abstract class MoveBoxConcreteAction extends ConcreteAction {
         return agentDirection;
     }
 
-    public Direction getBoxMovingDirection() {
+    public abstract Direction getBoxMovingDirection();
+
+    public Direction getBoxDirection() {
         return boxDirection;
     }
 }

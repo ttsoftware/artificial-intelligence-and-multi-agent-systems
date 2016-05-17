@@ -114,7 +114,13 @@ public class ProblemMarshaller {
                     boardObjects[row][column] = agent;
                 } else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
-                    String label = String.valueOf(cell) + Integer.toString(boxCount);
+                    String boxId = "";
+                    if (boxCount > 9) {
+                        boxId = Integer.toString(boxCount);
+                    } else {
+                        boxId = Integer.toString(0) + Integer.toString(boxCount);
+                    }
+                    String label = String.valueOf(cell) + boxId;
                     if (colors.containsKey(cell)) {
                         label = colors.get(cell) + label;
                     }
@@ -127,7 +133,13 @@ public class ProblemMarshaller {
                     boxCount++;
                 } else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
-                    String label = String.valueOf(cell) + Integer.toString(goalCount);
+                    String goalId = "";
+                    if (goalCount > 9) {
+                        goalId = Integer.toString(goalCount);
+                    } else {
+                        goalId = Integer.toString(0) + Integer.toString(goalCount);
+                    }
+                    String label = String.valueOf(cell) + goalId;
                     Goal goal = new Goal(label, new Position(row, column), DEFAULT_WEIGHT);
                     boardObjectPositions.put(label, new Position(row, column));
                     boardState[row][column] = BoardCell.GOAL;

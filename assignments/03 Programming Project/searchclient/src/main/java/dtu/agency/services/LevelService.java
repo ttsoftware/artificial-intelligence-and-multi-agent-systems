@@ -1,8 +1,11 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
 import dtu.agency.board.*;
+import dtu.agency.planners.htn.HTNPlanner;
+import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.PrimitivePlan;
 
 import java.security.InvalidParameterException;
@@ -215,6 +218,10 @@ public abstract class LevelService {
         return level.getAgentsMap().get(label);
     }
 
+    /**
+     * @param agentNumber
+     * @return The agent associated with the given number
+     */
     public Agent getAgent(Integer agentNumber) {
         // There should only be 1 agent with this number
         return level.getAgents()
@@ -223,35 +230,30 @@ public abstract class LevelService {
                 .collect(Collectors.toList()).get(0);
     }
 
-    public synchronized List<Neighbour> getGoalFreeNeighbours(Position position)
-    {
+    public synchronized List<Neighbour> getGoalFreeNeighbours(Position position) {
         List<Neighbour> neighbours = new ArrayList<>();
 
-        if(level.getBoardState()[position.getRow()][position.getColumn() - 1].equals(BoardCell.GOAL))
-        {
+        if (level.getBoardState()[position.getRow()][position.getColumn() - 1].equals(BoardCell.GOAL)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() - 1),
                     Direction.WEST
             ));
         }
-        if(level.getBoardState()[position.getRow()][position.getColumn() + 1].equals(BoardCell.GOAL))
-        {
+        if (level.getBoardState()[position.getRow()][position.getColumn() + 1].equals(BoardCell.GOAL)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow(), position.getColumn() + 1),
                     Direction.EAST
             ));
         }
 
-        if(level.getBoardState()[position.getRow() - 1][position.getColumn()].equals(BoardCell.GOAL))
-        {
+        if (level.getBoardState()[position.getRow() - 1][position.getColumn()].equals(BoardCell.GOAL)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() - 1, position.getColumn()),
                     Direction.NORTH
             ));
         }
 
-        if(level.getBoardState()[position.getRow() + 1][position.getColumn()].equals(BoardCell.GOAL))
-        {
+        if (level.getBoardState()[position.getRow() + 1][position.getColumn()].equals(BoardCell.GOAL)) {
             neighbours.add(new Neighbour(
                     new Position(position.getRow() + 1, position.getColumn()),
                     Direction.SOUTH
@@ -477,7 +479,7 @@ public abstract class LevelService {
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
 
-        // update the cell where the agent is now located
+        // update the cell where the box is now located
         switch (cell) {
             case FREE_CELL:
                 boardState[row][column] = BoardCell.BOX;
@@ -486,6 +488,9 @@ public abstract class LevelService {
                 boardState[row][column] = BoardCell.BOX_GOAL;
                 break;
             default:
+                // we have not been able to find the box
+                // (/agent?) blocking the goal, when looking for obstacles??
+                // agents should move upon conflict resolution.
                 throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
@@ -528,14 +533,20 @@ public abstract class LevelService {
         BoardCell[][] boardState = level.getBoardState();
         BoardCell cell = boardState[row][column];
 
-        switch (cell) {       // update the cell where the agent is now located
+        // update the cell where the agent is now located
+        switch (cell) {
             case FREE_CELL:
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             case GOAL:
                 boardState[row][column] = BoardCell.AGENT_GOAL;
                 break;
+            case AGENT:
+                // TODO: Some other agent is standing here
+                boardState[row][column] = BoardCell.AGENT;
+                break;
             default:
+                System.err.println(BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position);
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
@@ -561,6 +572,22 @@ public abstract class LevelService {
         } else {
             boardObjects[row][column] = agent;
         }
+        level.setBoardObjects(boardObjects);
+    }
+
+    /**
+     * @param position
+     * @WARNING: Removes anything from this position!
+     * We have no way of knowing what was removed, so we cannot put it back
+     */
+    protected synchronized void clearPosition(Position position) {
+        BoardCell[][] boardState = level.getBoardState();
+        BoardObject[][] boardObjects = level.getBoardObjects();
+
+        boardState[position.getRow()][position.getColumn()] = BoardCell.FREE_CELL;
+        boardObjects[position.getRow()][position.getColumn()] = new Empty(" ");
+
+        level.setBoardState(boardState);
         level.setBoardObjects(boardObjects);
     }
 
@@ -772,43 +799,71 @@ public abstract class LevelService {
     }
 
     /**
+     * Under influence of an agent, this takes a PrimitivePlan
+     * and turns it into an ordered list of positions, visited by that agent and its box, without duplicates.
+     *
+     * @return
+     */
+    public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan, Agent agent) {
+        return getPath(plan, getPosition(agent));
+    }
+
+    /**
      * Under influence of an agent BDIService, this takes a PrimitivePlan
      * and turns it into an ordered list of positions, visited by that agent and its box, without duplicates.
      *
      * @return
      */
     public LinkedList<Position> getOrderedPathWithBox(PrimitivePlan plan) {
+        return getPath(plan, getPosition(BDIService.getInstance().getAgent()));
+    }
+
+    public LinkedList<Position> getPath(PrimitivePlan plan, Position agentPosition) {
         LinkedList<Position> bigPath = new LinkedList<>();
 
-        Position previous = getPosition(BDIService.getInstance().getAgent());
-        bigPath.add(new Position(previous));
+        Position previous;
+        if (!plan.getActions().isEmpty()
+                && plan.getActions().getFirst().getType().equals(ConcreteActionType.PULL)) {
+            // if it is a pull action, the agents position is not the first one
+            previous = new Position(
+                    agentPosition,
+                    plan.getActions().getFirst().getAgentDirection().getInverse()
+            );
+        }
+        else {
+            previous = agentPosition;
+        }
+
+        bigPath.add(previous);
 
         for (ConcreteAction action : plan.getActionsClone()) {
-            // the agents next position
-            Position next = new Position(previous, action.getAgentDirection());
+            if (!action.getType().equals(ConcreteActionType.NONE)) {
+                // the agents next position
+                Position next = new Position(previous, action.getAgentDirection());
 
-            if (action instanceof MoveBoxConcreteAction) {
-                // we also need to add the box' position to the path
-                Position nextBox = null;
-                switch (action.getType()) {
-                    case PUSH:
-                        // if we are pushing, the box should end up in front of the agent
-                        bigPath.addLast(new Position(next));
-                        nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
-                        bigPath.addLast(nextBox);
-                        break;
-                    case PULL:
-                        // if we are pulling, the box should end up in the agents' previous position
-                        nextBox = new Position(previous);
-                        bigPath.addLast(nextBox);
-                        bigPath.addLast(new Position(next));
-                        break;
+                if (action instanceof MoveBoxConcreteAction) {
+                    // we also need to add the box' position to the path
+                    Position nextBox = null;
+                    switch (action.getType()) {
+                        case PUSH:
+                            // if we are pushing, the box should end up in front of the agent
+                            bigPath.addLast(new Position(next));
+                            nextBox = new Position(next, ((PushConcreteAction) action).getBoxMovingDirection());
+                            bigPath.addLast(nextBox);
+                            break;
+                        case PULL:
+                            // if we are pulling, the box should end up in the agents' previous position
+                            nextBox = new Position(previous);
+                            bigPath.addLast(nextBox);
+                            bigPath.addLast(new Position(next));
+                            break;
+                    }
+                } else {
+                    bigPath.addLast(new Position(next));
                 }
-            } else {
-                bigPath.addLast(new Position(next));
-            }
 
-            previous = next;
+                previous = next;
+            }
         }
 
         LinkedList<Position> path = new LinkedList<>();
@@ -820,6 +875,14 @@ public abstract class LevelService {
                 path.addLast(previousPosition);
             }
             previousPosition = nextPosition;
+        }
+
+        if (!path.isEmpty()) {
+            if (!path.getLast().equals(previousPosition)) {
+                path.addLast(previousPosition);
+            }
+        } else {
+            path.add(previousPosition);
         }
 
         return path;
@@ -838,13 +901,84 @@ public abstract class LevelService {
         Position previous = getPosition(BDIService.getInstance().getAgent());
         path.add(new Position(previous));
 
-        for (ConcreteAction action : plan.getActionsClone()) {
-            // the agents next position
-            Position next = new Position(previous, action.getAgentDirection());
-            path.addLast(new Position(next));
-            previous = next;
+        if (plan != null) {
+            LinkedList<ConcreteAction> actionsClone = plan.getActionsClone();
+
+            if (actionsClone != null) {
+                for (ConcreteAction action : actionsClone) {
+                    // the agents next position
+                    if (!action.getType().equals(ConcreteActionType.NONE)) {
+                        Position next = new Position(previous, action.getAgentDirection());
+                        path.addLast(new Position(next));
+                        previous = next;
+                    }
+                }
+            }
         }
         return path;
+    }
+
+    /**
+     * Merge two paths such that they have a an unbroken traversable connection
+     *
+     * @param newPath
+     * @param originPath
+     * @return
+     */
+    public synchronized LinkedList<Position> mergePaths(LinkedList<Position> newPath,
+                                                        LinkedList<Position> originPath) {
+
+        LinkedList<Position> newPathReversed = reversePath(newPath);
+
+        PlanningLevelService pls = new PlanningLevelService(getLevelClone());
+
+        if (originPath.isEmpty()) {
+            return newPath;
+        }
+
+        if (newPath.isEmpty()) {
+            return originPath;
+        }
+
+        // Move agent to the last position in its path
+        pls.moveAgent(originPath.peekLast());
+
+        // Plan for moving agent from its last position, to newPathReversed's first position
+        RGotoAction extendPathAction = new RGotoAction(newPathReversed.peekFirst());
+
+        HTNPlanner htn = new HTNPlanner(pls, extendPathAction, RelaxationMode.NoAgentsNoBoxes);
+        PrimitivePlan pseudoPlan = htn.plan();
+
+        // path going from originPath's last position, to newPathReversed's first position
+        LinkedList<Position> connectingPath = pls.getOrderedPath(pseudoPlan);
+        if (connectingPath.size() > 0) {
+            connectingPath.removeFirst();
+        }
+        if (connectingPath.size() > 0) {
+            connectingPath.removeLast();
+        }
+
+        // combine the two paths into originPath
+        originPath.addAll(connectingPath);
+        originPath.addAll(newPathReversed);
+
+        return reversePath(originPath);
+    }
+
+    /**
+     * Reverse all actions in given path
+     *
+     * @param path
+     * @return
+     */
+    public synchronized LinkedList<Position> reversePath(LinkedList<Position> path) {
+        LinkedList<Position> newPath = new LinkedList<>();
+
+        for (Position position : path) {
+            newPath.addFirst(new Position(position));
+        }
+
+        return newPath;
     }
 
     /**
@@ -857,13 +991,13 @@ public abstract class LevelService {
         LinkedList<Position> obstacles = new LinkedList<>();
 
         Iterator<Position> positions = path.iterator();
-        Position agentPosition = positions.next();
 
         while (positions.hasNext()) {
             Position next = positions.next();
             if (!isFree(next)) {
-                // TODO: This should also finds agents. Maybe. Who knows?
-                if (!next.equals(agentPosition) && !obstacles.contains(next)) {
+                if (getCell(next) != BoardCell.AGENT
+                        && getCell(next) != BoardCell.AGENT_GOAL
+                        && !obstacles.contains(next)) {
                     obstacles.add(next);
                 }
             }
@@ -879,7 +1013,7 @@ public abstract class LevelService {
         List<Goal> goals = new ArrayList<>();
 
         level.getGoalQueues().forEach(goalQueue -> {
-            Goal goal = goalQueue.poll();
+            Goal goal = goalQueue.peek();
             if (goal != null) {
                 goals.add(goal);
             }
@@ -889,73 +1023,17 @@ public abstract class LevelService {
     }
 
     /**
-     * @param position
-     * @return A list of adjacent cells containing a box or an agent
+     * Removes this goal from the queue in which it exists
+     *
+     * @param goal
      */
-    public synchronized List<Neighbour> getMoveableNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isMoveable(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isMoveable(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isMoveable(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isMoveable(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
-    /**
-     * @param position
-     * @return A list of free cells adjacent to @position
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn())) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
+    public synchronized void removeGoalFromQueue(Goal goal) {
+        level.getGoalQueues().forEach(goalQueue -> {
+            if (goalQueue.contains(goal)) {
+                // remove this goal from the queue
+                goalQueue.remove(goal);
+            }
+        });
     }
 
     /**
@@ -993,43 +1071,6 @@ public abstract class LevelService {
         return neighbours;
     }
 
-    /**
-     * @param position
-     * @param objectsToIgnore
-     * @return A list of free cells adjacent to @position, and the neighbours that contains one of @objectsToIgnore,
-     * if any of them exists
-     */
-    public synchronized List<Neighbour> getFreeNeighbours(Position position, List<BoardObject> objectsToIgnore) {
-        List<Neighbour> neighbours = new ArrayList<>();
-
-        if (isFree(position.getRow(), position.getColumn() - 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() - 1),
-                    Direction.WEST
-            ));
-        }
-        if (isFree(position.getRow(), position.getColumn() + 1, objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow(), position.getColumn() + 1),
-                    Direction.EAST
-            ));
-        }
-        if (isFree(position.getRow() - 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() - 1, position.getColumn()),
-                    Direction.NORTH
-            ));
-        }
-        if (isFree(position.getRow() + 1, position.getColumn(), objectsToIgnore)) {
-            neighbours.add(new Neighbour(
-                    new Position(position.getRow() + 1, position.getColumn()),
-                    Direction.SOUTH
-            ));
-        }
-
-        return neighbours;
-    }
-
     public HashSet<Position> getFreeNeighbourSet(Position position) {
         HashSet<Position> freeNeighbours = new HashSet<>();
         Position n = new Position(position, Direction.NORTH);
@@ -1044,16 +1085,17 @@ public abstract class LevelService {
     }
 
     /**
-     * Returns a SortedSet of free neighbouring positions, ordered by their distance to the path.
-     * These free positions may be adjacent to the path, or adjacent to free positions adjacent to the path and so on...
-     * <p>
-     * This function is roughly O(N), where N is the set of all cells in the level
-     *
+     * If we care about the agents position we must create an obstacle-free-path for the agent.
      * @param path
+     * @param agentPosition
+     * @param obstaclePosition
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized Position getFreeNeighbour(final LinkedList<Position> path, Position agentPosition, Position obstaclePosition, int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
+                                                         Position agentPosition,
+                                                         Position obstaclePosition,
+                                                         int numberOfNeighbours) {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
@@ -1062,22 +1104,70 @@ public abstract class LevelService {
                 obstaclePosition
         );
 
-        // find weighted sub path
-        PriorityQueue<Position> weightSubPath = weightedObstacleSubPath(obstacleFreePath, obstaclePosition);
+        return getFreeNeighbour(
+                obstacleFreePath,
+                obstaclePosition,
+                numberOfNeighbours
+        );
+    }
+
+    /**
+     * Returns the closest / deepest free neighbour to the given {@code path} of maximum depth {@code numberOfNeighbours}
+     * @param path
+     * @param obstaclePosition
+     * @param numberOfNeighbours
+     * @return
+     */
+    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
+                                                  Position obstaclePosition,
+                                                  int numberOfNeighbours) {
+
 
         // as the list is now prioritized, we want to find the first neighbor, at numberOfNeighbours or shallower
         // previously seen positions
-        HashSet<Position> previouslySeen = new HashSet<>(obstacleFreePath);
+        HashSet<Position> previouslySeen = new HashSet<>(path);
 
-        Position weightedPosition;
-        // iterate in weighted order
-        while ((weightedPosition = weightSubPath.poll()) != null) {
-            if (hasUnseenFreeNeighbour(weightedPosition, previouslySeen)) {
-                return recursiveNeighbour(weightedPosition, previouslySeen, numberOfNeighbours);
+        List<Neighbour> neighbours = new ArrayList<>();
+
+        for (Position position : path) {
+            if (hasUnseenFreeNeighbour(position, previouslySeen)) {
+                Neighbour neighbour = recursiveNeighbour(
+                        new Neighbour(position, numberOfNeighbours),
+                        previouslySeen,
+                        0,
+                        numberOfNeighbours
+                );
+
+                neighbours.add(neighbour);
             }
         }
 
-        throw new RuntimeException("We cannot find a free neighbour for this obstacle");
+        // sum of neighbour depths
+        int sumOfDepths = neighbours.stream().mapToInt(Neighbour::getDepth).sum();
+
+        if (sumOfDepths >= numberOfNeighbours) {
+            // if there are more or enough neighbours, choose the closest one
+
+            List<Neighbour> neighboursSortedByDistance = neighbours.stream().sorted(new Comparator<Neighbour>() {
+                @Override
+                public int compare(Neighbour neighbourA, Neighbour neighbourB) {
+                    return neighbourA.getPosition().manhattanDist(obstaclePosition)
+                            - neighbourB.getPosition().manhattanDist(obstaclePosition);
+                }
+            }).collect(Collectors.toList());
+
+            return neighboursSortedByDistance.get(0).getPosition();
+        }
+
+        // sort the neighbours by depth - highest depth first
+        List<Neighbour> neighboursSortedByDepth = neighbours.stream().sorted(new Comparator<Neighbour>() {
+            @Override
+            public int compare(Neighbour neighbourA, Neighbour neighbourB) {
+                return neighbourB.getDepth() - neighbourA.getDepth();
+            }
+        }).collect(Collectors.toList());
+
+        return neighboursSortedByDepth.get(0).getPosition();
     }
 
     /**
@@ -1085,23 +1175,32 @@ public abstract class LevelService {
      *
      * @return
      */
-    private Position recursiveNeighbour(Position position,
-                                        HashSet<Position> previouslyDiscovered,
-                                        int numberOfNeighbours) {
-        if (numberOfNeighbours == 0) {
+    private Neighbour recursiveNeighbour(Neighbour neighbour,
+                                         HashSet<Position> previouslyDiscovered,
+                                         int reachedDepth,
+                                         int numberOfNeighbours) {
+        if (reachedDepth == numberOfNeighbours) {
             // end recursion if number of neighbours is reached
-            return position;
+            return neighbour;
         }
 
-        if (hasUnseenFreeNeighbour(position, previouslyDiscovered)) {
+        if (hasUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered)) {
             // recursively find neighbours
-            Position neighbour = getUnseenFreeNeighbour(position, previouslyDiscovered);
-            previouslyDiscovered.add(position);
-            return recursiveNeighbour(neighbour, previouslyDiscovered, --numberOfNeighbours);
+
+            reachedDepth++;
+
+            Neighbour nextNeighbour = new Neighbour(
+                    getUnseenFreeNeighbour(neighbour.getPosition(), previouslyDiscovered),
+                    reachedDepth
+            );
+
+
+            previouslyDiscovered.add(neighbour.getPosition());
+            return recursiveNeighbour(nextNeighbour, previouslyDiscovered, reachedDepth, numberOfNeighbours);
         }
 
         // return this position if no free neighbours
-        return position;
+        return neighbour;
     }
 
     /**
@@ -1164,6 +1263,9 @@ public abstract class LevelService {
                 } else if (position.equals(agentPosition)) {
                     // this is the agent we are operating from
                     subPath.addLast(position);
+                } else if (getCell(position) == BoardCell.AGENT) {
+                    // this is another agent - we ignore it and expect conflict resolution to handle it
+                    subPath.addLast(position);
                 } else {
                     // we ignore all positions until we find this position again
                     ignoringPositions = true;
@@ -1180,28 +1282,5 @@ public abstract class LevelService {
             }
         }
         return subPath;
-    }
-
-    /**
-     * Returns the weighted {@code subPath} of given {@code obstaclePosition}.
-     * Positions in {@code subPath} are weighted by distance from {@code obstaclePosition}
-     *
-     * @param subPath
-     * @param obstaclePosition
-     * @return
-     */
-    public PriorityQueue<Position> weightedObstacleSubPath(LinkedList<Position> subPath,
-                                                           Position obstaclePosition) {
-        PriorityQueue<Position> weightedSubPath = new PriorityQueue<>(new Comparator<Position>() {
-            @Override
-            public int compare(Position a, Position b) {
-                // Order by distance form obstacle
-                return a.manhattanDist(obstaclePosition) - b.manhattanDist(obstaclePosition);
-            }
-        });
-
-        weightedSubPath.addAll(subPath);
-
-        return weightedSubPath;
     }
 }

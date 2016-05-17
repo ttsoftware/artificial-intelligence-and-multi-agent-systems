@@ -1,0 +1,21 @@
+Task overview
+
+Time and Solution Critical:
+Conflict resolution
+Ask for help *
+Heuristics *
+Pull failures (maybe done?)
+Level Testing / bug fixing
+
+Time Critical Solution Non-Critical
+parallel waiting  (if time allows)
+ask for more help (if time allows)
+relaxation own/other boxes (postpone)
+
+Time Non-Critical
+create competition levels (thursday)
+solve competition levels (tuesday+wednesday)
+write report (after that)
+
+
+Ask thomas how to test new server??)

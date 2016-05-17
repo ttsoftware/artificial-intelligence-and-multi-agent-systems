@@ -1,5 +1,10 @@
-blue: 0,A
-red: 1,C,2,D,3,E,4,F,5,G,6,H
+red: 0,A
+green: 1,C
+yellow: 2,D
+blue: 3,E
+magenta: 4,F
+orange: 5,G
+pink: 6,H
 ++++++++++++++++
 +  +1+ +3+ +5+ +
 +  + + + + + + +

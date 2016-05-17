@@ -134,6 +134,18 @@ public class PlanningLevelService extends LevelService {
     }
 
     /**
+     * @WARNING: This method will screw around with the planninglevelserve
+     * This method might be expensive
+     * @param position
+     */
+    public void moveAgent(Position position) {
+        removeAgent(agent);
+        // clear everything from this position
+        clearPosition(position);
+        insertAgent(agent, position);
+    }
+
+    /**
      * Applies all actions in a plan
      *
      * @param plan any plan implementing the Plan interface

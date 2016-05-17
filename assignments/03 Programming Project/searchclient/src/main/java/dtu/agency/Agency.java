@@ -6,10 +6,11 @@ import com.google.common.eventbus.Subscribe;
 import de.jkeylockmanager.manager.KeyLockManager;
 import de.jkeylockmanager.manager.KeyLockManagers;
 import dtu.agency.agent.AgentThread;
-import dtu.agency.board.Agent;
-import dtu.agency.board.Goal;
+import dtu.agency.board.*;
+import dtu.agency.events.EstimationEvent;
 import dtu.agency.events.agency.*;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
+import dtu.agency.events.agent.MoveObstacleEstimationEvent;
 import dtu.agency.events.agent.PlanOfferEvent;
 import dtu.agency.events.client.SendServerActionsEvent;
 import dtu.agency.planners.plans.ConcretePlan;
@@ -18,18 +19,23 @@ import dtu.agency.services.EventBusService;
 import dtu.agency.services.GlobalLevelService;
 import dtu.agency.services.ThreadService;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Stream;
 
 public class Agency implements Runnable {
 
+    private boolean isGettingHelp;
     private int numberOfAgents;
+    private List<Agent> agents;
+
+    private final KeyLockManager lockManager = KeyLockManagers.newLock();
 
     @Override
     public void run() {
-        List<Agent> agents = GlobalLevelService.getInstance().getLevel().getAgents();
-
+        agents = GlobalLevelService.getInstance().getLevel().getAgents();
         numberOfAgents = agents.size();
+        isGettingHelp = false;
 
         AgentService.getInstance().addAgents(agents);
 
@@ -37,7 +43,7 @@ public class Agency implements Runnable {
             System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
-            ThreadService.execute(new AgentThread());
+            ThreadService.execute(new AgentThread(agent));
         });
 
         // Register for self-handled events
@@ -45,13 +51,29 @@ public class Agency implements Runnable {
 
         List<Goal> nextIndependentGoals;
 
-        final KeyLockManager lockManager = KeyLockManagers.newLock();
-
         while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
-            // Assign goals to the best agents and wait for plans to finish
+            // offer all goals to agents
+            HashMap<Goal, Agent> goalOffers = offerGoals(nextIndependentGoals);
 
-            offerGoals(nextIndependentGoals).entrySet().parallelStream().forEach(goalAgentEntry -> {
+            // create goal offer stream
+            Stream<Map.Entry<Goal, Agent>> goalStream = goalOffers
+                    .entrySet()
+                    .stream()
+                    .sorted(new Comparator<Map.Entry<Goal, Agent>>() {
+                        @Override
+                        public int compare(Map.Entry<Goal, Agent> entryA, Map.Entry<Goal, Agent> entryB) {
+                            return entryA.getKey().getEstimatedSteps() - entryB.getKey().getEstimatedSteps();
+                        }
+                    });
+
+            if (numberOfAgents > 1) {
+                // Parallelizing goal assigning if more than 1 agent
+                goalStream = goalStream.parallel();
+            }
+
+            // Assign goals to the best agents and wait for plans to finish
+            goalStream.forEach(goalAgentEntry -> {
 
                 Goal goal = goalAgentEntry.getKey();
                 Agent bestAgent = goalAgentEntry.getValue();
@@ -78,7 +100,41 @@ public class Agency implements Runnable {
                     // wait for the plan to finish executing
                     boolean isFinished = sendActionsEvent.getResponse();
 
-                    System.err.println("The plan for goal: " + goal + " finished.");
+                    // We need to check if the goal has actually been solved
+                    Position goalPosition = GlobalLevelService.getInstance().getPosition(goal);
+                    BoardObject objectAtGoalPosition = GlobalLevelService.getInstance().getObject(goalPosition);
+
+                    switch (objectAtGoalPosition.getType()) {
+                        case GOAL:
+                            // We need to re-assign goal task
+                            lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                System.err.println("We must re-offer: " + goal);
+                            });
+                            break;
+                        case BOX_GOAL:
+                            if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {
+                                System.err.println("The plan for goal: " + goal + " finished.");
+                                // this goal completed, so we can remove it from it's queue
+                                GlobalLevelService.getInstance().removeGoalFromQueue(goal);
+                            }
+                            else {
+                                lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                    System.err.println("We must re-offer: " + goal);
+                                });
+                            }
+                            break;
+                        case AGENT_GOAL:
+                            lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                System.err.println("We must re-offer: " + goal);
+                            });
+                            break;
+                        default:
+                            System.err.println("The plan for goal: " + goal + " finished.");
+                            // this goal completed, so we can remove it from it's queue
+                            GlobalLevelService.getInstance().removeGoalFromQueue(goal);
+                            break;
+                    }
+                    return;
                 });
             });
         }
@@ -102,7 +158,7 @@ public class Agency implements Runnable {
         goals.forEach(goal -> {
 
             // Register for incoming goal estimations
-            GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, numberOfAgents);
+            GoalEstimationEventSubscriber goalEstimationSubscriber = new GoalEstimationEventSubscriber(goal, agents);
             EventBusService.register(goalEstimationSubscriber);
 
             // offer the goal
@@ -110,8 +166,19 @@ public class Agency implements Runnable {
 
             EventBusService.post(new GoalOfferEvent(goal));
 
+            goal.setEstimatedSteps(
+                    goalEstimationSubscriber
+                            .getEstimations()
+                            .stream()
+                            .mapToInt(EstimationEvent::getSteps)
+                            .min()
+                            .getAsInt()
+            );
+
             // Get the goal estimations (blocks current thread)
-            bestAgents.put(goal, goalEstimationSubscriber.getBestAgent());
+            Agent bestAgent = goalEstimationSubscriber.getBestAgent();
+
+            bestAgents.put(goal, bestAgent);
         });
 
         return bestAgents;
@@ -119,6 +186,7 @@ public class Agency implements Runnable {
 
     /**
      * Offer plans to the PlannerClient
+     *
      * @param event
      */
     @Subscribe
@@ -132,57 +200,111 @@ public class Agency implements Runnable {
     /**
      * An agent needs help moving an obstacle
      * We first ask other agents for estimations, subsequently assign them the task of moving the obstacle
+     *
      * @param event
      */
     @Subscribe
     @AllowConcurrentEvents
-    public void moveObstacleEventSubscriber(HelpMoveObstacleEvent event) {
+    public void helpMoveObstacleEventSubscriber(HelpMoveObstacleEvent event) {
 
-        // Subscribe to move obstacle estimations
-        MoveObstacleEstimationEventSubscriber obstacleEstimationSubscriber = new MoveObstacleEstimationEventSubscriber(
-                event.getObstacle(),
-                numberOfAgents
-        );
+        List<Agent> agentsWithoutVictim = new ArrayList<>(agents);
+        agentsWithoutVictim.remove(event.getAgent());
+        // the number of bad paths we wait for before we give up
+        int maximumBadAgents = agentsWithoutVictim.size();
 
-        EventBusService.register(obstacleEstimationSubscriber);
+        if (maximumBadAgents == 0) {
+            // no one can help us
+            LinkedList<Position> failedPath = new LinkedList<>();
+            List<LinkedList<Position>> failedPaths = new ArrayList<>();
+            failedPaths.add(failedPath);
+            event.setResponse(failedPaths);
+        } else {
 
-        // Ask agents to bid for obstacle
-        EventBusService.post(new MoveObstacleOfferEvent(event.getPath(), event.getObstacle()));
+            // Subscribe to move obstacle estimations
+            MoveObstacleEstimationEventSubscriber obstacleEstimationSubscriber = new MoveObstacleEstimationEventSubscriber(
+                    event.getObstacle(),
+                    agentsWithoutVictim
+            );
 
-        // Get the move obstacle estimations (blocks current thread)
-        Agent bestAgent = obstacleEstimationSubscriber.getBestAgent();
+            EventBusService.register(obstacleEstimationSubscriber);
 
-        // Assign the task of moving the obstacle to the best agent
-        MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
-                bestAgent,
-                event.getPath(),
-                event.getObstacle()
-        );
+            // Ask agents to bid for obstacle
+            EventBusService.post(new MoveObstacleOfferEvent(
+                    event.getPath(),
+                    event.getObstacle()
+            ));
 
-        EventBusService.post(moveObstacleAssignmentEvent);
+            // Get the move obstacle estimations (blocks current thread)
+            PriorityBlockingQueue<MoveObstacleEstimationEvent> agentEstimations
+                    = obstacleEstimationSubscriber.getEstimations();
 
-        // Get the plan from the assigned agent
-        ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
+            // loop through all estimations, insert bad ones in list for calling agent
+            List<LinkedList<Position>> badAgentPaths = new ArrayList<>();
+            MoveObstacleEstimationEvent estimation;
+            while ((estimation = agentEstimations.poll()) != null) {
+                if (estimation.isSolvedObstacle()) {
+                    // an agent can move the obstacle! Wohoo!
+                    break;
+                }
+                if (estimation.getPath().isEmpty()) {
+                    // this agent cannot move this box
+                    maximumBadAgents--;
+                } else {
+                    // this agent has an obstacle in its path for solving our obstacle
+                    badAgentPaths.add(estimation.getPath());
+                }
+            }
 
-        // Send the plan to the client
-        SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
-                bestAgent,
-                plan
-        );
-        EventBusService.post(sendActionsEvent);
+            if (badAgentPaths.size() == maximumBadAgents) {
+                // no agents can move our obstacle without help
+                event.setResponse(badAgentPaths);
+            } else {
 
-        // wait for the plan to finish executing
-        boolean isFinished = sendActionsEvent.getResponse();
+                final Agent estimationAgent = estimation.getAgent();
 
-        System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                System.err.println(estimationAgent + " is supposed to help move " + event.getObstacle());
 
-        // Allow the agent who is waiting for the obstacle to continue
-        event.setResponse(isFinished);
+                // Lock the helping agent - wait for him to become available
+                lockManager.executeLocked(estimationAgent.getNumber(), () -> {
+                    lockManager.executeLocked(estimationAgent.getNumber() + 1000, () -> {
+                        // Assign the task of moving the obstacle to the best agent
+                        MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
+                                estimationAgent,
+                                event.getPath(),
+                                event.getObstacle()
+                        );
+
+                        EventBusService.post(moveObstacleAssignmentEvent);
+
+                        // Get the plan from the assigned agent
+                        ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
+
+                        // Send the plan to the client
+                        SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
+                                estimationAgent,
+                                plan
+                        );
+                        EventBusService.post(sendActionsEvent);
+
+                        lockManager.executeLocked(event.getAgent().getNumber() + 1000, () -> {
+                            // Allow the agent who is waiting for the obstacle to continue
+                            event.setResponse(new ArrayList<>());
+
+                            // wait for the plan to finish executing
+                            boolean isFinished = sendActionsEvent.getResponse();
+
+                            System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                        });
+                    });
+                });
+            }
+        }
     }
 
     /**
      * We re-post dead events until someone responds to them
      * Maybe we should only re-post a certain number of times?
+     *
      * @param event
      */
     @Subscribe

@@ -49,9 +49,6 @@ public class RMoveBoxAction extends RLAction {
 
     @Override
     public int approximateSteps(PlanningLevelService pls) {
-        int approximateSteps = 0;
-        Position boxOrigin = pls.getPosition(box);
-        approximateSteps += boxOrigin.manhattanDist(boxDestination);
-        return approximateSteps;
+        return pls.getPosition(box).manhattanDist(boxDestination) - 1;
     }
 }

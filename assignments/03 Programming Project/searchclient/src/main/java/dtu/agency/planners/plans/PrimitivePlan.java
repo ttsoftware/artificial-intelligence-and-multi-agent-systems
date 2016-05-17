@@ -1,8 +1,10 @@
 package dtu.agency.planners.plans;
 
 import dtu.agency.actions.ConcreteAction;
+import dtu.agency.actions.concreteaction.ConcreteActionType;
 import dtu.agency.board.Position;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class PrimitivePlan implements ConcretePlan {
@@ -29,6 +31,10 @@ public class PrimitivePlan implements ConcretePlan {
         return concreteActions.pollFirst();
     }
 
+    public void removeLast() {
+        concreteActions.removeLast();
+    }
+
     @Override
     public int approximateSteps(Position agentInitialPosition) {
         return concreteActions.size();
@@ -52,6 +58,35 @@ public class PrimitivePlan implements ConcretePlan {
     }
 
     public void appendActions(PrimitivePlan other) {
-        concreteActions.addAll(other.getActionsClone());
+        if (other == null) {
+            // appending a failed plan, return without appending anything
+            // eventually the agent will fail and replan
+            return;
+        } else {
+            concreteActions.addAll(other.getActionsClone());
+        }
+    }
+
+    /**
+     * Removes the last part of the plan, where the agent tries to move back into the box' position
+     * @return
+     */
+    public PrimitivePlan removeGoBack() {
+
+        PrimitivePlan newPlan = new PrimitivePlan(this);
+
+        Iterator<ConcreteAction> actionIterator = this.getActions().descendingIterator();
+        while (actionIterator.hasNext()) {
+            ConcreteAction action = actionIterator.next();
+            if (action.getType().equals(ConcreteActionType.MOVE)) {
+                newPlan.removeLast();
+            }
+            else {
+                // break as soon as we see an action which is not move
+                break;
+            }
+        }
+
+        return newPlan;
     }
 }

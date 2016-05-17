@@ -177,28 +177,33 @@ public class GotoPOP {
             }
         }
 
-       while(!foundNextAction && !stepAdditionalActions.isEmpty()) {
-           stepAdditionalActions = eliminateFirstIncorrectActions(stepAdditionalActions, blockingGoalsAndActions);
-           if (stepAdditionalActions != null && !stepAdditionalActions.isEmpty()) {
-               MoveConcreteAction nextAction = stepAdditionalActions.poll();
-               previousActions.add(nextAction);
-               currentBlockingGoals.add((Goal) GlobalLevelService.getInstance().getLevel().getBoardObjects()
-                       [nextAction.getAgentPosition().getRow()][nextAction.getAgentPosition().getColumn()]);
+        while (!foundNextAction && !stepAdditionalActions.isEmpty()) {
+            stepAdditionalActions = eliminateFirstIncorrectActions(stepAdditionalActions, blockingGoalsAndActions);
+            if (stepAdditionalActions != null && !stepAdditionalActions.isEmpty()) {
+                MoveConcreteAction nextAction = stepAdditionalActions.poll();
+                previousActions.add(nextAction);
+                currentBlockingGoals.add((Goal) GlobalLevelService.getInstance().getLevel().getBoardObjects()
+                        [nextAction.getAgentPosition().getRow()][nextAction.getAgentPosition().getColumn()]);
 
-               canBacktrack = canBacktrack || stepAdditionalActions.size() > 0;
+                canBacktrack = canBacktrack || stepAdditionalActions.size() > 0;
 
-               if (getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack) == null) {
-                   previousActions.remove(nextAction);
-                   currentBlockingGoals.remove(currentBlockingGoals.size() - 1);
-               } else {
-                   foundNextAction = true;
-               }
-           } else {
-               return null;
-           }
-       }
+                if (getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack) == null) {
+                    previousActions.remove(nextAction);
+                    currentBlockingGoals.remove(currentBlockingGoals.size() - 1);
+                } else {
+                    foundNextAction = true;
+                }
+            } else {
+                return null;
+            }
+        }
 
-        return blockingGoalsAndActions;
+        if (foundNextAction) {
+            return blockingGoalsAndActions;
+        } else {
+            //TODO:Backtrack
+            return null;
+        }
     }
 
     /**
@@ -258,7 +263,7 @@ public class GotoPOP {
             MoveConcreteAction nextAction = new MoveConcreteAction(
                     agent,
                     neighbour.getPosition(),
-                    neighbour.getDirection().getInverse(),
+                    neighbour.getDirection(),
                     GlobalLevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             concreteActions.add(nextAction);
@@ -283,7 +288,7 @@ public class GotoPOP {
             MoveConcreteAction nextAction = new MoveConcreteAction(
                     agent,
                     neighbour.getPosition(),
-                    neighbour.getDirection().getInverse(),
+                    neighbour.getDirection(),
                     GlobalLevelService.getInstance().manhattanDistance(neighbour.getPosition(), agentStartPosition)
             );
             concreteActions.add(nextAction);
