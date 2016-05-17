@@ -35,6 +35,16 @@ public class CompetitionTest {
         testLevel("single_agent/SAAIMuffins.lvl");
     }
 
+    @Test
+    public void test4() throws Exception {
+        testLevel("single_agent/SATheAgency.lvl");
+    }
+
+    @Test
+    public void test5() throws Exception {
+        testLevel("multi_agent/MATheAgency.lvl");
+    }
+
     // The function making the tests run, checking the results
     public void testLevel(String level) throws Exception {
 

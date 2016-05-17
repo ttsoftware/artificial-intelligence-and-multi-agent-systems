@@ -1263,12 +1263,15 @@ public abstract class LevelService {
                                                     Position obstaclePosition) {
 
         LinkedList<Position> subPath = new LinkedList<>();
+        LinkedList<Position> ignoredPositions = new LinkedList<>();
 
         boolean ignoringPositions = false;
         Position ignoreStartPosition = null;
 
         for (Position position : path) {
-            if (!ignoringPositions) {
+            if (!ignoringPositions
+                    && !ignoredPositions.contains(position)
+                    ) {
                 // we potentially want to add these positions
                 if (isFree(position)) {
                     // we can add position to sub-path
@@ -1286,14 +1289,15 @@ public abstract class LevelService {
                     // we ignore all positions until we find this position again
                     ignoringPositions = true;
                     ignoreStartPosition = position;
+                    ignoredPositions.add(position);
                 }
             } else {
-                // we potentially want to ignore these positions
                 if (ignoreStartPosition.equals(position)) {
                     // we are back on the valid sub-path
                     ignoringPositions = false;
                 } else {
                     // we do not care about this position
+                    ignoredPositions.add(position);
                 }
             }
         }
