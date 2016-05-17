@@ -115,10 +115,12 @@ public class ProblemMarshaller {
                 } else if ('A' <= cell && cell <= 'Z') {
                     // Its a box cell
                     String boxId = "";
-                    if (boxCount > 9) {
+                    if (boxCount > 99) {
                         boxId = Integer.toString(boxCount);
-                    } else {
+                    } else if (boxCount > 9) {
                         boxId = Integer.toString(0) + Integer.toString(boxCount);
+                    } else {
+                        boxId = Integer.toString(0) + Integer.toString(0) + Integer.toString(boxCount);
                     }
                     String label = String.valueOf(cell) + boxId;
                     if (colors.containsKey(cell)) {
@@ -134,10 +136,12 @@ public class ProblemMarshaller {
                 } else if ('a' <= cell && cell <= 'z') {
                     // Its a goal cell
                     String goalId = "";
-                    if (goalCount > 9) {
+                    if (goalCount > 99) {
                         goalId = Integer.toString(goalCount);
-                    } else {
+                    } else if (goalCount > 9) {
                         goalId = Integer.toString(0) + Integer.toString(goalCount);
+                    } else {
+                        goalId = Integer.toString(0) + Integer.toString(0) + Integer.toString(goalCount);
                     }
                     String label = String.valueOf(cell) + goalId;
                     Goal goal = new Goal(label, new Position(row, column), DEFAULT_WEIGHT);

@@ -183,7 +183,7 @@ public class Level {
                         break;
                     case BOX:
                         String boxLabel = boardObjects[row][cell].getLabel();
-                        boxLabel = boxLabel.substring(boxLabel.length() - 3, boxLabel.length() - 2);
+                        boxLabel = boxLabel.substring(boxLabel.length() - 4, boxLabel.length() - 3);
                         returnString += boxLabel;
                         break;
                     case AGENT:

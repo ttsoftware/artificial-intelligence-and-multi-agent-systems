@@ -90,14 +90,12 @@ public class AgentThread implements Runnable {
         }
 
         if (!successful) {
-            // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
-            // We cannot solve this goal, so we return a ridiculously high estimate
-
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": received a goaloffer " + goal.getLabel()
                     + " event but is not the right colour");
 
+            // We cannot solve this goal, so we return a ridiculously high estimate
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
         }
         else {

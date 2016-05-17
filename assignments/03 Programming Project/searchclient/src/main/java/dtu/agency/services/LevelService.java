@@ -546,7 +546,7 @@ public abstract class LevelService {
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             default:
-                System.err.println(BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position);
+                System.err.println("Agent " + BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position + " where there is a " + cell.toString());
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);

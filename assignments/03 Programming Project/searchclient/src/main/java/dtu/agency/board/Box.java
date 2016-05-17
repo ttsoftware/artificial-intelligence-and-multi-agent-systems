@@ -23,11 +23,11 @@ public class Box extends BoardObject {
     }
 
     public String getColor() {
-        return label.substring(0, label.length() - 3);
+        return label.substring(0, label.length() - 4);
     }
 
     public boolean canSolveGoal(Goal goal) {
-        if (label.substring(label.length() - 3, label.length() - 2)
+        if (label.substring(label.length() - 4, label.length() - 3)
                 .toLowerCase()
                 .equals(goal.getLabel().substring(0, 1))) {
             return true;

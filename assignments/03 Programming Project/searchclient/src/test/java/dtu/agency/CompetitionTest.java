@@ -15,9 +15,13 @@ public class CompetitionTest {
 
     private static File resourcesDirectory = new File("competition_levels/");
 
-    @Test // Assumption of independant goal ques not fulfilled - semantic error
+    @Test
     public void test0() throws Exception {
         testLevel("single_agent/SAbotbot.lvl");
+    }
+    @Test
+    public void test1() throws Exception {
+        testLevel("single_agent/SANoOp.lvl");
     }
 
     // The function making the tests run, checking the results
