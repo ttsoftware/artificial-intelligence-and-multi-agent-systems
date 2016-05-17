@@ -1,6 +1,7 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.SolveGoalAction;
+import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RLAction;
 import dtu.agency.agent.bdi.GoalIntention;
@@ -14,10 +15,7 @@ import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -209,9 +207,9 @@ public class BDIService {
         return findMoveBoxFromPathIntention(path, targetBox, RelaxationMode.NoAgentsOnlyForeignBoxes);
     }
 
-        /**
-         * Create MoveBoxFromPathIntention
-         */
+    /**
+     * Create MoveBoxFromPathIntention
+     */
     public boolean findMoveBoxFromPathIntention(LinkedList<Position> path,
                                                 Box targetBox,
                                                 RelaxationMode relaxationMode) {
@@ -320,6 +318,46 @@ public class BDIService {
 
         PrimitivePlan plan = currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone()));
         currentHLPlan.getActions().clear();
+
+        while (plan == null
+                || plan.isEmpty()
+                && GlobalLevelService.getInstance().getLevel().getAgents().size() == 1) {
+            // we are all alone in the world and we cannot make a plan
+            // lets try something random!
+            List<Box> boxesClone = bdiLevelService.getLevelClone().getBoxes();
+            Collections.shuffle(boxesClone);
+            Box randomBox = boxesClone.get(0);
+
+            System.err.println("Agent " + agent + ": We are all alone in the world but cannot make a plan");
+
+            // lets try moving this box somewhere random?
+            Random random = new Random();
+            int randomRow;
+            int randomColumn;
+
+            while (true) {
+                randomRow = random.nextInt(bdiLevelService.getLevel().getRowCount());
+                randomColumn = random.nextInt(bdiLevelService.getLevel().getColumnCount());
+
+                if (bdiLevelService.isFree(randomRow, randomColumn)) {
+                    // wohoo! we found something random!
+                    break;
+                }
+            }
+
+            HMoveBoxAction moveRandomBoxToRandomPosition = new HMoveBoxAction(
+                    randomBox,
+                    new Position(randomRow, randomColumn),
+                    bdiLevelService.getPosition(agent)
+            );
+
+            System.err.println("Agent " + agent + ": Lets try this random action " + moveRandomBoxToRandomPosition);
+
+            HLPlan stupidPlan = new HLPlan();
+            stupidPlan.append(moveRandomBoxToRandomPosition);
+
+            plan = stupidPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone()));
+        }
 
         return plan;
     }

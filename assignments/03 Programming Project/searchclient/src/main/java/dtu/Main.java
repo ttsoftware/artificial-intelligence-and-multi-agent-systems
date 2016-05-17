@@ -60,7 +60,7 @@ public class Main {
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
                 // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Goal weighing prevents this
-                // "competition_levels/single_agent/SAbotbot.lvl", // TODO: No free neighbours
+                "competition_levels/single_agent/SAbotbot.lvl", // TODO: No free neighbours
                 // "competition_levels/single_agent/SAboXboXboX.lvl", // TODO: goal weighing
                 // "competition_levels/single_agent/SAButterBot.lvl", // TODO: goal weighing
                 // "competition_levels/single_agent/SADangerBot.lvl", // TODO: Works!

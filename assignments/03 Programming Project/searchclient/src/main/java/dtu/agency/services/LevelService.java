@@ -829,8 +829,7 @@ public abstract class LevelService {
                     agentPosition,
                     plan.getActions().getFirst().getAgentDirection().getInverse()
             );
-        }
-        else {
+        } else {
             previous = agentPosition;
         }
 
@@ -1086,16 +1085,19 @@ public abstract class LevelService {
 
     /**
      * If we care about the agents position we must create an obstacle-free-path for the agent.
+     *
      * @param path
      * @param agentPosition
      * @param obstaclePosition
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
-                                                         Position agentPosition,
-                                                         Position obstaclePosition,
-                                                         int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(
+            final LinkedList<Position> path,
+            Position agentPosition,
+            Position obstaclePosition,
+            int numberOfNeighbours
+    ) throws NoFreeNeighboursException {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
@@ -1113,6 +1115,7 @@ public abstract class LevelService {
 
     /**
      * Returns the closest / deepest free neighbour to the given {@code path} of maximum depth {@code numberOfNeighbours}
+     *
      * @param path
      * @param obstaclePosition
      * @param numberOfNeighbours
@@ -1140,6 +1143,10 @@ public abstract class LevelService {
 
                 neighbours.add(neighbour);
             }
+        }
+
+        if (neighbours.size() == 0) {
+            throw new NoFreeNeighboursException("Could not find any free neighbours.");
         }
 
         // sum of neighbour depths

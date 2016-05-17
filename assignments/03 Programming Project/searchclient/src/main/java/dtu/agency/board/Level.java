@@ -7,6 +7,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class Level {
 
+    private int rowCount;
+    private int columnCount;
+
     private BoardCell[][] boardState;
     private BoardObject[][] boardObjects;
     private ConcurrentHashMap<String, Position> boardObjectPositions;
@@ -24,6 +27,8 @@ public class Level {
     private List<Wall> walls;
 
     public Level(Level level) {
+        this.rowCount = level.getRowCount();
+        this.columnCount = level.getColumnCount();
         this.boardState = BoardCell.deepCopy(level.getBoardState());
         this.boardObjects = BoardObject.deepCopy(level.getBoardObjects());
         this.boardObjectPositions = new ConcurrentHashMap<>(level.getBoardObjectPositions());
@@ -39,7 +44,9 @@ public class Level {
         this.walls = new ArrayList<>(level.getWalls());
     }
 
-    public Level(BoardCell[][] boardState,
+    public Level(int rowCount,
+                 int columnCount,
+                 BoardCell[][] boardState,
                  BoardObject[][] boardObjects,
                  ConcurrentHashMap<String, Position> boardObjectPositions,
                  List<PriorityBlockingQueue<Goal>> goalQueues,
@@ -52,6 +59,8 @@ public class Level {
                  List<Agent> agents,
                  List<Box> boxes,
                  List<Wall> walls) {
+        this.rowCount = rowCount;
+        this.columnCount = columnCount;
         this.boardState = boardState;
         this.boardObjects = boardObjects;
         this.boardObjectPositions = boardObjectPositions;
@@ -65,6 +74,22 @@ public class Level {
         this.agents = agents;
         this.boxes = boxes;
         this.walls = walls;
+    }
+
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    public void setRowCount(int rowCount) {
+        this.rowCount = rowCount;
+    }
+
+    public int getColumnCount() {
+        return columnCount;
+    }
+
+    public void setColumnCount(int columnCount) {
+        this.columnCount = columnCount;
     }
 
     public BoardCell[][] getBoardState() {
