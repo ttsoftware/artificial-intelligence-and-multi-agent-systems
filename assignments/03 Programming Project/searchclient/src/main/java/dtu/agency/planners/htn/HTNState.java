@@ -116,6 +116,10 @@ public class HTNState {
                 legal &= (!solvedGoalConflict());
                 break;
 
+            case NoAgentsNoBoxesUnsolveGoals: // Only Walls are considered
+                legal &= (!wallConflict());
+                break;
+
             default:
                 break;
         }
