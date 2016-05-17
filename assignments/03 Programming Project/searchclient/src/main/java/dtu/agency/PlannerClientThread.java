@@ -200,15 +200,7 @@ public class PlannerClientThread implements Runnable {
                     );
 
                     // add 'fake' SendServerActionsEvents containing the new plans
-                    sendServerActionsQueue.add(new SendServerActionsEvent(
-                            resolvedConflict.getConceder(),
-                            resolvedConflict.getConcederPlan()
-                    ));
-
-                    sendServerActionsQueue.add(new SendServerActionsEvent(
-                            resolvedConflict.getInitiator(),
-                            resolvedConflict.getInitiatorPlan()
-                    ));
+                    addToServerActionsQueue(resolvedConflict);
                 });
 
                 continue;
@@ -243,6 +235,35 @@ public class PlannerClientThread implements Runnable {
             });
 
             // Send the next set of actions
+        }
+    }
+
+    public void addToServerActionsQueue(ResolvedConflict resolvedConflict) {
+        List<SendServerActionsEvent> actionsEvents = new ArrayList<>();
+
+        actionsEvents.add(new SendServerActionsEvent(
+                resolvedConflict.getConceder(),
+                resolvedConflict.getConcederPlan()
+        ));
+
+        actionsEvents.add(new SendServerActionsEvent(
+                resolvedConflict.getInitiator(),
+                resolvedConflict.getInitiatorPlan()
+        ));
+
+        SendServerActionsEvent sendServerAction = sendServerActionsQueue.poll();
+        while (sendServerAction != null) {
+            if (!sendServerAction.getAgent().equals(resolvedConflict.getConceder())
+                && !sendServerAction.getAgent().equals(resolvedConflict.getInitiator())) {
+
+                actionsEvents.add(sendServerAction);
+            }
+
+            sendServerAction = sendServerActionsQueue.poll();
+        }
+
+        for (SendServerActionsEvent actionsEvent : actionsEvents) {
+            sendServerActionsQueue.add(actionsEvent);
         }
     }
 

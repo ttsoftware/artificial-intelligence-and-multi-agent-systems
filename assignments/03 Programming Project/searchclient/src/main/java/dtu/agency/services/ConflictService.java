@@ -287,7 +287,8 @@ public class ConflictService {
         // If initiator's plan is NOT empty, and it contains a push or pull action,
         // we extract the box and removes it from the level
         if (!((PrimitivePlan) conflict.getInitiatorPlan()).getActions().isEmpty()) {
-            if (indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()) {
+            if (indexOfFirstPushOrPullOfInitiator < conflict.getInitiatorPlan().getActions().size()
+                    && indexOfFirstPushOrPullOfInitiator != -1) {
                 moveInitiatorsBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getInitiatorPlan())
                         .getActions().get(indexOfFirstPushOrPullOfInitiator);
 
@@ -298,7 +299,8 @@ public class ConflictService {
         // If conceder's plan is NOT empty, and it contains a push or pull action,
         // we extract the box and removes it from the level
         if (!((PrimitivePlan) conflict.getConcederPlan()).getActions().isEmpty()) {
-            if (indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()) {
+            if (indexOfFirstPushOrPullOfConceder < conflict.getConcederPlan().getActions().size()
+                    && indexOfFirstPushOrPullOfConceder != -1) {
                 moveConcedersBoxConcreteAction = (MoveBoxConcreteAction) ((PrimitivePlan) conflict.getConcederPlan())
                         .getActions().get(indexOfFirstPushOrPullOfConceder);
 
@@ -604,6 +606,8 @@ public class ConflictService {
             if (action.getType().equals(ConcreteActionType.PUSH) ||
                     action.getType().equals(ConcreteActionType.PULL)) {
                 break;
+            } else if (action.getType().equals(ConcreteActionType.MOVE)) {
+                return -1;
             }
             i++;
         }
