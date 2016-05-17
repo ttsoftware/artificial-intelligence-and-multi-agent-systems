@@ -178,6 +178,8 @@ public class ProblemMarshaller {
         }
 
         return new Level(
+                rowCount,
+                columnCount,
                 boardState,
                 boardObjects,
                 boardObjectPositions,
