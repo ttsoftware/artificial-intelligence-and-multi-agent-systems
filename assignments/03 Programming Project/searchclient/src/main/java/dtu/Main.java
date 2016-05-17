@@ -77,15 +77,15 @@ public class Main {
                 // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
-                // "competition_levels/multi_agent/MAAIMuffins.lvl",
-                // "competition_levels/multi_agent/MAbotbot.lvl",
-                // "competition_levels/multi_agent/MAboXboXboX.lvl",
-                // "competition_levels/multi_agent/MAButterBot.lvl",
-                // "competition_levels/multi_agent/MADangerBot.lvl",
-                // "competition_levels/multi_agent/MAextra1.lvl",
-                // "competition_levels/multi_agent/MALazarus.lvl",
-                // "competition_levels/multi_agent/MANoOp.lvl",
-                // "competition_levels/multi_agent/MAOptimal.lvl",
+                // "competition_levels/multi_agent/MAAIMuffins.lvl", // TODO: Not even close
+                // "competition_levels/multi_agent/MAbotbot.lvl", // TODO: Deadlock?
+                // "competition_levels/multi_agent/MAboXboXboX.lvl", // TODO: what even?
+                // "competition_levels/multi_agent/MAButterBot.lvl", // TODO: Conflict resolution
+                // "competition_levels/multi_agent/MADangerBot.lvl", // TODO: Agents just stop?
+                // "competition_levels/multi_agent/MAextra1.lvl", // TODO: Agents just stop?
+                // "competition_levels/multi_agent/MALazarus.lvl", // TODO: Works!
+                // "competition_levels/multi_agent/MANoOp.lvl", // TODO: Agents just stop?
+                // "competition_levels/multi_agent/MAOptimal.lvl", // TODO: Agents cannot help each other
                 // "competition_levels/multi_agent/MASojourner.lvl", // TODO: Just stops...
                 // "competition_levels/multi_agent/MASolo.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MATAIM.lvl", // TODO: Conflict resolution
@@ -93,7 +93,7 @@ public class Main {
                 // "competition_levels/multi_agent/MATheAgency.lvl", // TODO: Works!
                 // "competition_levels/multi_agent/MATheRedDot.lvl", // TODO: Goal weighing
                 // "competition_levels/multi_agent/MAWallE.lvl", // TODO: Just stops...
-                
+
                 "-g",
                 "200",
                 "-t",
