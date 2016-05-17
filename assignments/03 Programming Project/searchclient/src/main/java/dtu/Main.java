@@ -59,22 +59,22 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
 
                 // COMPETITION LEVES
-                // "competition_levels/single_agent/SAAIMuffins.lvl",
-                // "competition_levels/single_agent/SAbotbot.lvl",
+                // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Goal weighing prevents this
+                // "competition_levels/single_agent/SAbotbot.lvl", // TODO: No free neighbours
                 // "competition_levels/single_agent/SAboXboXboX.lvl", // TODO: goal weighing
                 // "competition_levels/single_agent/SAButterBot.lvl", // TODO: goal weighing
                 // "competition_levels/single_agent/SADangerBot.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SAextra2.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SAFortyTwo.lvl", // TODO: It asks for help
                 // "competition_levels/single_agent/SALazarus.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SANoOp.lvl",
-                // "competition_levels/single_agent/SAOptimal.lvl",
-                // "competition_levels/single_agent/SASojourner.lvl",
-                // "competition_levels/single_agent/SASolo.lvl",
-                // "competition_levels/single_agent/SATAIM.lvl",
-                // "competition_levels/single_agent/SAteamhal.lvl",
-                // "competition_levels/single_agent/SATheAgency.lvl",
-                // "competition_levels/single_agent/SATheRedDot.lvl",
+                // "competition_levels/single_agent/SANoOp.lvl", // TODO: Not the right color?
+                // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Infinite loop?
+                // "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SASolo.lvl", // TODO: Infinite loop?
+                // "competition_levels/single_agent/SATAIM.lvl", // TODO: NullPointerException in POP
+                // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
                 
                 "-g",
                 "200",
