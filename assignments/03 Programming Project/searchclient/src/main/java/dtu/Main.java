@@ -58,7 +58,7 @@ public class Main {
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
 
-                // COMPETITION LEVES
+                // COMPETITION LEVELS - SINGLE AGENT LEVELS
                 // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Goal weighing prevents this
                 // "competition_levels/single_agent/SAbotbot.lvl", // TODO: No free neighbours
                 // "competition_levels/single_agent/SAboXboXboX.lvl",
@@ -75,6 +75,24 @@ public class Main {
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
+
+                // COMPETITION LEVELS - SINGLE AGENT LEVELS
+                // "competition_levels/multi_agent/MAAIMuffins.lvl",
+                // "competition_levels/multi_agent/MAbotbot.lvl",
+                // "competition_levels/multi_agent/MAboXboXboX.lvl",
+                // "competition_levels/multi_agent/MAButterBot.lvl",
+                // "competition_levels/multi_agent/MADangerBot.lvl",
+                // "competition_levels/multi_agent/MAextra1.lvl",
+                // "competition_levels/multi_agent/MALazarus.lvl",
+                // "competition_levels/multi_agent/MANoOp.lvl",
+                // "competition_levels/multi_agent/MAOptimal.lvl",
+                // "competition_levels/multi_agent/MASojourner.lvl",
+                // "competition_levels/multi_agent/MASolo.lvl",
+                // "competition_levels/multi_agent/MATAIM.lvl",
+                // "competition_levels/multi_agent/MAteamhal.lvl",
+                // "competition_levels/multi_agent/MATheAgency.lvl",
+                // "competition_levels/multi_agent/MATheRedDot.lvl",
+                // "competition_levels/multi_agent/MAWallE.lvl",
                 
                 "-g",
                 "200",
