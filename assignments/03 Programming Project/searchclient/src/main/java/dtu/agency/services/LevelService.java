@@ -465,6 +465,15 @@ public abstract class LevelService {
         level.setGoalQueues(goalQueueList);
     }
 
+    public synchronized List<PriorityBlockingQueue<Goal>> getPriorityQueuesClone() {
+        List<PriorityBlockingQueue<Goal>> queueListClone = new ArrayList<>();
+        level.getGoalQueues().forEach(goalsQueue -> {
+            queueListClone.add(new PriorityBlockingQueue(goalsQueue));
+        });
+
+        return queueListClone;
+    }
+
     /**
      * Insert a box into the level
      * Usage: when returning responsibility of the box to this levelservice
@@ -489,9 +498,9 @@ public abstract class LevelService {
                 break;
             default:
                 // we have not been able to find the box
-                // (/agent?) blocking the goal, when looking for obstacles??
+                // (agent?) blocking the goal, when looking for obstacles??
                 // agents should move upon conflict resolution.
-                throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
+                throw new NotAFreeCellException("Cannot insert box on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
 
@@ -546,7 +555,7 @@ public abstract class LevelService {
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             default:
-                System.err.println(BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position);
+                System.err.println("Agent " + BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position + " where there is a " + cell.toString());
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
@@ -829,8 +838,7 @@ public abstract class LevelService {
                     agentPosition,
                     plan.getActions().getFirst().getAgentDirection().getInverse()
             );
-        }
-        else {
+        } else {
             previous = agentPosition;
         }
 
@@ -1086,16 +1094,19 @@ public abstract class LevelService {
 
     /**
      * If we care about the agents position we must create an obstacle-free-path for the agent.
+     *
      * @param path
      * @param agentPosition
      * @param obstaclePosition
      * @param numberOfNeighbours
      * @return
      */
-    public synchronized Position getFreeNeighbour(final LinkedList<Position> path,
-                                                         Position agentPosition,
-                                                         Position obstaclePosition,
-                                                         int numberOfNeighbours) {
+    public synchronized Position getFreeNeighbour(
+            final LinkedList<Position> path,
+            Position agentPosition,
+            Position obstaclePosition,
+            int numberOfNeighbours
+    ) throws NoFreeNeighboursException {
 
         // find free path for this obstacle
         LinkedList<Position> obstacleFreePath = getObstacleFreePath(
@@ -1113,6 +1124,7 @@ public abstract class LevelService {
 
     /**
      * Returns the closest / deepest free neighbour to the given {@code path} of maximum depth {@code numberOfNeighbours}
+     *
      * @param path
      * @param obstaclePosition
      * @param numberOfNeighbours
@@ -1140,6 +1152,10 @@ public abstract class LevelService {
 
                 neighbours.add(neighbour);
             }
+        }
+
+        if (neighbours.size() == 0) {
+            throw new NoFreeNeighboursException("Could not find any free neighbours.");
         }
 
         // sum of neighbour depths
@@ -1247,12 +1263,15 @@ public abstract class LevelService {
                                                     Position obstaclePosition) {
 
         LinkedList<Position> subPath = new LinkedList<>();
+        LinkedList<Position> ignoredPositions = new LinkedList<>();
 
         boolean ignoringPositions = false;
         Position ignoreStartPosition = null;
 
         for (Position position : path) {
-            if (!ignoringPositions) {
+            if (!ignoringPositions
+                    && !ignoredPositions.contains(position)
+                    ) {
                 // we potentially want to add these positions
                 if (isFree(position)) {
                     // we can add position to sub-path
@@ -1270,14 +1289,15 @@ public abstract class LevelService {
                     // we ignore all positions until we find this position again
                     ignoringPositions = true;
                     ignoreStartPosition = position;
+                    ignoredPositions.add(position);
                 }
             } else {
-                // we potentially want to ignore these positions
                 if (ignoreStartPosition.equals(position)) {
                     // we are back on the valid sub-path
                     ignoringPositions = false;
                 } else {
                     // we do not care about this position
+                    ignoredPositions.add(position);
                 }
             }
         }
