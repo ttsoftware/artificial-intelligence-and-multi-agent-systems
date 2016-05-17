@@ -282,7 +282,7 @@ public class PlannerClientThread implements Runnable {
             // System.exit(1);
         } else if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
-            throw new RuntimeException("We are trying an illegal move.");
+            // throw new RuntimeException("We are trying an illegal move.");
         } else if (response.equals("success")) {
             // Pretend problem is solved
             EventBusService.post(new ProblemSolvedEvent());

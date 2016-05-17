@@ -70,21 +70,20 @@ public class Main {
                 // "competition_levels/single_agent/SANoOp.lvl", // TODO: Not the right color?
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Infinite loop?
                 // "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SASolo.lvl", // TODO: Infinite loop?
+                // "competition_levels/single_agent/SASolo.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATAIM.lvl", // TODO: NullPointerException in POP
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
-                "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
                 // "competition_levels/multi_agent/MAAIMuffins.lvl", // TODO: Not even close
                 // "competition_levels/multi_agent/MAbotbot.lvl", // TODO: Deadlock?
                 // "competition_levels/multi_agent/MAboXboXboX.lvl", // TODO: what even?
-                "competition_levels/multi_agent/MAButterBot.lvl", // TODO: Conflict resolution
+                // "competition_levels/multi_agent/MAButterBot.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MADangerBot.lvl", // TODO: Agents just stop?
                 // "competition_levels/multi_agent/MAextra1.lvl", // TODO: Agents just stop?
                 // "competition_levels/multi_agent/MALazarus.lvl", // TODO: Works!
-                // "competition_levels/multi_agent/MANoOp.lvl", // TODO: Agents just stop?
                 // "competition_levels/multi_agent/MAOptimal.lvl", // TODO: Agents cannot help each other
                 // "competition_levels/multi_agent/MASojourner.lvl", // TODO: Just stops...
                 // "competition_levels/multi_agent/MASolo.lvl", // TODO: Conflict resolution
