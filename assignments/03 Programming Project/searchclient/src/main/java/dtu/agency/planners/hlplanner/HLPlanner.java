@@ -7,9 +7,7 @@ import dtu.agency.agent.bdi.MoveBoxFromPathIntention;
 import dtu.agency.board.*;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
 import dtu.agency.planners.plans.HLPlan;
-import dtu.agency.services.BDIService;
-import dtu.agency.services.EventBusService;
-import dtu.agency.services.PlanningLevelService;
+import dtu.agency.services.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -121,13 +119,19 @@ public class HLPlanner {
                     }
                     return helpMovePlan;
                 } else {
-                    plan = moveObstacle(
+                    HLPlan appendPlan = moveObstacle(
                             agentPosition,
                             obstaclePosition,
                             obstacle,
                             remainingObstacles--,
                             plan
                     );
+
+                    if (appendPlan.isEmpty()) {
+                        return plan;
+                    }
+
+                    plan = appendPlan;
                 }
             }
 
@@ -160,8 +164,8 @@ public class HLPlanner {
         if (intention.getRemovedObstacles().contains(targetBoxPosition)) {
             return plan;
         }
-        // move it to the goal position
         // no more obstacles - and the goal box was not among the obstacles
+        // move it to the goal position
         return moveBoxInPlanner(
                 intention.getTargetBox(),
                 pls.getPosition(intention.getGoal()),
@@ -325,22 +329,35 @@ public class HLPlanner {
             intentionPath = ((MoveBoxFromPathIntention) intention).getCombinedPath();
             intentionPathIncludingBox = ((MoveBoxFromPathIntention) intention).getCombinedPath();
 
-            obstacleGoalPosition = pls.getFreeNeighbour(
-                    intentionPath,
-                    agentPosition,
-                    obstaclePosition,
-                    remainingObstacles + 3
-            );
+            try {
+                obstacleGoalPosition = pls.getFreeNeighbour(
+                        intentionPath,
+                        agentPosition,
+                        obstaclePosition,
+                        remainingObstacles + 3
+                );
+            } catch (NoFreeNeighboursException e) {
+                // No free neighbour, so we submit the plan we made so far
+                intention.removeObstacle(obstaclePosition);
+                return new HLPlan();
+            }
         }
 
         if (box.equals(intention.getTargetBox()) && remainingObstacles > 1) {
             // move goal box to free position and try re-planning from there (recurse once)
-            Position neighbour = pls.getFreeNeighbour(
-                    intentionPathIncludingBox,
-                    agentPosition,
-                    obstaclePosition,
-                    remainingObstacles + 3
-            );
+            Position neighbour;
+            try {
+                neighbour = pls.getFreeNeighbour(
+                        intentionPathIncludingBox,
+                        agentPosition,
+                        obstaclePosition,
+                        remainingObstacles + 3
+                );
+            } catch (NoFreeNeighboursException e) {
+                // No free neighbour, so we submit the plan we made so far
+                intention.removeObstacle(obstaclePosition);
+                return new HLPlan();
+            }
             plan = moveBoxInPlanner(box, neighbour, obstaclePosition, plan);
             intention.removeObstacle(obstaclePosition);
             // finish this plan and re-estimate
@@ -360,12 +377,19 @@ public class HLPlanner {
             }
         } else {
             // next obstacle is in the path - move box to free position
-            Position neighbour = pls.getFreeNeighbour(
-                    intentionPathIncludingBox,
-                    agentPosition,
-                    obstaclePosition,
-                    remainingObstacles + 3
-            );
+            Position neighbour = null;
+            try {
+                neighbour = pls.getFreeNeighbour(
+                        intentionPathIncludingBox,
+                        agentPosition,
+                        obstaclePosition,
+                        remainingObstacles + 3
+                );
+            } catch (NoFreeNeighboursException e) {
+                // No free neighbour, so we submit the plan we made so far
+                intention.removeObstacle(obstaclePosition);
+                return new HLPlan();
+            }
 
             plan = moveBoxInPlanner(box, neighbour, obstaclePosition, plan);
         }
@@ -402,8 +426,12 @@ public class HLPlanner {
                 boxDestination,
                 agentDestination
         );
+        try {
+            pls.apply(moveBoxAction);
+        } catch (NotAFreeCellException e) {
+            return new HLPlan();
+        }
         plan.append(moveBoxAction);
-        pls.apply(moveBoxAction);
 
         return plan;
     }

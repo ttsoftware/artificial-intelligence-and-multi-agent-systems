@@ -73,7 +73,7 @@ public class Main {
                 // "competition_levels/single_agent/SASolo.lvl", // TODO: Infinite loop?
                 // "competition_levels/single_agent/SATAIM.lvl", // TODO: NullPointerException in POP
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
+                "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
