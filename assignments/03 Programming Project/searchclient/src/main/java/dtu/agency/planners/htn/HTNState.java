@@ -96,24 +96,24 @@ public class HTNState {
                 legal &= (!wallConflict());
                 legal &= (!boxConflict());
                 legal &= (!agentConflict());
-                // legal &= (!solvedGoalConflict());
+                legal &= (!solvedGoalConflict());
                 break;
 
             case NoAgents:        // Boxes and Walls are considered
                 legal &= (!wallConflict());
                 legal &= (!boxConflict());
-                // legal &= (!solvedGoalConflict());
+                legal &= (!solvedGoalConflict());
                 break;
 
             case NoAgentsOnlyForeignBoxes: // Only Walls and boxes with different colors are considered conflicts
                 legal &= (!wallConflict());
-                // legal &= (!solvedGoalConflict());
+                legal &= (!solvedGoalConflict());
                 legal &= (!foreignBoxConflict());
                 break;
 
             case NoAgentsNoBoxes: // Only Walls are considered
                 legal &= (!wallConflict());
-                // legal &= (!solvedGoalConflict());
+                legal &= (!solvedGoalConflict());
                 break;
 
             default:

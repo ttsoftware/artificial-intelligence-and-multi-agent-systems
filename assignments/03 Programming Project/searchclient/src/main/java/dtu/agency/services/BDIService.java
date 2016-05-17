@@ -1,7 +1,6 @@
 package dtu.agency.services;
 
 import dtu.agency.actions.abstractaction.SolveGoalAction;
-import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.abstractaction.rlaction.RLAction;
 import dtu.agency.agent.bdi.GoalIntention;
@@ -15,7 +14,10 @@ import dtu.agency.planners.htn.RelaxationMode;
 import dtu.agency.planners.plans.HLPlan;
 import dtu.agency.planners.plans.PrimitivePlan;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 /**
@@ -319,6 +321,7 @@ public class BDIService {
         PrimitivePlan plan = currentHLPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone()));
         currentHLPlan.getActions().clear();
 
+        /*
         while (plan == null
                 || plan.isEmpty()
                 && GlobalLevelService.getInstance().getLevel().getAgents().size() == 1) {
@@ -358,6 +361,7 @@ public class BDIService {
 
             plan = stupidPlan.evolve(new PlanningLevelService(bdiLevelService.getLevelClone()));
         }
+        */
 
         return plan;
     }

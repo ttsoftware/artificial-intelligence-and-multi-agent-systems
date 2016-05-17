@@ -402,11 +402,11 @@ public class HLPlanner {
         if (boardObject.getType() == BoardCell.BOX_GOAL) {
             // there is a box in our path
             BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
-            /* if (boxGoal.isSolved()) {
+            if (boxGoal.isSolved()) {
                 throw new RuntimeException("I cannot un-solve a solved goal");
-            } else { */
+            } else {
                 return ((BoxAndGoal) boardObject).getBox();
-            // }
+            }
         }
         if (boardObject.getType() == BoardCell.BOX) {
             // there is a box in our path
