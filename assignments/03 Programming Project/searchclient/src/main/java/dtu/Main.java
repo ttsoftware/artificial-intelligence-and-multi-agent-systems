@@ -61,12 +61,12 @@ public class Main {
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
                 // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Goal weighing prevents this
                 // "competition_levels/single_agent/SAbotbot.lvl", // TODO: No free neighbours
-                // "competition_levels/single_agent/SAboXboXboX.lvl",
-                // "competition_levels/single_agent/SAButterBot.lvl",
-                // "competition_levels/single_agent/SADangerBot.lvl",
-                // "competition_levels/single_agent/SAextra2.lvl",
-                // "competition_levels/single_agent/SAFortyTwo.lvl",
-                // "competition_levels/single_agent/SALazarus.lvl",
+                // "competition_levels/single_agent/SAboXboXboX.lvl", // TODO: goal weighing
+                // "competition_levels/single_agent/SAButterBot.lvl", // TODO: goal weighing
+                // "competition_levels/single_agent/SADangerBot.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SAextra2.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SAFortyTwo.lvl", // TODO: It asks for help
+                // "competition_levels/single_agent/SALazarus.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SANoOp.lvl", // TODO: Not the right color?
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Infinite loop?
                 // "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
