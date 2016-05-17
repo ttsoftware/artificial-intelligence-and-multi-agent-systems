@@ -46,7 +46,7 @@ public class PlanningLevelService extends LevelService {
      * SolveGoalActions are not applicable in order to get a consistent / precise state in the end
      * (but might be applicable in order to guess on the sequence in which order to solve the goals!)
      */
-    public void apply(Action action) {
+    public void apply(Action action) throws NotAFreeCellException {
         HLEffect effect = null;
 
         if (action instanceof HLAction) {

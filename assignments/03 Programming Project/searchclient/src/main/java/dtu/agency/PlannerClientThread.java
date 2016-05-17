@@ -200,15 +200,7 @@ public class PlannerClientThread implements Runnable {
                     );
 
                     // add 'fake' SendServerActionsEvents containing the new plans
-                    sendServerActionsQueue.add(new SendServerActionsEvent(
-                            resolvedConflict.getConceder(),
-                            resolvedConflict.getConcederPlan()
-                    ));
-
-                    sendServerActionsQueue.add(new SendServerActionsEvent(
-                            resolvedConflict.getInitiator(),
-                            resolvedConflict.getInitiatorPlan()
-                    ));
+                    addToServerActionsQueue(resolvedConflict);
                 });
 
                 continue;
@@ -246,6 +238,35 @@ public class PlannerClientThread implements Runnable {
         }
     }
 
+    public void addToServerActionsQueue(ResolvedConflict resolvedConflict) {
+        List<SendServerActionsEvent> actionsEvents = new ArrayList<>();
+
+        actionsEvents.add(new SendServerActionsEvent(
+                resolvedConflict.getConceder(),
+                resolvedConflict.getConcederPlan()
+        ));
+
+        actionsEvents.add(new SendServerActionsEvent(
+                resolvedConflict.getInitiator(),
+                resolvedConflict.getInitiatorPlan()
+        ));
+
+        SendServerActionsEvent sendServerAction = sendServerActionsQueue.poll();
+        while (sendServerAction != null) {
+            if (!sendServerAction.getAgent().equals(resolvedConflict.getConceder())
+                && !sendServerAction.getAgent().equals(resolvedConflict.getInitiator())) {
+
+                actionsEvents.add(sendServerAction);
+            }
+
+            sendServerAction = sendServerActionsQueue.poll();
+        }
+
+        for (SendServerActionsEvent actionsEvent : actionsEvents) {
+            sendServerActionsQueue.add(actionsEvent);
+        }
+    }
+
     public void send(String toServer) {
         System.err.println("Trying: " + toServer);
         System.out.println(toServer);
@@ -261,7 +282,7 @@ public class PlannerClientThread implements Runnable {
             // System.exit(1);
         } else if (response.contains("false")) {
             System.err.format("Server responded with %s to: %s\n", response, toServer);
-            throw new RuntimeException("We are trying an illegal move.");
+            // throw new RuntimeException("We are trying an illegal move.");
         } else if (response.equals("success")) {
             // Pretend problem is solved
             EventBusService.post(new ProblemSolvedEvent());

@@ -31,4 +31,9 @@ public class Neighbour {
     public int getDepth() {
         return depth;
     }
+
+    @Override
+    public String toString() {
+        return position.toString();
+    }
 }
