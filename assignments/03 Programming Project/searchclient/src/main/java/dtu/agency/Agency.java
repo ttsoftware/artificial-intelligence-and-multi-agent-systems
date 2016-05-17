@@ -117,6 +117,11 @@ public class Agency implements Runnable {
                                 // this goal completed, so we can remove it from it's queue
                                 GlobalLevelService.getInstance().removeGoalFromQueue(goal);
                             }
+                            else {
+                                lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                    System.err.println("We must re-offer: " + goal);
+                                });
+                            }
                             break;
                         case AGENT_GOAL:
                             lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
@@ -254,33 +259,43 @@ public class Agency implements Runnable {
                 // no agents can move our obstacle without help
                 event.setResponse(badAgentPaths);
             } else {
-                // Assign the task of moving the obstacle to the best agent
-                MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
-                        estimation.getAgent(),
-                        event.getPath(),
-                        event.getObstacle()
-                );
 
-                EventBusService.post(moveObstacleAssignmentEvent);
+                final Agent estimationAgent = estimation.getAgent();
 
-                // Get the plan from the assigned agent
-                ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
+                System.err.println(estimationAgent + " is supposed to help move " + event.getObstacle());
 
-                // Send the plan to the client
-                SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
-                        estimation.getAgent(),
-                        plan
-                );
-                EventBusService.post(sendActionsEvent);
+                // Lock the helping agent - wait for him to become available
+                lockManager.executeLocked(estimationAgent.getNumber(), () -> {
+                    lockManager.executeLocked(estimationAgent.getNumber() + 1000, () -> {
+                        // Assign the task of moving the obstacle to the best agent
+                        MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
+                                estimationAgent,
+                                event.getPath(),
+                                event.getObstacle()
+                        );
 
-                lockManager.executeLocked(event.getAgent().getNumber() + 1000, () -> {
-                    // Allow the agent who is waiting for the obstacle to continue
-                    event.setResponse(new ArrayList<>());
+                        EventBusService.post(moveObstacleAssignmentEvent);
 
-                    // wait for the plan to finish executing
-                    boolean isFinished = sendActionsEvent.getResponse();
+                        // Get the plan from the assigned agent
+                        ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
 
-                    System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                        // Send the plan to the client
+                        SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
+                                estimationAgent,
+                                plan
+                        );
+                        EventBusService.post(sendActionsEvent);
+
+                        lockManager.executeLocked(event.getAgent().getNumber() + 1000, () -> {
+                            // Allow the agent who is waiting for the obstacle to continue
+                            event.setResponse(new ArrayList<>());
+
+                            // wait for the plan to finish executing
+                            boolean isFinished = sendActionsEvent.getResponse();
+
+                            System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                        });
+                    });
                 });
             }
         }

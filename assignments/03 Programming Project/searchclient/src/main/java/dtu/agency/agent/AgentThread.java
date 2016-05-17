@@ -175,7 +175,6 @@ public class AgentThread implements Runnable {
                     // Send the response back
                     event.setResponse(plan);
                 }
-
             }
         }
 

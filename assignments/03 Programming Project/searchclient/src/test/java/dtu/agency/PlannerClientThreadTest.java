@@ -95,7 +95,6 @@ public class PlannerClientThreadTest {
         testLevel("MA_help_henning_4.lvl");
     }
 
-
     @Test
     public void test0() throws Exception {
         testLevel("SAobstaclePathTestLevel.lvl");
@@ -218,8 +217,6 @@ public class PlannerClientThreadTest {
     public void test07() throws Exception {
         testLevel("MAconflicts_simple2.lvl");
     }
-
-
 
     // PREVIOUSLY FAILING TESTS
 
