@@ -34,7 +34,7 @@ public class Main {
                 // "levels/MAconflicts_simple2.lvl",
                 // "levels/MAconflicts_simple3.lvl",
                 // "levels/MAmultiagentSort.lvl", // TODO: deadlock
-                "levels/MAtbsAppartment.lvl", // TODO: deadlock
+                //"levels/MAtbsAppartment.lvl", // TODO: deadlock
 
                 // SINGLE AGENT LEVELS
                 // "levels/SAFirefly.lvl",
@@ -57,6 +57,25 @@ public class Main {
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
+
+                // COMPETITION LEVES
+                // "competition_levels/single_agent/SAAIMuffins.lvl",
+                "competition_levels/single_agent/SAbotbot.lvl",
+                // "competition_levels/single_agent/SAboXboXboX.lvl",
+                // "competition_levels/single_agent/SAButterBot.lvl",
+                // "competition_levels/single_agent/SADangerBot.lvl",
+                // "competition_levels/single_agent/SAextra2.lvl",
+                // "competition_levels/single_agent/SAFortyTwo.lvl",
+                // "competition_levels/single_agent/SALazarus.lvl",
+                // "competition_levels/single_agent/SANoOp.lvl",
+                // "competition_levels/single_agent/SAOptimal.lvl",
+                // "competition_levels/single_agent/SASojourner.lvl",
+                // "competition_levels/single_agent/SASolo.lvl",
+                // "competition_levels/single_agent/SATAIM.lvl",
+                // "competition_levels/single_agent/SAteamhal.lvl",
+                // "competition_levels/single_agent/SATheAgency.lvl",
+                // "competition_levels/single_agent/SATheRedDot.lvl",
+                
                 "-g",
                 "200",
                 "-t",
