@@ -332,22 +332,35 @@ public class HLPlanner {
             intentionPath = ((MoveBoxFromPathIntention) intention).getCombinedPath();
             intentionPathIncludingBox = ((MoveBoxFromPathIntention) intention).getCombinedPath();
 
-            obstacleGoalPosition = pls.getFreeNeighbour(
-                    intentionPath,
-                    agentPosition,
-                    obstaclePosition,
-                    remainingObstacles + 3
-            );
+            try {
+                obstacleGoalPosition = pls.getFreeNeighbour(
+                        intentionPath,
+                        agentPosition,
+                        obstaclePosition,
+                        remainingObstacles + 3
+                );
+            } catch (NoFreeNeighboursException e) {
+                // No free neighbour, so we submit the plan we made so far
+                intention.removeObstacle(obstaclePosition);
+                return new HLPlan();
+            }
         }
 
         if (box.equals(intention.getTargetBox()) && remainingObstacles > 1) {
             // move goal box to free position and try re-planning from there (recurse once)
-            Position neighbour = pls.getFreeNeighbour(
-                    intentionPathIncludingBox,
-                    agentPosition,
-                    obstaclePosition,
-                    remainingObstacles + 3
-            );
+            Position neighbour;
+            try {
+                neighbour = pls.getFreeNeighbour(
+                        intentionPathIncludingBox,
+                        agentPosition,
+                        obstaclePosition,
+                        remainingObstacles + 3
+                );
+            } catch (NoFreeNeighboursException e) {
+                // No free neighbour, so we submit the plan we made so far
+                intention.removeObstacle(obstaclePosition);
+                return new HLPlan();
+            }
             plan = moveBoxInPlanner(box, neighbour, obstaclePosition, plan);
             intention.removeObstacle(obstaclePosition);
             // finish this plan and re-estimate

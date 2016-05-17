@@ -4,7 +4,7 @@ import server.CompetitionRunner;
 
 public class MainCompetition {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         // Run the server.jar with the following arguments
         String[] serverArgs = {
@@ -14,6 +14,11 @@ public class MainCompetition {
                 "java -jar out/artifacts/agency_jar/The_Agency.jar"
         };
 
-        CompetitionRunner.main(serverArgs);
+        try {
+            CompetitionRunner.main(serverArgs);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
