@@ -20,7 +20,7 @@ public class GotoPOPTest {
     @BeforeClass
     public static void setUp() throws IOException {
         File resourcesDirectory = new File("src/test/resources");
-        String levelPath = resourcesDirectory.getAbsolutePath() + "/competition_levels/single_agent/SAButterBot.lvl";
+        String levelPath = resourcesDirectory.getAbsolutePath() + "/competition_levels/single_agent/SATAIM.lvl";
 
         FileInputStream inputStream = new FileInputStream(levelPath);
         BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream));

@@ -32,6 +32,7 @@ public class GotoPOP {
             if (!handledGoals.contains(goal)) {
                 List<Goal> blockingGoalsList = getBlockingGoals(goal.getPosition());
 
+                // I think this comment is outdated
                 //sometimes the planner finds a path that goes back in a circle through the goal. I have decided
                 //that instead of backtracking, I'm just going to leave it find the correct path from that point on
                 //P.S. it never includes actions that form a loop, apart from the case in which the loop begins and
@@ -60,7 +61,9 @@ public class GotoPOP {
 
     public List<Goal> getBlockingGoals(Position goalPosition)
     {
-        return (getBlockingGoals(goalPosition,
+        // We have to add the first position of the agent to the action stack somehow
+
+        return (getBlockingGoals(goalPosition, goalPosition,
                 new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false)).getBlockingGoals();
     }
 
@@ -128,7 +131,8 @@ public class GotoPOP {
      * @return an object that contains the actions that can be taken to reach a goal from a position, and a list of
      * goals that are "in the way"
      */
-    public BlockingGoalsAndActions getBlockingGoals(Position currentAgentPosition,
+    public BlockingGoalsAndActions getBlockingGoals(Position originalAgentPosition,
+                                                    Position currentAgentPosition,
                                                     BlockingGoalsAndActions blockingGoalsAndActions,
                                                     boolean canBacktrack) {
 
@@ -144,7 +148,9 @@ public class GotoPOP {
         PriorityQueue<MoveConcreteAction> stepAdditionalActions = solvePreconditionWithGoals((AgentAtPrecondition) currentPrecondition);
 
         if (stepActions.isEmpty() && !canBacktrack) {
+            stepAdditionalActions = eliminateFirstIncorrectActions(originalAgentPosition, stepAdditionalActions, blockingGoalsAndActions);
             if (!stepAdditionalActions.isEmpty()) {
+
                 MoveConcreteAction nextAction = stepAdditionalActions.poll();
 
                 currentBlockingGoals.add((Goal) GlobalLevelService.getInstance().getLevel().getBoardObjects()
@@ -152,7 +158,10 @@ public class GotoPOP {
                 previousActions.add(nextAction);
 
                 canBacktrack = canBacktrack || stepAdditionalActions.size() > 0;
-                blockingGoalsAndActions = getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack);
+                blockingGoalsAndActions = getBlockingGoals(originalAgentPosition,
+                        nextAction.getAgentPosition(),
+                        blockingGoalsAndActions,
+                        canBacktrack);
                 return blockingGoalsAndActions;
             } else {
                 System.err.println("The level is not solvable");
@@ -162,14 +171,18 @@ public class GotoPOP {
         boolean foundNextAction = false;
 
         while (!stepActions.isEmpty() && !foundNextAction) {
-            stepActions = eliminateFirstIncorrectActions(stepActions, blockingGoalsAndActions);
+            stepActions = eliminateFirstIncorrectActions(originalAgentPosition, stepActions, blockingGoalsAndActions);
             if (stepActions != null && !stepActions.isEmpty()) {
                 MoveConcreteAction nextAction = stepActions.poll();
 
                 previousActions.add(nextAction);
                 canBacktrack = canBacktrack || stepActions.size() > 0 || stepAdditionalActions.size() > 0;
 
-                if (getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack) == null) {
+                if (getBlockingGoals(originalAgentPosition,
+                        nextAction.getAgentPosition(),
+                        blockingGoalsAndActions,
+                        canBacktrack)
+                        == null) {
                     previousActions.remove(nextAction);
                 } else {
                     foundNextAction = true;
@@ -178,7 +191,7 @@ public class GotoPOP {
         }
 
         while (!foundNextAction && !stepAdditionalActions.isEmpty()) {
-            stepAdditionalActions = eliminateFirstIncorrectActions(stepAdditionalActions, blockingGoalsAndActions);
+            stepAdditionalActions = eliminateFirstIncorrectActions(originalAgentPosition, stepAdditionalActions, blockingGoalsAndActions);
             if (stepAdditionalActions != null && !stepAdditionalActions.isEmpty()) {
                 MoveConcreteAction nextAction = stepAdditionalActions.poll();
                 previousActions.add(nextAction);
@@ -187,7 +200,11 @@ public class GotoPOP {
 
                 canBacktrack = canBacktrack || stepAdditionalActions.size() > 0;
 
-                if (getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack) == null) {
+                if (getBlockingGoals(originalAgentPosition,
+                        nextAction.getAgentPosition(),
+                        blockingGoalsAndActions,
+                        canBacktrack)
+                        == null) {
                     previousActions.remove(nextAction);
                     currentBlockingGoals.remove(currentBlockingGoals.size() - 1);
                 } else {
@@ -212,14 +229,15 @@ public class GotoPOP {
      * @param blockingGoalsAndActions
      * @return The priority queue of actions where the leading actions that introduce cycles were removed
      */
-    public PriorityQueue<MoveConcreteAction> eliminateFirstIncorrectActions(PriorityQueue<MoveConcreteAction> stepActions,
+    public PriorityQueue<MoveConcreteAction> eliminateFirstIncorrectActions(Position originalAgentPosition,
+                                                                            PriorityQueue<MoveConcreteAction> stepActions,
                                                                            BlockingGoalsAndActions blockingGoalsAndActions) {
         MoveConcreteAction nextAction = stepActions.peek();
 
         boolean foundCorrectAction = false;
 
         while (!foundCorrectAction) {
-            if (introducesCycle(nextAction, blockingGoalsAndActions.getActions())) {
+            if (introducesCycle(originalAgentPosition, nextAction, blockingGoalsAndActions.getActions())) {
                 stepActions.poll();
 
                 if (!stepActions.isEmpty()) {
@@ -241,13 +259,20 @@ public class GotoPOP {
      * @param previousActions
      * @return true if an action introduces a cycle and false otherwise
      */
-    public boolean introducesCycle(MoveConcreteAction nextAction, Stack<MoveConcreteAction> previousActions)
+    public boolean introducesCycle(Position originalAgentPosition,
+                                   MoveConcreteAction nextAction,
+                                   Stack<MoveConcreteAction> previousActions)
     {
+        if(nextAction.getAgentPosition().equals(originalAgentPosition)) {
+            return true;
+        }
+
         for (MoveConcreteAction previousAction : previousActions) {
             if (nextAction.getAgentPosition().equals(previousAction.getAgentPosition())) {
                 return true;
             }
         }
+
         return false;
     }
 
