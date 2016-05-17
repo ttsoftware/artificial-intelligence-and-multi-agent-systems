@@ -7,10 +7,7 @@ import dtu.agency.agent.bdi.MoveBoxFromPathIntention;
 import dtu.agency.board.*;
 import dtu.agency.events.agent.HelpMoveObstacleEvent;
 import dtu.agency.planners.plans.HLPlan;
-import dtu.agency.services.BDIService;
-import dtu.agency.services.EventBusService;
-import dtu.agency.services.NoFreeNeighboursException;
-import dtu.agency.services.PlanningLevelService;
+import dtu.agency.services.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -405,12 +402,11 @@ public class HLPlanner {
         if (boardObject.getType() == BoardCell.BOX_GOAL) {
             // there is a box in our path
             BoxAndGoal boxGoal = ((BoxAndGoal) boardObject);
-            if (boxGoal.isSolved()) {
-                // TODO: can we go around ??
+            /* if (boxGoal.isSolved()) {
                 throw new RuntimeException("I cannot un-solve a solved goal");
-            } else {
+            } else { */
                 return ((BoxAndGoal) boardObject).getBox();
-            }
+            // }
         }
         if (boardObject.getType() == BoardCell.BOX) {
             // there is a box in our path
@@ -429,8 +425,12 @@ public class HLPlanner {
                 boxDestination,
                 agentDestination
         );
+        try {
+            pls.apply(moveBoxAction);
+        } catch (NotAFreeCellException e) {
+            return new HLPlan();
+        }
         plan.append(moveBoxAction);
-        pls.apply(moveBoxAction);
 
         return plan;
     }

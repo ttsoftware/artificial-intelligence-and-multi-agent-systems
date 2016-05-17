@@ -19,9 +19,15 @@ public class CompetitionTest {
     public void test0() throws Exception {
         testLevel("single_agent/SAbotbot.lvl");
     }
+
     @Test
     public void test1() throws Exception {
         testLevel("single_agent/SANoOp.lvl");
+    }
+
+    @Test
+    public void test2() throws Exception {
+        testLevel("single_agent/SATAIM.lvl");
     }
 
     // The function making the tests run, checking the results

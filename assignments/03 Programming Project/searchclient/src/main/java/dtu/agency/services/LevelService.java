@@ -465,6 +465,15 @@ public abstract class LevelService {
         level.setGoalQueues(goalQueueList);
     }
 
+    public synchronized List<PriorityBlockingQueue<Goal>> getPriorityQueuesClone() {
+        List<PriorityBlockingQueue<Goal>> queueListClone = new ArrayList<>();
+        level.getGoalQueues().forEach(goalsQueue -> {
+            queueListClone.add(new PriorityBlockingQueue(goalsQueue));
+        });
+
+        return queueListClone;
+    }
+
     /**
      * Insert a box into the level
      * Usage: when returning responsibility of the box to this levelservice
@@ -489,9 +498,9 @@ public abstract class LevelService {
                 break;
             default:
                 // we have not been able to find the box
-                // (/agent?) blocking the goal, when looking for obstacles??
+                // (agent?) blocking the goal, when looking for obstacles??
                 // agents should move upon conflict resolution.
-                throw new AssertionError("Cannot insert box on any cell but FREE or GOAL cells");
+                throw new NotAFreeCellException("Cannot insert box on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
 

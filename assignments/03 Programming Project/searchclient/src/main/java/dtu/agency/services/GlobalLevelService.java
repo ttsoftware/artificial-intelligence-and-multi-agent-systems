@@ -1,6 +1,8 @@
 package dtu.agency.services;
 
-import dtu.agency.board.Level;
+import dtu.agency.board.*;
+
+import java.util.List;
 
 public class GlobalLevelService extends LevelService {
 
@@ -22,6 +24,29 @@ public class GlobalLevelService extends LevelService {
             }
         }
         return instance;
+    }
+
+    /**
+     * Have we solved all the goals?
+     * @return
+     */
+    public synchronized boolean isAllGoalsSolved() {
+        List<Goal> goals = instance.getLevel().getGoals();
+        boolean isAllSolved = true;
+        for (Goal goal : goals) {
+            Position goalPosition = instance.getPosition(goal);
+            BoardObject positionObject = instance.getObject(goalPosition);
+            BoardCell positionCell = instance.getCell(goalPosition);
+
+            if (positionCell == BoardCell.BOX_GOAL) {
+                BoxAndGoal boxAndGoal = (BoxAndGoal) positionObject;
+                isAllSolved &= boxAndGoal.isSolved();
+            } else {
+                return false;
+            }
+        }
+
+        return isAllSolved;
     }
 
     /**
