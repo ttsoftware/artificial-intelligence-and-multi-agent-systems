@@ -67,11 +67,11 @@ public class Main {
                 // "competition_levels/single_agent/SAextra2.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SAFortyTwo.lvl", // TODO: Works! (sometimes)
                 // "competition_levels/single_agent/SALazarus.lvl", // TODO: Works!
-                "competition_levels/single_agent/SANoOp.lvl", // TODO: We cannot solve this
+                // "competition_levels/single_agent/SANoOp.lvl", // TODO: We cannot solve this
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Infinite loop?
                 // "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SASolo.lvl", // TODO: Infinite loop?
-                // "competition_levels/single_agent/SATAIM.lvl", // TODO: NullPointerException in POP
+                "competition_levels/single_agent/SATAIM.lvl", // TODO: NullPointerException in POP
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
