@@ -86,18 +86,22 @@ public class AgentThread implements Runnable {
         if (!successful) {
             // calculate a bid, going through boxes of other colors... which is more difficult
             ideas = BDIService.getInstance().thinkOfIdeas(goal);
-            successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes); // the intention are automatically stored in BDIService
+            successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes);
         }
 
         if (!successful) {
-            // System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid box that solves: " + goal);
-            // We cannot solve this goal, so we return a ridiculously high estimate
+            // calculate a bid, going through boxes of other colors and unsolving goals
+            ideas = BDIService.getInstance().thinkOfIdeas(goal);
+            successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxesUnsolveGoals);
+        }
 
+        if (!successful) {
             System.err.println(Thread.currentThread().getName()
                     + ": Agent " + BDIService.getInstance().getAgent().getLabel()
                     + ": received a goaloffer " + goal.getLabel()
                     + " event but is not the right colour");
 
+            // We cannot solve this goal, so we return a ridiculously high estimate
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
         }
         else {
@@ -151,6 +155,12 @@ public class AgentThread implements Runnable {
                 successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxes); // the intention are automatically stored in BDIService
             }
 
+            if (!successful) {
+                // calculate a bid, going through boxes of other colors and unsolving goals
+                ideas = BDIService.getInstance().thinkOfIdeas(goal);
+                successful = BDIService.getInstance().findGoalIntention(ideas, goal, RelaxationMode.NoAgentsNoBoxesUnsolveGoals);
+            }
+
             // use the agent's mind / BDI Service to solve the task
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
 
@@ -175,7 +185,6 @@ public class AgentThread implements Runnable {
                     // Send the response back
                     event.setResponse(plan);
                 }
-
             }
         }
 

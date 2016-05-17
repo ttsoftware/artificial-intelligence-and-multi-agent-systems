@@ -80,5 +80,4 @@ public abstract class HLAction extends AbstractAction {
                 return null;
         }
     }
-
 }

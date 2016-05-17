@@ -49,94 +49,106 @@ public class Agency implements Runnable {
         // Register for self-handled events
         EventBusService.register(this);
 
-        List<Goal> nextIndependentGoals;
+        // Clone the priority queues
+        List<PriorityBlockingQueue<Goal>> goalQueuesClone = GlobalLevelService.getInstance().getPriorityQueuesClone();
+        while (!GlobalLevelService.getInstance().isAllGoalsSolved()) {
 
-        while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
+            // try solving the goals
+            List<Goal> nextIndependentGoals;
+            while ((nextIndependentGoals = GlobalLevelService.getInstance().getIndependentGoals()).size() > 0) {
 
-            // offer all goals to agents
-            HashMap<Goal, Agent> goalOffers = offerGoals(nextIndependentGoals);
+                // create goal offer stream
+                Stream<Map.Entry<Goal, Agent>> goalStream =  offerGoals(nextIndependentGoals)
+                        .entrySet()
+                        .stream()
+                        .sorted(new Comparator<Map.Entry<Goal, Agent>>() {
+                            @Override
+                            public int compare(Map.Entry<Goal, Agent> entryA, Map.Entry<Goal, Agent> entryB) {
+                                return entryA.getKey().getEstimatedSteps() - entryB.getKey().getEstimatedSteps();
+                            }
+                        });
 
-            // create goal offer stream
-            Stream<Map.Entry<Goal, Agent>> goalStream = goalOffers
-                    .entrySet()
-                    .stream()
-                    .sorted(new Comparator<Map.Entry<Goal, Agent>>() {
-                        @Override
-                        public int compare(Map.Entry<Goal, Agent> entryA, Map.Entry<Goal, Agent> entryB) {
-                            return entryA.getKey().getEstimatedSteps() - entryB.getKey().getEstimatedSteps();
-                        }
-                    });
+                if (numberOfAgents > 1) {
+                    // Parallelizing goal assigning if more than 1 agent
+                    goalStream = goalStream.parallel();
+                }
 
-            if (numberOfAgents > 1) {
-                // Parallelizing goal assigning if more than 1 agent
-                goalStream = goalStream.parallel();
-            }
+                // Assign goals to the best agents and wait for plans to finish
+                goalStream.forEach(goalAgentEntry -> {
 
-            // Assign goals to the best agents and wait for plans to finish
-            goalStream.forEach(goalAgentEntry -> {
+                    Goal goal = goalAgentEntry.getKey();
+                    Agent bestAgent = goalAgentEntry.getValue();
 
-                Goal goal = goalAgentEntry.getKey();
-                Agent bestAgent = goalAgentEntry.getValue();
+                    // Lock this agent
+                    lockManager.executeLocked(bestAgent.getNumber(), () -> {
 
-                // Lock this agent
-                lockManager.executeLocked(bestAgent.getNumber(), () -> {
+                        // Assign this goal, and wait for response
+                        System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
 
-                    // Assign this goal, and wait for response
-                    System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
+                        GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
+                        EventBusService.post(goalAssignmentEvent);
 
-                    GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
-                    EventBusService.post(goalAssignmentEvent);
+                        // get the response containing the plan (blocks current thread)
+                        // how long do we wish to wait for the agents to finish planning?
+                        // right now we wait 2^32-1 milliseconds
+                        ConcretePlan plan = goalAssignmentEvent.getResponse();
 
-                    // get the response containing the plan (blocks current thread)
-                    // how long do we wish to wait for the agents to finish planning?
-                    // right now we wait 2^32-1 milliseconds
-                    ConcretePlan plan = goalAssignmentEvent.getResponse();
+                        System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
 
-                    System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
+                        SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
+                        EventBusService.post(sendActionsEvent);
 
-                    SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
-                    EventBusService.post(sendActionsEvent);
+                        // wait for the plan to finish executing
+                        boolean isFinished = sendActionsEvent.getResponse();
 
-                    // wait for the plan to finish executing
-                    boolean isFinished = sendActionsEvent.getResponse();
+                        // We need to check if the goal has actually been solved
+                        Position goalPosition = GlobalLevelService.getInstance().getPosition(goal);
+                        BoardObject objectAtGoalPosition = GlobalLevelService.getInstance().getObject(goalPosition);
 
-                    // We need to check if the goal has actually been solved
-                    Position goalPosition = GlobalLevelService.getInstance().getPosition(goal);
-                    BoardObject objectAtGoalPosition = GlobalLevelService.getInstance().getObject(goalPosition);
-
-                    switch (objectAtGoalPosition.getType()) {
-                        case GOAL:
-                            // We need to re-assign goal task
-                            lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
-                                System.err.println("We must re-offer: " + goal);
-                            });
-                            break;
-                        case BOX_GOAL:
-                            if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {
+                        switch (objectAtGoalPosition.getType()) {
+                            case GOAL:
+                                // We need to re-assign goal task
+                                lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                    System.err.println("We must re-offer: " + goal);
+                                });
+                                break;
+                            case BOX_GOAL:
+                                if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {
+                                    System.err.println("The plan for goal: " + goal + " finished.");
+                                    // this goal completed, so we can remove it from it's queue
+                                    GlobalLevelService.getInstance().removeGoalFromQueue(goal);
+                                }
+                                else {
+                                    lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                        System.err.println("We must re-offer: " + goal);
+                                    });
+                                }
+                                break;
+                            case AGENT_GOAL:
+                                lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
+                                    System.err.println("We must re-offer: " + goal);
+                                });
+                                break;
+                            default:
                                 System.err.println("The plan for goal: " + goal + " finished.");
                                 // this goal completed, so we can remove it from it's queue
                                 GlobalLevelService.getInstance().removeGoalFromQueue(goal);
-                            }
-                            break;
-                        case AGENT_GOAL:
-                            lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
-                                System.err.println("We must re-offer: " + goal);
-                            });
-                            break;
-                        default:
-                            System.err.println("The plan for goal: " + goal + " finished.");
-                            // this goal completed, so we can remove it from it's queue
-                            GlobalLevelService.getInstance().removeGoalFromQueue(goal);
-                            break;
-                    }
-                    return;
+                                break;
+                        }
+                        return;
+                    });
                 });
-            });
+            }
+
+            System.err.println("You are wrong and you should feel wrong.");
+
+            // we need to try again from the beginning
+            GlobalLevelService.getInstance().updatePriorityQueues(goalQueuesClone);
+            goalQueuesClone = GlobalLevelService.getInstance().getPriorityQueuesClone();
         }
 
         // We should have solved the entire problem now
         EventBusService.post(new ProblemSolvedEvent());
-
         System.err.println("Agency is exiting.");
     }
 
@@ -254,33 +266,43 @@ public class Agency implements Runnable {
                 // no agents can move our obstacle without help
                 event.setResponse(badAgentPaths);
             } else {
-                // Assign the task of moving the obstacle to the best agent
-                MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
-                        estimation.getAgent(),
-                        event.getPath(),
-                        event.getObstacle()
-                );
 
-                EventBusService.post(moveObstacleAssignmentEvent);
+                final Agent estimationAgent = estimation.getAgent();
 
-                // Get the plan from the assigned agent
-                ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
+                System.err.println(estimationAgent + " is supposed to help move " + event.getObstacle());
 
-                // Send the plan to the client
-                SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
-                        estimation.getAgent(),
-                        plan
-                );
-                EventBusService.post(sendActionsEvent);
+                // Lock the helping agent - wait for him to become available
+                lockManager.executeLocked(estimationAgent.getNumber(), () -> {
+                    lockManager.executeLocked(estimationAgent.getNumber() + 1000, () -> {
+                        // Assign the task of moving the obstacle to the best agent
+                        MoveObstacleAssignmentEvent moveObstacleAssignmentEvent = new MoveObstacleAssignmentEvent(
+                                estimationAgent,
+                                event.getPath(),
+                                event.getObstacle()
+                        );
 
-                lockManager.executeLocked(event.getAgent().getNumber() + 1000, () -> {
-                    // Allow the agent who is waiting for the obstacle to continue
-                    event.setResponse(new ArrayList<>());
+                        EventBusService.post(moveObstacleAssignmentEvent);
 
-                    // wait for the plan to finish executing
-                    boolean isFinished = sendActionsEvent.getResponse();
+                        // Get the plan from the assigned agent
+                        ConcretePlan plan = moveObstacleAssignmentEvent.getResponse();
 
-                    System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                        // Send the plan to the client
+                        SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(
+                                estimationAgent,
+                                plan
+                        );
+                        EventBusService.post(sendActionsEvent);
+
+                        lockManager.executeLocked(event.getAgent().getNumber() + 1000, () -> {
+                            // Allow the agent who is waiting for the obstacle to continue
+                            event.setResponse(new ArrayList<>());
+
+                            // wait for the plan to finish executing
+                            boolean isFinished = sendActionsEvent.getResponse();
+
+                            System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                        });
+                    });
                 });
             }
         }
