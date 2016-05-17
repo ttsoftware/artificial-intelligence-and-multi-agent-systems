@@ -87,7 +87,7 @@ public class Main {
                 // "competition_levels/multi_agent/MANoOp.lvl",
                 // "competition_levels/multi_agent/MAOptimal.lvl",
                 // "competition_levels/multi_agent/MASojourner.lvl", // TODO: Just stops...
-                "competition_levels/multi_agent/MASolo.lvl", // TODO: Conflict resolution
+                // "competition_levels/multi_agent/MASolo.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MATAIM.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MAteamhal.lvl", // TODO: Goal weighing
                 // "competition_levels/multi_agent/MATheAgency.lvl", // TODO: Works!
