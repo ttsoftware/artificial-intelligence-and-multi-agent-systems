@@ -13,12 +13,14 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class GotoPOP {
 
+    private PriorityQueue<Position> goalWeighingPositions;
     private Position agentStartPosition;
     private Agent agent;
     
     public GotoPOP() {
         agent = new Agent("-1");
-        agentStartPosition = GlobalLevelService.getInstance().getBestGoalWeighingPosition();
+        goalWeighingPositions = GlobalLevelService.getInstance().getBestGoalWeighingPositionsList();
+        agentStartPosition = goalWeighingPositions.poll();
     }
 
     public List<PriorityBlockingQueue<Goal>> getWeighedGoals() {
@@ -51,8 +53,15 @@ public class GotoPOP {
 
     public List<Goal> getBlockingGoals(Position goalPosition)
     {
-        return (getBlockingGoals(goalPosition,
-                new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false)).getBlockingGoals();
+        BlockingGoalsAndActions blockingGoalsAndActions = new BlockingGoalsAndActions(new Stack(), new ArrayList<>());
+        blockingGoalsAndActions = getBlockingGoals(goalPosition, new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false);
+
+        while(blockingGoalsAndActions == null) {
+            agentStartPosition = goalWeighingPositions.poll();
+            blockingGoalsAndActions = getBlockingGoals(goalPosition, new BlockingGoalsAndActions(new Stack(), new ArrayList<>()), false);
+        }
+
+        return blockingGoalsAndActions.getBlockingGoals();
     }
 
     public List<PriorityBlockingQueue<Goal>> mergePriorityQueues(Goal blockedGoal, List<Goal> blockingGoals, List<PriorityBlockingQueue<Goal>> priorityQueues)

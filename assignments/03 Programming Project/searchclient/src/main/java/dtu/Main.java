@@ -59,9 +59,9 @@ public class Main {
                 // "levels/SAboxesOfHanoi_simple.lvl",
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
-                // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Goal weighing prevents this
+                // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SAbotbot.lvl", // TODO: No free neighbours
-                //  "competition_levels/single_agent/SAboXboXboX.lvl", // TODO: unsolve goals --> WE GIVE UP!
+                // "competition_levels/single_agent/SAboXboXboX.lvl", // TODO: unsolve goals --> WE GIVE UP!
                 // "competition_levels/single_agent/SAButterBot.lvl", // TODO: goal weighing
                 // "competition_levels/single_agent/SADangerBot.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SAextra2.lvl", // TODO: Works!
@@ -71,8 +71,8 @@ public class Main {
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Infinite loop?
                 // "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SASolo.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SATAIM.lvl", // TODO: NullPointerException in POP
-                 "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
+                "competition_levels/single_agent/SATAIM.lvl", // TODO: Whats wrong even?
+                // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
 

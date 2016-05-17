@@ -776,25 +776,36 @@ public abstract class LevelService {
                 && level.getBoardState()[0].length > column);
     }
 
-    public Position getBestGoalWeighingPosition() {
+    public PriorityQueue<Position> getBestGoalWeighingPositionsList() {
         List<Goal> levelGoals = level.getGoals();
+
+        PriorityQueue<Position> goalWeighingPositions = new PriorityQueue<>(new Comparator<Position>() {
+            @Override
+            public int compare(Position o1, Position o2) {
+                return getLevelObjectRemoteness(o2, levelGoals) - getLevelObjectRemoteness(o1, levelGoals);
+            }
+        });
 
         List<BoardObject> levelAgentsAndBoxes = new ArrayList<>();
         levelAgentsAndBoxes.addAll(getLevel().getAgents());
         levelAgentsAndBoxes.addAll(getLevel().getBoxes());
 
-        int maxRemoteness = Integer.MIN_VALUE;
-        BoardObject mostRemoteObject = null;
-
         for (BoardObject boardObject : levelAgentsAndBoxes) {
-            int objectRemoteness = getLevelObjectRemoteness(boardObject, levelGoals);
-            if (maxRemoteness < objectRemoteness) {
-                maxRemoteness = objectRemoteness;
-                mostRemoteObject = boardObject;
-            }
+            Position objectPositon = getPosition(boardObject);
+            goalWeighingPositions.add(objectPositon);
         }
 
-        return getPosition(mostRemoteObject.getLabel());
+        return goalWeighingPositions;
+    }
+
+    public int getLevelObjectRemoteness(Position position, List<Goal> goalList) {
+        int remoteness = Integer.MAX_VALUE;
+        for (Goal goal : goalList) {
+            int remotenessToGoal = manhattanDistance(goal.getPosition(), position);
+            remoteness = Math.min(remoteness, remotenessToGoal);
+        }
+
+        return remoteness;
     }
 
     public int getLevelObjectRemoteness(BoardObject boardObject, List<Goal> goalList) {
