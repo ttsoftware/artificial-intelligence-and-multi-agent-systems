@@ -86,13 +86,13 @@ public class Main {
                 // "competition_levels/multi_agent/MALazarus.lvl",
                 // "competition_levels/multi_agent/MANoOp.lvl",
                 // "competition_levels/multi_agent/MAOptimal.lvl",
-                // "competition_levels/multi_agent/MASojourner.lvl",
-                // "competition_levels/multi_agent/MASolo.lvl",
-                // "competition_levels/multi_agent/MATAIM.lvl",
-                // "competition_levels/multi_agent/MAteamhal.lvl",
-                // "competition_levels/multi_agent/MATheAgency.lvl",
-                // "competition_levels/multi_agent/MATheRedDot.lvl",
-                // "competition_levels/multi_agent/MAWallE.lvl",
+                // "competition_levels/multi_agent/MASojourner.lvl", // TODO: Just stops...
+                // "competition_levels/multi_agent/MASolo.lvl", // TODO: Conflict resolution
+                // "competition_levels/multi_agent/MATAIM.lvl", // TODO: Conflict resolution
+                // "competition_levels/multi_agent/MAteamhal.lvl", // TODO: Goal weighing
+                // "competition_levels/multi_agent/MATheAgency.lvl", // TODO: Works!
+                // "competition_levels/multi_agent/MATheRedDot.lvl", // TODO: Goal weighing
+                // "competition_levels/multi_agent/MAWallE.lvl", // TODO: Just stops...
                 
                 "-g",
                 "200",
