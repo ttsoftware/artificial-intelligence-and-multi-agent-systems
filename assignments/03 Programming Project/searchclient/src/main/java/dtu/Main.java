@@ -60,13 +60,13 @@ public class Main {
 
                 // COMPETITION LEVES
                 // "competition_levels/single_agent/SAAIMuffins.lvl",
-                "competition_levels/single_agent/SAbotbot.lvl",
-                // "competition_levels/single_agent/SAboXboXboX.lvl",
-                // "competition_levels/single_agent/SAButterBot.lvl",
-                // "competition_levels/single_agent/SADangerBot.lvl",
-                // "competition_levels/single_agent/SAextra2.lvl",
-                // "competition_levels/single_agent/SAFortyTwo.lvl",
-                // "competition_levels/single_agent/SALazarus.lvl",
+                // "competition_levels/single_agent/SAbotbot.lvl",
+                // "competition_levels/single_agent/SAboXboXboX.lvl", // TODO: goal weighing
+                // "competition_levels/single_agent/SAButterBot.lvl", // TODO: goal weighing
+                // "competition_levels/single_agent/SADangerBot.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SAextra2.lvl", // TODO: Works!
+                // "competition_levels/single_agent/SAFortyTwo.lvl", // TODO: It asks for help
+                // "competition_levels/single_agent/SALazarus.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SANoOp.lvl",
                 // "competition_levels/single_agent/SAOptimal.lvl",
                 // "competition_levels/single_agent/SASojourner.lvl",
