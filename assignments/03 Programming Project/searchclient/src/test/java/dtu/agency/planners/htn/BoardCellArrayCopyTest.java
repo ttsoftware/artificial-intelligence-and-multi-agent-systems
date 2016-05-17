@@ -37,34 +37,34 @@ public class BoardCellArrayCopyTest {
 
     @Test
     public void independentTest() {
-        System.err.println( "a11 " + a[1][1] + ",b11 " + b[1][1]);
+        // System.err.println( "a11 " + a[1][1] + ",b11 " + b[1][1]);
         assertTrue(a[1][1] == b[1][1]);
 
         b[1][1] = BoardCell.FREE_CELL; // was BOX_GOAL in both a and b
-        System.err.println( "b11 = FreeCell");
-        System.err.println( "a11 " + a[1][1] + ",b11 " + b[1][1]);
+        // System.err.println( "b11 = FreeCell");
+        // System.err.println( "a11 " + a[1][1] + ",b11 " + b[1][1]);
         assertTrue(a[1][1] != b[1][1]);
     }
 
     @Test
     public void cloneTest() {
-        System.err.println( "a11 " + a[1][1] + ",c11 " + c[1][1]);
+        // System.err.println( "a11 " + a[1][1] + ",c11 " + c[1][1]);
         assertTrue(a[1][1] == c[1][1]);
 
         c[1][1] = BoardCell.FREE_CELL; // was BOX_GOAL in a
-        System.err.println( "c11 = FreeCell");
-        System.err.println( "a11 " + a[1][1] + ",c11 " + c[1][1]);
+        // System.err.println( "c11 = FreeCell");
+        // System.err.println( "a11 " + a[1][1] + ",c11 " + c[1][1]);
         assertTrue(a[1][1] != c[1][1]);
     }
 
     @Test
     public void deepCopyTest() {
-        System.err.println("a11 " + a[1][1] + ",d11 " + d[1][1]);
+        // System.err.println("a11 " + a[1][1] + ",d11 " + d[1][1]);
         assertTrue(a[1][1] == d[1][1]);
 
         d[1][1] = BoardCell.FREE_CELL; // was BOX_GOAL in a
-        System.err.println( "d11 = FreeCell");
-        System.err.println( "a11 " + a[1][1] + ",d11 " + d[1][1]);
+        // System.err.println( "d11 = FreeCell");
+        // System.err.println( "a11 " + a[1][1] + ",d11 " + d[1][1]);
         assertTrue(a[1][1] != d[1][1]);
     }
 

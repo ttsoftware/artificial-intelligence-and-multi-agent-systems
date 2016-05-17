@@ -69,7 +69,7 @@ public class Main {
                 // "competition_levels/single_agent/SALazarus.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SANoOp.lvl", // TODO: Not the right color?
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
+                "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SASolo.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATAIM.lvl", // TODO: Whats wrong even?
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
@@ -91,7 +91,7 @@ public class Main {
                 // "competition_levels/multi_agent/MAteamhal.lvl", // TODO: Conflict resolution+
                 // "competition_levels/multi_agent/MATheAgency.lvl", // TODO: Works!
                 // "competition_levels/multi_agent/MATheRedDot.lvl", // TODO: Agents cannot help each other
-                "competition_levels/multi_agent/MAWallE.lvl", // TODO: Works! (sometimes if not conflicts)
+                // "competition_levels/multi_agent/MAWallE.lvl", // TODO: Works! (sometimes if not conflicts)
 
                 "-g",
                 "200",

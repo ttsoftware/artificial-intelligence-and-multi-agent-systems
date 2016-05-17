@@ -37,9 +37,9 @@ public class HTNStateTest {
     @Test
     public void equalsTest() {
 
-        System.err.println("Eff a  : " + a.toString());
-        System.err.println("Eff b  : " + b.toString());
-        System.err.println("Eff c  : " + c.toString());
+        // System.err.println("Eff a  : " + a.toString());
+        // System.err.println("Eff b  : " + b.toString());
+        // System.err.println("Eff c  : " + c.toString());
 
         assertTrue(!a.equals(b));
         assertTrue(!a.equals(c));
@@ -49,9 +49,9 @@ public class HTNStateTest {
 
     @Test
     public void hashTest() {
-        System.err.println("hash a : " + Integer.toString(a.hashCode()));
-        System.err.println("hash b : " + Integer.toString(b.hashCode()));
-        System.err.println("hash c : " + Integer.toString(c.hashCode()));
+        // System.err.println("hash a : " + Integer.toString(a.hashCode()));
+        // System.err.println("hash b : " + Integer.toString(b.hashCode()));
+        // System.err.println("hash c : " + Integer.toString(c.hashCode()));
 
         assertTrue(a.hashCode() != b.hashCode());
         assertTrue(a.hashCode() != c.hashCode());
@@ -62,7 +62,7 @@ public class HTNStateTest {
         hs.add(a);
         hs.add(b);
         hs.add(c);
-        System.err.println(hs);
+        // System.err.println(hs);
 
         assertTrue(hs.size() == 2);
     }

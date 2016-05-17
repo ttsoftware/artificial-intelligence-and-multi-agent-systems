@@ -67,7 +67,7 @@ public class HLPlanner {
                 });
 
                 if (removedObstacles.size() == 0) {
-                    System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": No one could help me");
+                    // System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": No one could help me");
                 } else {
                     removedObstacles.forEach(box -> {
                         intention.removeObstacle(pls.getPosition(box));
@@ -207,7 +207,7 @@ public class HLPlanner {
 
     private HelpMoveObstacleEvent helpMoveObstacle(Box obstacle) {
         if (intention instanceof GoalIntention) {
-            System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
+            // System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
 
             HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
                     BDIService.getInstance().getAgent(),
@@ -226,7 +226,7 @@ public class HLPlanner {
 
         if (intention instanceof GoalIntention) {
             // ask for help
-            System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
+            // System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": I need help moving obstacle: " + obstacle);
 
             HelpMoveObstacleEvent helpMeEvent = new HelpMoveObstacleEvent(
                     BDIService.getInstance().getAgent(),
@@ -239,7 +239,7 @@ public class HLPlanner {
             List<LinkedList<Position>> failedPaths = helpMeEvent.getResponse();
 
             if (failedPaths.size() > 0) {
-                System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": No-one could move my obstacle: " + obstacle);
+                // System.err.println(Thread.currentThread().getName() + ": Agent: " + BDIService.getInstance().getAgent() + ": No-one could move my obstacle: " + obstacle);
 
                 for (LinkedList<Position> failedPath : failedPaths) {
                     // failedPath is a path to move the foreign obstacle, which has obstacles of its own

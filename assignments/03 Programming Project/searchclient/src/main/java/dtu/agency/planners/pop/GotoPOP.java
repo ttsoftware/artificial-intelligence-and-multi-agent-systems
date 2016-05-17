@@ -148,7 +148,7 @@ public class GotoPOP {
                 blockingGoalsAndActions = getBlockingGoals(nextAction.getAgentPosition(), blockingGoalsAndActions, canBacktrack);
                 return blockingGoalsAndActions;
             } else {
-                System.err.println("The level is not solvable");
+                // System.err.println("The level is not solvable");
             }
         }
 

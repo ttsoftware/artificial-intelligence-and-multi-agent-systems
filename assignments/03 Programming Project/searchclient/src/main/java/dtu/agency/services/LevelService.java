@@ -555,7 +555,7 @@ public abstract class LevelService {
                 boardState[row][column] = BoardCell.AGENT;
                 break;
             default:
-                System.err.println("Agent " + BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position + " where there is a " + cell.toString());
+                // System.err.println("Agent " + BDIService.getInstance().getAgent() + " is trying to insert " + agent + " at position " + position + " where there is a " + cell.toString());
                 throw new AssertionError("Cannot insert agent on any cell but FREE or GOAL cells");
         }
         level.setBoardState(boardState);
@@ -624,8 +624,8 @@ public abstract class LevelService {
             default:
                 Agent ag = BDIService.getInstance().getAgent();
                 String sa = "Agent " + ag + ": ";
-                System.err.println(sa + "lvl: agents: " + level.getAgents() + " boxes: " + level.getBoxes());
-                System.err.println(sa + "lvl: objectPositions: " + level.getBoardObjectPositions());
+                // System.err.println(sa + "lvl: agents: " + level.getAgents() + " boxes: " + level.getBoxes());
+                // System.err.println(sa + "lvl: objectPositions: " + level.getBoardObjectPositions());
                 throw new AssertionError("Cannot remove box if not present");
         }
         ConcurrentHashMap<String, Position> objectPositions = level.getBoardObjectPositions();

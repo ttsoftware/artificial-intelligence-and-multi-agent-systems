@@ -5,7 +5,6 @@ import dtu.agency.actions.ConcreteAction;
 import dtu.agency.actions.abstractaction.hlaction.HMoveBoxAction;
 import dtu.agency.actions.abstractaction.rlaction.RGotoAction;
 import dtu.agency.actions.concreteaction.*;
-import dtu.agency.board.Agent;
 import dtu.agency.board.Box;
 import dtu.agency.board.Position;
 import dtu.agency.conflicts.Conflict;
@@ -577,11 +576,11 @@ public class ConflictService {
         // Append the original conceder Plan
         concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
 
-        System.err.println("We have just solved the conflict between agents " + conflict.getInitiator().getLabel()
-                + " and agent " + conflict.getConceder().getLabel());
-        System.err.println("The plans for conlict resolution are: ");
-        System.err.println(outOfTheWayPlan.getActions().toString());
-        System.err.println(concederPlan.getActions().toString());
+        // System.err.println("We have just solved the conflict between agents " + conflict.getInitiator().getLabel()
+                // + " and agent " + conflict.getConceder().getLabel());
+        // System.err.println("The plans for conlict resolution are: ");
+        // System.err.println(outOfTheWayPlan.getActions().toString());
+        // System.err.println(concederPlan.getActions().toString());
 
         // Return new resolved Conflict
         return new ResolvedConflict(

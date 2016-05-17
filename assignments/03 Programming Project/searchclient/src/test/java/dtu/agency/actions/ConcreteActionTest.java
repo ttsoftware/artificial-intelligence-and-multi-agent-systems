@@ -136,9 +136,9 @@ public class ConcreteActionTest {
     @Test
     public void moveTest() {
         GlobalLevelService.getInstance().setLevel(level);
-        //System.err.println("printing walls");
-        //System.err.println(GlobalLevelService.getInstance().getLevel().getWalls());
-        //System.err.println(GlobalLevelService.getInstance().getLevel().notWall(pc));
+        //// System.err.println("printing walls");
+        //// System.err.println(GlobalLevelService.getInstance().getLevel().getWalls());
+        //// System.err.println(GlobalLevelService.getInstance().getLevel().notWall(pc));
 
         ConcreteAction goN = new MoveConcreteAction(n);
         ConcreteAction goS = new MoveConcreteAction(s);
@@ -147,9 +147,9 @@ public class ConcreteActionTest {
 
         // applyTo is the only heuristic in need of testing
         // check that you end up the right place
-        //System.err.println(noc.toString());
-        //System.err.println(non.toString());
-        //System.err.println(goN.toString());
+        //// System.err.println(noc.toString());
+        //// System.err.println(non.toString());
+        //// System.err.println(goN.toString());
 
         assertTrue(non.equals(noc.applyConcreteAction(goN)));
         assertTrue(nos.equals(noc.applyConcreteAction(goS)));
@@ -258,7 +258,7 @@ public class ConcreteActionTest {
         ConcreteAction pullWS = new PullConcreteAction(box, w, s);
         ConcreteAction pullWE = new PullConcreteAction(box, w, e);
 
-        //System.err.println( acbe.toString() + " <-> " + acbe.applyConcreteAction(pullWE).toString() + " = " + awbc.toString() );
+        //// System.err.println( acbe.toString() + " <-> " + acbe.applyConcreteAction(pullWE).toString() + " = " + awbc.toString() );
 
         // pulling straight
         assertTrue("pulling straight EW", acbw.applyConcreteAction(pullEW).equals(aebc));

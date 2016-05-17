@@ -54,25 +54,25 @@ public class HTNPlannerTest {
         BDIService mind = BDIService.getInstance();
         // Planner initialization
         Ideas ideas = mind.thinkOfIdeas(goal);
-        System.err.println("Ideas: " + ideas.toString() + "\n");
+        // System.err.println("Ideas: " + ideas.toString() + "\n");
 
         PlanningLevelService pls1 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
         PlanningLevelService pls2 = new PlanningLevelService(BDIService.getInstance().getBDILevelService().getLevel());
         HTNPlanner htn1 = new HTNPlanner(pls1, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
         HTNPlanner htn2 = new HTNPlanner(pls2, ideas.getBest(), RelaxationMode.NoAgentsNoBoxes);
-        System.err.println("HTNPlannerTest: " + htn1.toString() + "\n");
-        System.err.println("HTNPlannerTest: " + htn2.toString() + "\n");
+        // System.err.println("HTNPlannerTest: " + htn1.toString() + "\n");
+        // System.err.println("HTNPlannerTest: " + htn2.toString() + "\n");
 
         // Does heuristics calculation work
         int stepsApproximation = htn2.getBestPlanApproximation();
         assertTrue("HTNPlannerTest: Heuristic Approximation should be non-negative", stepsApproximation>=0);
-        System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
+        // System.err.println("Heuristic approximation: " + Integer.toString(stepsApproximation) + "\n");
 
         // does it find a plan? Maybe we would like to debug this area of the code
         PrimitivePlan plan = htn2.plan();
 
         assertTrue("HTNPlannerTest: primitivePlan is not found", plan != null);
-        System.err.println("HTNPlannerTest: " + plan.toString() + "\n");
+        // System.err.println("HTNPlannerTest: " + plan.toString() + "\n");
         assertTrue("HTNPlannerTest: primitivePlan is empty", !plan.isEmpty());
 
         // is the plan within expected length?
