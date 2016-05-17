@@ -197,7 +197,7 @@ public class ConflictService {
      */
     public ResolvedConflict resolveConflict(Conflict conflict) {
 
-        System.err.print("I am " + BDIService.getInstance().getAgent() + ", and we are in conflict resolution!\n");
+        //System.err.print("I am " + BDIService.getInstance().getAgent() + ", and we are in conflict resolution!\n");
 
         boolean pushOrPull;
         List<ConcreteAction> actions = conflict.getInitiatorPlan().getActions();
@@ -577,11 +577,11 @@ public class ConflictService {
         // Append the original conceder Plan
         concederPlan.appendActions((PrimitivePlan) conflict.getConcederPlan());
 
-        System.err.println("We have just solved the conflict between agents " + conflict.getInitiator().getLabel()
-                + " and agent " + conflict.getConceder().getLabel());
-        System.err.println("The plans for conlict resolution are: ");
-        System.err.println(outOfTheWayPlan.getActions().toString());
-        System.err.println(concederPlan.getActions().toString());
+        //System.err.println("We have just solved the conflict between agents " + conflict.getInitiator().getLabel()
+        //        + " and agent " + conflict.getConceder().getLabel());
+        //System.err.println("The plans for conlict resolution are: ");
+        //System.err.println(outOfTheWayPlan.getActions().toString());
+        //System.err.println(concederPlan.getActions().toString());
 
         // Return new resolved Conflict
         return new ResolvedConflict(

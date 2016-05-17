@@ -40,7 +40,7 @@ public class Agency implements Runnable {
         AgentService.getInstance().addAgents(agents);
 
         agents.forEach(agent -> {
-            System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
+            //System.err.println(Thread.currentThread().getName() + ": Constructing agent: " + agent.getLabel());
 
             // Start a new thread (agent) for each plan
             ThreadService.execute(new AgentThread(agent));
@@ -83,7 +83,7 @@ public class Agency implements Runnable {
                     lockManager.executeLocked(bestAgent.getNumber(), () -> {
 
                         // Assign this goal, and wait for response
-                        System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
+                        //System.err.println("Assigning goal " + goal.getLabel() + " to " + bestAgent);
 
                         GoalAssignmentEvent goalAssignmentEvent = new GoalAssignmentEvent(bestAgent, goal);
                         EventBusService.post(goalAssignmentEvent);
@@ -93,7 +93,7 @@ public class Agency implements Runnable {
                         // right now we wait 2^32-1 milliseconds
                         ConcretePlan plan = goalAssignmentEvent.getResponse();
 
-                        System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
+                        //System.err.println("Received offer for " + goal.getLabel() + " from " + bestAgent);
 
                         SendServerActionsEvent sendActionsEvent = new SendServerActionsEvent(goalAssignmentEvent.getAgent(), plan);
                         EventBusService.post(sendActionsEvent);
@@ -109,28 +109,28 @@ public class Agency implements Runnable {
                             case GOAL:
                                 // We need to re-assign goal task
                                 lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
-                                    System.err.println("We must re-offer: " + goal);
+                                    //System.err.println("We must re-offer: " + goal);
                                 });
                                 break;
                             case BOX_GOAL:
                                 if (((BoxAndGoal) objectAtGoalPosition).isSolved()) {
-                                    System.err.println("The plan for goal: " + goal + " finished.");
+                                    //System.err.println("The plan for goal: " + goal + " finished.");
                                     // this goal completed, so we can remove it from it's queue
                                     GlobalLevelService.getInstance().removeGoalFromQueue(goal);
                                 }
                                 else {
                                     lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
-                                        System.err.println("We must re-offer: " + goal);
+                                        //System.err.println("We must re-offer: " + goal);
                                     });
                                 }
                                 break;
                             case AGENT_GOAL:
                                 lockManager.executeLocked(bestAgent.getNumber() + 1000, () -> {
-                                    System.err.println("We must re-offer: " + goal);
+                                    //System.err.println("We must re-offer: " + goal);
                                 });
                                 break;
                             default:
-                                System.err.println("The plan for goal: " + goal + " finished.");
+                                //System.err.println("The plan for goal: " + goal + " finished.");
                                 // this goal completed, so we can remove it from it's queue
                                 GlobalLevelService.getInstance().removeGoalFromQueue(goal);
                                 break;
@@ -140,7 +140,7 @@ public class Agency implements Runnable {
                 });
             }
 
-            System.err.println("You are wrong and you should feel wrong.");
+            //System.err.println("You are wrong and you should feel wrong.");
 
             // we need to try again from the beginning
             GlobalLevelService.getInstance().updatePriorityQueues(goalQueuesClone);
@@ -149,7 +149,7 @@ public class Agency implements Runnable {
 
         // We should have solved the entire problem now
         EventBusService.post(new ProblemSolvedEvent());
-        System.err.println("Agency is exiting.");
+        //System.err.println("Agency is exiting.");
     }
 
     /**
@@ -169,7 +169,7 @@ public class Agency implements Runnable {
             EventBusService.register(goalEstimationSubscriber);
 
             // offer the goal
-            System.err.println("Offering goal: " + goal.getLabel());
+            //System.err.println("Offering goal: " + goal.getLabel());
 
             EventBusService.post(new GoalOfferEvent(goal));
 
@@ -199,7 +199,7 @@ public class Agency implements Runnable {
     @Subscribe
     @AllowConcurrentEvents
     public void planOfferEventSubscriber(PlanOfferEvent event) {
-        System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
+        //System.err.println("Received offer for " + event.getGoal().getLabel() + " from " + event.getAgent().getLabel());
 
         EventBusService.post(new SendServerActionsEvent(event.getAgent(), event.getPlan()));
     }
@@ -269,7 +269,7 @@ public class Agency implements Runnable {
 
                 final Agent estimationAgent = estimation.getAgent();
 
-                System.err.println(estimationAgent + " is supposed to help move " + event.getObstacle());
+                //System.err.println(estimationAgent + " is supposed to help move " + event.getObstacle());
 
                 // Lock the helping agent - wait for him to become available
                 lockManager.executeLocked(estimationAgent.getNumber(), () -> {
@@ -300,7 +300,7 @@ public class Agency implements Runnable {
                             // wait for the plan to finish executing
                             boolean isFinished = sendActionsEvent.getResponse();
 
-                            System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
+                            //System.err.println("The plan for moving obstacle " + event.getObstacle().getLabel() + " finished.");
                         });
                     });
                 });

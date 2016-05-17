@@ -89,9 +89,9 @@ public class Main {
                 // "competition_levels/multi_agent/MASolo.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MATAIM.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MAteamhal.lvl", // TODO: Conflict resolution+
-                // "competition_levels/multi_agent/MATheAgency.lvl", // TODO: Works!
+                "competition_levels/multi_agent/MATheAgency.lvl", // TODO: Works!
                 // "competition_levels/multi_agent/MATheRedDot.lvl", // TODO: Agents cannot help each other
-                "competition_levels/multi_agent/MAWallE.lvl", // TODO: Works! (sometimes if not conflicts)
+                // "competition_levels/multi_agent/MAWallE.lvl", // TODO: Works! (sometimes if not conflicts)
 
                 "-g",
                 "200",

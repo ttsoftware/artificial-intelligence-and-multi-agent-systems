@@ -37,7 +37,7 @@ public class AgentThread implements Runnable {
         prepareSubscriber();
         // register all events handled by this class
         EventBusService.register(this);
-        System.err.println(Thread.currentThread().getName() + ": Started agent: " + BDIService.getInstance().getAgent().getLabel());
+        //System.err.println(Thread.currentThread().getName() + ": Started agent: " + BDIService.getInstance().getAgent().getLabel());
         finishSubscriber();
     }
 
@@ -96,10 +96,10 @@ public class AgentThread implements Runnable {
         }
 
         if (!successful) {
-            System.err.println(Thread.currentThread().getName()
-                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                    + ": received a goaloffer " + goal.getLabel()
-                    + " event but is not the right colour");
+            //System.err.println(Thread.currentThread().getName()
+            //        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+            //        + ": received a goaloffer " + goal.getLabel()
+            //        + " event but is not the right colour");
 
             // We cannot solve this goal, so we return a ridiculously high estimate
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, Integer.MAX_VALUE));
@@ -108,10 +108,10 @@ public class AgentThread implements Runnable {
             // We return the approximate steps for this goal only
             int totalSteps = BDIService.getInstance().getIntention(goal.getLabel()).getApproximateSteps();
 
-            System.err.println(Thread.currentThread().getName()
-                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                    + ": received a goaloffer for " + goal.getLabel()
-                    + " and returned " + Integer.toString(totalSteps) + " steps");
+            //System.err.println(Thread.currentThread().getName()
+            //        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+            //        + ": received a goaloffer for " + goal.getLabel()
+            //        + " and returned " + Integer.toString(totalSteps) + " steps");
 
             EventBusService.getEventBus().post(new GoalEstimationEvent(agent, goal, totalSteps));
         }
@@ -131,14 +131,14 @@ public class AgentThread implements Runnable {
         if (event.getAgent().equals(BDIService.getInstance().getAgent())) {
             // We won the bid for this goal!
             Goal goal = event.getGoal();
-            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
+            //System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bidding for: " + goal);
 
             // We need to check if the goal has actually been solved
             Position goalPosition = BDIService.getInstance().getBDILevelService().getPosition(goal);
             BoardObject objectAtGoalPosition = BDIService.getInstance().getBDILevelService().getObject(goalPosition);
             if (objectAtGoalPosition.getType() == BoardCell.BOX_GOAL) {
                 if (((BoxAndGoal)objectAtGoalPosition).isSolved()) {
-                    System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": The goal " + goal + " was already solved");
+                    //System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": The goal " + goal + " was already solved");
                     event.setResponse(new PrimitivePlan());
                     finishSubscriber();
                     return;
@@ -165,7 +165,7 @@ public class AgentThread implements Runnable {
             successful &= BDIService.getInstance().solveGoal(goal); // generate a plan internal in the agents consciousness.
 
             if (!successful) {
-                System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
+                //System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
                 event.setResponse(new PrimitivePlan());
             } else {
                 // found a high level plan
@@ -173,14 +173,14 @@ public class AgentThread implements Runnable {
                 PrimitivePlan plan = BDIService.getInstance().getPrimitivePlan();
                 if (plan == null) {
                     // high level plan could not be converted to primitive plan
-                    System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
+                    //System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": Failed to find a valid HLPlan for: " + goal);
                     event.setResponse(new PrimitivePlan());
                 } else {
                     plan = plan.removeGoBack();
                     // print status and communicate with agency
-                    System.err.println(Thread.currentThread().getName()
-                            + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                            + ": Using Concrete Plan: " + plan.toString());
+                    //System.err.println(Thread.currentThread().getName()
+                    //        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+                    //        + ": Using Concrete Plan: " + plan.toString());
 
                     // Send the response back
                     event.setResponse(plan);
@@ -221,10 +221,10 @@ public class AgentThread implements Runnable {
             Intention intention = BDIService.getInstance().getIntention(obstacle.getLabel());
             int totalSteps = intention.getApproximateSteps();
 
-            System.err.println(Thread.currentThread().getName()
-                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                    + ": received a task offer for moving " + event.getObstacle().getLabel()
-                    + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
+            //System.err.println(Thread.currentThread().getName()
+            //        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+            //        + ": received a task offer for moving " + event.getObstacle().getLabel()
+            //        + " and returned approximation: " + Integer.toString(totalSteps) + " steps");
 
             boolean hasObstacles = intention.getObstaclePositions().size() > 0;
 
@@ -238,10 +238,10 @@ public class AgentThread implements Runnable {
             );
         } else {
 
-            System.err.println(Thread.currentThread().getName()
-                    + ": Agent " + BDIService.getInstance().getAgent().getLabel()
-                    + ": received a move offer for " + obstacle.getLabel()
-                    + " event but is not the right colour");
+            //System.err.println(Thread.currentThread().getName()
+            //        + ": Agent " + BDIService.getInstance().getAgent().getLabel()
+            //        + ": received a move offer for " + obstacle.getLabel()
+            //        + " event but is not the right colour");
 
             // submit empty path to signify that we cannot move this box due to color problems
             EventBusService.getEventBus().post(
@@ -272,7 +272,7 @@ public class AgentThread implements Runnable {
             LinkedList<Position> path = event.getPath();
             Box obstacle = (Box) event.getObstacle();
 
-            System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bid for moving box: " + obstacle);
+            //System.err.println(Thread.currentThread().getName() + ": Agent " + agent + ": I won the bid for moving box: " + obstacle);
 
             boolean successful = BDIService.getInstance().findMoveBoxFromPathIntention(
                     path,

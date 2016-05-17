@@ -43,7 +43,7 @@ public class PlannerClientThread implements Runnable {
         serverMessages = new BufferedReader(new InputStreamReader(System.in));
 
         // Use stderr to print to console
-        System.err.println("PlannerClient initializing. I am sending this using the error output stream.");
+        //System.err.println("PlannerClient initializing. I am sending this using the error output stream.");
 
         // Parse the level
         Level level = null;
@@ -79,14 +79,14 @@ public class PlannerClientThread implements Runnable {
             e.printStackTrace(System.err);
         }
 
-        System.err.println("Agency was joined.");
+        //System.err.println("Agency was joined.");
     }
 
     @Subscribe
     public void sendServerActionsEventSubscriber(SendServerActionsEvent event) {
 
         int actionCount = event.getConcretePlan().getActions().size();
-        System.err.println("Received a plan from Agency with " + actionCount + " actions.");
+        //System.err.println("Received a plan from Agency with " + actionCount + " actions.");
 
         if (actionCount > 0) {
             try {
@@ -103,7 +103,7 @@ public class PlannerClientThread implements Runnable {
     @Subscribe
     public void problemSolvedEventSubscriber(ProblemSolvedEvent event) {
 
-        System.err.println("We solved the entire level!");
+        //System.err.println("We solved the entire level!");
 
         // Join when problem has been solved
         try {
@@ -268,7 +268,7 @@ public class PlannerClientThread implements Runnable {
     }
 
     public void send(String toServer) {
-        System.err.println("Trying: " + toServer);
+        //System.err.println("Trying: " + toServer);
         System.out.println(toServer);
 
         String response = null;
