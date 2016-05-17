@@ -80,7 +80,7 @@ public class Main {
                 // "competition_levels/multi_agent/MAAIMuffins.lvl", // TODO: Not even close
                 // "competition_levels/multi_agent/MAbotbot.lvl", // TODO: Deadlock?
                 // "competition_levels/multi_agent/MAboXboXboX.lvl", // TODO: what even?
-                // "competition_levels/multi_agent/MAButterBot.lvl", // TODO: Conflict resolution
+                "competition_levels/multi_agent/MAButterBot.lvl", // TODO: Conflict resolution
                 // "competition_levels/multi_agent/MADangerBot.lvl", // TODO: Agents just stop?
                 // "competition_levels/multi_agent/MAextra1.lvl", // TODO: Agents just stop?
                 // "competition_levels/multi_agent/MALazarus.lvl", // TODO: Works!
