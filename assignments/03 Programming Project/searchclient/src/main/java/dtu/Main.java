@@ -34,7 +34,7 @@ public class Main {
                 // "levels/MAconflicts_simple2.lvl",
                 // "levels/MAconflicts_simple3.lvl",
                 // "levels/MAmultiagentSort.lvl", // TODO: deadlock
-                //"levels/MAtbsAppartment.lvl", // TODO: deadlock
+                // "levels/MAtbsAppartment.lvl", // TODO: deadlock
 
                 // SINGLE AGENT LEVELS
                 // "levels/SAFirefly.lvl",
@@ -57,6 +57,9 @@ public class Main {
                 // "levels/SApushing.lvl",
                 // "levels/SAboxesOfHanoi.lvl",
                 // "levels/SAboxesOfHanoi_simple.lvl",
+                // "levels/SAtest.lvl",
+                // "levels/SAplanexpgood.lvl",
+                // "levels/SAplanexpbad.lvl",
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
                 // "competition_levels/single_agent/SAAIMuffins.lvl", // TODO: Works!
@@ -69,8 +72,8 @@ public class Main {
                 // "competition_levels/single_agent/SALazarus.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SANoOp.lvl", // TODO: Not the right color?
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Works!
-                "competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SASolo.lvl", // TODO: Works!
+                //"competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
+                "competition_levels/single_agent/SASolo.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATAIM.lvl", // TODO: Whats wrong even?
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
@@ -94,7 +97,7 @@ public class Main {
                 // "competition_levels/multi_agent/MAWallE.lvl", // TODO: Works! (sometimes if not conflicts)
 
                 "-g",
-                "200",
+                "120",
                 "-t",
                 "300",
                 "-c",

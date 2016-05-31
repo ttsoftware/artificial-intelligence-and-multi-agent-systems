@@ -45,6 +45,7 @@ public class PlannerClientThread implements Runnable {
         // Use stderr to print to console
         // System.err.println("PlannerClient initializing. I am sending this using the error output stream.");
 
+        long startTime = System.nanoTime();
         // Parse the level
         Level level = null;
         try {
@@ -52,14 +53,23 @@ public class PlannerClientThread implements Runnable {
         } catch (IOException e) {
             // We should safely be able to ignore this exception
         }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);
+        long marshalltime = duration/1000000;
 
         // Create the level service
         GlobalLevelService.getInstance().setLevel(level);
 
+
+        startTime = System.nanoTime();
         // Prioritize goals
         GotoPOP gotoPlanner = new GotoPOP();
         GlobalLevelService.getInstance().updatePriorityQueues(gotoPlanner.getWeighedGoals());
+        endTime = System.nanoTime();
+        duration = (endTime - startTime);
+        long goalweighingtime = duration/1000000;
 
+        startTime = System.nanoTime();
         numberOfAgents = level.getAgents().size();
         sendServerActionsQueue = new ArrayBlockingQueue<>(numberOfAgents);
 
@@ -78,6 +88,20 @@ public class PlannerClientThread implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace(System.err);
         }
+        endTime = System.nanoTime();
+        duration = (endTime - startTime);
+        long planningtime = duration/1000000;
+
+        //System.err.println("marshalling ms: " + marshalltime);
+        //System.err.println("goal weighing ms: " + goalweighingtime);
+        //System.err.println("planning ms: " + planningtime);
+        long tottime = marshalltime + goalweighingtime + planningtime;
+        long marshallingpart = 100 * marshalltime / tottime;
+        long goalweighingpart = 100 * goalweighingtime / tottime;
+        long planningpart = 100 * planningtime / tottime;
+        System.err.println("total ms: " + tottime );
+        System.err.println("total [ms]: \t marshalling[%], \t goalweighing[%], \t planning[%]" );
+        System.err.println( "\t\t" + tottime + "\t\t\t\t  " + marshallingpart+ "\t\t\t\t  " + goalweighingpart + "\t\t\t\t  " + planningpart);
 
         // System.err.println("Agency was joined.");
     }

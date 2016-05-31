@@ -55,7 +55,7 @@ public class PlannerClientThreadTest {
         // how to reset global levelservice ??
     }
 
-/*    @Test
+    @Test
     public void testMain() throws Exception {
 
         // String path = resourcesDirectory.getAbsolutePath() + "/SApushing.lvl";
@@ -67,13 +67,28 @@ public class PlannerClientThreadTest {
         // String path = resourcesDirectory.getAbsolutePath() + "/SAhlplan_old.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAboxesOfHanoi_simple.lvl";
         // String path = resourcesDirectory.getAbsolutePath() + "/SAobstaclePathTestLevel.lvl";
-        String path = resourcesDirectory.getAbsolutePath() + "/MAconflicts_simple3.lvl";
+
+        // String path = resourcesDirectory.getAbsolutePath() +
+        //        "/SAplanexpbad.lvl";
+
+        String path = compDirectory.getAbsolutePath() +
+                // "/single_agent/SAAIMuffins.lvl"; // 0 0 99 - 35 sec!
+                // "/single_agent/SADangerBot.lvl"; // 1 1 97
+                // "/single_agent/SAextra2.lvl";    // 1 0 98
+                // "/single_agent/SALazarus.lvl";   // 1 0 98
+                // "/single_agent/SAOptimal.lvl";   // 0 0 99
+                // "/single_agent/SASojourner.lvl"; // 1 0 98
+                // "/single_agent/SASolo.lvl";      // 0 82 17
+                // "/single_agent/SAteamhal.lvl";   // 2 1 96
+                // "/single_agent/SATheAgency.lvl"; // 0 0 99
+                "/single_agent/SATheRedDot.lvl"; // 5 2 92
+
         FileInputStream inputStream = new FileInputStream(path);
 
         System.setIn(inputStream);
 
         PlannerClient.main(new String[]{});
-    }*/
+    }
 
     // PREVIOUSLY SUCCEEDING TESTS
     @Test
