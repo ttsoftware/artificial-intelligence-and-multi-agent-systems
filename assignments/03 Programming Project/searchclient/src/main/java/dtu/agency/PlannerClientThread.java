@@ -57,6 +57,15 @@ public class PlannerClientThread implements Runnable {
         long duration = (endTime - startTime);
         long marshalltime = duration/1000000;
 
+        int boxCount = level.getBoxes().size();
+        int goalCount = level.getGoals().size();
+        int levelRows = level.getBoardState().length;
+        int levelCols = level.getBoardState()[0].length;
+        int levelSize = levelRows * levelCols;
+        int wallCount = level.getWalls().size();
+
+        System.err.println("level stats: size = (" +levelRows+"x" +levelCols+") " + levelSize + ", boxes = " + boxCount);
+        System.err.println("goals = " + goalCount + ", walls = " + wallCount);
         // Create the level service
         GlobalLevelService.getInstance().setLevel(level);
 

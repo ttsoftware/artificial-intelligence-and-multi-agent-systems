@@ -72,16 +72,17 @@ public class PlannerClientThreadTest {
         //        "/SAplanexpbad.lvl";
 
         String path = compDirectory.getAbsolutePath() +
-                // "/single_agent/SAAIMuffins.lvl"; // 0 0 99 - 35 sec!
-                // "/single_agent/SADangerBot.lvl"; // 1 1 97
-                // "/single_agent/SAextra2.lvl";    // 1 0 98
-                // "/single_agent/SALazarus.lvl";   // 1 0 98
-                // "/single_agent/SAOptimal.lvl";   // 0 0 99
-                // "/single_agent/SASojourner.lvl"; // 1 0 98
-                // "/single_agent/SASolo.lvl";      // 0 82 17
-                // "/single_agent/SAteamhal.lvl";   // 2 1 96
-                // "/single_agent/SATheAgency.lvl"; // 0 0 99
-                "/single_agent/SATheRedDot.lvl"; // 5 2 92
+                // level timeparse, timegoalweigh, timeplanning, size , boxes goals, walls
+                "/single_agent/SAAIMuffins.lvl"; // 0 0 9924*33 792 37 37 210
+                // "/single_agent/SADangerBot.lvl"; // 1 1 97 14*28 392 20 20 186
+                // "/single_agent/SALazarus.lvl";   // 1 0 98 15*25 375 8 8 183
+                // "/single_agent/SAOptimal.lvl";   // 0 0 99 10*39 390 39 20 112
+                // "/single_agent/SASojourner.lvl"; // 1 0 98 12*17 204 25 25 54
+                // "/single_agent/SASolo.lvl";      // 0 82 17 13*30 390 16 16 219
+                // "/single_agent/SATheAgency.lvl"; // 0 0 99 40*65 2600 83 62 1095
+                // "/single_agent/SATheRedDot.lvl"; // 5 2 92 9*13 117 4 4 69
+                // "/single_agent/SAextra2.lvl";    // 1 0 98 29*8 232 26 26 120
+                // "/single_agent/SAteamhal.lvl";   // 2 1 96 13*16 208 23 12 124
 
         FileInputStream inputStream = new FileInputStream(path);
 

@@ -73,11 +73,11 @@ public class Main {
                 // "competition_levels/single_agent/SANoOp.lvl", // TODO: Not the right color?
                 // "competition_levels/single_agent/SAOptimal.lvl", // TODO: Works!
                 //"competition_levels/single_agent/SASojourner.lvl", // TODO: Works!
-                "competition_levels/single_agent/SASolo.lvl", // TODO: Works!
+                //"competition_levels/single_agent/SASolo.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATAIM.lvl", // TODO: Whats wrong even?
                 // "competition_levels/single_agent/SAteamhal.lvl", // TODO: Works!
                 // "competition_levels/single_agent/SATheAgency.lvl", // TODO: Works!
-                // "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
+                "competition_levels/single_agent/SATheRedDot.lvl", // TODO: Works!
 
                 // COMPETITION LEVELS - SINGLE AGENT LEVELS
                 // "competition_levels/multi_agent/MAAIMuffins.lvl", // TODO: Not even close
